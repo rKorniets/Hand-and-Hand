@@ -1,0 +1,29 @@
+{
+  "name": "HandAndHand",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start:backend": "cd backend/server && nest start --watch",
+    "start:frontend": "cd frontend/app && ng serve -o",
+    "start:dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "dependencies": {
+    "@nestjs/jwt": "^11.0.2",
+    "@prisma/client": "^7.4.2",
+    "bcrypt": "^6.0.0",
+    "jwt-decode": "^4.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.20.0",
+    "prisma": "^7.4.2",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16",
+    "concurrently": "^9.2.1",
+    "typescript": "^5.5.3"
+  },
+  "private": true
+}
