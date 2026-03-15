@@ -2,14 +2,21 @@
 $color-black: #000;
 $color-white: #fff;
 $color-white-soft: rgba(255, 255, 255, 0.85);
-$color-gray-light: #dddddd;
 
 // Footer
 $footer-bg: $color-black;
 $footer-text: $color-white;
 
 // Header
-$header-bg: $color-gray-light;
+$header-bg: $color-white;
 $header-text: $color-black;
 $header-button-bg: $color-black;
 $header-button-text: $color-white;
+
+//Policy-and-rules
+$font-main: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+$text-color: $color-black;
+$bg-color: $color-white;
+$title-weight: 700;
+$normal-weight: 400;
+$line-height: 1.6;

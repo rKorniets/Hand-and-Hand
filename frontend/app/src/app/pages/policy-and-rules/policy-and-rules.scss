@@ -1,0 +1,59 @@
+@use 'variables' as *;
+
+.policy-container {
+  max-width: 1700px;
+  text-align: left;
+  padding-left: 120px;
+
+  .policy-title {
+    font-size: 90px;
+    font-weight: $title-weight;
+    margin-bottom: 100px;
+    margin-top: 150px;
+  }
+
+  .section-title {
+    font-size: 60px;
+    font-weight: $title-weight;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    display: block;
+
+  }
+
+}
+
+
+.subsection-title {
+  font-size: 40px;
+  font-weight: $title-weight;
+  margin: 40px 0 20px 0;
+}
+
+p {
+  margin-top: 0;
+  font-size: 40px;
+}
+
+.policy-list {
+  padding-left: 60px;
+  margin-bottom: 20px;
+  margin-top: -30px;
+  list-style-type: disc;
+
+  li {
+    margin-bottom: 8px;
+    font-size: 40px;
+
+
+    &::marker {
+      color: #555;
+    }
+  }
+}
+
+.policy-section {
+  margin-bottom: 70px;
+}
+
+
