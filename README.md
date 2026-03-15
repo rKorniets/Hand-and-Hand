@@ -191,7 +191,8 @@ Frontend: <br>
 - `createdAt`<br>
 
 
-## 8. Constants,environment variables — `UPPER_SNAKE_CASE`
+
+## 7. Constants,environment variables — `UPPER_SNAKE_CASE`
 
 Для констант та env keys використовуємо `UPPER_SNAKE_CASE`.<br>
 
