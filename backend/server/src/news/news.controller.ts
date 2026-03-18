@@ -29,8 +29,15 @@ export class NewsController {
     @Query('skip') skipStr?: string,
     @Query('isPinned') isPinnedStr?: string,
   ) {
-    const limit = limitStr ? parseInt(limitStr, 10) : 5;
-    const skip = skipStr ? parseInt(skipStr, 10) : 0;
+    let limit = limitStr ? parseInt(limitStr, 10) : 5;
+    if (isNaN(limit) || limit < 1) {
+      limit = 5;
+    }
+    limit = Math.min(limit, 50);
+    let skip = skipStr ? parseInt(skipStr, 10) : 0;
+    if (isNaN(skip) || skip < 0) {
+      skip = 0;
+    }
 
     let isPinned: boolean | undefined = undefined;
     if (isPinnedStr === 'true') isPinned = true;
