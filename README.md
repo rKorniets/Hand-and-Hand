@@ -208,3 +208,78 @@ Frontend: <br>
 - `databaseUrl`<br>
 - `jwtSecret`<br>
 - `node-env`<br>
+## 8. Branch & Pull Request Naming Conventions
+
+To keep the repository structured and easy to navigate, we follow a simple GitHub Flow approach:<br>
+
+- main is the production-ready branch<br>
+- all work must be done in separate feature branches<br>
+- direct pushes to main are not allowed<br>
+- every change must go through a Pull Request<br>
+
+### Branch Naming
+
+Branch names must follow this format:<br>
+
+type/short-description<br>
+
+Where:<br>
+
+- type describes the kind of work<br>
+- short-description is a short snake_case summary of the change<br>
+
+### Allowed branch types
+
+- feature/ – new functionality<br>
+- fix/ – bug fixes<br>
+- hotfix/ – urgent production fixes<br>
+- refactor/ – code improvements without changing behavior<br>
+- docs/ – documentation updates<br>
+- style/ – formatting or styling changes<br>
+- test/ – adding or updating tests<br>
+- chore/ – maintenance tasks, configs, dependencies<br>
+
+### Branch naming rules
+
+- use snake_case<br>
+- use only lowercase letters, numbers, and hyphens<br>
+- keep names short but meaningful<br>
+- avoid vague names like update, changes, new-branch, my-work<br>
+
+### Good examples
+
+- feature/add_news_tags_table<br>
+- fix/footer_layout_on_mobile<br>
+
+### Pull Request Naming
+
+Pull Request titles should clearly describe the change and follow this format:<br>
+
+type: short description<br>
+
+### Good PR title examples
+
+- feature: add separate table for news tags<br>
+- fix: correct footer alignment on tablet<br>
+- docs: add branch and PR naming conventions<br>
+- refactor: simplify news service logic<br>
+
+### Pull Request rules
+
+- one Pull Request should focus on one logical change<br>
+- PR titles must be clear and specific<br>
+- PR description should explain:<br>
+  - what was changed<br>
+  - why it was changed<br>
+  - anything important for reviewers to check<br>
+- if related to an issue/task, reference it in the description<br>
+
+### Recommended PR checklist
+
+Before opening a Pull Request, make sure that:<br>
+
+- the branch is up to date with main<br>
+- the code builds successfully<br>
+- naming conventions are followed<br>
+- no unrelated changes are included<br>
+- the change is ready for review<br>
