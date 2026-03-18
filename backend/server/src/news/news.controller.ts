@@ -1,10 +1,18 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Post,
+  Body,
+  Put,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { NewsService } from './news.service';
-
+import { CreateNewsDto } from './dto/create-news.dto';
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
-
   @Get()
   async getNews(
     @Query('limit') limitStr?: string,
@@ -16,5 +24,16 @@ export class NewsController {
     if (isPinnedStr === 'false') isPinned = false;
 
     return this.newsService.getNews(limit, isPinned);
+  }
+  @Post()
+  async create(@Body() data: CreateNewsDto) {
+    return this.newsService.createNews(data);
+  }
+  @Put(':id')
+  async updateFull(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: CreateNewsDto,
+  ) {
+    return this.newsService.updateNewsFull(id, data);
   }
 }
