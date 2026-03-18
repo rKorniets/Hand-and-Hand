@@ -5,7 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { NewsModule } from './news/news.module';
 
 @Module({
-  imports: [PrismaModule, NewsModule], // Збираємо всі наші фічі разом
+  imports: [PrismaModule, NewsModule],
   controllers: [AppController],
   providers: [AppService],
 })

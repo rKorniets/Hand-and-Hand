@@ -4,10 +4,8 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class NewsService {
   constructor(private prisma: PrismaService) {}
-
-  async getNews(limit: number, isPinned?: boolean) {
+  async getNews(limit: number, skip: number, isPinned?: boolean) {
     const whereClause: { is_pinned?: boolean } = {};
-
     if (isPinned !== undefined) {
       whereClause.is_pinned = isPinned;
     }
@@ -15,6 +13,7 @@ export class NewsService {
     return this.prisma.news.findMany({
       where: whereClause,
       take: limit,
+      skip: skip,
       orderBy: {
         created_at: 'desc',
       },
