@@ -6,12 +6,17 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
-  async getProjects(limit: number, status?: project_status_enum) {
-    const whereClause: Prisma.projectWhereInput = status ? { status } : {};
+  async getProjects(limit: number, skip: number, status?: project_status_enum) {
+    const whereClause: Prisma.projectWhereInput = {};
 
-    return await this.prisma.project.findMany({
+    if (status !== undefined) {
+      whereClause.status = status;
+    }
+
+    return this.prisma.project.findMany({
       where: whereClause,
       take: limit,
+      skip: skip,
       orderBy: {
         created_at: 'desc',
       },

@@ -9,32 +9,34 @@ export class ProjectController {
   @Get()
   async getProjects(
     @Query('limit') limitStr?: string,
-    @Query('status') status?: string,
+    @Query('skip') skipStr?: string,
+    @Query('status') statusStr?: string,
   ) {
-    const DEFAULT_LIMIT = 5;
-    const MIN_LIMIT = 1;
-    const MAX_LIMIT = 50;
+    let limit = limitStr ? parseInt(limitStr, 10) : 5;
+    if (isNaN(limit) || limit < 1) {
+      limit = 5;
+    }
+    limit = Math.min(limit, 50);
 
-    const parsedLimit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
+    let skip = skipStr ? parseInt(skipStr, 10) : 0;
+    if (isNaN(skip) || skip < 0) {
+      skip = 0;
+    }
 
-    const normalizedLimit = Number.isNaN(parsedLimit)
-      ? DEFAULT_LIMIT
-      : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
+    let status: project_status_enum | undefined = undefined;
 
-    let normalizedStatus: project_status_enum | undefined;
+    if (statusStr !== undefined) {
+      const isValidStatus = Object.values(project_status_enum).includes(
+        statusStr as project_status_enum,
+      );
 
-    if (status !== undefined) {
-      if (!(status in project_status_enum)) {
+      if (!isValidStatus) {
         throw new BadRequestException('Invalid status value');
       }
 
-      normalizedStatus =
-        project_status_enum[status as keyof typeof project_status_enum];
+      status = statusStr as project_status_enum;
     }
 
-    return await this.projectService.getProjects(
-      normalizedLimit,
-      normalizedStatus,
-    );
+    return this.projectService.getProjects(limit, skip, status);
   }
 }
