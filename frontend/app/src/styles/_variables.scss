@@ -14,9 +14,16 @@ $header-button-bg: $color-black;
 $header-button-text: $color-white;
 
 //Policy-and-rules
-$font-main: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+$font-main: 'Inter';
 $text-color: $color-black;
 $bg-color: $color-white;
 $title-weight: 700;
 $normal-weight: 400;
 $line-height: 1.6;
+
+//Events
+$bg-color-block: #efefef;
+$border-color: #ccc;
+$text-color: $color-black;
+$text-placeholder: #999;
+$font-main: 'Inter';
