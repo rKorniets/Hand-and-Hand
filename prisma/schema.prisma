@@ -9,29 +9,36 @@ datasource db {
 model news {
   id            Int             @id @default(autoincrement())
   title         String
-  source_url    String
-  source_name   String
   image_url     String?
-  tags          String?
   created_at    DateTime        @default(now()) @db.Timestamptz(6)
   is_pinned     Boolean         @default(false)
+  description   String
+  main_content  String
+  created_by    Int?
+  app_user      app_user?       @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_news_created_by")
   news_category news_category[]
+
+  @@index([created_by], map: "idx_news_created_by")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model app_user {
-  id                   Int                   @id @default(autoincrement())
-  email                String                @unique
-  password_hash        String
-  role                 user_role_enum
-  status               user_status_enum      @default(PENDING)
-  created_at           DateTime              @default(now()) @db.Timestamptz(6)
-  points               Int                   @default(0)
-  organization_profile organization_profile?
-  points_transaction   points_transaction[]
-  recipient_profile    recipient_profile?
-  reward_redemption    reward_redemption[]
-  volunteer_profile    volunteer_profile?
+  id                                     Int                   @id @default(autoincrement())
+  email                                  String                @unique
+  password_hash                          String
+  role                                   user_role_enum
+  status                                 user_status_enum      @default(PENDING)
+  created_at                             DateTime              @default(now()) @db.Timestamptz(6)
+  points                                 Int                   @default(0)
+  admin_profile                          admin_profile?
+  news                                   news[]
+  organization_profile                   organization_profile?
+  points_transaction                     points_transaction[]
+  recipient_profile                      recipient_profile?
+  reward_redemption                      reward_redemption[]
+  volunteer_profile                      volunteer_profile?
+  warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
+  warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
 }
 
 model category {
@@ -301,6 +308,37 @@ model volunteer_profile {
   app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
 }
 
+model admin_profile {
+  id             Int      @id @default(autoincrement())
+  user_id        Int      @unique
+  full_name      String
+  is_super_admin Boolean  @default(false)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  app_user       app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_admin_profile_user")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model warnings {
+  id                                     Int                   @id @default(autoincrement())
+  user_id                                Int
+  created_by                             Int
+  reason                                 String
+  description                            String
+  status                                 warning_status_enum   @default(ACTIVE)
+  severity                               warning_severity_enum @default(MEDIUM)
+  issued_at                              DateTime              @default(now()) @db.Timestamptz(6)
+  expires_at                             DateTime?             @db.Timestamptz(6)
+  resolved_at                            DateTime?             @db.Timestamptz(6)
+  related_entity_type                    String?
+  related_entity_id                      Int?
+  created_at                             DateTime              @default(now()) @db.Timestamptz(6)
+  app_user_warnings_created_byToapp_user app_user              @relation("warnings_created_byToapp_user", fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_warnings_created_by")
+  app_user_warnings_user_idToapp_user    app_user              @relation("warnings_user_idToapp_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_warnings_user")
+
+  @@index([created_by], map: "idx_warnings_created_by")
+  @@index([user_id], map: "idx_warnings_user_id")
+}
+
 enum fundraising_campaign_status_enum {
   DRAFT
   ACTIVE
@@ -398,4 +436,16 @@ enum verification_status_enum {
   PENDING
   VERIFIED
   REJECTED
+}
+
+enum warning_severity_enum {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum warning_status_enum {
+  ACTIVE
+  RESOLVED
+  CANCELLED
 }
