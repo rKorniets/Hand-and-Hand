@@ -10,3 +10,9 @@ yarn-error.log*
 
 .vscode/*
 /generated/prisma
+
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local

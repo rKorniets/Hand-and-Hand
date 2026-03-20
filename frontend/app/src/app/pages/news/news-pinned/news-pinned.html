@@ -1,0 +1,23 @@
+<section class="news-pinned">
+  <div class="news-pinned__header">
+    <h2 class="news-pinned__title">Головні новини за тиждень</h2>
+  </div>
+
+  <div class="news-pinned__grid">
+    @for (item of items; track item.id) {
+      <article class="news-pinned__card">
+        <img
+          class="news-pinned__image"
+          [src]="item.imageUrl"
+          [alt]="item.title"
+        />
+
+        <div class="news-pinned__content">
+          @if (item.title) {
+            <p class="news-pinned__description">{{ item.title }}</p>
+          }
+        </div>
+      </article>
+    }
+  </div>
+</section>

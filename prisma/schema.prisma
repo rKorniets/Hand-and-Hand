@@ -1,14 +1,401 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model news {
+  id            Int             @id @default(autoincrement())
+  title         String
+  source_url    String
+  source_name   String
+  image_url     String?
+  tags          String?
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  is_pinned     Boolean         @default(false)
+  news_category news_category[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model app_user {
+  id                   Int                   @id @default(autoincrement())
+  email                String                @unique
+  password_hash        String
+  role                 user_role_enum
+  status               user_status_enum      @default(PENDING)
+  created_at           DateTime              @default(now()) @db.Timestamptz(6)
+  points               Int                   @default(0)
+  organization_profile organization_profile?
+  points_transaction   points_transaction[]
+  recipient_profile    recipient_profile?
+  reward_redemption    reward_redemption[]
+  volunteer_profile    volunteer_profile?
+}
+
+model category {
+  id            Int             @id @default(autoincrement())
+  name          String
+  slug          String          @unique
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  news_category news_category[]
+  task_category task_category[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model fundraising_campaign {
+  id                      Int                              @id @default(autoincrement())
+  organization_profile_id Int?
+  volunteer_profile_id    Int?
+  title                   String
+  description             String
+  goal_amount             Decimal                          @db.Decimal(12, 2)
+  current_amount          Decimal                          @default(0) @db.Decimal(12, 2)
+  status                  fundraising_campaign_status_enum @default(DRAFT)
+  start_at                DateTime?                        @db.Timestamptz(6)
+  end_at                  DateTime?                        @db.Timestamptz(6)
+  created_at              DateTime                         @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime                         @default(now()) @db.Timestamptz(6)
+  bank_link               String?
+  image_url               String?
+  organization_profile    organization_profile?            @relation(fields: [organization_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_organization")
+  volunteer_profile       volunteer_profile?               @relation(fields: [volunteer_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_volunteer")
+
+  @@index([organization_profile_id], map: "idx_fundraising_campaign_organization_profile_id")
+  @@index([volunteer_profile_id], map: "idx_fundraising_campaign_volunteer_profile_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model location {
+  id                   Int                    @id @default(autoincrement())
+  lat                  Decimal                @db.Decimal(9, 6)
+  lng                  Decimal                @db.Decimal(9, 6)
+  address              String
+  region               String
+  city                 String
+  organization_profile organization_profile[]
+  recipient_profile    recipient_profile[]
+  task                 task[]
+  ticket               ticket[]
+}
+
+model news_category {
+  id          Int      @id @default(autoincrement())
+  news_id     Int
+  category_id Int
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_category_category")
+  news        news     @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_category_news")
+
+  @@unique([news_id, category_id], map: "uq_news_category")
+  @@index([category_id], map: "idx_news_category_category_id")
+  @@index([news_id], map: "idx_news_category_news_id")
+}
+
+model organization_profile {
+  id                   Int                      @id @default(autoincrement())
+  user_id              Int                      @unique
+  name                 String
+  description          String
+  verification_status  verification_status_enum @default(PENDING)
+  official_docs_url    String?
+  contact_phone        String
+  contact_email        String
+  location_id          Int?
+  created_at           DateTime                 @default(now()) @db.Timestamptz(6)
+  fundraising_campaign fundraising_campaign[]
+  location             location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
+  app_user             app_user                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
+  project              project[]
+  report               report[]
+
+  @@index([location_id], map: "idx_organization_profile_location_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model points_transaction {
+  id                 Int                          @id @default(autoincrement())
+  user_id            Int
+  task_assignment_id Int?
+  amount             Int
+  type               points_transaction_type_enum
+  reason             String
+  created_at         DateTime                     @default(now()) @db.Timestamptz(6)
+  task_assignment    task_assignment?             @relation(fields: [task_assignment_id], references: [id], onUpdate: NoAction, map: "fk_points_transaction_task_assignment")
+  app_user           app_user                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_points_transaction_user")
+
+  @@index([task_assignment_id], map: "idx_points_transaction_task_assignment_id")
+  @@index([user_id], map: "idx_points_transaction_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model project {
+  id                      Int                  @id @default(autoincrement())
+  organization_profile_id Int
+  title                   String
+  description             String
+  status                  project_status_enum  @default(DRAFT)
+  starts_at               DateTime?            @db.Timestamptz(6)
+  ends_at                 DateTime?            @db.Timestamptz(6)
+  created_at              DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime             @default(now()) @db.Timestamptz(6)
+  organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
+  report                  report[]
+  task                    task[]
+
+  @@index([organization_profile_id], map: "idx_project_organization_profile_id")
+}
+
+model recipient_profile {
+  id                  Int                 @id @default(autoincrement())
+  user_id             Int                 @unique
+  recipient_type      recipient_type_enum
+  name                String
+  description         String?
+  contact_info        String
+  default_location_id Int?
+  created_at          DateTime            @default(now()) @db.Timestamptz(6)
+  location            location?           @relation(fields: [default_location_id], references: [id], onUpdate: NoAction, map: "fk_recipient_profile_default_location")
+  app_user            app_user            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_recipient_profile_user")
+  ticket              ticket[]
+
+  @@index([default_location_id], map: "idx_recipient_profile_default_location_id")
+}
+
+model report {
+  id                      Int                  @id @default(autoincrement())
+  organization_profile_id Int
+  project_id              Int?
+  title                   String
+  type                    report_type_enum
+  file_url                String
+  published_at            DateTime             @db.Timestamptz(6)
+  created_at              DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime             @default(now()) @db.Timestamptz(6)
+  organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_report_organization")
+  project                 project?             @relation(fields: [project_id], references: [id], onUpdate: NoAction, map: "fk_report_project")
+
+  @@index([organization_profile_id], map: "idx_report_organization_profile_id")
+  @@index([project_id], map: "idx_report_project_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reward {
+  id                Int                 @id @default(autoincrement())
+  title             String
+  description       String
+  cost_points       Int
+  stock             Int
+  is_active         Boolean             @default(true)
+  created_at        DateTime            @default(now()) @db.Timestamptz(6)
+  reward_redemption reward_redemption[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reward_redemption {
+  id           Int                           @id @default(autoincrement())
+  reward_id    Int
+  user_id      Int
+  points_spent Int
+  status       reward_redemption_status_enum @default(PENDING)
+  created_at   DateTime                      @default(now()) @db.Timestamptz(6)
+  reward       reward                        @relation(fields: [reward_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_reward")
+  app_user     app_user                      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_user")
+
+  @@index([reward_id], map: "idx_reward_redemption_reward_id")
+  @@index([user_id], map: "idx_reward_redemption_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model task {
+  id                 Int                  @id @default(autoincrement())
+  project_id         Int
+  ticket_id          Int?
+  title              String
+  description        String
+  status             task_status_enum     @default(OPEN)
+  difficulty         task_difficulty_enum @default(MEDIUM)
+  points_reward_base Int
+  location_id        Int?
+  deadline           DateTime?            @db.Timestamptz(6)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  location           location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_task_location")
+  project            project              @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_project")
+  ticket             ticket?              @relation(fields: [ticket_id], references: [id], onUpdate: NoAction, map: "fk_task_ticket")
+  task_assignment    task_assignment[]
+  task_category      task_category[]
+
+  @@index([location_id], map: "idx_task_location_id")
+  @@index([project_id], map: "idx_task_project_id")
+  @@index([ticket_id], map: "idx_task_ticket_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model task_assignment {
+  id                   Int                         @id @default(autoincrement())
+  task_id              Int
+  volunteer_profile_id Int
+  status               task_assignment_status_enum @default(ASSIGNED)
+  assigned_at          DateTime                    @default(now()) @db.Timestamptz(6)
+  accepted_at          DateTime?                   @db.Timestamptz(6)
+  completed_at         DateTime?                   @db.Timestamptz(6)
+  created_at           DateTime                    @default(now()) @db.Timestamptz(6)
+  recipient_status     Boolean                     @default(false)
+  comment              String?
+  points_transaction   points_transaction[]
+  task                 task                        @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignment_task")
+  volunteer_profile    volunteer_profile           @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignment_volunteer_profile")
+
+  @@index([task_id], map: "idx_task_assignment_task_id")
+  @@index([volunteer_profile_id], map: "idx_task_assignment_volunteer_profile_id")
+}
+
+model task_category {
+  id          Int      @id @default(autoincrement())
+  task_id     Int
+  category_id Int
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_category_category")
+  task        task     @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_category_task")
+
+  @@unique([task_id, category_id], map: "uq_task_category")
+  @@index([category_id], map: "idx_task_category_category_id")
+  @@index([task_id], map: "idx_task_category_task_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model ticket {
+  id                   Int                  @id @default(autoincrement())
+  recipient_profile_id Int
+  title                String
+  description          String
+  status               ticket_status_enum   @default(OPEN)
+  priority             ticket_priority_enum @default(MEDIUM)
+  location_id          Int?
+  created_at           DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime             @default(now()) @db.Timestamptz(6)
+  closed_at            DateTime?            @db.Timestamptz(6)
+  task                 task[]
+  location             location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_ticket_location")
+  recipient_profile    recipient_profile    @relation(fields: [recipient_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_recipient_profile")
+
+  @@index([location_id], map: "idx_ticket_location_id")
+  @@index([recipient_profile_id], map: "idx_ticket_recipient_profile_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model volunteer_profile {
+  id                   Int                    @id @default(autoincrement())
+  user_id              Int                    @unique
+  display_name         String                 @unique
+  phone                String
+  bio                  String
+  skills_text          String?
+  rating               Decimal?               @db.Decimal(3, 2)
+  is_verified          Boolean                @default(false)
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  fundraising_campaign fundraising_campaign[]
+  task_assignment      task_assignment[]
+  app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
+}
+
+enum fundraising_campaign_status_enum {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum points_transaction_type_enum {
+  EARN
+  SPEND
+  BONUS
+  PENALTY
+  ADJUSTMENT
+}
+
+enum project_status_enum {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum recipient_type_enum {
+  PERSON
+  SHELTER
+  OTHER
+}
+
+enum report_type_enum {
+  FINANCIAL
+  RESULT
+  ACTIVITY
+  OTHER
+}
+
+enum reward_redemption_status_enum {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum task_assignment_status_enum {
+  ASSIGNED
+  ACCEPTED
+  COMPLETED
+  CANCELLED
+}
+
+enum task_difficulty_enum {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum task_status_enum {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ticket_priority_enum {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ticket_status_enum {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
+enum user_role_enum {
+  VOLUNTEER
+  ORGANIZATION
+  RECIPIENT
+  ADMIN
+}
+
+enum user_status_enum {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+  PENDING
+}
+
+enum verification_status_enum {
+  PENDING
+  VERIFIED
+  REJECTED
 }
