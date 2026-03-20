@@ -22,11 +22,30 @@ export class AppUserService {
       take: limit,
       skip: skip,
       orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        points: true,
+        created_at: true,
+      },
     });
   }
 
   async getUserById(id: number) {
-    return this.prisma.app_user.findUnique({ where: { id } });
+    return this.prisma.app_user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        points: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
   }
 
   async createUser(data: CreateAppUserDto) {

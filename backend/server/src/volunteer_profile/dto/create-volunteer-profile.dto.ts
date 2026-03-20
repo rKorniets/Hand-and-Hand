@@ -5,5 +5,6 @@ export class CreateVolunteerProfileDto {
   bio: string;
   skills_text?: string;
   rating?: number;
-  is_verified: boolean;
+  // Optional: defaults to false in createVolunteerProfile() when omitted
+  is_verified?: boolean;
 }
