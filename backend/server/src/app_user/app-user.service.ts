@@ -43,7 +43,6 @@ export class AppUserService {
         status: true,
         points: true,
         created_at: true,
-        updated_at: true,
       },
     });
   }
