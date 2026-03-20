@@ -1,0 +1,37 @@
+<section class="news-content">
+  <div class="news-content__header">
+    <h2 class="news-content__title">Новини</h2>
+  </div>
+
+  <div class="news-content__list">
+    @for (item of items; track item.id) {
+      <article class="news-content__item">
+        <img
+          class="news-content__image"
+          [src]="item.imageUrl"
+          [alt]="item.title"
+        />
+
+        <div class="news-content__body">
+          <div class="news-content__top">
+            <h3 class="news-content__item-title">
+              {{ item.title }}
+            </h3>
+
+            @if (item.created_at) {
+              <span class="news-content__date">
+      {{ item.created_at }}
+    </span>
+            }
+          </div>
+
+          @if (item.description) {
+            <p class="news-content__text">
+              {{ item.description }}
+            </p>
+          }
+        </div>
+      </article>
+    }
+  </div>
+</section>

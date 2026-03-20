@@ -80,4 +80,206 @@ Backend:<br>
 Frontend: <br>
   jwt-decode <br>
   socket.io-client <br>
-  
+
+# Naming Conventions
+
+## 1. Загальні принципи
+
+- Назви мають бути зрозумілими <br>
+- Один тип сутностей = один стиль іменування <br>
+- Не змішуємо різні стилі без причини <br>
+- Якщо є сумнів — обираємо той формат, який уже використовується в цьому документі <br>
+
+---<br>
+
+## 2. Files — `kebab-case`
+
+Усі назви файлів мають використовувати `kebab-case`.<br>
+
+### Приклади:
+- `user-service.ts`<br>
+- `auth-controller.ts`<br>
+
+### Не можна:
+- `UserService.ts`<br>
+- `user_service.ts`<br>
+- `userService.ts`<br>
+
+## 3. Styles — подвійне підкреслення `__`
+
+### Формат:
+- `block`<br>
+- `block__element`<br>
+- `block__element--modifier`<br>
+
+### Приклади:
+- `card`<br>
+- `card__title`<br>
+
+### Не можна:
+- `card_title`<br>
+- `CardTitle`<br>
+
+## 4. Variables and Methods — `camelCase`
+
+Для змінних і методів використовуємо `camelCase`.<br>
+
+### Змінні:
+- `userName`<br>
+- `taskCount`<br>
+
+### Методи:
+- `getUserById()`<br>
+
+### Не можна:
+- `UserName`<br>
+- `user_name`<br>
+- `GET_USER_BY_ID`<br>
+
+## 5. Classes, Types, Interfaces, Enums, DTO — `PascalCase`
+
+Для класів, типів, інтерфейсів, enum-ів використовуємо `PascalCase`.
+
+### Classes:
+- `UserService`<br>
+- `AuthController`<br>
+- `VolunteerProfile`<br>
+### Types:
+- `UserRole`<br>
+
+### Interfaces:
+- `UserPayload`<br>
+
+### Enums:
+- `TaskAssignmentStatus`<br>
+
+
+### Не можна:
+- `userService`<br>
+- `create_user_dto`<br>
+- `task_status`<br>
+
+## 6. SQL — `snake_case`
+
+Для SQL-імен використовуємо `snake_case`.<br>
+
+### 6.1. Tables — `snake_case`
+
+Назви таблиць мають бути в `snake_case`.<br>
+
+### Приклади:
+- `users`<br>
+- `volunteer_profiles`<br>
+
+### Не можна:
+- `Users`<br>
+- `volunteerProfiles`<br>
+- `volunteer-profiles`<br>
+
+### 6.2. Columns — `snake_case`
+
+Назви колонок теж мають бути в `snake_case`.
+
+### Приклади:
+- `user_id`<br>
+- `display_name`<br>
+
+
+### Не можна:
+- `userId`<br>
+- `DisplayName`<br>
+- `createdAt`<br>
+
+
+
+## 7. Constants,environment variables — `UPPER_SNAKE_CASE`
+
+Для констант та env keys використовуємо `UPPER_SNAKE_CASE`.<br>
+
+### Приклади:
+- `MAX_RETRY_COUNT`<br>
+- `DEFAULT_PAGE_SIZE`<br>
+- `DATABASE_URL`<br>
+
+### Не можна:
+- `maxRetryCount`<br>
+- `MaxRetryCount`<br>
+- `max_retry_count`<br>
+- `databaseUrl`<br>
+- `jwtSecret`<br>
+- `node-env`<br>
+## 8. Branch & Pull Request Naming Conventions
+
+To keep the repository structured and easy to navigate, we follow a simple GitHub Flow approach:<br>
+
+- main is the production-ready branch<br>
+- all work must be done in separate feature branches<br>
+- direct pushes to main are not allowed<br>
+- every change must go through a Pull Request<br>
+
+### Branch Naming
+
+Branch names must follow this format:<br>
+
+type/short-description<br>
+
+Where:<br>
+
+- type describes the kind of work<br>
+- short-description is a short snake_case summary of the change<br>
+
+### Allowed branch types
+
+- feature/ – new functionality<br>
+- fix/ – bug fixes<br>
+- hotfix/ – urgent production fixes<br>
+- refactor/ – code improvements without changing behavior<br>
+- docs/ – documentation updates<br>
+- style/ – formatting or styling changes<br>
+- test/ – adding or updating tests<br>
+- chore/ – maintenance tasks, configs, dependencies<br>
+
+### Branch naming rules
+
+- use snake_case<br>
+- use only lowercase letters, numbers, and hyphens<br>
+- keep names short but meaningful<br>
+- avoid vague names like update, changes, new-branch, my-work<br>
+
+### Good examples
+
+- feature/add_news_tags_table<br>
+- fix/footer_layout_on_mobile<br>
+
+### Pull Request Naming
+
+Pull Request titles should clearly describe the change and follow this format:<br>
+
+type: short description<br>
+
+### Good PR title examples
+
+- feature: add separate table for news tags<br>
+- fix: correct footer alignment on tablet<br>
+- docs: add branch and PR naming conventions<br>
+- refactor: simplify news service logic<br>
+
+### Pull Request rules
+
+- one Pull Request should focus on one logical change<br>
+- PR titles must be clear and specific<br>
+- PR description should explain:<br>
+  - what was changed<br>
+  - why it was changed<br>
+  - anything important for reviewers to check<br>
+- if related to an issue/task, reference it in the description<br>
+
+### Recommended PR checklist
+
+Before opening a Pull Request, make sure that:<br>
+
+- the branch is up to date with main<br>
+- the code builds successfully<br>
+- naming conventions are followed<br>
+- no unrelated changes are included<br>
+- the change is ready for review<br>

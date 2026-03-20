@@ -1,0 +1,9 @@
+<section class="news-page">
+  <app-news-pinned [items]="pinnedNews"></app-news-pinned>
+
+  <div class="news-page__content">
+    <app-news-filter></app-news-filter>
+
+    <app-news-content [items]="regularNews"></app-news-content>
+  </div>
+</section>
