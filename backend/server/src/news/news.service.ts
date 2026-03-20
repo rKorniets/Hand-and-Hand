@@ -23,10 +23,9 @@ export class NewsService {
     return this.prisma.news.create({
       data: {
         title: data.title,
-        source_url: data.source_url,
-        source_name: data.source_name,
+        description: data.description,
+        main_content: data.main_content,
         image_url: data.image_url,
-        tags: data.tags,
         is_pinned: data.is_pinned ?? false,
       },
     });
@@ -36,12 +35,16 @@ export class NewsService {
       where: { id },
       data: {
         title: data.title,
-        source_url: data.source_url,
-        source_name: data.source_name,
+        description: data.description,
+        main_content: data.main_content,
         image_url: data.image_url,
-        tags: data.tags,
         is_pinned: data.is_pinned,
       },
+    });
+  }
+  async deleteNews(id: number) {
+    return this.prisma.news.delete({
+      where: { id },
     });
   }
 }

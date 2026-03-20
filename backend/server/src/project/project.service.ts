@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-
+import { CreateProjectDto } from './dto/create-project.dto';
 @Injectable()
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
@@ -16,5 +16,19 @@ export class ProjectService {
         created_at: 'desc',
       },
     });
+  }
+  async createProject(data: CreateProjectDto) {
+    return this.prisma.project.create({ data });
+  }
+
+  async updateProject(id: number, data: CreateProjectDto) {
+    return this.prisma.project.update({
+      where: { id },
+      data: { ...data, updated_at: new Date() },
+    });
+  }
+
+  async deleteProject(id: number) {
+    return this.prisma.project.delete({ where: { id } });
   }
 }
