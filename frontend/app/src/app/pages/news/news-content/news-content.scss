@@ -1,0 +1,77 @@
+@use 'variables' as *;
+
+.news-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__header {
+    padding: 16px 24px;
+    border: 1px solid $news-border-color;
+    border-radius: 10px;
+    background-color: $news-section-bg;
+  }
+
+  &__title {
+    margin: 0;
+    text-align: left;
+    font-size: 50px;
+    font-weight: $news-title-weight;
+    line-height: 1.1;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 18px;
+    align-items: start;
+    color: inherit;
+  }
+
+  &__image {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  &__item-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: $news-title-weight;
+    line-height: 1.3;
+  }
+
+  &__date {
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #222;
+  }
+}
