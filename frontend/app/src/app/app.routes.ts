@@ -4,6 +4,7 @@ import { AboutUs } from './pages/about-us/about-us';
 import {PolicyAndRules} from './pages/policy-and-rules/policy-and-rules';
 import { Events } from './pages/events/events';
 import { NewsComponent } from './pages/news/news';
+import { FundraisingCampaigns } from './pages/fundraising-campaigns/fundraising-campaigns';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'events', component: Events },
 
   { path: 'news', component: NewsComponent },
+  { path: 'fundraising', component: FundraisingCampaigns },
 ];
