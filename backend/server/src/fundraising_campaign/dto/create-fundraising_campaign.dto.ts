@@ -13,7 +13,8 @@ export class CreateFundraisingCampaignDto {
 
   @ApiProperty()
   description: string;
-
+  @ApiPropertyOptional()
+  main_content: string;
   @ApiProperty()
   goal_amount: number;
 
