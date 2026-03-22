@@ -10,7 +10,7 @@ import {
   ParseIntPipe,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags, ApiBody } from '@nestjs/swagger';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { fundraising_campaign_status_enum } from '@prisma/client';
@@ -78,5 +78,34 @@ export class FundraisingCampaignController {
   @ApiOperation({ summary: 'Видалити збір' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
+  }
+  @Post(':id/donations')
+  @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        amount: { type: 'number', example: 500, description: 'Сума донату' },
+        donor_name: {
+          type: 'string',
+          example: 'Іван Франко',
+          description: "Ім'я благодійника (необов'язково)",
+        },
+        message: {
+          type: 'string',
+          example: 'На тепловізор!',
+          description: "Коментар (необов'язково)",
+        },
+      },
+      required: ['amount'],
+    },
+  })
+  async donate(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('amount') amount: number,
+    @Body('donor_name') donorName?: string,
+    @Body('message') message?: string,
+  ) {
+    return this.service.processDonation(id, amount, donorName, message);
   }
 }
