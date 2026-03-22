@@ -32,4 +32,26 @@ export class FundraisingCampaignService {
   async remove(id: number) {
     return this.prisma.fundraising_campaign.delete({ where: { id } });
   }
+  async processDonation(campaignId: number, amount: number, donorName?: string, message?: string) {
+    return await this.prisma.$transaction(async (tx) => {
+      const newDonation = await tx.donation.create({
+        data: {
+          campaign_id: campaignId,
+          amount: amount,
+          donor_name: donorName,
+          message: message,
+        },
+      });
+      await tx.fundraising_campaign.update({
+        where: { id: campaignId },
+        data: {
+          current_amount: {
+            increment: amount,
+          },
+        },
+      });
+
+      return newDonation;
+    });
+  }
 }
