@@ -1,8 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+
+function parseDate(value: string, fieldName: string): Date {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) {
+    throw new BadRequestException(
+      `Invalid date format for field "${fieldName}": ${value}`,
+    );
+  }
+  return date;
+}
 
 @Injectable()
 export class ProjectService {
@@ -33,8 +43,8 @@ export class ProjectService {
         title: data.title,
         description: data.description,
         status: data.status,
-        starts_at: data.starts_at ? new Date(data.starts_at) : null,
-        ends_at: data.ends_at ? new Date(data.ends_at) : null,
+        starts_at: parseDate(data.starts_at, 'starts_at'),
+        ends_at: parseDate(data.ends_at, 'ends_at'),
         updated_at: new Date(),
       },
     });
@@ -48,10 +58,12 @@ export class ProjectService {
         ...(data.description !== undefined && { description: data.description }),
         ...(data.status !== undefined && { status: data.status }),
         ...(data.starts_at !== undefined && {
-          starts_at: data.starts_at ? new Date(data.starts_at) : null,
+          starts_at: data.starts_at
+            ? parseDate(data.starts_at, 'starts_at')
+            : null,
         }),
         ...(data.ends_at !== undefined && {
-          ends_at: data.ends_at ? new Date(data.ends_at) : null,
+          ends_at: data.ends_at ? parseDate(data.ends_at, 'ends_at') : null,
         }),
         updated_at: new Date(),
       },

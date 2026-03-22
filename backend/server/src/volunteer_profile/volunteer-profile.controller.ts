@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -12,6 +13,7 @@ import {
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { VolunteerProfileService } from './volunteer-profile.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
+import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
 
 @ApiTags('Профілі волонтерів (Volunteer Profiles)')
 @Controller('volunteer-profiles')
@@ -80,6 +82,15 @@ export class VolunteerProfileController {
     @Body() data: CreateVolunteerProfileDto,
   ) {
     return this.volunteerProfileService.updateVolunteerProfileFull(id, data);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Частково оновити профіль волонтера' })
+  async updatePartial(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateVolunteerProfileDto,
+  ) {
+    return this.volunteerProfileService.updateVolunteerProfilePartial(id, data);
   }
 
   @Delete(':id')

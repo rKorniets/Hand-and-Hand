@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
+import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
 
 @Injectable()
 export class VolunteerProfileService {
@@ -47,7 +48,30 @@ export class VolunteerProfileService {
         bio: data.bio,
         skills_text: data.skills_text,
         rating: data.rating,
-        is_verified: data.is_verified,
+        is_verified: data.is_verified ?? false,
+      },
+    });
+  }
+
+  async updateVolunteerProfilePartial(
+    id: number,
+    data: UpdateVolunteerProfileDto,
+  ) {
+    return this.prisma.volunteer_profile.update({
+      where: { id },
+      data: {
+        ...(data.display_name !== undefined && {
+          display_name: data.display_name,
+        }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+        ...(data.bio !== undefined && { bio: data.bio }),
+        ...(data.skills_text !== undefined && {
+          skills_text: data.skills_text,
+        }),
+        ...(data.rating !== undefined && { rating: data.rating }),
+        ...(data.is_verified !== undefined && {
+          is_verified: data.is_verified,
+        }),
       },
     });
   }
