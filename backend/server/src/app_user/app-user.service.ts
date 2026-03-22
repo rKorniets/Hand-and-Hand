@@ -3,6 +3,15 @@ import { Prisma, user_role_enum, user_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
 
+const USER_SELECT = {
+  id: true,
+  email: true,
+  role: true,
+  status: true,
+  points: true,
+  created_at: true,
+} as const;
+
 @Injectable()
 export class AppUserService {
   constructor(private prisma: PrismaService) {}
@@ -22,28 +31,14 @@ export class AppUserService {
       take: limit,
       skip: skip,
       orderBy: { created_at: 'desc' },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        status: true,
-        points: true,
-        created_at: true,
-      },
+      select: USER_SELECT,
     });
   }
 
   async getUserById(id: number) {
     return this.prisma.app_user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        status: true,
-        points: true,
-        created_at: true,
-      },
+      select: USER_SELECT,
     });
   }
 
@@ -53,9 +48,10 @@ export class AppUserService {
         email: data.email,
         password_hash: data.password_hash,
         role: data.role,
-        status: data.status ?? 'PENDING',
+        status: data.status ?? user_status_enum.PENDING,
         points: data.points ?? 0,
       },
+      select: USER_SELECT,
     });
   }
 
@@ -69,6 +65,11 @@ export class AppUserService {
         status: data.status,
         points: data.points,
       },
+      select: USER_SELECT,
     });
+  }
+
+  async deleteUser(id: number) {
+    return this.prisma.app_user.delete({ where: { id } });
   }
 }

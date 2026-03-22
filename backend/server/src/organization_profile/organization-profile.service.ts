@@ -33,7 +33,7 @@ export class OrganizationProfileService {
         user_id: data.user_id,
         name: data.name,
         description: data.description,
-        verification_status: data.verification_status ?? 'PENDING',
+        verification_status: data.verification_status ?? verification_status_enum.PENDING,
         official_docs_url: data.official_docs_url,
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,
@@ -59,5 +59,9 @@ export class OrganizationProfileService {
         location_id: data.location_id,
       },
     });
+  }
+
+  async deleteOrganizationProfile(id: number) {
+    return this.prisma.organization_profile.delete({ where: { id } });
   }
 }

@@ -1,12 +1,14 @@
 import {
-  Controller,
-  Get,
-  Query,
-  Post,
+  BadRequestException,
   Body,
-  Put,
+  Controller,
+  Delete,
+  Get,
   Param,
   ParseIntPipe,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { verification_status_enum } from '@prisma/client';
@@ -42,18 +44,29 @@ export class OrganizationProfileController {
     @Query('skip') skipStr?: string,
     @Query('verificationStatus') verificationStatusStr?: string,
   ) {
-    let limit = limitStr ? parseInt(limitStr, 10) : 5;
-    if (isNaN(limit) || limit < 1) limit = 5;
-    limit = Math.min(limit, 50);
+    const DEFAULT_LIMIT = 5;
+    const MIN_LIMIT = 1;
+    const MAX_LIMIT = 50;
+    const DEFAULT_SKIP = 0;
 
-    let skip = skipStr ? parseInt(skipStr, 10) : 0;
-    if (isNaN(skip) || skip < 0) skip = 0;
+    let limit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
+    if (isNaN(limit) || limit < MIN_LIMIT) limit = DEFAULT_LIMIT;
+    limit = Math.min(limit, MAX_LIMIT);
 
-    const verificationStatus = Object.values(verification_status_enum).includes(
-      verificationStatusStr as verification_status_enum,
-    )
-      ? (verificationStatusStr as verification_status_enum)
-      : undefined;
+    let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
+
+    let verificationStatus: verification_status_enum | undefined;
+    if (verificationStatusStr !== undefined) {
+      if (
+        !Object.values(verification_status_enum).includes(
+          verificationStatusStr as verification_status_enum,
+        )
+      ) {
+        throw new BadRequestException('Invalid verificationStatus value');
+      }
+      verificationStatus = verificationStatusStr as verification_status_enum;
+    }
 
     return this.organizationProfileService.getOrganizationProfiles(
       limit,
@@ -80,9 +93,12 @@ export class OrganizationProfileController {
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateOrganizationProfileDto,
   ) {
-    return this.organizationProfileService.updateOrganizationProfileFull(
-      id,
-      data,
-    );
+    return this.organizationProfileService.updateOrganizationProfileFull(id, data);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Видалити профіль організації' })
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.organizationProfileService.deleteOrganizationProfile(id);
   }
 }

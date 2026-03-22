@@ -1,12 +1,14 @@
 import {
-  Controller,
-  Get,
-  Query,
-  Post,
+  BadRequestException,
   Body,
-  Put,
+  Controller,
+  Delete,
+  Get,
   Param,
   ParseIntPipe,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { user_role_enum, user_status_enum } from '@prisma/client';
@@ -46,24 +48,33 @@ export class AppUserController {
     @Query('role') roleStr?: string,
     @Query('status') statusStr?: string,
   ) {
-    let limit = limitStr ? parseInt(limitStr, 10) : 5;
-    if (isNaN(limit) || limit < 1) limit = 5;
-    limit = Math.min(limit, 50);
+    const DEFAULT_LIMIT = 5;
+    const MIN_LIMIT = 1;
+    const MAX_LIMIT = 50;
+    const DEFAULT_SKIP = 0;
 
-    let skip = skipStr ? parseInt(skipStr, 10) : 0;
-    if (isNaN(skip) || skip < 0) skip = 0;
+    let limit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
+    if (isNaN(limit) || limit < MIN_LIMIT) limit = DEFAULT_LIMIT;
+    limit = Math.min(limit, MAX_LIMIT);
 
-    const role = Object.values(user_role_enum).includes(
-      roleStr as user_role_enum,
-    )
-      ? (roleStr as user_role_enum)
-      : undefined;
+    let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
 
-    const status = Object.values(user_status_enum).includes(
-      statusStr as user_status_enum,
-    )
-      ? (statusStr as user_status_enum)
-      : undefined;
+    let role: user_role_enum | undefined;
+    if (roleStr !== undefined) {
+      if (!Object.values(user_role_enum).includes(roleStr as user_role_enum)) {
+        throw new BadRequestException('Invalid role value');
+      }
+      role = roleStr as user_role_enum;
+    }
+
+    let status: user_status_enum | undefined;
+    if (statusStr !== undefined) {
+      if (!Object.values(user_status_enum).includes(statusStr as user_status_enum)) {
+        throw new BadRequestException('Invalid status value');
+      }
+      status = statusStr as user_status_enum;
+    }
 
     return this.appUserService.getUsers(limit, skip, role, status);
   }
@@ -87,5 +98,11 @@ export class AppUserController {
     @Body() data: CreateAppUserDto,
   ) {
     return this.appUserService.updateUserFull(id, data);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Видалити користувача' })
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.appUserService.deleteUser(id);
   }
 }

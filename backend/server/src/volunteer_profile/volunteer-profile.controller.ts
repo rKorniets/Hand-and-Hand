@@ -1,12 +1,13 @@
 import {
-  Controller,
-  Get,
-  Query,
-  Post,
   Body,
-  Put,
+  Controller,
+  Delete,
+  Get,
   Param,
   ParseIntPipe,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { VolunteerProfileService } from './volunteer-profile.service';
@@ -41,22 +42,23 @@ export class VolunteerProfileController {
     @Query('skip') skipStr?: string,
     @Query('isVerified') isVerifiedStr?: string,
   ) {
-    let limit = limitStr ? parseInt(limitStr, 10) : 5;
-    if (isNaN(limit) || limit < 1) limit = 5;
-    limit = Math.min(limit, 50);
+    const DEFAULT_LIMIT = 5;
+    const MIN_LIMIT = 1;
+    const MAX_LIMIT = 50;
+    const DEFAULT_SKIP = 0;
 
-    let skip = skipStr ? parseInt(skipStr, 10) : 0;
-    if (isNaN(skip) || skip < 0) skip = 0;
+    let limit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
+    if (isNaN(limit) || limit < MIN_LIMIT) limit = DEFAULT_LIMIT;
+    limit = Math.min(limit, MAX_LIMIT);
+
+    let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
 
     let isVerified: boolean | undefined = undefined;
     if (isVerifiedStr === 'true') isVerified = true;
     if (isVerifiedStr === 'false') isVerified = false;
 
-    return this.volunteerProfileService.getVolunteerProfiles(
-      limit,
-      skip,
-      isVerified,
-    );
+    return this.volunteerProfileService.getVolunteerProfiles(limit, skip, isVerified);
   }
 
   @Get(':id')
@@ -78,5 +80,11 @@ export class VolunteerProfileController {
     @Body() data: CreateVolunteerProfileDto,
   ) {
     return this.volunteerProfileService.updateVolunteerProfileFull(id, data);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Видалити профіль волонтера' })
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.volunteerProfileService.deleteVolunteerProfile(id);
   }
 }

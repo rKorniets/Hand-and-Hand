@@ -7,11 +7,7 @@ import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 export class VolunteerProfileService {
   constructor(private prisma: PrismaService) {}
 
-  async getVolunteerProfiles(
-    limit: number,
-    skip: number,
-    isVerified?: boolean,
-  ) {
+  async getVolunteerProfiles(limit: number, skip: number, isVerified?: boolean) {
     const whereClause: Prisma.volunteer_profileWhereInput = {};
     if (isVerified !== undefined) whereClause.is_verified = isVerified;
 
@@ -41,10 +37,7 @@ export class VolunteerProfileService {
     });
   }
 
-  async updateVolunteerProfileFull(
-    id: number,
-    data: CreateVolunteerProfileDto,
-  ) {
+  async updateVolunteerProfileFull(id: number, data: CreateVolunteerProfileDto) {
     return this.prisma.volunteer_profile.update({
       where: { id },
       data: {
@@ -57,5 +50,9 @@ export class VolunteerProfileService {
         is_verified: data.is_verified,
       },
     });
+  }
+
+  async deleteVolunteerProfile(id: number) {
+    return this.prisma.volunteer_profile.delete({ where: { id } });
   }
 }
