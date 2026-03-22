@@ -6,12 +6,14 @@
   <div class="news-content__list">
     @for (item of items; track item.id) {
       <article class="news-content__item">
-        <img
-          class="news-content__image"
-          [src]="item.imageUrl"
-          [alt]="item.title"
-        />
-
+        @if (item.image_url) {
+          <img
+            class="news-content__image"
+            [src]="item.image_url"
+            [alt]="item.title"
+            (error)="onImageError($event)"
+          />
+        }
         <div class="news-content__body">
           <div class="news-content__top">
             <h3 class="news-content__item-title">
@@ -20,8 +22,8 @@
 
             @if (item.created_at) {
               <span class="news-content__date">
-      {{ item.created_at }}
-    </span>
+                {{ item.created_at | date: 'dd.MM.yyyy' }}
+              </span>
             }
           </div>
 

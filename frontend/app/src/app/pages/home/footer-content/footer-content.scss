@@ -1,0 +1,29 @@
+@use 'variables' as *;
+
+.home__footer {
+  padding: 40px 250px;
+
+  &__flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__title {
+    font-size: 55px;
+  }
+
+  &__button {
+    font-size: 35px;
+    width: 400px;
+    height: 60px;
+    background-color: $header-button-bg;
+    color: $header-button-text;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 10px;
+  }
+}

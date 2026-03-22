@@ -450,3 +450,4 @@ enum warning_status_enum {
   RESOLVED
   CANCELLED
 }
+}

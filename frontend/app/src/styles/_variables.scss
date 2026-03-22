@@ -1,34 +1,46 @@
-  // Основні кольори
-  $color-black: #000;
-  $color-white: #fff;
-  $color-white-soft: rgba(255, 255, 255, 0.85);
+// Основні кольори
+$color-black: #000;
+$color-white: #fff;
+$color-white-soft: rgba(255, 255, 255, 0.85);
 
-  // Footer
-  $footer-bg: $color-black;
-  $footer-text: $color-white;
+// Footer
+$footer-bg: $color-black;
+$footer-text: $color-white;
 
-  // Header
-  $header-bg: $color-white;
-  $header-text: $color-black;
-  $header-button-bg: $color-black;
-  $header-button-text: $color-white;
+// Header
+$header-bg: $color-white;
+$header-text: $color-black;
+$header-button-bg: $color-black;
+$header-button-text: $color-white;
 
-  //Policy-and-rules
-  $font-main: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
-  $text-color: $color-black;
-  $bg-color: $color-white;
-  $title-weight: 700;
-  $normal-weight: 400;
-  $line-height: 1.6;
+// Policy-and-rules
+$font-main: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+$text-color: $color-black;
+$bg-color: $color-white;
+$title-weight: 700;
+$normal-weight: 400;
+$line-height: 1.6;
 
-  // News
-  $news-section-bg: #f3f3f3;
-  $news-card-bg: #f8f8f8;
-  $news-border-color: #dddddd;
-  $news-card-border-color: #bdbdbd;
-  $news-title-weight: 800;
-  $news-card-title-weight: 500;
-  $news-text-weight: 400;
+// News
+$news-section-bg: #f3f3f3;
+$news-card-bg: #f8f8f8;
+$news-border-color: #dddddd;
+$news-card-border-color: #bdbdbd;
+$news-title-weight: 800;
+$news-card-title-weight: 500;
+$news-text-weight: 400;
+
+// Home
+$home-card-bg: #eaeaea;
+$home-card-border: #a8a8a8;
+$home-card-shadow-1: rgba(0, 0, 0, 0.19);
+$home-card-shadow-2: rgba(0, 0, 0, 0.23);
+$home-header-bg-start: $color-white;
+$home-header-bg-end: #cccccc;
+$home-header-border: #aeaeae;
+
+// About
+$about-link-color: blue;
 
 //Policy-and-rules
 $font-main: 'Inter';
