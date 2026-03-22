@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainFooterContent } from './main-footer-content';
+import { CategoriesOrg } from './categories-org';
 
-describe('MainFooterContent', () => {
-  let component: MainFooterContent;
-  let fixture: ComponentFixture<MainFooterContent>;
+describe('CategoriesOrg', () => {
+  let component: CategoriesOrg;
+  let fixture: ComponentFixture<CategoriesOrg>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainFooterContent],
+      imports: [CategoriesOrg],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MainFooterContent);
+    fixture = TestBed.createComponent(CategoriesOrg);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

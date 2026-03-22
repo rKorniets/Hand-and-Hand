@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainHeaderContent } from './main-header-content';
+import { ListOrg } from './list-org';
 
-describe('MainHeaderContent', () => {
-  let component: MainHeaderContent;
-  let fixture: ComponentFixture<MainHeaderContent>;
+describe('ListOrg', () => {
+  let component: ListOrg;
+  let fixture: ComponentFixture<ListOrg>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainHeaderContent],
+      imports: [ListOrg],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MainHeaderContent);
+    fixture = TestBed.createComponent(ListOrg);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

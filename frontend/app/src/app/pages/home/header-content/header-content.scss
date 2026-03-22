@@ -1,0 +1,62 @@
+@use 'variables' as *;
+
+.home{
+  padding: 40px 250px;
+
+  &__header{
+    background: linear-gradient(
+        180deg,
+        $home-header-bg-start 0%,
+        $home-header-bg-end 100%
+    );
+    border-radius: 20px;
+    border: 1px $home-header-border solid;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 50px 0;
+  }
+
+  &__title{
+    font-size: 55px;
+    font-weight: 700;
+  }
+
+  &__action{
+    display: flex;
+    justify-content: center;
+    gap: 330px;
+  }
+
+  &__button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 80px;
+    background: $header-button-bg;
+    color: $header-button-text;
+    border-radius: 10px;
+    font-size: 30px;
+
+    &__small{
+      width: 400px;
+    }
+
+    &__large{
+      width: 750px;
+    }
+  }
+
+  &__subtitle{
+    padding-top: 30px;
+    font-size: 55px;
+  }
+
+  &__organization{
+    display: flex;
+    justify-content: center;
+  }
+
+}

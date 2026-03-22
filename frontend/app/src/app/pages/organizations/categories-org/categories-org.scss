@@ -1,0 +1,65 @@
+@use 'variables' as *;
+
+.categories__org {
+  width: 400px;
+  background-color: $bg-color-block;
+  padding: 30px;
+  font-family: $font-main;
+  border-radius: 40px;
+  box-sizing: border-box;
+  margin: 20px 0 0 20px;
+
+  &__title {
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: $text-color;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px 15px;
+    border: 1px solid $border-color;
+    border-radius: 15px;
+    background: $color-white;
+    font-size: 22px;
+    font-family: inherit;
+    color: $text-color;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 28px;
+    font-weight: 500;
+    color: $text-color;
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      cursor: pointer;
+      accent-color: $text-color;
+      flex-shrink: 0;
+    }
+  }
+}

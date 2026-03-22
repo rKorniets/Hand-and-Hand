@@ -1,11 +1,10 @@
-
 export interface NewsItem {
   id: number;
   title: string;
-  imageUrl: string;
+  image_url: string;
   created_at: string;
-  isPinned: boolean;
+  is_pinned: boolean;
   description: string;
-  mainContent: string;
-  created_by: string;
+  main_content: string;
+  created_by: number | null;
 }

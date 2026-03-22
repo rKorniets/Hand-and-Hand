@@ -5,24 +5,12 @@
     </div>
     <div class="filters__group">
       <h3 class="filters__title">Категорії</h3>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Мілітарна допомога</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Медицина та реабілітація</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Гуманітарна допомога</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Екологія та тварини</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>правозахист та громада</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Освіта та майбутнє</span>
-      </label>
+      @for (category of categoriesListFun; track category) {
+        <label class="filters__checkbox">
+          <input type="checkbox" />
+          <span>{{ category }}</span>
+        </label>
+      }
     </div>
   </section>
 
@@ -30,13 +18,11 @@
 
   <section class="filters__section">
     <h3 class="filters__title">Статус</h3>
-    <div class="filters__group">
+    @for (category of categoriesStatusFun; track category) {
       <label class="filters__checkbox">
-        <input type="checkbox"> <span>активні</span>
+        <input type="checkbox" />
+        <span>{{ category }}</span>
       </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>завершені</span>
-      </label>
-    </div>
+    }
   </section>
 </aside>

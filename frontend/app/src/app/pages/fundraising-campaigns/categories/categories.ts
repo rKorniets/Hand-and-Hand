@@ -6,4 +6,19 @@ import { Component } from '@angular/core';
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })
-export class Categories {}
+export class Categories {
+  categoriesListFun: string[] = [
+    'Мілітарна допомога',
+    'Медицина та реабілітація',
+    'Гуманітарна допомога',
+    'Екологія та тварини',
+    'Правозахист та громада',
+    'Освіта та майбутнє',
+  ];
+
+  categoriesStatusFun: string[] = [
+    'Активні',
+    'Завершені',
+  ];
+
+}
