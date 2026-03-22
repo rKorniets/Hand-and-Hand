@@ -70,6 +70,9 @@ export class AppUserService {
   }
 
   async deleteUser(id: number) {
-    return this.prisma.app_user.delete({ where: { id } });
+    return this.prisma.app_user.delete({
+      where: { id },
+      select: USER_SELECT,
+    });
   }
 }
