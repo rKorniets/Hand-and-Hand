@@ -5,7 +5,6 @@ import {
   Post,
   Body,
   Put,
-  Delete,
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -17,7 +16,6 @@ import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
-
   @Get()
   @ApiOperation({ summary: 'Отримати список новин' })
   @ApiQuery({
@@ -40,17 +38,15 @@ export class NewsController {
     @Query('skip') skipStr?: string,
     @Query('isPinned') isPinnedStr?: string,
   ) {
-    const DEFAULT_LIMIT = 5;
-    const MIN_LIMIT = 1;
-    const MAX_LIMIT = 50;
-    const DEFAULT_SKIP = 0;
-
-    let limit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
-    if (isNaN(limit) || limit < MIN_LIMIT) limit = DEFAULT_LIMIT;
-    limit = Math.min(limit, MAX_LIMIT);
-
-    let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
-    if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
+    let limit = limitStr ? parseInt(limitStr, 10) : 5;
+    if (isNaN(limit) || limit < 1) {
+      limit = 5;
+    }
+    limit = Math.min(limit, 50);
+    let skip = skipStr ? parseInt(skipStr, 10) : 0;
+    if (isNaN(skip) || skip < 0) {
+      skip = 0;
+    }
 
     let isPinned: boolean | undefined = undefined;
     if (isPinnedStr === 'true') isPinned = true;
@@ -58,25 +54,15 @@ export class NewsController {
 
     return this.newsService.getNews(limit, skip, isPinned);
   }
-
   @Post()
-  @ApiOperation({ summary: 'Створити новину' })
   async create(@Body() data: CreateNewsDto) {
     return this.newsService.createNews(data);
   }
-
   @Put(':id')
-  @ApiOperation({ summary: 'Оновити новину' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateNewsDto,
   ) {
     return this.newsService.updateNewsFull(id, data);
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Видалити новину' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.newsService.deleteNews(id);
   }
 }

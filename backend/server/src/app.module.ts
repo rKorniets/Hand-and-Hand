@@ -7,6 +7,7 @@ import { ProjectModule } from './project/project.module';
 import { AppUserModule } from './app_user/app-user.module';
 import { VolunteerProfileModule } from './volunteer_profile/volunteer-profile.module';
 import { OrganizationProfileModule } from './organization_profile/organization-profile.module';
+import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_campaign.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OrganizationProfileModule } from './organization_profile/organization-p
     AppUserModule,
     VolunteerProfileModule,
     OrganizationProfileModule,
+    FundraisingCampaignModule,
   ],
   controllers: [AppController],
   providers: [AppService],

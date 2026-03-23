@@ -1,0 +1,38 @@
+<section class="news-page">
+  @if (loading) {
+    <p>Завантаження новин...</p>
+  }
+
+  @if (error) {
+    <p>Помилка завантаження. Спробуйте пізніше.</p>
+  }
+
+  @if (!loading) {
+    <app-news-pinned [items]="pinnedNews"></app-news-pinned>
+
+    <div class="news-page__content">
+      <app-news-filter></app-news-filter>
+      <app-news-content [items]="regularNews"></app-news-content>
+
+      <div class="news-page__pagination">
+        <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">«</button>
+        <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">‹</button>
+
+        @for (page of visiblePages; track page) {
+          @if (page === -1) {
+            <span class="news-page__page-dots">...</span>
+          } @else {
+            <button
+              class="news-page__page-btn"
+              [class.news-page__page-btn--active]="page === currentPage"
+              (click)="goToPage(page)"
+            >{{ page }}</button>
+          }
+        }
+
+        <button class="news-page__page-btn" [disabled]="!hasNextPage" (click)="goToPage(currentPage + 1)">›</button>
+        <button class="news-page__page-btn" [disabled]="!hasNextPage" (click)="goToPage(currentPage + 1)">»</button>
+      </div>
+    </div>
+  }
+</section>

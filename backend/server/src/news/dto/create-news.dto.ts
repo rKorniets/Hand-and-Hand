@@ -1,8 +1,8 @@
 export class CreateNewsDto {
   title: string;
-  description?: string;
-  main_content?: string;
-  image_url?: string;
-  is_pinned?: boolean;
-  created_by?: number;
+  source_url: string;
+  source_name: string;
+  image_url: string;
+  tags: string;
+  is_pinned: boolean;
 }

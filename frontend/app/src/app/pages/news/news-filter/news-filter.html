@@ -1,0 +1,16 @@
+<aside class="news-filter">
+  <div class="news-filter__header">
+    <h2 class="news-filter__title">Категорії</h2>
+  </div>
+
+  <div class="news-filter__body">
+    <input class="news-filter__search" type="text" placeholder="пошук" />
+
+    @for (category of categories; track category) {
+      <label class="news-filter__option">
+        <input type="checkbox" />
+        <span>{{ category }}</span>
+      </label>
+    }
+  </div>
+</aside>

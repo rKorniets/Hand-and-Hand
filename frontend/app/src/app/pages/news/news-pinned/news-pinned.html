@@ -1,0 +1,30 @@
+<section class="news-pinned">
+  <div class="news-pinned__header">
+    <h2 class="news-pinned__title">Головні новини за тиждень</h2>
+  </div>
+
+  <div class="news-pinned__grid">
+    @for (item of items; track item.id) {
+      <article class="news-pinned__card">
+        <img
+          class="news-pinned__image"
+          [src]="item.image_url || 'https://placehold.co/330x190'"
+          [alt]="item.title"
+          (error)="onImageError($event)"
+        />
+
+        <div class="news-pinned__content">
+          @if (item.title) {
+            <p class="news-pinned__description">{{ item.title }}</p>
+          }
+
+          @if (item.created_at) {
+            <span class="news-pinned__date">
+              {{ item.created_at | date: 'dd.MM.yyyy' }}
+            </span>
+          }
+        </div>
+      </article>
+    }
+  </div>
+</section>
