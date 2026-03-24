@@ -23,9 +23,11 @@ export class ProjectController {
   @Get()
   @ApiOperation({ summary: 'Отримати список подій' })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'skip', required: false })
   @ApiQuery({ name: 'status', required: false })
   async getProjects(
     @Query('limit') limitStr?: string,
+    @Query('skip') skipStr?: string,
     @Query('status') status?: string,
   ) {
     const DEFAULT_LIMIT = 5;
@@ -36,6 +38,9 @@ export class ProjectController {
     const normalizedLimit = Number.isNaN(parsedLimit)
       ? DEFAULT_LIMIT
       : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
+
+    let skip = skipStr ? parseInt(skipStr, 10) : 0;
+    if (isNaN(skip) || skip < 0) skip = 0;
 
     let normalizedStatus: project_status_enum | undefined;
     if (status !== undefined) {
@@ -48,6 +53,7 @@ export class ProjectController {
 
     return await this.projectService.getProjects(
       normalizedLimit,
+      skip,
       normalizedStatus,
     );
   }

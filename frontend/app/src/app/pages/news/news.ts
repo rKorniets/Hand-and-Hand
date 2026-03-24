@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { NewsContentComponent } from './news-content/news-content';
 import { NewsFilterComponent } from './news-filter/news-filter';
 import { NewsPinnedComponent } from './news-pinned/news-pinned';
@@ -29,23 +30,17 @@ export class NewsComponent implements OnInit {
   hasNextPage = false;
 
   constructor(
+    private route: ActivatedRoute,
     private newsService: NewsService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadPinned();
-    this.loadRegular();
-  }
-
-  loadPinned(): void {
-    this.newsService.getNews(10, 0, true).subscribe({
-      next: (data) => {
-        this.pinnedNews = data;
-        this.cdr.detectChanges();
-      },
-      error: () => this.error = true,
-    });
+    const data = this.route.snapshot.data['data'];
+    this.pinnedNews = data.pinned;
+    this.regularNews = data.regular;
+    this.hasNextPage = data.regular.length === this.limit;
+    this.cdr.detectChanges();
   }
 
   loadRegular(): void {
@@ -59,7 +54,7 @@ export class NewsComponent implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: () => {
         this.error = true;
         this.loading = false;
         this.cdr.detectChanges();
@@ -70,7 +65,9 @@ export class NewsComponent implements OnInit {
   goToPage(page: number): void {
     this.currentPage = page;
     this.loadRegular();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
   }
 
   get visiblePages(): number[] {
