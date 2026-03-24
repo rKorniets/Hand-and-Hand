@@ -69,9 +69,22 @@ model fundraising_campaign {
   image_url               String?
   organization_profile    organization_profile?            @relation(fields: [organization_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_organization")
   volunteer_profile       volunteer_profile?               @relation(fields: [volunteer_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_volunteer")
+  donation                donation[]
 
   @@index([organization_profile_id], map: "idx_fundraising_campaign_organization_profile_id")
   @@index([volunteer_profile_id], map: "idx_fundraising_campaign_volunteer_profile_id")
+}
+
+model donation {
+  id                   Int                  @id @default(autoincrement())
+  amount               Float
+  donor_name           String?
+  message              String?
+  created_at           DateTime             @default(now()) @db.Timestamptz(6)
+  campaign_id          Int
+  fundraising_campaign fundraising_campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_donation_campaign")
+
+  @@index([campaign_id], map: "idx_donation_campaign_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -451,4 +464,3 @@ enum warning_status_enum {
   RESOLVED
   CANCELLED
 }
-
