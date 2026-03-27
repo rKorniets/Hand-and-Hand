@@ -7,6 +7,7 @@ import {
   Put,
   Param,
   ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
@@ -64,5 +65,11 @@ export class NewsController {
     @Body() data: CreateNewsDto,
   ) {
     return this.newsService.updateNewsFull(id, data);
+  }
+
+  @ApiOperation({ summary: 'Видалити новину' })
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.newsService.deleteNews(id);
   }
 }

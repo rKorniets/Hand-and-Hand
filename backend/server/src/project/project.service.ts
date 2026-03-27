@@ -9,14 +9,17 @@ export class ProjectService {
   async getProjects(limit: number, skip: number, status?: project_status_enum) {
     const whereClause: Prisma.projectWhereInput = status ? { status } : {};
 
-    return await this.prisma.project.findMany({
-      where: whereClause,
-      take: limit,
-      skip: skip,
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.project.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.project.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
   async createProject(data: CreateProjectDto) {
     return this.prisma.project.create({ data });
