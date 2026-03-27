@@ -1,0 +1,34 @@
+<section class="list__component">
+  <div class="list__component__header">
+    <h2 class="list__component__title">Приєднатися до збору</h2>
+  </div>
+
+  <div class="list__component__grid">
+    @for (campaign of fundraisingCampaignItem; track campaign.id) {
+      <article class="fundraising__card">
+        <div class="fundraising__card__image">
+        </div>
+
+        <div class="fundraising__card__body">
+          <h3 class="fundraising__card__title">{{ campaign.title }}</h3>
+
+          <p class="fundraising__card__description">
+            {{ campaign.description }}
+          </p>
+
+          <div class="fundraising__card__footer">
+            <div class="fundraising__card__organizer">
+              <span class="fundraising__card__org-name">
+                Організатор: {{ campaign.organization_profile?.title }}
+              </span>
+            </div>
+
+            <a [href]="campaign.bank_link" target="_blank" class="fundraising__card__button">Приєднатися до збору</a>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="list__empty-message">Наразі активних зборів немає.</div>
+    }
+  </div>
+</section>

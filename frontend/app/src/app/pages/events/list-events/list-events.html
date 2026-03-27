@@ -4,31 +4,45 @@
   </div>
 
   <div class="list__component__grid">
-    <article class="event__card" *ngFor="let i of [1,2,3,4,5]">
-      <div class="event__card__image">
-      </div>
+    @for (item of itemsFun; track item.id) {
+      <article class="events__card">
+        <div class="events__card__image">
+          @if (item.image_url) {
+            <img [src]="item.image_url" alt="event image">
+          }
+        </div>
 
-      <div class="event__card__body">
-        <div class="event__card__content">
-          <h3 class="event__card__title">Назва волонтерської події</h3>
+        <div class="events__card__body">
+          <div class="events__card__content">
+            <h3 class="events__card__title">{{ item.title }}</h3>
 
-          <div class="event__card__info">
-            <div class="event__card__info-item">
-              <span class="event__card__icon material-symbols-outlined">calendar_month</span>
-              <span>20 Березня, 10:00</span>
+            <div class="events__card__info-item">
+              <span class="events__card__icon material-symbols-outlined">calendar_month</span>
+              <span class="events__card__date">
+                @if (item.starts_at) {
+                  {{ item.starts_at | date:'dd.MM.yyyy' }}
+                  @if (item.ends_at && !isSameDay(item)) {
+                    — {{ item.ends_at | date:'dd.MM.yyyy' }}
+                  }
+                }
+              </span>
             </div>
 
-            <div class="event__card__info-item">
-              <span class="event__card__icon material-symbols-outlined">location_on</span>
-              <span>м. Київ, вул. Центральна, 12</span>
+            <div class="events__card__info-item">
+              <span class="events__card__icon material-symbols-outlined">location_on</span>
+              <span>{{ item.tasks[0]?.location?.city }}, {{ item.tasks[0]?.location?.address }}</span>
             </div>
 
-            <div class="event__card__organizer">
-              <span class="event__card__org-name">Організатор: ГО "Разом"</span>
+            <div class="events__card__info-item">
+              <span class="events__card__org-name">
+                {{ item.organization_profile?.name}}
+              </span>
             </div>
           </div>
         </div>
-      </div>
-    </article>
+      </article>
+    } @empty {
+      <p class="list__empty-message">Подій не знайдено.</p>
+    }
   </div>
 </section>
