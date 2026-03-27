@@ -6,6 +6,7 @@ import { NewEvent } from '../event.model';
   selector: 'app-list-events',
   standalone: true,
   imports: [CommonModule, DatePipe],
+  providers: [],
   templateUrl: './list-events.html',
   styleUrl: './list-events.scss',
 })

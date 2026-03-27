@@ -1,31 +1,19 @@
 <aside class="filters">
   <section class="filters__section">
     <div class="filters__search">
-      <input type="text" placeholder="пошук події" class="filters__input__search">
+      <input type="text" placeholder="пошук події" class="filters__input-search">
     </div>
+  </section>
+
+  <section class="filters__section">
+    <h3 class="filters__title">Категорії</h3>
     <div class="filters__group">
-      <h3 class="filters__title">Категорії</h3>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Екологія та довкілля</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Освіта та саморозвиток</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Допомога ЗСУ та ветеранам</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Соціальна допомога</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Культура та мистецтво</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Ментальне здоров'я</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>Урбаністика та місто</span>
-      </label>
+      @for (category of categoriesListEvents; track category) {
+        <label class="filters__checkbox">
+          <input type="checkbox" />
+          <span>{{ category }}</span>
+        </label>
+      }
     </div>
   </section>
 
@@ -34,12 +22,12 @@
   <section class="filters__section">
     <h3 class="filters__title">Статус</h3>
     <div class="filters__group">
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>активні</span>
-      </label>
-      <label class="filters__checkbox">
-        <input type="checkbox"> <span>завершені</span>
-      </label>
+      @for (status of categoriesStatusEvents; track status) {
+        <label class="filters__checkbox">
+          <input type="checkbox" />
+          <span>{{ status }}</span>
+        </label>
+      }
     </div>
   </section>
 
@@ -47,20 +35,16 @@
 
   <section class="filters__section">
     <h3 class="filters__title">Дати події</h3>
-
-    <div class="filters__date-picker"> <label>Від:</label>
+    <div class="filters__date-picker">
+      <label>Від:</label>
       <input
         type="date"
-        [(ngModel)]="startDate"
-        [max]="endDate"
-        class="filters__input-date"> </div>
-
+        class="filters__input-date">
+    </div>
     <div class="filters__date-picker">
       <label>До:</label>
       <input
         type="date"
-        [(ngModel)]="endDate"
-        [min]="startDate"
         class="filters__input-date">
     </div>
   </section>
@@ -68,20 +52,18 @@
   <hr class="filters__divider">
 
   <section class="filters__section">
-    <h3 class="filters__title">Населений пункт</h3>
-    <div class="filters__select__wrapper">
+    <h3 class="filters__title">Область</h3>
+    <div class="filters__select-wrapper">
       <input
         type="text"
         class="filters__select"
         list="city-options"
-        placeholder="обрати"
+        placeholder="обрати місто"
       >
       <datalist id="city-options">
-        <option value="онлайн">
-        <option value="Львів">
-        <option value="Київ">
-        <option value="Ужгород">
-        <option value="Славута">
+        @for (region of uniqueCities; track region) {
+          <option [value]="region"></option>
+        }
       </datalist>
     </div>
   </section>

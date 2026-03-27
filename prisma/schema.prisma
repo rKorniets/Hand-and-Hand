@@ -34,7 +34,6 @@ model app_user {
   news                                   news[]
   organization_profile                   organization_profile?
   points_transaction                     points_transaction[]
-  recipient_profile                      recipient_profile?
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
   warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
@@ -96,7 +95,6 @@ model location {
   region               String
   city                 String
   organization_profile organization_profile[]
-  recipient_profile    recipient_profile[]
   task                 task[]
   ticket               ticket[]
 }
@@ -167,22 +165,6 @@ model project {
   task                    task[]
 
   @@index([organization_profile_id], map: "idx_project_organization_profile_id")
-}
-
-model recipient_profile {
-  id                  Int                 @id @default(autoincrement())
-  user_id             Int                 @unique
-  recipient_type      recipient_type_enum
-  name                String
-  description         String?
-  contact_info        String
-  default_location_id Int?
-  created_at          DateTime            @default(now()) @db.Timestamptz(6)
-  location            location?           @relation(fields: [default_location_id], references: [id], onUpdate: NoAction, map: "fk_recipient_profile_default_location")
-  app_user            app_user            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_recipient_profile_user")
-  ticket              ticket[]
-
-  @@index([default_location_id], map: "idx_recipient_profile_default_location_id")
 }
 
 model report {
@@ -264,7 +246,7 @@ model task_assignment {
   accepted_at          DateTime?                   @db.Timestamptz(6)
   completed_at         DateTime?                   @db.Timestamptz(6)
   created_at           DateTime                    @default(now()) @db.Timestamptz(6)
-  recipient_status     Boolean                     @default(false)
+  requester_confirmed  Boolean                     @default(false)
   comment              String?
   points_transaction   points_transaction[]
   task                 task                        @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignment_task")
@@ -290,7 +272,7 @@ model task_category {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ticket {
   id                   Int                  @id @default(autoincrement())
-  recipient_profile_id Int
+  volunteer_profile_id Int
   title                String
   description          String
   status               ticket_status_enum   @default(OPEN)
@@ -301,10 +283,10 @@ model ticket {
   closed_at            DateTime?            @db.Timestamptz(6)
   task                 task[]
   location             location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_ticket_location")
-  recipient_profile    recipient_profile    @relation(fields: [recipient_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_recipient_profile")
+  volunteer_profile    volunteer_profile    @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
 
   @@index([location_id], map: "idx_ticket_location_id")
-  @@index([recipient_profile_id], map: "idx_ticket_recipient_profile_id")
+  @@index([volunteer_profile_id], map: "idx_ticket_recipient_profile_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -321,6 +303,7 @@ model volunteer_profile {
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
   app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
+  tickets              ticket[]
 }
 
 model admin_profile {
@@ -436,7 +419,6 @@ enum ticket_status_enum {
 enum user_role_enum {
   VOLUNTEER
   ORGANIZATION
-  RECIPIENT
   ADMIN
 }
 
