@@ -26,6 +26,7 @@ export class NewsService {
         description: data.description,
         main_content: data.main_content,
         image_url: data.image_url,
+        created_by: data.created_by,
         is_pinned: data.is_pinned ?? false,
       },
     });
@@ -38,6 +39,7 @@ export class NewsService {
         description: data.description,
         main_content: data.main_content,
         image_url: data.image_url,
+        created_by: data.created_by,
         is_pinned: data.is_pinned,
       },
     });
