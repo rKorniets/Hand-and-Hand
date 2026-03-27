@@ -1,9 +1,7 @@
 @use 'variables' as *;
 
 .policy-container {
-  max-width: 1700px;
-  text-align: left;
-  padding-left: 120px;
+  padding: 40px 250px;
 
   .policy-title {
     font-size: 60px;

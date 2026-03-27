@@ -22,3 +22,47 @@
     gap: 20px;
   }
 }
+
+.list {
+  &__pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+  }
+
+  &__page-btn {
+    min-width: 60px;
+    height: 60px;
+    padding: 0 18px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-size: 22px;
+    color: #333;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background: #f0f0f0;
+    }
+
+    &--active {
+      background: #333;
+      color: white;
+      border-color: #333;
+      cursor: default;
+    }
+  }
+
+  &__page-dots {
+    padding: 0 8px;
+    font-size: 22px;
+    color: #333;
+  }
+}

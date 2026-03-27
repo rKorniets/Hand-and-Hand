@@ -1,11 +1,15 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; //*ngFor
+import { Component, Input } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { NewEvent } from '../event.model';
 
 @Component({
   selector: 'app-list-events',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe],
+  providers: [],
   templateUrl: './list-events.html',
   styleUrl: './list-events.scss',
 })
-export class ListEvents {}
+export class ListEvents {
+  @Input() events: NewEvent[] = [];
+}

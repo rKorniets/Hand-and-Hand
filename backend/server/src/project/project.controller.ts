@@ -1,12 +1,30 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { project_status_enum } from '@prisma/client';
 import { ProjectService } from './project.service';
+import { CreateProjectDto } from './dto/create-project.dto';
 
+@ApiTags('Projects')
 @Controller('projects')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Отримати список подій' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'skip', required: false })
+  @ApiQuery({ name: 'status', required: false })
   async getProjects(
     @Query('limit') limitStr?: string,
     @Query('skip') skipStr?: string,
@@ -18,31 +36,22 @@ export class ProjectController {
     const DEFAULT_SKIP = 0;
 
     const parsedLimit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
-
     const normalizedLimit = Number.isNaN(parsedLimit)
       ? DEFAULT_LIMIT
       : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
 
     const parsedSkip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
-
     const normalizedSkip = Number.isNaN(parsedSkip)
       ? DEFAULT_SKIP
       : Math.max(parsedSkip, DEFAULT_SKIP);
 
     let normalizedStatus: project_status_enum | undefined;
-
     if (status !== undefined) {
-      const normalizedStatusInput = status.trim().toUpperCase();
-
-      if (
-        !Object.values(project_status_enum).includes(
-          normalizedStatusInput as project_status_enum,
-        )
-      ) {
+      if (!(status in project_status_enum)) {
         throw new BadRequestException('Invalid status value');
       }
-
-      normalizedStatus = normalizedStatusInput as project_status_enum;
+      normalizedStatus =
+        project_status_enum[status as keyof typeof project_status_enum];
     }
 
     return await this.projectService.getProjects(
@@ -50,5 +59,26 @@ export class ProjectController {
       normalizedSkip,
       normalizedStatus,
     );
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Створити подію' })
+  async create(@Body() data: CreateProjectDto) {
+    return this.projectService.createProject(data);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Оновити подію' })
+  async updateFull(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: CreateProjectDto,
+  ) {
+    return this.projectService.updateProject(id, data);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Видалити подію' })
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.projectService.deleteProject(id);
   }
 }
