@@ -98,6 +98,46 @@
   }
 }
 
+.list__pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.list__page-btn {
+  min-width: 48px;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 18px;
+  color: #333;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: #f0f0f0;
+  }
+
+  &--active {
+    background: #333;
+    color: white;
+    border-color: #333;
+    cursor: default;
+  }
+}
+
+.list__page-dots {
+  padding: 0 6px;
+  font-size: 18px;
+  color: #333;
 .list__empty-message {
   grid-column: 1 / -1;
   text-align: center;

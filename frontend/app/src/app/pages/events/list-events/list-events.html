@@ -4,39 +4,25 @@
   </div>
 
   <div class="list__component__grid">
-    @for (item of itemsFun; track item.id) {
-      <article class="events__card">
-        <div class="events__card__image">
-          @if (item.image_url) {
-            <img [src]="item.image_url" alt="event image">
-          }
-        </div>
+    @for (event of events; track event.id) {
+      <article class="event__card">
+        <div class="event__card__image"></div>
 
-        <div class="events__card__body">
-          <div class="events__card__content">
-            <h3 class="events__card__title">{{ item.title }}</h3>
+        <div class="event__card__body">
+          <div class="event__card__content">
+            <h3 class="event__card__title">{{ event.title }}</h3>
 
-            <div class="events__card__info-item">
-              <span class="events__card__icon material-symbols-outlined">calendar_month</span>
-              <span class="events__card__date">
-                @if (item.starts_at) {
-                  {{ item.starts_at | date:'dd.MM.yyyy' }}
-                  @if (item.ends_at && !isSameDay(item)) {
-                    — {{ item.ends_at | date:'dd.MM.yyyy' }}
-                  }
-                }
-              </span>
-            </div>
+            <div class="event__card__info">
+              @if (event.starts_at) {
+                <div class="event__card__info-item">
+                  <span class="event__card__icon material-symbols-outlined">calendar_month</span>
+                  <span>{{ event.starts_at | date: 'dd MMMM, HH:mm' }}</span>
+                </div>
+              }
 
-            <div class="events__card__info-item">
-              <span class="events__card__icon material-symbols-outlined">location_on</span>
-              <span>{{ item.tasks[0]?.location?.city }}, {{ item.tasks[0]?.location?.address }}</span>
-            </div>
-
-            <div class="events__card__info-item">
-              <span class="events__card__org-name">
-                {{ item.organization_profile?.name}}
-              </span>
+              <div class="event__card__organizer">
+                <span class="event__card__org-name">{{ event.description }}</span>
+              </div>
             </div>
           </div>
         </div>
