@@ -40,18 +40,28 @@ export class NewsController {
     @Query('skip') skipStr?: string,
     @Query('isPinned') isPinnedStr?: string,
   ) {
-    let limit = limitStr ? parseInt(limitStr, 10) : 5;
-    if (isNaN(limit) || limit < 1) limit = 5;
-    limit = Math.min(limit, 50);
+    const DEFAULT_LIMIT = 5;
+    const MIN_LIMIT = 1;
+    const MAX_LIMIT = 50;
 
-    let skip = skipStr ? parseInt(skipStr, 10) : 0;
-    if (isNaN(skip) || skip < 0) skip = 0;
+    const parsedLimit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
+    const normalizedLimit = Number.isNaN(parsedLimit)
+      ? DEFAULT_LIMIT
+      : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
+
+    const DEFAULT_SKIP = 0;
+    const MIN_SKIP = 0;
+
+    const parsedSkip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    const normalizedSkip = Number.isNaN(parsedSkip)
+      ? DEFAULT_SKIP
+      : Math.max(parsedSkip, MIN_SKIP);
 
     let isPinned: boolean | undefined = undefined;
     if (isPinnedStr === 'true') isPinned = true;
     if (isPinnedStr === 'false') isPinned = false;
 
-    return this.newsService.getNews(limit, skip, isPinned);
+    return this.newsService.getNews(normalizedLimit, normalizedSkip, isPinned);
   }
 
   @Get(':id')
@@ -61,11 +71,13 @@ export class NewsController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Створити новину' })
   async create(@Body() data: CreateNewsDto) {
     return this.newsService.createNews(data);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Оновити новину' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateNewsDto,
@@ -73,8 +85,8 @@ export class NewsController {
     return this.newsService.updateNewsFull(id, data);
   }
 
-  @ApiOperation({ summary: 'Видалити новину' })
   @Delete(':id')
+  @ApiOperation({ summary: 'Видалити новину' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.newsService.deleteNews(id);
   }
