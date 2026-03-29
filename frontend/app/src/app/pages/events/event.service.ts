@@ -25,4 +25,9 @@ export class EventService {
 
     return this.http.get<PaginatedEvents>(this.apiUrl, { params });
   }
+
+  getEventById(id: number): Observable<NewEvent> {
+    const params = new HttpParams().set('t', Date.now().toString());
+    return this.http.get<NewEvent>(`${this.apiUrl}/${id}`, { params });
+  }
 }

@@ -51,6 +51,13 @@
     max-width: 330px;
     scroll-snap-align: start;
     flex-shrink: 0;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
   }
 
   &__image {

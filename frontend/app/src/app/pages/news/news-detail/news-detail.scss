@@ -1,0 +1,99 @@
+@use 'variables' as *;
+
+.news-detail {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+
+  &__wrapper {
+    max-width: 90%;
+    padding: 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 31px;
+  }
+
+  &__back {
+    font-size: 26px;
+    color: $text-color;
+    text-decoration: none;
+    opacity: 0.7;
+
+    &:hover { opacity: 1; }
+  }
+
+  &__card {
+    overflow: hidden;
+    padding: 52px;
+    display: flex;
+    flex-direction: column;
+    gap: 39px;
+  }
+
+  &__top-row {
+    display: flex;
+    flex-direction: row;
+    gap: 65px;
+    align-items: flex-start;
+  }
+
+  &__image {
+    width: 45%;
+    max-width: 800px;
+    height: 480px;
+    object-fit: cover;
+    border-radius: 26px;
+    flex-shrink: 0;
+  }
+
+  &__header {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  &__title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 59px;
+    font-weight: 700;
+    color: $text-color;
+    line-height: 1.2;
+  }
+
+  &__date {
+    font-size: 36px;
+    color: rgba($text-color, 0.8);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  &__description {
+    font-size: 31px;
+    color: rgba($text-color, 0.9);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  &__body {
+    font-size: 31px;
+    line-height: 1.7;
+    color: rgba($text-color, 0.85);
+    white-space: pre-line;
+  }
+
+  &__loading,
+  &__error {
+    text-align: center;
+    font-size: 31px;
+    padding: 78px;
+    color: rgba($text-color, 0.6);
+  }
+}

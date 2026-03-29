@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { NewsItem } from './news.model';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -21,5 +21,10 @@ export class NewsService {
     }
 
     return this.http.get<NewsItem[]>(this.apiUrl, { params });
+  }
+
+  getNewsById(id: number): Observable<NewsItem> {
+    const params = new HttpParams().set('t', Date.now().toString());
+    return this.http.get<NewsItem>(`${this.apiUrl}/${id}`, { params });
   }
 }
