@@ -78,4 +78,10 @@ export class ProjectController {
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.deleteProject(id);
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Отримати подію за ID' })
+  async getById(@Param('id', ParseIntPipe) id: number) {
+    return this.projectService.getProjectById(id);
+  }
 }

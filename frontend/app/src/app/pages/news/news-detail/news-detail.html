@@ -1,0 +1,31 @@
+<div class="news-detail">
+  @if (loading) {
+    <p class="news-detail__loading">Завантаження...</p>
+  } @else if (error || !news) {
+    <p class="news-detail__error">Новину не знайдено.</p>
+  } @else {
+    <div class="news-detail__wrapper">
+
+      <div class="news-detail__card">
+        <div class="news-detail__top-row">
+          @if (news.image_url) {
+            <img class="news-detail__image" [src]="news.image_url" [alt]="news.title" />
+          }
+          <div class="news-detail__header">
+            <div class="news-detail__title-row">
+              <h1 class="news-detail__title">{{ news.title }}</h1>
+              <span class="news-detail__date">{{ news.created_at | date: 'dd.MM' }}</span>
+            </div>
+            @if (news.description) {
+              <p class="news-detail__description">{{ news.description }}</p>
+            }
+          </div>
+        </div>
+
+        @if (news.main_content) {
+          <div class="news-detail__body">{{ news.main_content }}</div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -5,7 +5,7 @@
 
   <div class="news-content__list">
     @for (item of items; track item.id) {
-      <article class="news-content__item">
+      <a class="news-content__item" [routerLink]="['/news', item.id]">
         @if (item.image_url) {
           <img
             class="news-content__image"
@@ -16,24 +16,18 @@
         }
         <div class="news-content__body">
           <div class="news-content__top">
-            <h3 class="news-content__item-title">
-              {{ item.title }}
-            </h3>
-
+            <h3 class="news-content__item-title">{{ item.title }}</h3>
             @if (item.created_at) {
               <span class="news-content__date">
                 {{ item.created_at | date: 'dd.MM.yyyy' }}
               </span>
             }
           </div>
-
           @if (item.description) {
-            <p class="news-content__text">
-              {{ item.description }}
-            </p>
+            <p class="news-content__text">{{ item.description }}</p>
           }
         </div>
-      </article>
+      </a>
     }
   </div>
 </section>
