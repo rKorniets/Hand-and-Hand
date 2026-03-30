@@ -8,6 +8,7 @@ import { AppUserModule } from './app_user/app-user.module';
 import { VolunteerProfileModule } from './volunteer_profile/volunteer-profile.module';
 import { OrganizationProfileModule } from './organization_profile/organization-profile.module';
 import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_campaign.module';
+import { ReportModule } from './report/report.module';
 import { TicketModule } from './ticket/ticket.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { TicketModule } from './ticket/ticket.module';
     VolunteerProfileModule,
     OrganizationProfileModule,
     FundraisingCampaignModule,
+    ReportModule,
     TicketModule,
   ],
   controllers: [AppController],
