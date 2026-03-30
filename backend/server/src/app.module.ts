@@ -9,6 +9,8 @@ import { VolunteerProfileModule } from './volunteer_profile/volunteer-profile.mo
 import { OrganizationProfileModule } from './organization_profile/organization-profile.module';
 import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_campaign.module';
 import { ReportModule } from './report/report.module';
+import { TicketModule } from './ticket/ticket.module';
+
 @Module({
   imports: [
     PrismaModule,
@@ -19,6 +21,7 @@ import { ReportModule } from './report/report.module';
     OrganizationProfileModule,
     FundraisingCampaignModule,
     ReportModule,
+    TicketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
