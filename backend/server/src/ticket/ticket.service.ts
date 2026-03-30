@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, ticket_status_enum } from '@prisma/client';
 
 @Injectable()
 export class TicketService {
@@ -38,7 +38,10 @@ export class TicketService {
   async update(id: number, data: UpdateTicketDto) {
     const updateData: Prisma.ticketUpdateInput = { ...data };
 
-    if (data.status === 'CLOSED' || data.status === 'CANCELLED') {
+    if (
+      data.status === ticket_status_enum.CLOSED ||
+      data.status === ticket_status_enum.CANCELLED
+    ) {
       updateData.closed_at = new Date();
     }
 
