@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -9,4 +9,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })
-export class Categories {}
+export class Categories {
+  categoriesListEvents: string[] = [
+    'Музика',
+    'Спорт',
+    'Мистецтво',
+    'Освіта',
+    'Технології',
+  ];
+
+  categoriesStatusEvents: string[] = [
+    'Активні',
+    'Завершені',
+    'Скасовані',
+  ];
+
+  uniqueCities: string[] = [
+    'Київ',
+    'Львів',
+    'Харків',
+    'Одеса',
+    'Дніпро',
+  ];
+}

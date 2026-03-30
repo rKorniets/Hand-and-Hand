@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
+
 @Injectable()
 export class NewsService {
   constructor(private prisma: PrismaService) {}
+
   async getNews(limit: number, skip: number, isPinned?: boolean) {
     const whereClause: { is_pinned?: boolean } = {};
     if (isPinned !== undefined) {
@@ -19,6 +21,13 @@ export class NewsService {
       },
     });
   }
+
+  async getNewsById(id: number) {
+    return this.prisma.news.findUnique({
+      where: { id },
+    });
+  }
+
   async createNews(data: CreateNewsDto) {
     return this.prisma.news.create({
       data: {
@@ -31,6 +40,7 @@ export class NewsService {
       },
     });
   }
+
   async updateNewsFull(id: number, data: CreateNewsDto) {
     return this.prisma.news.update({
       where: { id },
@@ -44,6 +54,7 @@ export class NewsService {
       },
     });
   }
+
   async deleteNews(id: number) {
     return this.prisma.news.delete({
       where: { id },

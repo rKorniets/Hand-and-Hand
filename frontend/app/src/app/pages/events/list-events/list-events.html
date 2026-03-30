@@ -1,34 +1,27 @@
-<section class="list__component">
-  <div class="list__component__header">
-    <h2 class="list__component__title">Волонтерські події</h2>
+<section class="events-list">
+  <div class="events-list__header">
+    <h2 class="events-list__title">Волонтерські події</h2>
   </div>
 
-  <div class="list__component__grid">
+  <div class="events-list__list">
     @for (event of events; track event.id) {
-      <article class="event__card">
-        <div class="event__card__image"></div>
+      <a class="events-list__item" [routerLink]="['/events', event.id]">
+        <div class="events-list__image"></div>
 
-        <div class="event__card__body">
-          <div class="event__card__content">
-            <h3 class="event__card__title">{{ event.title }}</h3>
-
-            <div class="event__card__info">
-              @if (event.starts_at) {
-                <div class="event__card__info-item">
-                  <span class="event__card__icon material-symbols-outlined">calendar_month</span>
-                  <span>{{ event.starts_at | date: 'dd MMMM, HH:mm' }}</span>
-                </div>
-              }
-
-              <div class="event__card__organizer">
-                <span class="event__card__org-name">{{ event.description }}</span>
-              </div>
-            </div>
+        <div class="events-list__body">
+          <div class="events-list__top">
+            <h3 class="events-list__item-title">{{ event.title }}</h3>
+            @if (event.starts_at) {
+              <span class="events-list__date">{{ event.starts_at | date: 'dd.MM.yyyy' }}</span>
+            }
           </div>
+          @if (event.description) {
+            <p class="events-list__text">{{ event.description }}</p>
+          }
         </div>
-      </article>
+      </a>
     } @empty {
-      <p class="list__empty-message">Подій не знайдено.</p>
+      <p class="events-list__empty">Подій не знайдено.</p>
     }
   </div>
 </section>
