@@ -14,6 +14,8 @@ import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { user_role_enum, user_status_enum } from '@prisma/client';
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
+import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Користувачі (App Users)')
 @Controller('app-users')
@@ -21,6 +23,7 @@ export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Отримати список користувачів' })
   @ApiQuery({
     name: 'limit',
@@ -35,7 +38,7 @@ export class AppUserController {
   @ApiQuery({
     name: 'role',
     required: false,
-    description: 'Фільтр за роллю (VOLUNTEER, ORGANIZATION, RECIPIENT, ADMIN)',
+    description: 'Фільтр за роллю (VOLUNTEER, ORGANIZATION, ADMIN)',
   })
   @ApiQuery({
     name: 'status',
@@ -70,7 +73,9 @@ export class AppUserController {
 
     let status: user_status_enum | undefined;
     if (statusStr !== undefined) {
-      if (!Object.values(user_status_enum).includes(statusStr as user_status_enum)) {
+      if (
+        !Object.values(user_status_enum).includes(statusStr as user_status_enum)
+      ) {
         throw new BadRequestException('Invalid status value');
       }
       status = statusStr as user_status_enum;
@@ -79,6 +84,7 @@ export class AppUserController {
     return this.appUserService.getUsers(limit, skip, role, status);
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Отримати користувача за ID' })
   async getUserById(@Param('id', ParseIntPipe) id: number) {
@@ -86,12 +92,14 @@ export class AppUserController {
   }
 
   @Post()
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити нового користувача' })
   async create(@Body() data: CreateAppUserDto) {
     return this.appUserService.createUser(data);
   }
 
   @Put(':id')
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити дані користувача' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -101,8 +109,11 @@ export class AppUserController {
   }
 
   @Delete(':id')
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Видалити користувача' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.appUserService.deleteUser(id);
   }
 }
+
+//TODO OWNERSHIP
