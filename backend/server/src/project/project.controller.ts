@@ -11,15 +11,18 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { project_status_enum } from '@prisma/client';
+import { project_status_enum, user_role_enum } from '@prisma/client';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { Public } from '../auth/decorators/public.decorator';
+import {Roles} from "../auth/decorators/roles.decorator";
 
 @ApiTags('Projects')
 @Controller('projects')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список подій' })
   @ApiQuery({ name: 'limit', required: false })
@@ -62,12 +65,14 @@ export class ProjectController {
   }
 
   @Post()
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
   async create(@Body() data: CreateProjectDto) {
     return this.projectService.createProject(data);
   }
 
   @Put(':id')
+  @Roles(user_role_enum.ORGANIZATION) //TODO ownership
   @ApiOperation({ summary: 'Оновити подію' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -77,6 +82,7 @@ export class ProjectController {
   }
 
   @Delete(':id')
+  @Roles(user_role_enum.ORGANIZATION) //TODO ownership
   @ApiOperation({ summary: 'Видалити подію' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.deleteProject(id);

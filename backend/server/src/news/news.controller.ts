@@ -12,12 +12,16 @@ import {
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import {user_role_enum} from "@prisma/client";
 
 @ApiTags('Новини (News)')
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Отримати список новин' })
   @ApiQuery({
     name: 'limit',
@@ -64,17 +68,20 @@ export class NewsController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Отримати новину за ID' })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.newsService.getNewsById(id);
   }
 
   @Post()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити новину' })
   async create(@Body() data: CreateNewsDto) {
     return this.newsService.createNews(data);
   }
   @Put(':id')
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити новину' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -84,8 +91,10 @@ export class NewsController {
   }
 
   @Delete(':id')
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Видалити новину' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.newsService.deleteNews(id);
   }
 }
+//TODO OWNERSHIP YEPPI

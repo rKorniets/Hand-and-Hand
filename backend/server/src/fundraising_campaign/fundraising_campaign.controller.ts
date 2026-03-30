@@ -13,13 +13,20 @@ import {
 import { ApiOperation, ApiQuery, ApiTags, ApiBody } from '@nestjs/swagger';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
-import { fundraising_campaign_status_enum } from '@prisma/client';
+import {
+  fundraising_campaign_status_enum,
+  user_role_enum,
+  user_status_enum,
+} from '@prisma/client';
+import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
 export class FundraisingCampaignController {
   constructor(private readonly service: FundraisingCampaignService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список зборів' })
   @ApiQuery({
@@ -60,12 +67,14 @@ export class FundraisingCampaignController {
   }
 
   @Post()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити збір' })
   async create(@Body() data: CreateFundraisingCampaignDto) {
     return this.service.create(data);
   }
 
   @Put(':id')
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN) //TODO own
   @ApiOperation({ summary: 'Оновити збір' })
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -75,11 +84,13 @@ export class FundraisingCampaignController {
   }
 
   @Delete(':id')
+  @Roles(user_role_enum.ADMIN) //TODO own
   @ApiOperation({ summary: 'Видалити збір' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
   @Post(':id/donations')
+  @Public()
   @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
   @ApiBody({
     schema: {

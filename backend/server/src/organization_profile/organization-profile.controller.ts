@@ -11,9 +11,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { verification_status_enum } from '@prisma/client';
+import { user_role_enum, verification_status_enum } from '@prisma/client';
 import { OrganizationProfileService } from './organization-profile.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
+import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Профілі організацій (Organization Profiles)')
 @Controller('organization-profiles')
@@ -22,6 +24,7 @@ export class OrganizationProfileController {
     private readonly organizationProfileService: OrganizationProfileService,
   ) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список профілів організацій' })
   @ApiQuery({
@@ -75,6 +78,7 @@ export class OrganizationProfileController {
     );
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Отримати профіль організації за ID' })
   async getOrganizationProfileById(@Param('id', ParseIntPipe) id: number) {
@@ -82,21 +86,27 @@ export class OrganizationProfileController {
   }
 
   @Post()
+  @Roles(user_role_enum.ADMIN) //TODO own
   @ApiOperation({ summary: 'Створити профіль організації' })
   async create(@Body() data: CreateOrganizationProfileDto) {
     return this.organizationProfileService.createOrganizationProfile(data);
   }
 
   @Put(':id')
+  @Roles(user_role_enum.ADMIN) //TODO own
   @ApiOperation({ summary: 'Оновити профіль організації' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateOrganizationProfileDto,
   ) {
-    return this.organizationProfileService.updateOrganizationProfileFull(id, data);
+    return this.organizationProfileService.updateOrganizationProfileFull(
+      id,
+      data,
+    );
   }
 
   @Delete(':id')
+  @Roles(user_role_enum.ADMIN) //TODO own
   @ApiOperation({ summary: 'Видалити профіль організації' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.organizationProfileService.deleteOrganizationProfile(id);
