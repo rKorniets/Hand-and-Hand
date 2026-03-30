@@ -106,7 +106,7 @@ export class VolunteerProfileController {
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN) //TODO ownership...Denis will have work,for now only admin will have permission to delete.in other files will write TODO own :)
+  @Roles(user_role_enum.ADMIN) //TODO ownership...Denis will have work,for now only admin will have permission to delete.in other files will write TODO own <3
   @ApiOperation({ summary: 'Видалити профіль волонтера' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.volunteerProfileService.deleteVolunteerProfile(id);
