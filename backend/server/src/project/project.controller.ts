@@ -33,14 +33,17 @@ export class ProjectController {
     const DEFAULT_LIMIT = 5;
     const MIN_LIMIT = 1;
     const MAX_LIMIT = 50;
+    const DEFAULT_SKIP = 0;
 
     const parsedLimit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
     const normalizedLimit = Number.isNaN(parsedLimit)
       ? DEFAULT_LIMIT
       : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
 
-    let skip = skipStr ? parseInt(skipStr, 10) : 0;
-    if (isNaN(skip) || skip < 0) skip = 0;
+    const parsedSkip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    const normalizedSkip = Number.isNaN(parsedSkip)
+      ? DEFAULT_SKIP
+      : Math.max(parsedSkip, DEFAULT_SKIP);
 
     let normalizedStatus: project_status_enum | undefined;
     if (status !== undefined) {
@@ -53,7 +56,7 @@ export class ProjectController {
 
     return await this.projectService.getProjects(
       normalizedLimit,
-      skip,
+      normalizedSkip,
       normalizedStatus,
     );
   }

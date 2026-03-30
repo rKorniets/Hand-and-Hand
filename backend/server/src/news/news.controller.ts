@@ -17,7 +17,6 @@ import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
-
   @Get()
   @ApiOperation({ summary: 'Отримати список новин' })
   @ApiQuery({
@@ -75,7 +74,6 @@ export class NewsController {
   async create(@Body() data: CreateNewsDto) {
     return this.newsService.createNews(data);
   }
-
   @Put(':id')
   @ApiOperation({ summary: 'Оновити новину' })
   async updateFull(

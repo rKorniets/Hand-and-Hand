@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { project_status_enum } from '@prisma/client';
-
 export class CreateProjectDto {
   @ApiProperty()
   organization_profile_id: number;
@@ -10,9 +9,6 @@ export class CreateProjectDto {
 
   @ApiProperty()
   description: string;
-
-  @ApiPropertyOptional()
-  main_content?: string;
 
   @ApiPropertyOptional()
   status?: project_status_enum;
