@@ -8,8 +8,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto, RegisterRole } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { user_role_enum, user_status_enum } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -32,12 +33,12 @@ export class AuthService {
         data: {
           email: dto.email,
           password_hash: passwordHash,
-          role: dto.role as any,
-          status: 'PENDING' as any,
+          role: dto.role as unknown as user_role_enum,
+          status: user_status_enum.PENDING,
         },
       });
 
-      if (dto.role === 'VOLUNTEER') {
+      if (dto.role === RegisterRole.VOLUNTEER) {
         await tx.volunteer_profile.create({
           data: {
             user_id: u.id,
@@ -46,7 +47,7 @@ export class AuthService {
             bio: dto.bio || '',
           },
         });
-      } else if (dto.role === 'ORGANIZATION') {
+      } else if (dto.role === RegisterRole.ORGANIZATION) {
         await tx.organization_profile.create({
           data: {
             user_id: u.id,
@@ -56,13 +57,11 @@ export class AuthService {
             contact_email: dto.email,
           },
         });
-      } else if (dto.role === 'RECIPIENT') {
-        await tx.recipient_profile.create({
+      } else if (dto.role === RegisterRole.ADMIN) {
+        await tx.admin_profile.create({
           data: {
             user_id: u.id,
-            name: dto.displayName,
-            recipient_type: 'PERSON' as any,
-            contact_info: dto.phone || dto.email,
+            full_name: dto.displayName,
           },
         });
       }
@@ -116,7 +115,7 @@ export class AuthService {
         created_at: true,
         volunteer_profile: true,
         organization_profile: true,
-        recipient_profile: true,
+        admin_profile: true,
       },
     });
   }

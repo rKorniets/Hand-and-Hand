@@ -23,7 +23,7 @@ export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
   @Get()
-  @Public()
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Отримати список користувачів' })
   @ApiQuery({
     name: 'limit',
@@ -85,7 +85,7 @@ export class AppUserController {
   }
 
   @Public()
-  @Get(':id')
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Отримати користувача за ID' })
   async getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.appUserService.getUserById(id);
