@@ -15,6 +15,7 @@ import { OrganizationProfileModule } from './organization_profile/organization-p
 import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_campaign.module';
 import { ReportModule } from './report/report.module';
 import { TicketModule } from './ticket/ticket.module';
+import { WarningModule } from './warning/warning.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TicketModule } from './ticket/ticket.module';
     FundraisingCampaignModule,
     ReportModule,
     TicketModule,
+    WarningModule,
   ],
   controllers: [AppController],
   providers: [
