@@ -21,6 +21,10 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    if (dto.role === RegisterRole.ADMIN) {
+      throw new ForbiddenException('Self-signup for ADMIN is forbidden');
+    }
+
     const exists = await this.prisma.app_user.findUnique({
       where: { email: dto.email },
     });
@@ -55,13 +59,6 @@ export class AuthService {
             description: dto.bio || '',
             contact_phone: dto.phone || '',
             contact_email: dto.email,
-          },
-        });
-      } else if (dto.role === RegisterRole.ADMIN) {
-        await tx.admin_profile.create({
-          data: {
-            user_id: u.id,
-            full_name: dto.displayName,
           },
         });
       }
@@ -115,7 +112,6 @@ export class AuthService {
         created_at: true,
         volunteer_profile: true,
         organization_profile: true,
-        admin_profile: true,
       },
     });
   }
