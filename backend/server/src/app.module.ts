@@ -8,6 +8,7 @@ import { AppUserModule } from './app_user/app-user.module';
 import { VolunteerProfileModule } from './volunteer_profile/volunteer-profile.module';
 import { OrganizationProfileModule } from './organization_profile/organization-profile.module';
 import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_campaign.module';
+import { TicketModule } from './ticket/ticket.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_ca
     VolunteerProfileModule,
     OrganizationProfileModule,
     FundraisingCampaignModule,
+    TicketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
