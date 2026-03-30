@@ -1,0 +1,39 @@
+<main class="events__page">
+  <div class="events__page__wrapper">
+
+    <aside class="events__page__sidebar">
+      <app-categories></app-categories>
+    </aside>
+
+    <section class="events__page__main">
+      <div class="map-container">
+        <app-map></app-map>
+      </div>
+
+      <div class="list__container">
+        <app-list-events [events]="events"></app-list-events>
+
+        <div class="list__pagination">
+          <button class="list__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">«</button>
+          <button class="list__page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">‹</button>
+
+          @for (page of visiblePages; track page) {
+            @if (page === -1) {
+              <span class="list__page-dots">...</span>
+            } @else {
+              <button
+                class="list__page-btn"
+                [class.list__page-btn--active]="page === currentPage"
+                (click)="goToPage(page)"
+              >{{ page }}</button>
+            }
+          }
+
+          <button class="list__page-btn" [disabled]="!hasNextPage" (click)="goToPage(currentPage + 1)">›</button>
+          <button class="list__page-btn" [disabled]="!hasNextPage" (click)="goToPage(totalPages)">»</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>

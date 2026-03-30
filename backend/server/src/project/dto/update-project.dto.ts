@@ -1,0 +1,9 @@
+import { project_status_enum } from '@prisma/client';
+
+export class UpdateProjectDto {
+  title?: string;
+  description?: string;
+  status?: project_status_enum;
+  starts_at?: string;
+  ends_at?: string;
+}

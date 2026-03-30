@@ -8,13 +8,20 @@
       <article class="news-pinned__card">
         <img
           class="news-pinned__image"
-          [src]="item.imageUrl"
+          [src]="item.image_url || 'https://placehold.co/330x190'"
           [alt]="item.title"
+          (error)="onImageError($event)"
         />
 
         <div class="news-pinned__content">
           @if (item.title) {
             <p class="news-pinned__description">{{ item.title }}</p>
+          }
+
+          @if (item.created_at) {
+            <span class="news-pinned__date">
+              {{ item.created_at | date: 'dd.MM.yyyy' }}
+            </span>
           }
         </div>
       </article>

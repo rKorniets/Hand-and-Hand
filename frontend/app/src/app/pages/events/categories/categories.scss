@@ -1,0 +1,83 @@
+@use 'variables' as *;
+
+.filters {
+  width: 400px;
+  background-color: $bg-color-block;
+  padding: 30px;
+  font-family: $font-main;
+  border-radius: 40px;
+  box-sizing: border-box;
+
+  &__section {
+    margin-bottom: 30px;
+  }
+
+  &__title {
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: $text-color;
+  }
+
+  &__input-search,
+  &__input-date,
+  &__select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 15px;
+    border: 1px solid $border-color;
+    border-radius: 15px;
+    background: $color-white;
+    font-size: 22px;
+    font-family: inherit;
+    color: $text-color;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 28px;
+    font-weight: 500;
+    color: $text-color;
+
+    input {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+  }
+
+  &__divider {
+    border: none;
+    border-top: 1px solid rgba($text-color, 0.1);
+    margin: 25px 0;
+  }
+
+  &__date-picker {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: rgba($text-color, 0.7);
+    }
+  }
+
+  &__select-wrapper {
+    position: relative;
+    width: 100%;
+  }
+}

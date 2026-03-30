@@ -1,0 +1,70 @@
+<aside class="filters">
+  <section class="filters__section">
+    <div class="filters__search">
+      <input type="text" placeholder="пошук події" class="filters__input-search">
+    </div>
+  </section>
+
+  <section class="filters__section">
+    <h3 class="filters__title">Категорії</h3>
+    <div class="filters__group">
+      @for (category of categoriesListEvents; track category) {
+        <label class="filters__checkbox">
+          <input type="checkbox" />
+          <span>{{ category }}</span>
+        </label>
+      }
+    </div>
+  </section>
+
+  <hr class="filters__divider">
+
+  <section class="filters__section">
+    <h3 class="filters__title">Статус</h3>
+    <div class="filters__group">
+      @for (status of categoriesStatusEvents; track status) {
+        <label class="filters__checkbox">
+          <input type="checkbox" />
+          <span>{{ status }}</span>
+        </label>
+      }
+    </div>
+  </section>
+
+  <hr class="filters__divider">
+
+  <section class="filters__section">
+    <h3 class="filters__title">Дати події</h3>
+    <div class="filters__date-picker">
+      <label>Від:</label>
+      <input
+        type="date"
+        class="filters__input-date">
+    </div>
+    <div class="filters__date-picker">
+      <label>До:</label>
+      <input
+        type="date"
+        class="filters__input-date">
+    </div>
+  </section>
+
+  <hr class="filters__divider">
+
+  <section class="filters__section">
+    <h3 class="filters__title">Область</h3>
+    <div class="filters__select-wrapper">
+      <input
+        type="text"
+        class="filters__select"
+        list="city-options"
+        placeholder="обрати місто"
+      >
+      <datalist id="city-options">
+        @for (region of uniqueCities; track region) {
+          <option [value]="region"></option>
+        }
+      </datalist>
+    </div>
+  </section>
+</aside>
