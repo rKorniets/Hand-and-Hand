@@ -35,4 +35,10 @@ export class ProjectService {
   async deleteProject(id: number) {
     return this.prisma.project.delete({ where: { id } });
   }
+
+  async getProjectById(id: number) {
+    return this.prisma.project.findUnique({
+      where: { id },
+    });
+  }
 }

@@ -5,7 +5,7 @@
 
   <div class="news-pinned__grid">
     @for (item of items; track item.id) {
-      <article class="news-pinned__card">
+      <a class="news-pinned__card" [routerLink]="['/news', item.id]">
         <img
           class="news-pinned__image"
           [src]="item.image_url || 'https://placehold.co/330x190'"
@@ -24,7 +24,7 @@
             </span>
           }
         </div>
-      </article>
+      </a>
     }
   </div>
 </section>

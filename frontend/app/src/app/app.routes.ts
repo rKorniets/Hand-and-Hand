@@ -5,9 +5,11 @@ import {PolicyAndRules} from './pages/policy-and-rules/policy-and-rules';
 import { Events } from './pages/events/events';
 import { NewsComponent } from './pages/news/news';
 import { NewsResolver } from './pages/news/news.resolver';
-import {EventsResolver} from './pages/events/events.resolver';
+import { EventsResolver } from './pages/events/events.resolver';
+import { EventDetailComponent } from './pages/events/event-detail/event-detail';
 import { FundraisingCampaigns } from './pages/fundraising-campaigns/fundraising-campaigns';
-import {Organizations} from './pages/organizations/organizations';
+import { Organizations } from './pages/organizations/organizations';
+import { NewsDetailComponent } from './pages/news/news-detail/news-detail';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -15,8 +17,8 @@ export const routes: Routes = [
   { path: 'policy-and-rules', component: PolicyAndRules },
   { path: 'events', component: Events, resolve: { data: EventsResolver }},
   { path: 'news', component: NewsComponent, resolve: { data: NewsResolver } },
-  { path: 'events', component: Events },
-  { path: 'organizations', component: Organizations},
-  { path: 'news', component: NewsComponent },
+  { path: 'news/:id', component: NewsDetailComponent },
+  { path: 'events/:id', component: EventDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
+  { path: 'organizations', component: Organizations},
 ];

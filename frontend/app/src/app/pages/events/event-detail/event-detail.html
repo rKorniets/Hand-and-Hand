@@ -1,0 +1,43 @@
+<div class="event-detail">
+  @if (loading) {
+    <p class="event-detail__loading">Завантаження...</p>
+  } @else if (error || !event) {
+    <p class="event-detail__error">Подію не знайдено.</p>
+  } @else {
+    <div class="event-detail__wrapper">
+
+      <div class="event-detail__layout">
+        <div class="event-detail__main">
+          <h1 class="event-detail__title">{{ event.title }}</h1>
+
+          <div class="event-detail__card">
+            <div class="event-detail__meta">
+              @if (event.starts_at) {
+                <p><strong>Дата проведення:</strong> {{ event.starts_at | date: 'EEEE, dd MMMM yyyy року' }}</p>
+                <p><strong>Час:</strong> початок о {{ event.starts_at | date: 'HH:mm' }}</p>
+              }
+              <p><strong>Статус:</strong> {{ event.status }}</p>
+            </div>
+
+            @if (event.description) {
+              <div class="event-detail__section">
+                <h3>Опис події:</h3>
+                <p>{{ event.description }}</p>
+              </div>
+            }
+
+            @if (event.main_content) {
+              <div class="event-detail__body">{{ event.main_content }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="event-detail__sidebar">
+          <div class="event-detail__apply">
+            Подати заявку
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

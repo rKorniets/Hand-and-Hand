@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Categories} from '../fundraising-campaigns/categories/categories';
+import {Categories} from './categories/categories';
 import {ListFundraisingCampaigns} from './list-fundraising-campaigns/list-fundraising-campaigns';
 
 @Component({

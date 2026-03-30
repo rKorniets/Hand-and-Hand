@@ -1,0 +1,109 @@
+@use 'variables' as *;
+
+.event-detail {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+
+  &__wrapper {
+    max-width: 100%;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  &__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__title {
+    font-size: 59px;
+    font-weight: 700;
+    color: $text-color;
+    margin: 0;
+  }
+
+  &__card {
+    border: 1px solid $border-color;
+    border-radius: 40px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 24px;
+    color: $text-color;
+
+    p { margin: 0; }
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    h3 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+      color: $text-color;
+    }
+
+    p {
+      font-size: 24px;
+      line-height: 1.6;
+      color: rgba($text-color, 0.85);
+      margin: 0;
+    }
+  }
+
+  &__body {
+    font-size: 24px;
+    line-height: 1.7;
+    color: rgba($text-color, 0.85);
+    white-space: pre-line;
+  }
+
+  &__sidebar {
+    flex: 0 0 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 20px;
+  }
+
+  &__apply {
+    background-color: $text-color;
+    color: white;
+    border-radius: 20px;
+    padding: 30px;
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  &__loading,
+  &__error {
+    text-align: center;
+    font-size: 31px;
+    padding: 78px;
+    color: rgba($text-color, 0.6);
+  }
+}
