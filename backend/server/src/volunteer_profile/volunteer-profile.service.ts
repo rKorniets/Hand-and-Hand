@@ -17,6 +17,27 @@ export interface RequestUser {
 export class VolunteerProfileService {
   constructor(private prisma: PrismaService) {}
 
+  private async validateProfileOwnership(id: number, currentUser: RequestUser) {
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { id },
+    });
+
+    if (!profile) {
+      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
+    }
+
+    if (
+      currentUser.role !== user_role_enum.ADMIN &&
+      profile.user_id !== currentUser.id
+    ) {
+      throw new ForbiddenException(
+        'Ви не маєте прав редагувати або видаляти чужий профіль',
+      );
+    }
+
+    return profile;
+  }
+
   async getVolunteerProfiles(
     limit: number,
     skip: number,
@@ -56,19 +77,7 @@ export class VolunteerProfileService {
     data: CreateVolunteerProfileDto,
     currentUser: RequestUser,
   ) {
-    const profile = await this.prisma.volunteer_profile.findUnique({
-      where: { id },
-    });
-    if (!profile) {
-      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
-    }
-
-    if (
-      currentUser.role !== user_role_enum.ADMIN &&
-      profile.user_id !== currentUser.id
-    ) {
-      throw new ForbiddenException('Ви не маєте прав редагувати чужий профіль');
-    }
+    await this.validateProfileOwnership(id, currentUser);
 
     return this.prisma.volunteer_profile.update({
       where: { id },
@@ -89,19 +98,7 @@ export class VolunteerProfileService {
     data: UpdateVolunteerProfileDto,
     currentUser: RequestUser,
   ) {
-    const profile = await this.prisma.volunteer_profile.findUnique({
-      where: { id },
-    });
-    if (!profile) {
-      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
-    }
-
-    if (
-      currentUser.role !== user_role_enum.ADMIN &&
-      profile.user_id !== currentUser.id
-    ) {
-      throw new ForbiddenException('Ви не маєте прав редагувати чужий профіль');
-    }
+    await this.validateProfileOwnership(id, currentUser);
 
     return this.prisma.volunteer_profile.update({
       where: { id },
@@ -123,19 +120,7 @@ export class VolunteerProfileService {
   }
 
   async deleteVolunteerProfile(id: number, currentUser: RequestUser) {
-    const profile = await this.prisma.volunteer_profile.findUnique({
-      where: { id },
-    });
-    if (!profile) {
-      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
-    }
-
-    if (
-      currentUser.role !== user_role_enum.ADMIN &&
-      profile.user_id !== currentUser.id
-    ) {
-      throw new ForbiddenException('Ви не маєте прав видаляти чужий профіль');
-    }
+    await this.validateProfileOwnership(id, currentUser);
 
     return this.prisma.volunteer_profile.delete({ where: { id } });
   }
