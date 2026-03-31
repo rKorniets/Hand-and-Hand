@@ -38,6 +38,7 @@ export class OrganizationProfileService {
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,
         location_id: data.location_id,
+        mission: data.mission,
       },
     });
   }
@@ -57,6 +58,7 @@ export class OrganizationProfileService {
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,
         location_id: data.location_id,
+        mission: data.mission,
       },
     });
   }

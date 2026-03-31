@@ -59,6 +59,7 @@ export class AuthService {
             description: dto.bio || '',
             contact_phone: dto.phone || '',
             contact_email: dto.email,
+            mission: '',
           },
         });
       }
