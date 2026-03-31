@@ -1,14 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma, user_role_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
+
+export interface RequestUser {
+  id: number;
+  role: user_role_enum;
+}
 
 @Injectable()
 export class VolunteerProfileService {
   constructor(private prisma: PrismaService) {}
 
-  async getVolunteerProfiles(limit: number, skip: number, isVerified?: boolean) {
+  async getVolunteerProfiles(
+    limit: number,
+    skip: number,
+    isVerified?: boolean,
+  ) {
     const whereClause: Prisma.volunteer_profileWhereInput = {};
     if (isVerified !== undefined) whereClause.is_verified = isVerified;
 
@@ -38,7 +51,25 @@ export class VolunteerProfileService {
     });
   }
 
-  async updateVolunteerProfileFull(id: number, data: CreateVolunteerProfileDto) {
+  async updateVolunteerProfileFull(
+    id: number,
+    data: CreateVolunteerProfileDto,
+    currentUser: RequestUser,
+  ) {
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { id },
+    });
+    if (!profile) {
+      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
+    }
+
+    if (
+      currentUser.role !== user_role_enum.ADMIN &&
+      profile.user_id !== currentUser.id
+    ) {
+      throw new ForbiddenException('Ви не маєте прав редагувати чужий профіль');
+    }
+
     return this.prisma.volunteer_profile.update({
       where: { id },
       data: {
@@ -56,7 +87,22 @@ export class VolunteerProfileService {
   async updateVolunteerProfilePartial(
     id: number,
     data: UpdateVolunteerProfileDto,
+    currentUser: RequestUser,
   ) {
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { id },
+    });
+    if (!profile) {
+      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
+    }
+
+    if (
+      currentUser.role !== user_role_enum.ADMIN &&
+      profile.user_id !== currentUser.id
+    ) {
+      throw new ForbiddenException('Ви не маєте прав редагувати чужий профіль');
+    }
+
     return this.prisma.volunteer_profile.update({
       where: { id },
       data: {
@@ -76,7 +122,21 @@ export class VolunteerProfileService {
     });
   }
 
-  async deleteVolunteerProfile(id: number) {
+  async deleteVolunteerProfile(id: number, currentUser: RequestUser) {
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { id },
+    });
+    if (!profile) {
+      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
+    }
+
+    if (
+      currentUser.role !== user_role_enum.ADMIN &&
+      profile.user_id !== currentUser.id
+    ) {
+      throw new ForbiddenException('Ви не маєте прав видаляти чужий профіль');
+    }
+
     return this.prisma.volunteer_profile.delete({ where: { id } });
   }
 }

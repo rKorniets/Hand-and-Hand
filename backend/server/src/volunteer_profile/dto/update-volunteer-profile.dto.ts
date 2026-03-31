@@ -1,8 +1,6 @@
-export class UpdateVolunteerProfileDto {
-  display_name?: string;
-  phone?: string;
-  bio?: string;
-  skills_text?: string;
-  rating?: number;
-  is_verified?: boolean;
-}
+import { PartialType } from '@nestjs/swagger';
+import { CreateVolunteerProfileDto } from './create-volunteer-profile.dto';
+
+export class UpdateVolunteerProfileDto extends PartialType(
+  CreateVolunteerProfileDto,
+) {}
