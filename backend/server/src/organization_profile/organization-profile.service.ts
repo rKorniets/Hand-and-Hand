@@ -77,13 +77,17 @@ export class OrganizationProfileService {
       );
     }
 
+    const initialStatus =
+      currentUser.role === user_role_enum.ADMIN && data.verification_status
+        ? data.verification_status
+        : verification_status_enum.PENDING;
+
     return this.prisma.organization_profile.create({
       data: {
         user_id: data.user_id,
         name: data.name,
         description: data.description,
-        verification_status:
-          data.verification_status ?? verification_status_enum.PENDING,
+        verification_status: initialStatus,
         official_docs_url: data.official_docs_url,
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,
@@ -97,7 +101,13 @@ export class OrganizationProfileService {
     data: CreateOrganizationProfileDto,
     currentUser: RequestUser,
   ) {
-    await this.validateOrganizationOwnership(id, currentUser);
+    const profile = await this.validateOrganizationOwnership(id, currentUser);
+
+    const updatedStatus =
+      currentUser.role === user_role_enum.ADMIN &&
+      data.verification_status !== undefined
+        ? data.verification_status
+        : profile.verification_status;
 
     return this.prisma.organization_profile.update({
       where: { id },
@@ -105,7 +115,7 @@ export class OrganizationProfileService {
         user_id: data.user_id,
         name: data.name,
         description: data.description,
-        verification_status: data.verification_status,
+        verification_status: updatedStatus,
         official_docs_url: data.official_docs_url,
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,
@@ -116,7 +126,6 @@ export class OrganizationProfileService {
 
   async deleteOrganizationProfile(id: number, currentUser: RequestUser) {
     await this.validateOrganizationOwnership(id, currentUser);
-
     return this.prisma.organization_profile.delete({ where: { id } });
   }
 }
