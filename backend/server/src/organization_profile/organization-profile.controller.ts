@@ -10,18 +10,24 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { user_role_enum, verification_status_enum } from '@prisma/client';
-import { OrganizationProfileService } from './organization-profile.service';
+import * as organizationProfileService_1 from './organization-profile.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
-@ApiTags('Профілі організацій (Organization Profiles)')
+@ApiTags('Organization Profiles')
 @Controller('organization-profiles')
 export class OrganizationProfileController {
   constructor(
-    private readonly organizationProfileService: OrganizationProfileService,
+    private readonly organizationProfileService: organizationProfileService_1.OrganizationProfileService,
   ) {}
 
   @Public()
@@ -86,29 +92,46 @@ export class OrganizationProfileController {
   }
 
   @Post()
-  @Roles(user_role_enum.ADMIN) //TODO own
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити профіль організації' })
-  async create(@Body() data: CreateOrganizationProfileDto) {
-    return this.organizationProfileService.createOrganizationProfile(data);
+  async create(
+    @Body() data: CreateOrganizationProfileDto,
+    @CurrentUser() currentUser: organizationProfileService_1.RequestUser,
+  ) {
+    return this.organizationProfileService.createOrganizationProfile(
+      data,
+      currentUser,
+    );
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ADMIN) //TODO own
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити профіль організації' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateOrganizationProfileDto,
+    @CurrentUser() currentUser: organizationProfileService_1.RequestUser,
   ) {
     return this.organizationProfileService.updateOrganizationProfileFull(
       id,
       data,
+      currentUser,
     );
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN) //TODO own
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити профіль організації' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.organizationProfileService.deleteOrganizationProfile(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: organizationProfileService_1.RequestUser,
+  ) {
+    return this.organizationProfileService.deleteOrganizationProfile(
+      id,
+      currentUser,
+    );
   }
 }
