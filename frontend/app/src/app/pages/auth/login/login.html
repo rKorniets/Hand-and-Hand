@@ -1,0 +1,69 @@
+<section class="login">
+
+  <div class="login__container">
+
+    <div class="login__title-wrapper">
+      <h1 class="login__title">Вхід</h1>
+    </div>
+
+    <div class="login__tabs">
+      <button
+        class="login__tab"
+        [class.login__tab--active]="activeTab === 'user'"
+        (click)="setTab('user')">
+        Користувач
+      </button>
+      <button
+        class="login__tab"
+        [class.login__tab--active]="activeTab === 'org'"
+        (click)="setTab('org')">
+        Організація
+      </button>
+    </div>
+
+    <!-- Користувач -->
+    @if (activeTab === 'user') {
+      <form class="login__form">
+        <div class="login__field">
+          <label class="login__label">Пошта:</label>
+          <input class="login__input" type="email" placeholder="example@gmail.com" />
+        </div>
+
+        <div class="login__field">
+          <label class="login__label">Пароль:</label>
+          <input class="login__input" type="password" placeholder="******" />
+        </div>
+
+        <button type="submit" class="login__button">Увійти</button>
+
+        <div class="login__register">
+          <span>Ще не маєш акаунту?</span>
+          <a routerLink="/register">Реєструйся!</a>
+        </div>
+      </form>
+    }
+
+    <!-- Організація -->
+    @if (activeTab === 'org') {
+      <form class="login__form">
+        <div class="login__field">
+          <label class="login__label">ЄДРПОУ:</label>
+          <input class="login__input" type="text" placeholder="8 цифр" maxlength="8" />
+        </div>
+
+        <div class="login__field">
+          <label class="login__label">Пароль:</label>
+          <input class="login__input" type="password" placeholder="******" />
+        </div>
+
+        <button type="submit" class="login__button">Увійти</button>
+
+        <div class="login__register">
+          <span>Ще не маєш акаунту?</span>
+          <a routerLink="/register">Реєструйся!</a>
+        </div>
+      </form>
+    }
+
+  </div>
+</section>

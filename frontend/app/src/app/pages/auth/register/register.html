@@ -1,0 +1,99 @@
+<section class="register">
+
+  <div class="register__container">
+
+    <div class="register__title-wrapper">
+      <h1 class="register__title">Реєстрація</h1>
+    </div>
+
+    <div class="register__tabs">
+      <button
+        class="register__tab"
+        [class.register__tab--active]="activeTab === 'user'"
+        (click)="setTab('user')">
+        Користувач
+      </button>
+      <button
+        class="register__tab"
+        [class.register__tab--active]="activeTab === 'org'"
+        (click)="setTab('org')">
+        Організація
+      </button>
+    </div>
+
+    <!-- Користувач -->
+    @if (activeTab === 'user') {
+      <form class="register__form">
+        <div class="register__row">
+          <div class="register__field">
+            <span class="register__label">Ім'я:</span>
+            <input class="register__input" placeholder="Іван" />
+          </div>
+          <div class="register__field">
+            <span class="register__label">Прізвище:</span>
+            <input class="register__input" placeholder="Іваненко" />
+          </div>
+        </div>
+
+        <div class="register__field">
+          <span class="register__label">Місто:</span>
+          <select class="register__input">
+            <option disabled selected>Вибрати</option>
+            <option>Львів</option>
+            <option>Київ</option>
+          </select>
+        </div>
+
+        <div class="register__field">
+          <span class="register__label">Пошта:</span>
+          <input class="register__input" placeholder="example@gmail.com" />
+        </div>
+
+        <div class="register__field">
+          <span class="register__label">Пароль:</span>
+          <input type="password" class="register__input" placeholder="******" />
+        </div>
+
+        <button class="register__button">Далі</button>
+
+        <div class="register__login">
+          <span>Вже маєш акаунт?</span>
+          <a routerLink="/login">Заходь тут!</a>
+        </div>
+      </form>
+    }
+
+    <!-- Організація -->
+    @if (activeTab === 'org') {
+      <form class="register__form">
+        <div class="register__field">
+          <span class="register__label">Назва:</span>
+          <input class="register__input" placeholder="Ввести" />
+        </div>
+
+        <div class="register__field">
+          <span class="register__label">ЄДРПОУ:</span>
+          <input class="register__input" placeholder="8 цифр" maxlength="8" />
+        </div>
+
+        <div class="register__field">
+          <span class="register__label">Пошта:</span>
+          <input class="register__input" placeholder="example@gmail.com" />
+        </div>
+
+        <div class="register__field">
+          <span class="register__label">Пароль:</span>
+          <input type="password" class="register__input" placeholder="******" />
+        </div>
+
+        <button class="register__button">Далі</button>
+
+        <div class="register__login">
+          <span>Вже маєш акаунт?</span>
+          <a routerLink="/login">Заходь тут!</a>
+        </div>
+      </form>
+    }
+
+  </div>
+</section>
