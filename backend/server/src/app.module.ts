@@ -17,6 +17,7 @@ import { ReportModule } from './report/report.module';
 import { TicketModule } from './ticket/ticket.module';
 import { WarningModule } from './warning/warning.module';
 import { TaskModule } from './task/task.module';
+import { LocationModule } from './location/location.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TaskModule } from './task/task.module';
     TicketModule,
     WarningModule,
     TaskModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [
