@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
-import { Categories } from "../../fundraising-campaigns/categories/categories";
-import { ListFundraisingCampaigns } from "../../fundraising-campaigns/list-fundraising-campaigns/list-fundraising-campaigns";
+import { Component, Input } from '@angular/core';
+import { Organization } from '../organizations.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-list-org',
-    imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './list-org.html',
-  styleUrl: './list-org.scss',
+  styleUrls: ['./list-org.scss'],
 })
-export class ListOrg {}
+export class ListOrgComponent {
+  @Input() organizations: Organization[] = [];
+}
