@@ -16,6 +16,7 @@ import { FundraisingCampaignModule } from './fundraising_campaign/fundraising_ca
 import { ReportModule } from './report/report.module';
 import { TicketModule } from './ticket/ticket.module';
 import { WarningModule } from './warning/warning.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { WarningModule } from './warning/warning.module';
     ReportModule,
     TicketModule,
     WarningModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [
