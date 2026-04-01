@@ -16,7 +16,6 @@ import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.
 import {
   fundraising_campaign_status_enum,
   user_role_enum,
-  user_status_enum,
 } from '@prisma/client';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -39,9 +38,13 @@ export class FundraisingCampaignController {
     required: false,
     description: 'Фільтр за статусом',
   })
+  @ApiQuery({ name: 'skip', required: false })
+  @ApiQuery({ name: 'search', required: false })
   async findAll(
     @Query('limit') limitStr?: string,
+    @Query('skip') skipStr?: string,
     @Query('status') status?: string,
+    @Query('search') search?: string,
   ) {
     const DEFAULT_LIMIT = 5;
     const MIN_LIMIT = 1;
@@ -51,7 +54,11 @@ export class FundraisingCampaignController {
     const normalizedLimit = Number.isNaN(parsedLimit)
       ? DEFAULT_LIMIT
       : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
-
+    const DEFAULT_SKIP = 0;
+    const parsedSkip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    const normalizedSkip = Number.isNaN(parsedSkip)
+      ? DEFAULT_SKIP
+      : Math.max(parsedSkip, DEFAULT_SKIP);
     let normalizedStatus: fundraising_campaign_status_enum | undefined;
     if (status !== undefined) {
       if (!(status in fundraising_campaign_status_enum)) {
@@ -63,7 +70,12 @@ export class FundraisingCampaignController {
         ];
     }
 
-    return this.service.findAll(normalizedLimit, normalizedStatus);
+    return this.service.findAll(
+      normalizedLimit,
+      normalizedSkip,
+      normalizedStatus,
+      search,
+    );
   }
 
   @Post()
