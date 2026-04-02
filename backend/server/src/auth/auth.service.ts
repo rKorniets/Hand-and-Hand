@@ -66,14 +66,27 @@ export class AuthService {
         },
       });
 
-      await tx.organization_profile.create({
-        data: {
-          user_id: u.id,
-          name: dto.name,
-          edrpou: dto.edrpou,
-          contact_email: dto.email,
-        },
-      });
+      if (dto.role === RegisterRole.VOLUNTEER) {
+        await tx.volunteer_profile.create({
+          data: {
+            user_id: u.id,
+            display_name: dto.displayName,
+            phone: dto.phone || '',
+            bio: dto.bio || '',
+          },
+        });
+      } else if (dto.role === RegisterRole.ORGANIZATION) {
+        await tx.organization_profile.create({
+          data: {
+            user_id: u.id,
+            name: dto.displayName,
+            description: dto.bio || '',
+            contact_phone: dto.phone || '',
+            contact_email: dto.email,
+            mission: '',
+          },
+        });
+      }
 
       return u;
     });

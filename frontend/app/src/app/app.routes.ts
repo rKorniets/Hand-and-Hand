@@ -8,7 +8,7 @@ import { NewsResolver } from './pages/news/news.resolver';
 import { EventsResolver } from './pages/events/events.resolver';
 import { EventDetailComponent } from './pages/events/event-detail/event-detail';
 import { FundraisingCampaigns } from './pages/fundraising-campaigns/fundraising-campaigns';
-import { Organizations } from './pages/organizations/organizations';
+import { OrganizationsPage } from './pages/organizations/organizations';
 import { NewsDetailComponent } from './pages/news/news-detail/news-detail';
 import { LoginComponent } from './pages/auth/login/login';
 import { RegisterComponent } from './pages/auth/register/register';

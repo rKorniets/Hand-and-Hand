@@ -1,0 +1,25 @@
+.organizations {
+  width: 100%;
+
+  &__wrapper {
+    display: flex;
+    gap: 80px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  &__sidebar {
+    flex: 0 0 400px;
+    min-width: 0;
+    position: sticky;
+    top: 20px;
+  }
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+}

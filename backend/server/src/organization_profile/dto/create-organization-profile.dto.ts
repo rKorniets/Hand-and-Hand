@@ -44,4 +44,5 @@ export class CreateOrganizationProfileDto {
   contact_phone?: string;
   contact_email?: string;
   location_id?: number;
+  mission: string;
 }
