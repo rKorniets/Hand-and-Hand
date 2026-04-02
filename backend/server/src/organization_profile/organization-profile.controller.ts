@@ -48,10 +48,12 @@ export class OrganizationProfileController {
     required: false,
     description: 'Фільтр за статусом верифікації (PENDING, VERIFIED, REJECTED)',
   })
+  @ApiQuery({ name: 'search', required: false })
   async getOrganizationProfiles(
     @Query('limit') limitStr?: string,
     @Query('skip') skipStr?: string,
     @Query('verificationStatus') verificationStatusStr?: string,
+    @Query('search') search?: string,
   ) {
     const DEFAULT_LIMIT = 5;
     const MIN_LIMIT = 1;
@@ -81,6 +83,7 @@ export class OrganizationProfileController {
       limit,
       skip,
       verificationStatus,
+      search,
     );
   }
 

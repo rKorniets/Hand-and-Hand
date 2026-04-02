@@ -48,16 +48,31 @@ export class OrganizationProfileService {
     limit: number,
     skip: number,
     verificationStatus?: verification_status_enum,
+    search?: string,
   ) {
-    const whereClause: Prisma.organization_profileWhereInput =
-      verificationStatus ? { verification_status: verificationStatus } : {};
+    const whereClause: Prisma.organization_profileWhereInput = {
+      ...(verificationStatus && {
+        verification_status: verificationStatus,
+      }),
+      ...(search && {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
 
-    return this.prisma.organization_profile.findMany({
-      where: whereClause,
-      take: limit,
-      skip: skip,
-      orderBy: { created_at: 'desc' },
-    });
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.organization_profile.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.organization_profile.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async getOrganizationProfileById(id: number) {

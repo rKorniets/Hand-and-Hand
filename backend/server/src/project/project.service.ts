@@ -6,8 +6,21 @@ import { CreateProjectDto } from './dto/create-project.dto';
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
-  async getProjects(limit: number, skip: number, status?: project_status_enum) {
-    const whereClause: Prisma.projectWhereInput = status ? { status } : {};
+  async getProjects(
+    limit: number,
+    skip: number,
+    status?: project_status_enum,
+    search?: string,
+  ) {
+    const whereClause: Prisma.projectWhereInput = {
+      ...(status && { status }),
+      ...(search && {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.project.findMany({

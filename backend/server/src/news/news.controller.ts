@@ -14,7 +14,7 @@ import { CreateNewsDto } from './dto/create-news.dto';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
-import {user_role_enum} from "@prisma/client";
+import { user_role_enum } from '@prisma/client';
 
 @ApiTags('Новини (News)')
 @Controller('news')
@@ -38,10 +38,12 @@ export class NewsController {
     required: false,
     description: 'Фільтр за закріпленими новинами (true/false)',
   })
+  @ApiQuery({ name: 'search', required: false })
   async getNews(
     @Query('limit') limitStr?: string,
     @Query('skip') skipStr?: string,
     @Query('isPinned') isPinnedStr?: string,
+    @Query('search') search?: string,
   ) {
     const DEFAULT_LIMIT = 5;
     const MIN_LIMIT = 1;
@@ -64,7 +66,12 @@ export class NewsController {
     if (isPinnedStr === 'true') isPinned = true;
     if (isPinnedStr === 'false') isPinned = false;
 
-    return this.newsService.getNews(normalizedLimit, normalizedSkip, isPinned);
+    return this.newsService.getNews(
+      normalizedLimit,
+      normalizedSkip,
+      isPinned,
+      search,
+    );
   }
 
   @Get(':id')
