@@ -24,7 +24,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { user_role_enum } from '@prisma/client';
 
-@ApiTags('Профілі волонтерів (Volunteer Profiles)')
+@ApiTags('Volunteer Profiles')
 @ApiBearerAuth()
 @Controller('volunteer-profiles')
 export class VolunteerProfileController {
