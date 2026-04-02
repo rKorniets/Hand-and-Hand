@@ -32,6 +32,7 @@ export class OrganizationProfileService {
       data: {
         user_id: data.user_id,
         name: data.name,
+        edrpou: data.edrpou,
         description: data.description,
         verification_status: data.verification_status ?? verification_status_enum.PENDING,
         official_docs_url: data.official_docs_url,
@@ -51,6 +52,7 @@ export class OrganizationProfileService {
       data: {
         user_id: data.user_id,
         name: data.name,
+        edrpou: data.edrpou,
         description: data.description,
         verification_status: data.verification_status,
         official_docs_url: data.official_docs_url,
