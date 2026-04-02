@@ -1,0 +1,31 @@
+<section class="org">
+  <div class="org__header">
+    <h1 class="org__title">Організації</h1>
+  </div>
+
+  <div class="org__grid">
+    @for (org of organizations; track org.id) {
+      <article class="org-card">
+        <div class="org-card__header">
+          <div class="org-card__logo-placeholder">
+            <img src="assets/images/default-org.png" [alt]="org.name">
+          </div>
+          <h2 class="org-card__name">{{ org.name }}</h2>
+        </div>
+
+        <div class="org-card__body">
+          <div class="org-card__contacts">
+            <span class="org-card__email">{{ org.contact_email }}</span>
+            <span class="org-card__location">{{ org.location?.city }}, {{ org.location?.address }}</span>
+          </div>
+
+          <p class="org-card__mission">
+            <strong>Місія:</strong> {{ org.mission }}
+          </p>
+        </div>
+      </article>
+    } @empty {
+      <div class="org__empty">Наразі список організацій порожній.</div>
+    }
+  </div>
+</section>

@@ -29,10 +29,12 @@ export class ProjectController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'skip', required: false })
   @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'search', required: false })
   async getProjects(
     @Query('limit') limitStr?: string,
     @Query('skip') skipStr?: string,
     @Query('status') status?: string,
+    @Query('search') search?: string,
   ) {
     const DEFAULT_LIMIT = 5;
     const MIN_LIMIT = 1;
@@ -62,6 +64,7 @@ export class ProjectController {
       normalizedLimit,
       normalizedSkip,
       normalizedStatus,
+      search,
     );
   }
 

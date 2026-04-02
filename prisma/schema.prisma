@@ -45,12 +45,13 @@ model app_user {
 }
 
 model category {
-  id            Int             @id @default(autoincrement())
-  name          String
-  slug          String          @unique
-  created_at    DateTime        @default(now()) @db.Timestamptz(6)
-  news_category news_category[]
-  task_category task_category[]
+  id                     Int             @id @default(autoincrement())
+  name                   String
+  slug                   String          @unique
+  created_at             DateTime        @default(now()) @db.Timestamptz(6)
+  news_category          news_category[]
+  task_category          task_category[]
+  organization_category  organization_category[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -128,13 +129,28 @@ model organization_profile {
   contact_email        String?
   location_id          Int?
   created_at           DateTime                 @default(now()) @db.Timestamptz(6)
+  mission              String
   fundraising_campaign fundraising_campaign[]
   location             location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
   app_user             app_user                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
   project              project[]
   report               report[]
+  organization_category organization_category[]
 
   @@index([location_id], map: "idx_organization_profile_location_id")
+}
+
+model organization_category {
+  id                   Int                  @id @default(autoincrement())
+  organization_id      Int
+  category_id          Int
+  created_at           DateTime             @default(now()) @db.Timestamptz(6)
+  category             category             @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_category")
+  organization_profile organization_profile @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_org")
+
+  @@unique([organization_id, category_id], map: "uq_organization_category")
+  @@index([category_id], map: "idx_organization_category_category_id")
+  @@index([organization_id], map: "idx_organization_category_org_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

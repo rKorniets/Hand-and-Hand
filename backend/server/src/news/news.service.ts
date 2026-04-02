@@ -1,25 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class NewsService {
   constructor(private prisma: PrismaService) {}
 
-  async getNews(limit: number, skip: number, isPinned?: boolean) {
-    const whereClause: { is_pinned?: boolean } = {};
-    if (isPinned !== undefined) {
-      whereClause.is_pinned = isPinned;
-    }
+  async getNews(
+    limit: number,
+    skip: number,
+    isPinned?: boolean,
+    search?: string,
+  ) {
+    const whereClause: Prisma.newsWhereInput = {
+      ...(isPinned !== undefined && { is_pinned: isPinned }),
+      ...(search && {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
 
-    return this.prisma.news.findMany({
-      where: whereClause,
-      take: limit,
-      skip: skip,
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.news.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.news.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async getNewsById(id: number) {

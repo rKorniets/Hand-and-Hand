@@ -150,6 +150,7 @@ CREATE TABLE "organization_profile" (
     "contact_email" TEXT NOT NULL,
     "location_id" INTEGER,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "mission" TEXT,
 
     CONSTRAINT "organization_profile_pkey" PRIMARY KEY ("id")
 );

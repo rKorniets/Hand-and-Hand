@@ -7,15 +7,33 @@ import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.
 export class FundraisingCampaignService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(limit: number, status?: fundraising_campaign_status_enum) {
-    const whereClause: Prisma.fundraising_campaignWhereInput = status
-      ? { status }
-      : {};
-    return this.prisma.fundraising_campaign.findMany({
-      where: whereClause,
-      take: limit,
-      orderBy: { created_at: 'desc' },
-    });
+  async findAll(
+    limit: number,
+    skip: number,
+    status?: fundraising_campaign_status_enum,
+    search?: string,
+  ) {
+    const whereClause: Prisma.fundraising_campaignWhereInput = {
+      ...(status && { status }),
+      ...(search && {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.fundraising_campaign.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip, // ← новий
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.fundraising_campaign.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async create(data: CreateFundraisingCampaignDto) {
@@ -32,7 +50,12 @@ export class FundraisingCampaignService {
   async remove(id: number) {
     return this.prisma.fundraising_campaign.delete({ where: { id } });
   }
-  async processDonation(campaignId: number, amount: number, donorName?: string, message?: string) {
+  async processDonation(
+    campaignId: number,
+    amount: number,
+    donorName?: string,
+    message?: string,
+  ) {
     return await this.prisma.$transaction(async (tx) => {
       const newDonation = await tx.donation.create({
         data: {

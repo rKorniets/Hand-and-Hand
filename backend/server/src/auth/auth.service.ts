@@ -33,7 +33,7 @@ export class AuthService {
         email: dto.email,
         password_hash: passwordHash,
         role: user_role_enum.APP_USER,
-        status: user_status_enum.PENDING,
+        status: user_status_enum.ACTIVE, // Змінено з PENDING на ACTIVE для легкого тестування
         first_name: dto.firstName,
         last_name: dto.lastName,
         city: dto.city,
@@ -62,7 +62,7 @@ export class AuthService {
           email: dto.email,
           password_hash: passwordHash,
           role: user_role_enum.ORGANIZATION,
-          status: user_status_enum.PENDING,
+          status: user_status_enum.PENDING, // Організації зазвичай чекають на апрув
         },
       });
 
@@ -72,6 +72,7 @@ export class AuthService {
           name: dto.name,
           edrpou: dto.edrpou,
           contact_email: dto.email,
+          mission: '',
         },
       });
 
@@ -85,9 +86,9 @@ export class AuthService {
     const user = await this.prisma.app_user.findUnique({
       where: { email: dto.email },
     });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    if (user.role === user_role_enum.ORGANIZATION) {
+    // Перевірка існування та ролі
+    if (!user || user.role !== user_role_enum.APP_USER) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -106,7 +107,10 @@ export class AuthService {
       where: { edrpou: dto.edrpou },
       include: { app_user: true },
     });
-    if (!orgProfile) throw new UnauthorizedException('Invalid credentials');
+
+    if (!orgProfile || !orgProfile.app_user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const user = orgProfile.app_user;
 
@@ -114,7 +118,7 @@ export class AuthService {
     if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
     if (user.status !== user_status_enum.ACTIVE) {
-      throw new ForbiddenException('Account is not active');
+      throw new ForbiddenException('Organization account is not active');
     }
 
     return this.signToken(user);
@@ -133,9 +137,12 @@ export class AuthService {
       status: user.status,
     };
 
+    const secret = this.config.get<string>('JWT_ACCESS_SECRET');
+    const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
+
     const accessToken = await this.jwt.signAsync(payload, {
-      secret: this.config.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: (this.config.get<string>('ACCESS_TOKEN_TTL') || '15m') as any,
+      secret,
+      expiresIn: ttl as any,
     });
 
     return { accessToken };

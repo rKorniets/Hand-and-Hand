@@ -10,21 +10,29 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { user_role_enum, user_status_enum } from '@prisma/client';
 import { AppUserService } from './app-user.service';
+import type { RequestUser } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
-import { Public } from '../auth/decorators/public.decorator';
+import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
-@ApiTags('Користувачі (App Users)')
+@ApiTags('App Users')
 @Controller('app-users')
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
   @Get()
+  @ApiBearerAuth()
   @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Отримати список користувачів' })
+  @ApiOperation({ summary: 'Отримати список користувачів (Тільки ADMIN)' })
   @ApiQuery({
     name: 'limit',
     required: false,
@@ -84,36 +92,57 @@ export class AppUserController {
     return this.appUserService.getUsers(limit, skip, role, status);
   }
 
-  @Public()
-  @Roles(user_role_enum.ADMIN)
+  @Get(':id')
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.ADMIN,
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+  )
   @ApiOperation({ summary: 'Отримати користувача за ID' })
-  async getUserById(@Param('id', ParseIntPipe) id: number) {
-    return this.appUserService.getUserById(id);
+  async getUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.appUserService.getUserById(id, currentUser);
   }
 
   @Post()
+  @ApiBearerAuth()
   @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Створити нового користувача' })
+  @ApiOperation({ summary: 'Створити нового користувача (Тільки ADMIN)' })
   async create(@Body() data: CreateAppUserDto) {
     return this.appUserService.createUser(data);
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ADMIN)
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.ADMIN,
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+  )
   @ApiOperation({ summary: 'Оновити дані користувача' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: CreateAppUserDto,
+    @Body() data: UpdateAppUserDto,
+    @CurrentUser() currentUser: RequestUser,
   ) {
-    return this.appUserService.updateUserFull(id, data);
+    return this.appUserService.updateUserFull(id, data, currentUser);
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN)
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.ADMIN,
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+  )
   @ApiOperation({ summary: 'Видалити користувача' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.appUserService.deleteUser(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.appUserService.deleteUser(id, currentUser);
   }
 }
-
-//TODO OWNERSHIP
