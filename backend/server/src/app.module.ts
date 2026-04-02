@@ -18,7 +18,7 @@ import { TicketModule } from './ticket/ticket.module';
 import { WarningModule } from './warning/warning.module';
 import { TaskModule } from './task/task.module';
 import { LocationModule } from './location/location.module';
-
+import { RewardModule } from './reward/reward.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -38,6 +38,7 @@ import { LocationModule } from './location/location.module';
     WarningModule,
     TaskModule,
     LocationModule,
+    RewardModule,
   ],
   controllers: [AppController],
   providers: [
