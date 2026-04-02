@@ -30,6 +30,9 @@ model app_user {
   status                                 user_status_enum      @default(PENDING)
   created_at                             DateTime              @default(now()) @db.Timestamptz(6)
   points                                 Int                   @default(0)
+  first_name                             String?
+  last_name                              String?
+  city                                   String?
   admin_profile                          admin_profile?
   news                                   news[]
   organization_profile                   organization_profile?
@@ -117,11 +120,12 @@ model organization_profile {
   id                   Int                      @id @default(autoincrement())
   user_id              Int                      @unique
   name                 String
-  description          String
+  edrpou               String                   @unique
+  description          String?
   verification_status  verification_status_enum @default(PENDING)
   official_docs_url    String?
-  contact_phone        String
-  contact_email        String
+  contact_phone        String?
+  contact_email        String?
   location_id          Int?
   created_at           DateTime                 @default(now()) @db.Timestamptz(6)
   mission              String
@@ -427,6 +431,7 @@ enum ticket_status_enum {
 }
 
 enum user_role_enum {
+  APP_USER
   VOLUNTEER
   ORGANIZATION
   ADMIN

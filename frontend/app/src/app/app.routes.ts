@@ -10,6 +10,8 @@ import { EventDetailComponent } from './pages/events/event-detail/event-detail';
 import { FundraisingCampaigns } from './pages/fundraising-campaigns/fundraising-campaigns';
 import { OrganizationsPage } from './pages/organizations/organizations';
 import { NewsDetailComponent } from './pages/news/news-detail/news-detail';
+import { LoginComponent } from './pages/auth/login/login';
+import { RegisterComponent } from './pages/auth/register/register';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -20,5 +22,9 @@ export const routes: Routes = [
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'events/:id', component: EventDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
-  { path: 'organizations', component: OrganizationsPage},
+  { path: 'organizations', component: Organizations},
+  { path: 'events', component: Events },
+  { path: 'news', component: NewsComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
 ];

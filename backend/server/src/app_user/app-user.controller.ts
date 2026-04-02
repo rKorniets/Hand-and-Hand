@@ -17,7 +17,7 @@ import { CreateAppUserDto } from './dto/create-app-user.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 
-@ApiTags('Користувачі (App Users)')
+@ApiTags('App Users')
 @Controller('app-users')
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}

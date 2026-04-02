@@ -10,15 +10,22 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { VolunteerProfileService } from './volunteer-profile.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { user_role_enum } from '@prisma/client';
 
-@ApiTags('Профілі волонтерів (Volunteer Profiles)')
+@ApiTags('Volunteer Profiles')
+@ApiBearerAuth()
 @Controller('volunteer-profiles')
 export class VolunteerProfileController {
   constructor(
@@ -86,29 +93,42 @@ export class VolunteerProfileController {
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER) //TODO ownership...
+  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити профіль волонтера' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateVolunteerProfileDto,
+    @CurrentUser() user: any,
   ) {
-    return this.volunteerProfileService.updateVolunteerProfileFull(id, data);
+    return this.volunteerProfileService.updateVolunteerProfileFull(
+      id,
+      data,
+      user,
+    );
   }
 
   @Patch(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER) //TODO ownership...
+  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Частково оновити профіль волонтера' })
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateVolunteerProfileDto,
+    @CurrentUser() user: any,
   ) {
-    return this.volunteerProfileService.updateVolunteerProfilePartial(id, data);
+    return this.volunteerProfileService.updateVolunteerProfilePartial(
+      id,
+      data,
+      user,
+    );
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN) //TODO ownership...Denis will have work,for now only admin will have permission to delete.in other files will write TODO own <3
+  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити профіль волонтера' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.volunteerProfileService.deleteVolunteerProfile(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.volunteerProfileService.deleteVolunteerProfile(id, user);
   }
 }

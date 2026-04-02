@@ -1,36 +1,36 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsString, Length, Matches, MinLength } from 'class-validator';
 
-export enum RegisterRole {
-  VOLUNTEER = 'VOLUNTEER',
-  ORGANIZATION = 'ORGANIZATION',
-  ADMIN = 'ADMIN',
-}
+export class RegisterUserDto {
+  @IsString()
+  firstName: string;
 
-export class RegisterDto {
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  city: string;
+
   @IsEmail()
   email: string;
 
   @IsString()
   @MinLength(8)
   password: string;
+}
 
-  @IsEnum(RegisterRole)
-  role: RegisterRole;
+export class RegisterOrganizationDto {
+  @IsString()
+  name: string;
 
   @IsString()
-  displayName: string;
+  @Length(8, 8)
+  @Matches(/^\d{8}$/, { message: 'ЄДРПОУ must be exactly 8 digits' })
+  edrpou: string;
+
+  @IsEmail()
+  email: string;
 
   @IsString()
-  @IsOptional()
-  phone?: string;
-
-  @IsString()
-  @IsOptional()
-  bio?: string;
+  @MinLength(8)
+  password: string;
 }
