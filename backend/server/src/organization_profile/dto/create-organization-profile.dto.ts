@@ -21,6 +21,8 @@ export class CreateOrganizationProfileDto {
   })
   @IsOptional()
   @IsEnum(verification_status_enum)
+  edrpou: string;
+  description?: string;
   verification_status?: verification_status_enum;
 
   @ApiPropertyOptional({ description: 'Посилання на офіційні документи' })
@@ -39,5 +41,7 @@ export class CreateOrganizationProfileDto {
   @ApiPropertyOptional({ description: 'ID локації (міста)' })
   @IsOptional()
   @IsInt()
+  contact_phone?: string;
+  contact_email?: string;
   location_id?: number;
 }
