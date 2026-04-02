@@ -57,24 +57,24 @@ export class ProjectService {
       throw new NotFoundException('Project was not found');
     }
 
-    const existing = await this.prisma.project_registration.findUnique({
-      where: {
-        project_id_user_id: {
+    try {
+      return await this.prisma.project_registration.create({
+        data: {
           project_id: projectId,
           user_id: userId,
         },
-      },
-    });
-    if (existing) {
-      throw new ConflictException('You are already registered for this project');
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'You are already registered for this project',
+        );
+      }
+      throw error;
     }
-
-    return this.prisma.project_registration.create({
-      data: {
-        project_id: projectId,
-        user_id: userId,
-      },
-    });
   }
 
   async unregisterFromProject(projectId: number, userId: number) {
