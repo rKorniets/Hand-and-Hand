@@ -1,15 +1,15 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto, RegisterRole } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
+import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
 import { user_role_enum, user_status_enum } from '@prisma/client';
 
 @Injectable()
@@ -20,15 +20,39 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto) {
-    if (dto.role === RegisterRole.ADMIN) {
-      throw new ForbiddenException('Self-signup for ADMIN is forbidden');
-    }
-
+  async registerUser(dto: RegisterUserDto) {
     const exists = await this.prisma.app_user.findUnique({
       where: { email: dto.email },
     });
     if (exists) throw new ConflictException('Email already exists');
+
+    const passwordHash = await argon2.hash(dto.password);
+
+    const user = await this.prisma.app_user.create({
+      data: {
+        email: dto.email,
+        password_hash: passwordHash,
+        role: user_role_enum.APP_USER,
+        status: user_status_enum.PENDING,
+        first_name: dto.firstName,
+        last_name: dto.lastName,
+        city: dto.city,
+      },
+    });
+
+    return { message: 'Registered successfully', userId: user.id };
+  }
+
+  async registerOrganization(dto: RegisterOrganizationDto) {
+    const emailExists = await this.prisma.app_user.findUnique({
+      where: { email: dto.email },
+    });
+    if (emailExists) throw new ConflictException('Email already exists');
+
+    const edrpouExists = await this.prisma.organization_profile.findUnique({
+      where: { edrpou: dto.edrpou },
+    });
+    if (edrpouExists) throw new ConflictException('ЄДРПОУ already registered');
 
     const passwordHash = await argon2.hash(dto.password);
 
@@ -37,31 +61,19 @@ export class AuthService {
         data: {
           email: dto.email,
           password_hash: passwordHash,
-          role: dto.role as unknown as user_role_enum,
+          role: user_role_enum.ORGANIZATION,
           status: user_status_enum.PENDING,
         },
       });
 
-      if (dto.role === RegisterRole.VOLUNTEER) {
-        await tx.volunteer_profile.create({
-          data: {
-            user_id: u.id,
-            display_name: dto.displayName,
-            phone: dto.phone || '',
-            bio: dto.bio || '',
-          },
-        });
-      } else if (dto.role === RegisterRole.ORGANIZATION) {
-        await tx.organization_profile.create({
-          data: {
-            user_id: u.id,
-            name: dto.displayName,
-            description: dto.bio || '',
-            contact_phone: dto.phone || '',
-            contact_email: dto.email,
-          },
-        });
-      }
+      await tx.organization_profile.create({
+        data: {
+          user_id: u.id,
+          name: dto.name,
+          edrpou: dto.edrpou,
+          contact_email: dto.email,
+        },
+      });
 
       return u;
     });
@@ -69,23 +81,51 @@ export class AuthService {
     return { message: 'Registered successfully', userId: user.id };
   }
 
-  async login(dto: LoginDto) {
+  async loginUser(dto: LoginUserDto) {
     const user = await this.prisma.app_user.findUnique({
       where: { email: dto.email },
     });
-    if (!user) {
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+
+    if (user.role === user_role_enum.ORGANIZATION) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const isValid = await argon2.verify(user.password_hash, dto.password);
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
-    if (user.status !== 'ACTIVE') {
+    if (user.status !== user_status_enum.ACTIVE) {
       throw new ForbiddenException('Account is not active');
     }
 
+    return this.signToken(user);
+  }
+
+  async loginOrganization(dto: LoginOrganizationDto) {
+    const orgProfile = await this.prisma.organization_profile.findUnique({
+      where: { edrpou: dto.edrpou },
+      include: { app_user: true },
+    });
+    if (!orgProfile) throw new UnauthorizedException('Invalid credentials');
+
+    const user = orgProfile.app_user;
+
+    const isValid = await argon2.verify(user.password_hash, dto.password);
+    if (!isValid) throw new UnauthorizedException('Invalid credentials');
+
+    if (user.status !== user_status_enum.ACTIVE) {
+      throw new ForbiddenException('Account is not active');
+    }
+
+    return this.signToken(user);
+  }
+
+  private async signToken(user: {
+    id: number;
+    email: string;
+    role: user_role_enum;
+    status: user_status_enum;
+  }) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -109,6 +149,9 @@ export class AuthService {
         email: true,
         role: true,
         status: true,
+        first_name: true,
+        last_name: true,
+        city: true,
         created_at: true,
         volunteer_profile: true,
         organization_profile: true,

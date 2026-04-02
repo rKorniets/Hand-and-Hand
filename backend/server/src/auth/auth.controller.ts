@@ -2,23 +2,35 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
+import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  @Post('register/user')
+  registerUser(@Body() dto: RegisterUserDto) {
+    return this.authService.registerUser(dto);
   }
 
   @Public()
-  @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  @Post('register/organization')
+  registerOrganization(@Body() dto: RegisterOrganizationDto) {
+    return this.authService.registerOrganization(dto);
+  }
+
+  @Public()
+  @Post('login/user')
+  loginUser(@Body() dto: LoginUserDto) {
+    return this.authService.loginUser(dto);
+  }
+
+  @Public()
+  @Post('login/organization')
+  loginOrganization(@Body() dto: LoginOrganizationDto) {
+    return this.authService.loginOrganization(dto);
   }
 
   @Get('me')
