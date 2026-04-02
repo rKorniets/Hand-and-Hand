@@ -11,7 +11,12 @@ import {
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
@@ -82,13 +87,15 @@ export class NewsController {
   }
 
   @Post()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити новину' })
   async create(@Body() data: CreateNewsDto) {
     return this.newsService.createNews(data);
   }
   @Put(':id')
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити новину' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -98,6 +105,7 @@ export class NewsController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
   @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Видалити новину' })
   async remove(@Param('id', ParseIntPipe) id: number) {
