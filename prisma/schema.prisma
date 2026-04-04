@@ -209,8 +209,7 @@ model reward {
   id                Int                 @id @default(autoincrement())
   title             String
   description       String
-  cost_points       Int
-  stock             Int
+  threshold_points  Int
   is_active         Boolean             @default(true)
   created_at        DateTime            @default(now()) @db.Timestamptz(6)
   reward_redemption reward_redemption[]
@@ -221,12 +220,11 @@ model reward_redemption {
   id           Int                           @id @default(autoincrement())
   reward_id    Int
   user_id      Int
-  points_spent Int
-  status       reward_redemption_status_enum @default(PENDING)
   created_at   DateTime                      @default(now()) @db.Timestamptz(6)
   reward       reward                        @relation(fields: [reward_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_reward")
   app_user     app_user                      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_user")
 
+  @@unique([reward_id, user_id], map: "idx_reward_redemption_unique")
   @@index([reward_id], map: "idx_reward_redemption_reward_id")
   @@index([user_id], map: "idx_reward_redemption_user_id")
 }

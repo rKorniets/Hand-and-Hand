@@ -7,11 +7,8 @@ export class CreateRewardDto {
   @ApiProperty({ description: 'Опис нагороди' })
   description: string;
 
-  @ApiProperty({ description: 'Вартість у балах', example: 200 })
-  cost_points: number;
-
-  @ApiProperty({ description: 'Кількість на складі', example: 50 })
-  stock: number;
+  @ApiProperty({ description: 'Поріг балів для розблокування', example: 200 })
+  threshold_points: number;
 
   @ApiPropertyOptional({ description: 'Чи активна нагорода', default: true })
   is_active?: boolean;
