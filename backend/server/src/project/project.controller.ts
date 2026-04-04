@@ -119,7 +119,7 @@ export class ProjectController {
 
   @Get(':id/registrations')
   @Public()
-  @ApiOperation({ summary: 'Список зареєстрованих людейй на подію' })
+  @ApiOperation({ summary: 'Список зареєстрованих людей на подію' })
   async getRegistrations(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.getProjectRegistrations(id);
   }
