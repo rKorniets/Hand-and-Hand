@@ -22,7 +22,7 @@ export const routes: Routes = [
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'events/:id', component: EventDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
-  { path: 'organizations', component: Organizations},
+  { path: 'organizations', component: OrganizationsPage},
   { path: 'events', component: Events },
   { path: 'news', component: NewsComponent },
   { path: 'login', component: LoginComponent },

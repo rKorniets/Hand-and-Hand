@@ -33,7 +33,7 @@ export class AuthService {
         email: dto.email,
         password_hash: passwordHash,
         role: user_role_enum.APP_USER,
-        status: user_status_enum.ACTIVE, // Змінено з PENDING на ACTIVE для легкого тестування
+        status: user_status_enum.ACTIVE,
         first_name: dto.firstName,
         last_name: dto.lastName,
         city: dto.city,
@@ -62,7 +62,7 @@ export class AuthService {
           email: dto.email,
           password_hash: passwordHash,
           role: user_role_enum.ORGANIZATION,
-          status: user_status_enum.PENDING, // Організації зазвичай чекають на апрув
+          status: user_status_enum.PENDING,
         },
       });
 
@@ -87,7 +87,6 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    // Перевірка існування та ролі
     if (!user || user.role !== user_role_enum.APP_USER) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -148,7 +147,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async me(user: any) {
+  async me(user: { sub: number }) {
     return this.prisma.app_user.findUnique({
       where: { id: user.sub },
       select: {
