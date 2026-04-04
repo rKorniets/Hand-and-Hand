@@ -10,7 +10,12 @@ import {
   Body,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { project_status_enum, user_role_enum } from '@prisma/client';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -68,14 +73,16 @@ export class ProjectController {
   }
 
   @Post()
-  @Roles(user_role_enum.ORGANIZATION)
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
   async create(@Body() data: CreateProjectDto) {
     return this.projectService.createProject(data);
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ORGANIZATION) //TODO ownership
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION) //TODO ownership
   @ApiOperation({ summary: 'Оновити подію' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -85,7 +92,8 @@ export class ProjectController {
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ORGANIZATION) //TODO ownership
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION) //TODO ownership
   @ApiOperation({ summary: 'Видалити подію' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.deleteProject(id);

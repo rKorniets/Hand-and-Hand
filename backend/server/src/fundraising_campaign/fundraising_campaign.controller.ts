@@ -79,14 +79,14 @@ export class FundraisingCampaignController {
   }
 
   @Post()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
+  @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити збір' })
   async create(@Body() data: CreateFundraisingCampaignDto) {
     return this.service.create(data);
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN) //TODO own
+  @Roles(user_role_enum.ADMIN) //TODO own
   @ApiOperation({ summary: 'Оновити збір' })
   async update(
     @Param('id', ParseIntPipe) id: number,
