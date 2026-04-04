@@ -69,14 +69,41 @@ export class TaskAssignmentController {
     @Query('taskId') taskIdStr?: string,
     @Query('volunteerId') volunteerIdStr?: string,
   ) {
-    const limit = limitStr ? parseInt(limitStr, 10) : 10;
-    const skip = skipStr ? parseInt(skipStr, 10) : 0;
-    const taskId = taskIdStr ? parseInt(taskIdStr, 10) : undefined;
-    const volunteerId = volunteerIdStr
-      ? parseInt(volunteerIdStr, 10)
-      : undefined;
+    const DEFAULT_LIMIT = 10;
+    const MIN_LIMIT = 1;
+    const MAX_LIMIT = 50;
 
-    return this.taskAssignmentService.findAll(limit, skip, taskId, volunteerId);
+    const parsedLimit: number = limitStr
+      ? parseInt(limitStr, 10)
+      : DEFAULT_LIMIT;
+    const normalizedLimit: number = Number.isNaN(parsedLimit)
+      ? DEFAULT_LIMIT
+      : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
+
+    const DEFAULT_SKIP = 0;
+    const MIN_SKIP = 0;
+
+    const parsedSkip: number = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
+    const normalizedSkip: number = Number.isNaN(parsedSkip)
+      ? DEFAULT_SKIP
+      : Math.max(parsedSkip, MIN_SKIP);
+
+    const taskId =
+      taskIdStr && !Number.isNaN(parseInt(taskIdStr, 10))
+        ? parseInt(taskIdStr, 10)
+        : undefined;
+
+    const volunteerId =
+      volunteerIdStr && !Number.isNaN(parseInt(volunteerIdStr, 10))
+        ? parseInt(volunteerIdStr, 10)
+        : undefined;
+
+    return this.taskAssignmentService.findAll(
+      normalizedLimit,
+      normalizedSkip,
+      taskId,
+      volunteerId,
+    );
   }
 
   @Get(':id')
