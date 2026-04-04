@@ -16,7 +16,7 @@ import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
 
-@ApiTags('Локації (Locations)')
+@ApiTags('Locations')
 @Controller('locations')
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}

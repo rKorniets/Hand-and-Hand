@@ -19,6 +19,8 @@ import { WarningModule } from './warning/warning.module';
 import { TaskModule } from './task/task.module';
 import { LocationModule } from './location/location.module';
 import { RewardModule } from './reward/reward.module';
+import { TaskAssignmentModule } from './task_assignment/task_assignment.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -39,6 +41,7 @@ import { RewardModule } from './reward/reward.module';
     TaskModule,
     LocationModule,
     RewardModule,
+    TaskAssignmentModule,
   ],
   controllers: [AppController],
   providers: [
