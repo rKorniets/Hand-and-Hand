@@ -1,0 +1,136 @@
+<div class="org-detail">
+
+  @if (org) {
+    <main class="main">
+
+      <div class="top-grid">
+
+        <div class="card org-card">
+          <div class="org-card__top">
+            <div class="org-card__info">
+              <h1 class="org-card__name">{{ org.name }}</h1>
+              <ul class="org-card__meta">
+                @if (org.location) {
+                  <li>
+                    <span class="label">Адреса:</span> {{ org.location.city }}, {{ org.location.address }}
+                  </li>
+                }
+                <li><span class="label">Email:</span> {{ org.contact_email }}</li>
+                <li><span class="label">Місія:</span> {{ org.mission }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <button class="btn btn--dark btn--full">
+            Подати заявку "Потребую допомоги"
+          </button>
+        </div>
+
+        <div class="card desc-card">
+          <h3 class="desc-card__title">Опис:</h3>
+          <p class="desc-card__text">{{ org.description }}</p>
+        </div>
+
+      </div>
+
+      @if (org.events && org.events.length) {
+        <section class="card section-card">
+          <h2 class="section-title">Події</h2>
+
+          <div class="events-list__list">
+            @for (event of org.events.slice(0, 2); track event.id) {
+              <a class="events-list__item" [routerLink]="['/events', event.id]">
+                <div class="events-list__image"></div>
+
+                <div class="events-list__body">
+                  <div class="events-list__top">
+                    <h3 class="events-list__item-title">{{ event.title }}</h3>
+                    @if (event.date) {
+                      <span class="events-list__date">{{ event.date | date: 'dd.MM.yyyy' }}</span>
+                    }
+                  </div>
+                  @if (event.description) {
+                    <p class="events-list__text">{{ event.description }}</p>
+                  }
+                </div>
+              </a>
+            }
+          </div>
+
+          @if (org.events.length > 2) {
+            <button class="btn btn--outline btn--full">Переглянути більше</button>
+          }
+        </section>
+      }
+
+      @if (org.fundraising_campaigns && org.fundraising_campaigns.length) {
+        <section class="card section-card">
+          <h2 class="section-title">Збори</h2>
+
+          <div class="list__component__grid">
+            @for (item of org.fundraising_campaigns.slice(0, 2); track item.id) {
+              <a [routerLink]="['/fundraising', item.id]" class="fundraising__card">
+                <div class="fundraising__card__image"></div>
+
+                <div class="fundraising__card__body">
+                  <h3 class="fundraising__card__title">{{ item.title }}</h3>
+                  <p class="fundraising__card__description">{{ item.description }}</p>
+
+                  <div class="fundraising__card__footer">
+              <span class="fundraising__card__org-name">
+                Організатор: {{ item.organizer }}
+              </span>
+                  </div>
+                </div>
+              </a>
+            }
+          </div>
+
+          @if (org.fundraising_campaigns.length > 2) {
+            <button class="btn btn--outline btn--full">Переглянути більше</button>
+          }
+        </section>
+      }
+<!--      @if (org.members && org.members.length) {-->
+<!--        <section class="card section-card members-card">-->
+<!--          <h2 class="section-title">-->
+<!--            Список учасників ({{ org.members.length }})-->
+<!--          </h2>-->
+
+<!--          <div class="members-list">-->
+<!--            @for (member of org.members.slice(0, 4); track member.id) {-->
+<!--              <div class="member-item">-->
+<!--                <div class="member-item__avatar">-->
+<!--                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">-->
+<!--                    <circle cx="12" cy="8" r="4"/>-->
+<!--                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>-->
+<!--                  </svg>-->
+<!--                </div>-->
+<!--                <div class="member-item__info">-->
+<!--                  <span class="member-item__name">{{ member.name }}</span>-->
+<!--                  @if (member.role) {-->
+<!--                    <span class="member-item__role">{{ member.role }}</span>-->
+<!--                  }-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            }-->
+<!--          </div>-->
+
+<!--          @if (org.members.length > 4) {-->
+<!--            <button class="btn&#45;&#45;link">Більше...</button>-->
+<!--          }-->
+<!--        </section>-->
+<!--      }-->
+
+    </main>
+  } @else if (loading) {
+    <div class="loader">
+      <p>Завантаження даних про організацію...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-container">
+      <p>Ой! Не вдалося завантажити дані. Перевірте правильність посилання.</p>
+    </div>
+  }
+
+</div>
