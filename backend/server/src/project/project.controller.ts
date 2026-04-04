@@ -21,6 +21,7 @@ import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -100,8 +101,34 @@ export class ProjectController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Отримати подію за ID' })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.getProjectById(id);
+  }
+
+  @Post(':id/register')
+  @ApiOperation({ summary: 'Записатися на подію' })
+  async register(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.registerForProject(id, user.id);
+  }
+
+  @Delete(':id/register')
+  @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
+  async unregister(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.unregisterFromProject(id, user.id);
+  }
+
+  @Get(':id/registrations')
+  @Public()
+  @ApiOperation({ summary: 'Список зареєстрованих людей на подію' })
+  async getRegistrations(@Param('id', ParseIntPipe) id: number) {
+    return this.projectService.getProjectRegistrations(id);
   }
 }
