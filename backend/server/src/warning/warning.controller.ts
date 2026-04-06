@@ -20,7 +20,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { warning_status_enum, user_role_enum } from '@prisma/client';
-import { Public } from '../auth/decorators/public.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Warnings')
@@ -29,18 +29,34 @@ export class WarningController {
   constructor(private readonly service: WarningService) {}
 
   @Get()
-  @Public()
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.ADMIN,
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+  )
   @ApiOperation({ summary: 'Отримати список попереджень' })
   @ApiQuery({ name: 'status', enum: warning_status_enum, required: false })
-  async findAll(@Query('status') status?: warning_status_enum) {
-    return this.service.findAll(status);
+  async findAll(
+    @CurrentUser() currentUser: { id: number; role: user_role_enum },
+    @Query('status') status?: warning_status_enum,
+  ) {
+    return this.service.findAll(currentUser, status);
   }
 
   @Get(':id')
-  @Public()
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.ADMIN,
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+  )
   @ApiOperation({ summary: 'Отримати попередження за ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: { id: number; role: user_role_enum },
+  ) {
+    return this.service.findOne(id, currentUser);
   }
 
   @Post()
