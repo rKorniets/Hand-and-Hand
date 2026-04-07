@@ -43,12 +43,10 @@ export class NewsController {
     required: false,
     description: 'Фільтр за закріпленими новинами (true/false)',
   })
-  @ApiQuery({ name: 'search', required: false })
   async getNews(
     @Query('limit') limitStr?: string,
     @Query('skip') skipStr?: string,
     @Query('isPinned') isPinnedStr?: string,
-    @Query('search') search?: string,
   ) {
     const DEFAULT_LIMIT = 5;
     const MIN_LIMIT = 1;
@@ -71,12 +69,7 @@ export class NewsController {
     if (isPinnedStr === 'true') isPinned = true;
     if (isPinnedStr === 'false') isPinned = false;
 
-    return this.newsService.getNews(
-      normalizedLimit,
-      normalizedSkip,
-      isPinned,
-      search,
-    );
+    return this.newsService.getNews(normalizedLimit, normalizedSkip, isPinned);
   }
 
   @Get(':id')
