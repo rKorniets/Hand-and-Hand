@@ -39,6 +39,8 @@ model app_user {
   points_transaction                     points_transaction[]
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
+  joined_organization_id                 Int?
+  joined_organization                    organization_profile? @relation("OrganizationMembers", fields: [joined_organization_id], references: [id])
   warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
 }
@@ -135,6 +137,7 @@ model organization_profile {
   project              project[]
   report               report[]
   organization_category organization_category[]
+  members               app_user[]              @relation("OrganizationMembers")
 
   @@index([location_id], map: "idx_organization_profile_location_id")
 }

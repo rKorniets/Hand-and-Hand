@@ -1,5 +1,6 @@
-export type UserRole = 'VOLUNTEER' | 'ORGANIZATION' | 'ADMIN';
+export type UserRole = 'VOLUNTEER' | 'APP_USER';
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'PENDING' | 'APP_USER';
+export type TicketStatus = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'CLOSED' | 'CANCELLED';
 
 export interface AppUser {
   id: number;
@@ -12,6 +13,11 @@ export interface AppUser {
   first_name: string;
   last_name: string;
   city?: string;
+  joined_organization_id?: number;
+  joined_organization?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface Reward {
@@ -29,4 +35,24 @@ export interface ActivityItem {
   starts_at: string | Date;
   description: string;
   location: string;
+}
+
+export interface FundraisingCampaign {
+  id: number;
+  title: string;
+  description: string;
+  volunteer_profile: {
+    first_name: string;
+    last_name: string;
+  }
+}
+
+export interface ITicket {
+  id: number;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  city?: string;
+  created_at: string;
+  closed_at?: Date;
 }

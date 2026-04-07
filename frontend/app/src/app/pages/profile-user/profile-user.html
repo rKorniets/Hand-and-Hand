@@ -1,0 +1,41 @@
+<main class="user__profile__page">
+  <div class="user__profile__page__wrapper">
+
+    <div class="user__profile__page__content">
+      <section>
+        <app-main-info [user]="user"></app-main-info>
+      </section>
+
+      <section>
+        <app-activity [user]="user"></app-activity>
+      </section>
+
+      @if (isVolunteer) {
+        <section>
+          <app-fundraising-campaigns-user [user]="user"></app-fundraising-campaigns-user>
+        </section>
+      }
+
+      <section>
+        <app-requests [user]="user"></app-requests>
+      </section>
+    </div>
+
+    <aside class="user__profile__page__sidebar">
+      <section>
+        <app-user-data [user]="user"></app-user-data>
+      </section>
+
+      <section>
+        <app-achievement [user]="user"></app-achievement>
+      </section>
+
+      <div class="user__profile__page__actions">
+        <button class="verify-button">
+          Верифікуватись
+        </button>
+      </div>
+    </aside>
+
+  </div>
+</main>

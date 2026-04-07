@@ -1,0 +1,31 @@
+<div class="achievement">
+  <h3 #achieveTop class="achievement__title">Досягнення</h3>
+
+  <div class="achievement__list">
+    @for (rewardItem of (rewards | slice:0:(isExpanded ? rewards.length : 3)); track rewardItem.id) {
+
+      @if (user && user.points >= rewardItem.threshold_points) {
+        <div class="achievement__item">
+          <div class="achievement__image-placeholder">
+          </div>
+
+          <div class="achievement__info">
+            <p class="achievement__name">{{ rewardItem.title }}</p>
+            <p class="achievement__condition">
+              Умова: {{ rewardItem.threshold_points }}
+            </p>
+            <p class="achievement__description">{{ rewardItem.description }}</p>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (rewards.length > 3) {
+    <div class="achievement__button-container">
+      <button class="achievement__more" (click)="toggleAchievements()">
+        {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
+      </button>
+    </div>
+  }
+</div>
