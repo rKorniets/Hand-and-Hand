@@ -62,7 +62,7 @@ export class AuthService {
           email: dto.email,
           password_hash: passwordHash,
           role: user_role_enum.ORGANIZATION,
-          status: user_status_enum.PENDING, // Організації зазвичай чекають на апрув
+          status: user_status_enum.PENDING,
         },
       });
 
@@ -147,7 +147,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async me(user: any) {
+  async me(user: { sub: number }) {
     return this.prisma.app_user.findUnique({
       where: { id: user.sub },
       select: {
