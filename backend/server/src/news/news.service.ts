@@ -1,11 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { Prisma } from '@prisma/client';
 
+export interface RequestUser {
+  id: number;
+}
+
 @Injectable()
 export class NewsService {
   constructor(private prisma: PrismaService) {}
+
+  private async validateOwnership(id: number, currentUser: RequestUser) {
+    const news = await this.prisma.news.findUnique({ where: { id } });
+
+    if (!news) {
+      throw new NotFoundException(`Новину з ID ${id} не знайдено`);
+    }
+
+    if (news.created_by !== currentUser.id) {
+      throw new ForbiddenException(
+        'Ви можете редагувати або видаляти тільки свої новини',
+      );
+    }
+
+    return news;
+  }
 
   async getNews(
     limit: number,
@@ -42,20 +66,22 @@ export class NewsService {
     });
   }
 
-  async createNews(data: CreateNewsDto) {
+  async createNews(data: CreateNewsDto, createdBy: number) {
     return this.prisma.news.create({
       data: {
         title: data.title,
         description: data.description,
         main_content: data.main_content,
         image_url: data.image_url,
-        created_by: data.created_by,
-        is_pinned: data.is_pinned ?? false,
+        created_by: createdBy,
+        is_pinned: false,
       },
     });
   }
 
-  async updateNewsFull(id: number, data: CreateNewsDto) {
+  async updateNewsFull(id: number, data: CreateNewsDto, currentUser: RequestUser) {
+    await this.validateOwnership(id, currentUser);
+
     return this.prisma.news.update({
       where: { id },
       data: {
@@ -63,13 +89,13 @@ export class NewsService {
         description: data.description,
         main_content: data.main_content,
         image_url: data.image_url,
-        created_by: data.created_by,
-        is_pinned: data.is_pinned,
       },
     });
   }
 
-  async deleteNews(id: number) {
+  async deleteNews(id: number, currentUser: RequestUser) {
+    await this.validateOwnership(id, currentUser);
+
     return this.prisma.news.delete({
       where: { id },
     });

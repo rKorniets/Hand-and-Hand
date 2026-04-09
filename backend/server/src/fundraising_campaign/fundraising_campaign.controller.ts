@@ -10,7 +10,7 @@ import {
   ParseIntPipe,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import {
@@ -19,7 +19,7 @@ import {
 } from '@prisma/client';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CreateDonationDto } from './dto/create-donation.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
@@ -80,43 +80,68 @@ export class FundraisingCampaignController {
   }
 
   @Post()
-  @Roles(user_role_enum.ADMIN)
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+    user_role_enum.ADMIN,
+  )
   @ApiOperation({ summary: 'Створити збір' })
+  //TODO: визначити profile_id автоматично з currentUser замість DTO
   async create(@Body() data: CreateFundraisingCampaignDto) {
     return this.service.create(data);
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ADMIN) //TODO own
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити збір' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateFundraisingCampaignDto,
+    @CurrentUser() user: { sub: number },
   ) {
-    return this.service.update(id, data);
+    return this.service.update(id, data, { id: user.sub });
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN) //TODO own
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити збір' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { sub: number },
+  ) {
+    return this.service.remove(id, { id: user.sub });
   }
   @Post(':id/donations')
   @Public()
   @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
-  @Post(':id/donations')
-  @Public()
-  @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        amount: { type: 'number', example: 500, description: 'Сума донату' },
+        donor_name: {
+          type: 'string',
+          example: 'Іван Франко',
+          description: "Ім'я благодійника (необов'язково)",
+        },
+        message: {
+          type: 'string',
+          example: 'На тепловізор!',
+          description: "Коментар (необов'язково)",
+        },
+      },
+      required: ['amount'],
+    },
+  })
   async donate(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: CreateDonationDto,
+    @Body('amount') amount: number,
+    @Body('donor_name') donorName?: string,
+    @Body('message') message?: string,
   ) {
-    return this.service.processDonation(
-      id,
-      data.amount,
-      data.donor_name,
-      data.message,
-    );
+    return this.service.processDonation(id, amount, donorName, message);
   }
 }

@@ -15,6 +15,7 @@ import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import {
   ApiOperation,
   ApiQuery,
@@ -45,7 +46,7 @@ export class ReportController {
 
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити новий звіт' })
   async create(@Body() data: CreateReportDto) {
     return this.service.create(data);
@@ -53,30 +54,36 @@ export class ReportController {
 
   @Patch(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити існуючий звіт' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateReportDto,
+    @CurrentUser() user: { sub: number },
   ) {
-    return this.service.update(id, data);
+    return this.service.update(id, data, { id: user.sub });
   }
+
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Замінити звіт повністю' })
   async replace(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateReportDto,
+    @CurrentUser() user: { sub: number },
   ) {
-    return this.service.update(id, data);
+    return this.service.update(id, data, { id: user.sub });
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити звіт' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { sub: number },
+  ) {
+    return this.service.remove(id, { id: user.sub });
   }
 }

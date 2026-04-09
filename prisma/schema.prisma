@@ -42,6 +42,8 @@ model app_user {
   volunteer_profile                      volunteer_profile?
   warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
+  submitted_requests                     approval_request[]    @relation("submitted_requests")
+  reviewed_requests                      approval_request[]    @relation("reviewed_requests")
 }
 
 model category {
@@ -473,4 +475,36 @@ enum warning_status_enum {
   ACTIVE
   RESOLVED
   CANCELLED
+}
+
+enum approval_request_type_enum {
+  NEWS
+  PROJECT
+  VOLUNTEER
+  ORGANIZATION
+  FUNDRAISING
+}
+
+enum approval_request_status_enum {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model approval_request {
+  id               Int                          @id @default(autoincrement())
+  type             approval_request_type_enum
+  status           approval_request_status_enum @default(PENDING)
+  entity_id        Int
+  submitted_by     Int
+  reviewed_by      Int?
+  rejection_reason String?
+  created_at       DateTime                     @default(now()) @db.Timestamptz(6)
+  reviewed_at      DateTime?                    @db.Timestamptz(6)
+  submitter        app_user                     @relation("submitted_requests", fields: [submitted_by], references: [id], onUpdate: NoAction, map: "fk_approval_request_submitter")
+  reviewer         app_user?                    @relation("reviewed_requests", fields: [reviewed_by], references: [id], onUpdate: NoAction, map: "fk_approval_request_reviewer")
+
+  @@index([submitted_by], map: "idx_approval_request_submitted_by")
+  @@index([reviewed_by], map: "idx_approval_request_reviewed_by")
+  @@index([type, status], map: "idx_approval_request_type_status")
 }

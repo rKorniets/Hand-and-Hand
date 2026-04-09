@@ -3,8 +3,8 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
+  Patch,
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -14,6 +14,7 @@ import { UpdateTaskDto } from './dto/update_task.dto';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { user_role_enum } from '@prisma/client';
 
 @ApiTags('Tasks')
@@ -35,30 +36,38 @@ export class TaskController {
     return this.service.findOne(id);
   }
 
+  //TODO: ownership — організація може створювати/редагувати/видаляти тільки задачі своїх проєктів
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити нову задачу' })
-  async create(@Body() data: CreateTaskDto) {
-    return this.service.create(data);
+  async create(
+    @Body() data: CreateTaskDto,
+    @CurrentUser() user: { sub: number },
+  ) {
+    return this.service.create(data, { id: user.sub });
   }
 
   @Patch(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити існуючу задачу' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateTaskDto,
+    @CurrentUser() user: { sub: number },
   ) {
-    return this.service.update(id, data);
+    return this.service.update(id, data, { id: user.sub });
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити задачу' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { sub: number },
+  ) {
+    return this.service.remove(id, { id: user.sub });
   }
 }

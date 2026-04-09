@@ -75,7 +75,7 @@ export class ProjectController {
 
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
   async create(@Body() data: CreateProjectDto) {
     return this.projectService.createProject(data);
@@ -83,21 +83,25 @@ export class ProjectController {
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION) //TODO ownership
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити подію' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateProjectDto,
+    @CurrentUser() user: any,
   ) {
-    return this.projectService.updateProject(id, data);
+    return this.projectService.updateProject(id, data, { id: user.sub });
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION) //TODO ownership
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити подію' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.projectService.deleteProject(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.deleteProject(id, { id: user.sub });
   }
 
   @Get(':id')

@@ -3,25 +3,23 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, user_role_enum } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
 
 export interface RequestUser {
   id: number;
-  role: user_role_enum;
 }
 
 @Injectable()
 export class TaskAssignmentService {
   constructor(private prisma: PrismaService) {}
+
   private async validateVolunteerOwnership(
     volunteerProfileId: number,
     currentUser: RequestUser,
   ) {
-    if (currentUser.role === user_role_enum.ADMIN) return true;
-
     const profile = await this.prisma.volunteer_profile.findUnique({
       where: { id: volunteerProfileId },
     });
@@ -44,10 +42,6 @@ export class TaskAssignmentService {
       data.volunteer_profile_id,
       currentUser,
     );
-    const isConfirmed =
-      currentUser.role === user_role_enum.ADMIN
-        ? data.requester_confirmed
-        : false;
 
     return this.prisma.task_assignment.create({
       data: {
@@ -55,7 +49,7 @@ export class TaskAssignmentService {
         volunteer_profile_id: data.volunteer_profile_id,
         status: data.status,
         comment: data.comment,
-        requester_confirmed: isConfirmed,
+        requester_confirmed: false,
       },
     });
   }
@@ -103,18 +97,12 @@ export class TaskAssignmentService {
       currentUser,
     );
 
-    const updatedConfirmed =
-      currentUser.role === user_role_enum.ADMIN &&
-      data.requester_confirmed !== undefined
-        ? data.requester_confirmed
-        : assignment.requester_confirmed;
-
     return this.prisma.task_assignment.update({
       where: { id },
       data: {
         status: data.status,
         comment: data.comment,
-        requester_confirmed: updatedConfirmed,
+        requester_confirmed: assignment.requester_confirmed,
         accepted_at:
           data.status === 'ACCEPTED' && !assignment.accepted_at
             ? new Date()

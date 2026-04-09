@@ -6,14 +6,12 @@ import {
 import {
   Prisma,
   verification_status_enum,
-  user_role_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
 
 export interface RequestUser {
   id: number;
-  role: user_role_enum;
 }
 
 @Injectable()
@@ -32,10 +30,7 @@ export class OrganizationProfileService {
       throw new NotFoundException(`Профіль організації з ID ${id} не знайдено`);
     }
 
-    if (
-      currentUser.role !== user_role_enum.ADMIN &&
-      profile.user_id !== currentUser.id
-    ) {
+    if (profile.user_id !== currentUser.id) {
       throw new ForbiddenException(
         'Ви не маєте прав редагувати або видаляти чужий профіль',
       );
@@ -83,27 +78,13 @@ export class OrganizationProfileService {
     data: CreateOrganizationProfileDto,
     currentUser: RequestUser,
   ) {
-    if (
-      currentUser.role !== user_role_enum.ADMIN &&
-      data.user_id !== currentUser.id
-    ) {
-      throw new ForbiddenException(
-        'Ви не можете створити профіль для іншого користувача',
-      );
-    }
-
-    const initialStatus =
-      currentUser.role === user_role_enum.ADMIN && data.verification_status
-        ? data.verification_status
-        : verification_status_enum.PENDING;
-
     return this.prisma.organization_profile.create({
       data: {
-        user_id: data.user_id,
+        user_id: currentUser.id,
         name: data.name,
         edrpou: data.edrpou,
         description: data.description,
-        verification_status: initialStatus,
+        verification_status: verification_status_enum.PENDING,
         official_docs_url: data.official_docs_url,
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,
@@ -118,22 +99,14 @@ export class OrganizationProfileService {
     data: CreateOrganizationProfileDto,
     currentUser: RequestUser,
   ) {
-    const profile = await this.validateOrganizationOwnership(id, currentUser);
-
-    const updatedStatus =
-      currentUser.role === user_role_enum.ADMIN &&
-      data.verification_status !== undefined
-        ? data.verification_status
-        : profile.verification_status;
+    await this.validateOrganizationOwnership(id, currentUser);
 
     return this.prisma.organization_profile.update({
       where: { id },
       data: {
-        user_id: data.user_id,
         name: data.name,
         edrpou: data.edrpou,
         description: data.description,
-        verification_status: updatedStatus,
         official_docs_url: data.official_docs_url,
         contact_phone: data.contact_phone,
         contact_email: data.contact_email,

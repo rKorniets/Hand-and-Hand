@@ -33,7 +33,7 @@ export class AuthService {
         email: dto.email,
         password_hash: passwordHash,
         role: user_role_enum.APP_USER,
-        status: user_status_enum.ACTIVE, // Змінено з PENDING на ACTIVE для легкого тестування
+        status: user_status_enum.ACTIVE,
         first_name: dto.firstName,
         last_name: dto.lastName,
         city: dto.city,
@@ -87,8 +87,7 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    // Перевірка існування та ролі
-    if (!user || user.role !== user_role_enum.APP_USER) {
+    if (!user || user.role === user_role_enum.ORGANIZATION) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
