@@ -78,7 +78,7 @@ export class AppUserService {
     return this.prisma.app_user.update({
       where: { id },
       data: {
-        ...(data.email && { email: data.email }),
+        ...(data.email !== undefined && { email: data.email }),
         ...(data.first_name !== undefined && { first_name: data.first_name }),
         ...(data.last_name !== undefined && { last_name: data.last_name }),
         ...(data.city !== undefined && { city: data.city }),

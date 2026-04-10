@@ -65,7 +65,7 @@ export class TaskAssignmentAdminService {
     return this.prisma.task_assignment.update({
       where: { id },
       data: {
-        ...(data.status && { status: data.status }),
+        ...(data.status !== undefined && { status: data.status }),
         ...(data.comment !== undefined && { comment: data.comment }),
         ...(data.requester_confirmed !== undefined && { requester_confirmed: data.requester_confirmed }),
         ...(data.status === 'ACCEPTED' && !assignment.accepted_at && { accepted_at: new Date() }),

@@ -71,9 +71,9 @@ export class ProjectAdminService {
     return this.prisma.project.update({
       where: { id },
       data: {
-        ...(data.title && { title: data.title }),
-        ...(data.description && { description: data.description }),
-        ...(data.status && { status: data.status }),
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.status !== undefined && { status: data.status }),
         ...(data.starts_at !== undefined && { starts_at: data.starts_at }),
         ...(data.ends_at !== undefined && { ends_at: data.ends_at }),
         updated_at: new Date(),

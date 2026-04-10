@@ -49,6 +49,8 @@ import { TaskAssignmentAdminService } from './task-assignment/task-assignment.ad
 import { VolunteerProfileAdminController } from './volunteer-profile/volunteer-profile.admin.controller';
 import { VolunteerProfileAdminService } from './volunteer-profile/volunteer-profile.admin.service';
 
+import { SuperAdminGuard } from './guards/super-admin.guard';
+
 @Module({
   imports: [PrismaModule, RewardModule, LocationModule],
   controllers: [
@@ -86,6 +88,7 @@ import { VolunteerProfileAdminService } from './volunteer-profile/volunteer-prof
     ReportAdminService,
     TaskAssignmentAdminService,
     VolunteerProfileAdminService,
+    SuperAdminGuard,
   ],
 })
 export class AdminModule {}

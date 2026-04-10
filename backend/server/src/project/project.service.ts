@@ -64,6 +64,8 @@ export class ProjectService {
     return { data, total };
   }
 
+  // TODO: determine organization_profile_id from currentUser instead of accepting it from DTO
+  // to prevent users from creating projects on behalf of other organizations
   async createProject(data: CreateProjectDto) {
     return this.prisma.project.create({ data });
   }

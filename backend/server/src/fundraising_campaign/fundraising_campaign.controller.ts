@@ -10,9 +10,10 @@ import {
   ParseIntPipe,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
+import { CreateDonationDto } from './dto/create-donation.dto';
 import {
   fundraising_campaign_status_enum,
   user_role_enum,
@@ -117,31 +118,10 @@ export class FundraisingCampaignController {
   @Post(':id/donations')
   @Public()
   @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        amount: { type: 'number', example: 500, description: 'Сума донату' },
-        donor_name: {
-          type: 'string',
-          example: 'Іван Франко',
-          description: "Ім'я благодійника (необов'язково)",
-        },
-        message: {
-          type: 'string',
-          example: 'На тепловізор!',
-          description: "Коментар (необов'язково)",
-        },
-      },
-      required: ['amount'],
-    },
-  })
   async donate(
     @Param('id', ParseIntPipe) id: number,
-    @Body('amount') amount: number,
-    @Body('donor_name') donorName?: string,
-    @Body('message') message?: string,
+    @Body() dto: CreateDonationDto,
   ) {
-    return this.service.processDonation(id, amount, donorName, message);
+    return this.service.processDonation(id, dto.amount, dto.donor_name, dto.message);
   }
 }

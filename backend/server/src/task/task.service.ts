@@ -96,9 +96,9 @@ export class TaskService {
     return this.prisma.task.update({
       where: { id },
       data: {
-        ...(data.title && { title: data.title }),
-        ...(data.description && { description: data.description }),
-        ...(data.difficulty && { difficulty: data.difficulty }),
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.difficulty !== undefined && { difficulty: data.difficulty }),
         ...(data.points_reward_base !== undefined && { points_reward_base: data.points_reward_base }),
         ...(data.location_id !== undefined && { location_id: data.location_id }),
         ...(data.deadline !== undefined && { deadline: data.deadline }),

@@ -67,8 +67,8 @@ export class TicketAdminService {
     return this.prisma.ticket.update({
       where: { id },
       data: {
-        ...(data.title && { title: data.title }),
-        ...(data.description && { description: data.description }),
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
         ...(data.location_id !== undefined && { location_id: data.location_id }),
         updated_at: new Date(),
       },
