@@ -10,7 +10,12 @@ import {
   ParseIntPipe,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { CreateDonationDto } from './dto/create-donation.dto';
@@ -122,6 +127,11 @@ export class FundraisingCampaignController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CreateDonationDto,
   ) {
-    return this.service.processDonation(id, dto.amount, dto.donor_name, dto.message);
+    return this.service.processDonation(
+      id,
+      dto.amount,
+      dto.donor_name,
+      dto.message,
+    );
   }
 }

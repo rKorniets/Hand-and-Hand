@@ -112,6 +112,7 @@ export class ProjectController {
   }
 
   @Post(':id/register')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Записатися на подію' })
   async register(
     @Param('id', ParseIntPipe) id: number,
@@ -121,6 +122,7 @@ export class ProjectController {
   }
 
   @Delete(':id/register')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
   async unregister(
     @Param('id', ParseIntPipe) id: number,
