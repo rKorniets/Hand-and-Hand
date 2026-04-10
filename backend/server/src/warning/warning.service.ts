@@ -22,8 +22,7 @@ export class WarningService {
     });
   }
 
-  async findOne(id: number, currentUser: { id: number; role: user_role_enum })
-  {
+  async findOne(id: number, currentUser: { id: number; role: user_role_enum }) {
     const warning = await this.prisma.warnings.findUnique({ where: { id } });
     if (
       currentUser.role === user_role_enum.VOLUNTEER &&

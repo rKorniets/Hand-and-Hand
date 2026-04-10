@@ -3,10 +3,13 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
+import * as nodemailer from 'nodemailer';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
 import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
@@ -123,25 +126,114 @@ export class AuthService {
     return this.signToken(user);
   }
 
+  async forgotPassword(email: string) {
+    const user = await this.prisma.app_user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Користувача з такою поштою не знайдено');
+    }
+
+    await this.prisma.password_reset_token.deleteMany({
+      where: { user_id: user.id },
+    });
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    await this.prisma.password_reset_token.create({
+      data: {
+        user_id: user.id,
+        token: resetToken,
+        expires_at: expiresAt,
+      },
+    });
+
+    const mailUser = this.config.get<string>('MAIL_USER');
+    const mailPass = this.config.get<string>('MAIL_PASSWORD');
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: mailUser,
+        pass: mailPass,
+      },
+    });
+
+    const resetLink = `http://localhost:4200/reset-password?token=${resetToken}&id=${user.id}`;
+
+    await transporter.sendMail({
+      from: `"Hand-and-Hand" <${mailUser}>`,
+      to: user.email,
+      subject: 'Відновлення пароля',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+          <h2>Привіт!</h2>
+          <p>Ви надіслали запит на скидання пароля у системі Hand-and-Hand.</p>
+          <p>Перейдіть за посиланням нижче, щоб встановити новий пароль:</p>
+          <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">Скинути пароль</a>
+          <p><em>Посилання дійсне протягом 1 години.</em></p>
+          <p>Якщо ви цього не робили, просто проігноруйте цей лист. Ваш пароль залишиться незмінним.</p>
+        </div>
+      `,
+    });
+
+    return { message: 'Лист для відновлення пароля успішно надіслано' };
+  }
+
+  async resetPassword(userId: number, token: string, newPassword: string) {
+    const resetToken = await this.prisma.password_reset_token.findUnique({
+      where: { token },
+    });
+
+    if (!resetToken || resetToken.user_id !== userId) {
+      throw new UnauthorizedException('Недійсний токен відновлення');
+    }
+
+    const now = new Date();
+    if (resetToken.expires_at < now) {
+      await this.prisma.password_reset_token.delete({
+        where: { id: resetToken.id },
+      });
+      throw new UnauthorizedException('Термін дії токена вичерпано');
+    }
+
+    const passwordHash = await argon2.hash(newPassword);
+
+    await this.prisma.$transaction([
+      this.prisma.app_user.update({
+        where: { id: userId },
+        data: { password_hash: passwordHash },
+      }),
+      this.prisma.password_reset_token.delete({
+        where: { id: resetToken.id },
+      }),
+    ]);
+
+    return { message: 'Пароль успішно змінено' };
+  }
+
   private async signToken(user: {
     id: number;
     email: string;
     role: user_role_enum;
     status: user_status_enum;
   }) {
-    const payload = {
+    const payload: Record<string, any> = {
       sub: user.id,
       email: user.email,
-      role: user.role,
-      status: user.status,
+      role: String(user.role),
+      status: String(user.status),
     };
 
-    const secret = this.config.get<string>('JWT_ACCESS_SECRET');
+    const secret = this.config.getOrThrow<string>('JWT_ACCESS_SECRET');
     const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
-
+    // @ts-expect-error: Ігноруємо баг типізації перевантажених методів у бібліотеці JwtService
     const accessToken = await this.jwt.signAsync(payload, {
       secret,
-      expiresIn: ttl as any,
+      expiresIn: ttl,
     });
 
     return { accessToken };
