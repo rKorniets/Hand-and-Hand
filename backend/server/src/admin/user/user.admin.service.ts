@@ -115,7 +115,6 @@ export class UserAdminService {
     });
   }
 
-  //TODO: додати ownership валідацію — адмін може оновлювати будь-кого, звичайний юзер тільки себе
   async update(id: number, data: UpdateAppUserDto) {
     await this.findOne(id);
 

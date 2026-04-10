@@ -45,7 +45,6 @@ export class NewsAdminController {
     return this.service.create(data, user.sub);
   }
 
-  //TODO: ownership — новину може редагувати або видаляти не тільки адмін, але й той хто її створив (created_by)
   @Patch(':id')
   @ApiOperation({ summary: 'Оновити новину' })
   async update(

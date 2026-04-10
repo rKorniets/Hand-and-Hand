@@ -46,7 +46,6 @@ export class UserAdminController {
     return this.service.create(data);
   }
 
-  //TODO: додати ownership валідацію — адмін може оновлювати будь-кого, звичайний юзер тільки себе
   @Patch(':id')
   @ApiOperation({ summary: 'Оновити дані користувача' })
   async update(
