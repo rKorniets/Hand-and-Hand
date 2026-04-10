@@ -17,11 +17,17 @@ import { user_role_enum, user_status_enum } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
+  private readonly mailUser: string;
+  private readonly mailPass: string;
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
-  ) {}
+  ) {
+    this.mailUser = this.config.getOrThrow<string>('MAIL_USER');
+    this.mailPass = this.config.getOrThrow<string>('MAIL_PASSWORD');
+  }
 
   async registerUser(dto: RegisterUserDto) {
     const exists = await this.prisma.app_user.findUnique({
@@ -153,21 +159,18 @@ export class AuthService {
       });
     });
 
-    const mailUser = this.config.get<string>('MAIL_USER');
-    const mailPass = this.config.get<string>('MAIL_PASSWORD');
-
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: mailUser,
-        pass: mailPass,
+        user: this.mailUser,
+        pass: this.mailPass,
       },
     });
 
     const resetLink = `http://localhost:4200/reset-password?token=${resetToken}&id=${user.id}`;
 
     await transporter.sendMail({
-      from: `"Hand-and-Hand" <${mailUser}>`,
+      from: `"Hand-and-Hand" <${this.mailUser}>`,
       to: user.email,
       subject: 'Відновлення пароля',
       html: `
