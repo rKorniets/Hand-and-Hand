@@ -19,6 +19,7 @@ import { user_role_enum, user_status_enum } from '@prisma/client';
 export class AuthService {
   private readonly mailUser: string;
   private readonly mailPass: string;
+  private readonly frontendUrl: string;
 
   constructor(
     private prisma: PrismaService,
@@ -27,6 +28,8 @@ export class AuthService {
   ) {
     this.mailUser = this.config.getOrThrow<string>('MAIL_USER');
     this.mailPass = this.config.getOrThrow<string>('MAIL_PASSWORD');
+    this.frontendUrl =
+      this.config.get<string>('FRONTEND_URL') || 'http://localhost:4200';
   }
 
   async registerUser(dto: RegisterUserDto) {
@@ -167,7 +170,7 @@ export class AuthService {
       },
     });
 
-    const resetLink = `http://localhost:4200/reset-password?token=${resetToken}&id=${user.id}`;
+    const resetLink = `${this.frontendUrl}/reset-password?token=${resetToken}&id=${user.id}`;
 
     await transporter.sendMail({
       from: `"Hand-and-Hand" <${this.mailUser}>`,
