@@ -46,7 +46,7 @@ export class ProjectAdminService {
     });
 
     if (!project) {
-      throw new NotFoundException(`Проєкт з ID ${id} не знайдено`);
+      throw new NotFoundException(`Project with ID ${id} not found`);
     }
 
     return project;

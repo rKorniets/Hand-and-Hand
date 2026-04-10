@@ -41,7 +41,7 @@ export class TaskAssignmentAdminService {
     });
 
     if (!assignment) {
-      throw new NotFoundException(`Призначення з ID ${id} не знайдено`);
+      throw new NotFoundException(`Task assignment with ID ${id} not found`);
     }
 
     return assignment;

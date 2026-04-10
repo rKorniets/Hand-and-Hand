@@ -25,7 +25,7 @@ export class FundraisingCampaignService {
     });
 
     if (!campaign) {
-      throw new NotFoundException(`Campain with ${id} was not found`);
+      throw new NotFoundException(`Campaing with ${id} was not found`);
     }
 
     const ownerUserId =

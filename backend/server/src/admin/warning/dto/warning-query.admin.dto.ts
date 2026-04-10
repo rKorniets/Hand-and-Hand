@@ -4,7 +4,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { warning_status_enum, warning_severity_enum } from '@prisma/client';
 
 export class WarningQueryAdminDto {
-  @ApiPropertyOptional({ description: 'Фільтр за ID користувача' })
+  @ApiPropertyOptional({ description: 'Filter by user ID' })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

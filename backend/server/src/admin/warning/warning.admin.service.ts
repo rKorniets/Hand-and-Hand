@@ -50,7 +50,7 @@ export class WarningAdminService {
     });
 
     if (!warning) {
-      throw new NotFoundException(`Попередження з ID ${id} не знайдено`);
+      throw new NotFoundException(`Warning with ID ${id} not found`);
     }
 
     return warning;

@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { warning_severity_enum } from '@prisma/client';
 
 export class CreateWarningAdminDto {
-  @ApiProperty({ description: 'ID користувача, якому видається попередження' })
+  @ApiProperty({ description: 'ID of user receiving the warning' })
   @IsInt()
   user_id: number;
 
@@ -21,16 +21,16 @@ export class CreateWarningAdminDto {
   @IsEnum(warning_severity_enum)
   severity: warning_severity_enum;
 
-  @ApiPropertyOptional({ description: 'Дата закінчення дії попередження' })
+  @ApiPropertyOptional({ description: 'Warning expiration date' })
   @IsOptional()
   expires_at?: Date;
 
-  @ApiPropertyOptional({ description: 'Тип повʼязаної сутності (news, project, etc.)' })
+  @ApiPropertyOptional({ description: 'Related entity type (news, project, etc.)' })
   @IsOptional()
   @IsString()
   related_entity_type?: string;
 
-  @ApiPropertyOptional({ description: 'ID повʼязаної сутності' })
+  @ApiPropertyOptional({ description: 'Related entity ID' })
   @IsOptional()
   @IsInt()
   related_entity_id?: number;
