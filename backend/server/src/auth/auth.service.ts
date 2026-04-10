@@ -135,20 +135,22 @@ export class AuthService {
       throw new NotFoundException('Користувача з такою поштою не знайдено');
     }
 
-    await this.prisma.password_reset_token.deleteMany({
-      where: { user_id: user.id },
-    });
-
     const resetToken = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1);
 
-    await this.prisma.password_reset_token.create({
-      data: {
-        user_id: user.id,
-        token: resetToken,
-        expires_at: expiresAt,
-      },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.password_reset_token.deleteMany({
+        where: { user_id: user.id },
+      });
+
+      await tx.password_reset_token.create({
+        data: {
+          user_id: user.id,
+          token: resetToken,
+          expires_at: expiresAt,
+        },
+      });
     });
 
     const mailUser = this.config.get<string>('MAIL_USER');
@@ -202,15 +204,16 @@ export class AuthService {
 
     const passwordHash = await argon2.hash(newPassword);
 
-    await this.prisma.$transaction([
-      this.prisma.app_user.update({
+    await this.prisma.$transaction(async (tx) => {
+      await tx.app_user.update({
         where: { id: userId },
         data: { password_hash: passwordHash },
-      }),
-      this.prisma.password_reset_token.delete({
+      });
+
+      await tx.password_reset_token.delete({
         where: { id: resetToken.id },
-      }),
-    ]);
+      });
+    });
 
     return { message: 'Пароль успішно змінено' };
   }
@@ -230,6 +233,7 @@ export class AuthService {
 
     const secret = this.config.getOrThrow<string>('JWT_ACCESS_SECRET');
     const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
+
     // @ts-expect-error: Ігноруємо баг типізації перевантажених методів у бібліотеці JwtService
     const accessToken = await this.jwt.signAsync(payload, {
       secret,
