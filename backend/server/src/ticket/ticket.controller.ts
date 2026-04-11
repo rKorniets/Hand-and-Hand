@@ -40,8 +40,8 @@ export class TicketController {
   @ApiOperation({ summary: 'Створити новий тікет від волонтера' })
   async create(
     @Body() data: CreateTicketDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.create(data, { id: user.sub });
+    return this.service.create(data, { id: user.id });
   }
 }

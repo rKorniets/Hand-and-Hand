@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ApprovalQueryDto } from './dto/approval-query.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, approval_request_status_enum } from '@prisma/client';
 
 @Injectable()
 export class ApprovalAdminService {
@@ -48,7 +48,7 @@ export class ApprovalAdminService {
     });
 
     if (!request) {
-      throw new NotFoundException(`Заявку з ID ${id} не знайдено`);
+      throw new NotFoundException(`Approval request with ID ${id} not found`);
     }
 
     return request;
@@ -60,7 +60,7 @@ export class ApprovalAdminService {
     return this.prisma.approval_request.update({
       where: { id },
       data: {
-        status: 'APPROVED',
+        status: approval_request_status_enum.APPROVED,
         reviewed_by: adminUserId,
         reviewed_at: new Date(),
       },
@@ -73,7 +73,7 @@ export class ApprovalAdminService {
     return this.prisma.approval_request.update({
       where: { id },
       data: {
-        status: 'REJECTED',
+        status: approval_request_status_enum.REJECTED,
         reviewed_by: adminUserId,
         reviewed_at: new Date(),
         rejection_reason: reason,

@@ -21,7 +21,7 @@ export class CategoryAdminService {
     const category = await this.prisma.category.findUnique({ where: { id } });
 
     if (!category) {
-      throw new NotFoundException(`Категорію з ID ${id} не знайдено`);
+      throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
     return category;
@@ -33,7 +33,7 @@ export class CategoryAdminService {
     });
 
     if (existing) {
-      throw new ConflictException('Категорія з таким slug вже існує');
+      throw new ConflictException('Category with this slug already exists');
     }
 
     return this.prisma.category.create({ data });
@@ -43,7 +43,7 @@ export class CategoryAdminService {
     const category = await this.prisma.category.findUnique({ where: { id } });
 
     if (!category) {
-      throw new NotFoundException(`Категорію з ID ${id} не знайдено`);
+      throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
     if (data.slug) {
@@ -52,7 +52,7 @@ export class CategoryAdminService {
       });
 
       if (existing) {
-        throw new ConflictException('Категорія з таким slug вже існує');
+        throw new ConflictException('Category with this slug already exists');
       }
     }
 
@@ -66,7 +66,7 @@ export class CategoryAdminService {
     const category = await this.prisma.category.findUnique({ where: { id } });
 
     if (!category) {
-      throw new NotFoundException(`Категорію з ID ${id} не знайдено`);
+      throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
     return this.prisma.category.delete({ where: { id } });

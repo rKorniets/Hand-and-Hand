@@ -32,7 +32,7 @@ export class NewsAdminService {
     const news = await this.prisma.news.findUnique({ where: { id } });
 
     if (!news) {
-      throw new NotFoundException(`Новину з ID ${id} не знайдено`);
+      throw new NotFoundException(`News with ID ${id} not found`);
     }
 
     return news;

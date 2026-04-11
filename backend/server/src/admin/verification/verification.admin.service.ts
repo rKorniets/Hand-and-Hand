@@ -20,7 +20,7 @@ export class VerificationAdminService {
 
   async findUnverifiedOrganizations() {
     return this.prisma.organization_profile.findMany({
-      where: { verification_status: 'PENDING' },
+      where: { verification_status: verification_status_enum.PENDING },
       include: {
         app_user: {
           select: { id: true, email: true, first_name: true, last_name: true },
@@ -36,7 +36,7 @@ export class VerificationAdminService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Профіль волонтера з ID ${profileId} не знайдено`);
+      throw new NotFoundException(`Volunteer profile with ID ${profileId} not found`);
     }
 
     return this.prisma.volunteer_profile.update({
@@ -51,7 +51,7 @@ export class VerificationAdminService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Профіль організації з ID ${profileId} не знайдено`);
+      throw new NotFoundException(`Organization profile with ID ${profileId} not found`);
     }
 
     return this.prisma.organization_profile.update({

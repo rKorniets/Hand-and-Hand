@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateWarningAdminDto } from './dto/create-warning.admin.dto';
 import { WarningQueryAdminDto } from './dto/warning-query.admin.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, warning_status_enum } from '@prisma/client';
 
 @Injectable()
 export class WarningAdminService {
@@ -77,7 +77,7 @@ export class WarningAdminService {
     return this.prisma.warnings.update({
       where: { id },
       data: {
-        status: 'RESOLVED',
+        status: warning_status_enum.RESOLVED,
         resolved_at: new Date(),
       },
     });
@@ -88,7 +88,7 @@ export class WarningAdminService {
 
     return this.prisma.warnings.update({
       where: { id },
-      data: { status: 'CANCELLED' },
+      data: { status: warning_status_enum.CANCELLED },
     });
   }
 }

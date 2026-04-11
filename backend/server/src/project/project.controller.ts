@@ -90,7 +90,7 @@ export class ProjectController {
     @Body() data: CreateProjectDto,
     @CurrentUser() user: any,
   ) {
-    return this.projectService.updateProject(id, data, { id: user.sub });
+    return this.projectService.updateProject(id, data, { id: user.id });
   }
 
   @Delete(':id')
@@ -101,7 +101,7 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.projectService.deleteProject(id, { id: user.sub });
+    return this.projectService.deleteProject(id, { id: user.id });
   }
 
   @Get(':id')

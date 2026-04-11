@@ -28,12 +28,12 @@ export class AppUserService {
     const user = await this.prisma.app_user.findUnique({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException(`Користувача з ID ${id} не знайдено`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     if (id !== currentUser.id) {
       throw new ForbiddenException(
-        'Ви не маєте прав на керування чужим акаунтом',
+        'You do not have permission to manage another user\'s account',
       );
     }
 

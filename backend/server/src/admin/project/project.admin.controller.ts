@@ -18,7 +18,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
 
-@ApiTags('Admin — Projects')
+@ApiTags('Адмін — Проєкти')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/projects')
@@ -26,25 +26,25 @@ export class ProjectAdminController {
   constructor(private readonly service: ProjectAdminService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all projects' })
+  @ApiOperation({ summary: 'Список усіх проєктів' })
   async findAll(@Query() query: ProjectQueryAdminDto) {
     return this.service.findAll(query);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get project details' })
+  @ApiOperation({ summary: 'Деталі проєкту' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create project' })
+  @ApiOperation({ summary: 'Створити проєкт' })
   async create(@Body() data: CreateProjectDto) {
     return this.service.create(data);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update project' })
+  @ApiOperation({ summary: 'Оновити проєкт' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateProjectDto,
@@ -53,7 +53,7 @@ export class ProjectAdminController {
   }
 
   @Patch(':id/status')
-  @ApiOperation({ summary: 'Update project status' })
+  @ApiOperation({ summary: 'Змінити статус проєкту' })
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProjectStatusAdminDto,
@@ -62,7 +62,7 @@ export class ProjectAdminController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete project' })
+  @ApiOperation({ summary: 'Видалити проєкт' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }

@@ -31,7 +31,7 @@ export class ReportAdminService {
     });
 
     if (!report) {
-      throw new NotFoundException(`Звіт з ID ${id} не знайдено`);
+      throw new NotFoundException(`Report with ID ${id} not found`);
     }
 
     return report;

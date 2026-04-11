@@ -25,11 +25,11 @@ export class ProjectService {
     });
 
     if (!project) {
-      throw new NotFoundException(`Проєкт з ID ${id} не знайдено`);
+      throw new NotFoundException(`Project with ID ${id} not found`);
     }
 
     if (project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('Ви не маєте прав на цей проєкт');
+      throw new ForbiddenException('You do not have permission to access this project');
     }
 
     return project;

@@ -27,12 +27,12 @@ export class OrganizationProfileService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Профіль організації з ID ${id} не знайдено`);
+      throw new NotFoundException(`Organization profile with ID ${id} not found`);
     }
 
     if (profile.user_id !== currentUser.id) {
       throw new ForbiddenException(
-        'Ви не маєте прав редагувати або видаляти чужий профіль',
+        'You do not have permission to edit or delete another user\'s profile',
       );
     }
 

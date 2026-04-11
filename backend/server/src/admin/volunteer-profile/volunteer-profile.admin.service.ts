@@ -38,7 +38,7 @@ export class VolunteerProfileAdminService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
+      throw new NotFoundException(`Volunteer profile with ID ${id} not found`);
     }
 
     return profile;

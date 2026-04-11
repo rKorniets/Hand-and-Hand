@@ -86,9 +86,9 @@ export class NewsController {
   @ApiOperation({ summary: 'Створити новину' })
   async create(
     @Body() data: CreateNewsDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.newsService.createNews(data, user.sub);
+    return this.newsService.createNews(data, user.id);
   }
 
   @Put(':id')
@@ -98,9 +98,9 @@ export class NewsController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateNewsDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.newsService.updateNewsFull(id, data, { id: user.sub });
+    return this.newsService.updateNewsFull(id, data, { id: user.id });
   }
 
   @Delete(':id')
@@ -109,8 +109,8 @@ export class NewsController {
   @ApiOperation({ summary: 'Видалити новину (тільки автор)' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.newsService.deleteNews(id, { id: user.sub });
+    return this.newsService.deleteNews(id, { id: user.id });
   }
 }

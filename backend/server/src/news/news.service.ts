@@ -19,12 +19,12 @@ export class NewsService {
     const news = await this.prisma.news.findUnique({ where: { id } });
 
     if (!news) {
-      throw new NotFoundException(`Новину з ID ${id} не знайдено`);
+      throw new NotFoundException(`News with ID ${id} not found`);
     }
 
     if (news.created_by !== currentUser.id) {
       throw new ForbiddenException(
-        'Ви можете редагувати або видаляти тільки свої новини',
+        'You can only edit or delete your own news',
       );
     }
 

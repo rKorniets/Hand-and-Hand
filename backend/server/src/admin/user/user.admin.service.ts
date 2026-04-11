@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { UserQueryDto } from './dto/user-query.dto';
 import { CreateUserAdminDto } from './dto/create-user.admin.dto';
 import { UpdateAppUserDto } from '../../app_user/dto/update-app-user.dto';
-import { Prisma, user_status_enum, user_role_enum } from '@prisma/client';
+import { Prisma, user_status_enum, user_role_enum, warning_status_enum } from '@prisma/client';
 import * as argon2 from 'argon2';
 
 @Injectable()
@@ -64,14 +64,14 @@ export class UserAdminService {
         organization_profile: true,
         admin_profile: true,
         warnings_warnings_user_idToapp_user: {
-          where: { status: 'ACTIVE' },
+          where: { status: warning_status_enum.ACTIVE },
           orderBy: { created_at: 'desc' },
         },
       },
     });
 
     if (!user) {
-      throw new NotFoundException(`Користувача з ID ${id} не знайдено`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     return user;

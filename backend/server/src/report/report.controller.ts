@@ -59,9 +59,9 @@ export class ReportController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateReportDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.update(id, data, { id: user.sub });
+    return this.service.update(id, data, { id: user.id });
   }
 
   @Put(':id')
@@ -71,9 +71,9 @@ export class ReportController {
   async replace(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateReportDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.update(id, data, { id: user.sub });
+    return this.service.update(id, data, { id: user.id });
   }
 
   @Delete(':id')
@@ -82,8 +82,8 @@ export class ReportController {
   @ApiOperation({ summary: 'Видалити звіт' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.remove(id, { id: user.sub });
+    return this.service.remove(id, { id: user.id });
   }
 }

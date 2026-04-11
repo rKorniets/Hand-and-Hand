@@ -38,9 +38,9 @@ export class ApprovalAdminController {
   @ApiOperation({ summary: 'Підтвердити заявку' })
   async approve(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.approve(id, user.sub);
+    return this.service.approve(id, user.id);
   }
 
   @Patch(':id/reject')
@@ -48,8 +48,8 @@ export class ApprovalAdminController {
   async reject(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: RejectApprovalDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.reject(id, user.sub, dto.reason);
+    return this.service.reject(id, user.id, dto.reason);
   }
 }

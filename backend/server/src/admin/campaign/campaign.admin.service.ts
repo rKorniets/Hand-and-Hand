@@ -44,7 +44,7 @@ export class CampaignAdminService {
     });
 
     if (!campaign) {
-      throw new NotFoundException(`Збір коштів з ID ${id} не знайдено`);
+      throw new NotFoundException(`Fundraising campaign with ID ${id} not found`);
     }
 
     return campaign;

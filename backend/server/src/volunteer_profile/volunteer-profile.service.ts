@@ -22,12 +22,12 @@ export class VolunteerProfileService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Профіль волонтера з ID ${id} не знайдено`);
+      throw new NotFoundException(`Volunteer profile with ID ${id} not found`);
     }
 
     if (profile.user_id !== currentUser.id) {
       throw new ForbiddenException(
-        'Ви не маєте прав редагувати або видаляти чужий профіль',
+        'You do not have permission to edit or delete another user\'s profile',
       );
     }
 

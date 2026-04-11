@@ -40,9 +40,9 @@ export class NewsAdminController {
   @ApiOperation({ summary: 'Створити новину' })
   async create(
     @Body() data: CreateNewsDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.create(data, user.sub);
+    return this.service.create(data, user.id);
   }
 
   @Patch(':id')

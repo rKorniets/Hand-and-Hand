@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, report_type_enum } from '@prisma/client';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -21,11 +21,11 @@ export class ReportService {
     });
 
     if (!report) {
-      throw new NotFoundException(`Звіт з ID ${id} не знайдено`);
+      throw new NotFoundException(`Report with ID ${id} not found`);
     }
 
     if (report.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('Ви не маєте прав на цей звіт');
+      throw new NotFoundException(`Report with ID ${id} not found`);
     }
 
     return report;

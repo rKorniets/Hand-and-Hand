@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTaskAssignmentDto } from '../../task_assignment/dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from '../../task_assignment/dto/update_task_assignment.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, task_assignment_status_enum } from '@prisma/client';
 
 @Injectable()
 export class TaskAssignmentAdminService {
@@ -68,8 +68,8 @@ export class TaskAssignmentAdminService {
         ...(data.status !== undefined && { status: data.status }),
         ...(data.comment !== undefined && { comment: data.comment }),
         ...(data.requester_confirmed !== undefined && { requester_confirmed: data.requester_confirmed }),
-        ...(data.status === 'ACCEPTED' && !assignment.accepted_at && { accepted_at: new Date() }),
-        ...(data.status === 'COMPLETED' && !assignment.completed_at && { completed_at: new Date() }),
+        ...(data.status === task_assignment_status_enum.ACCEPTED && !assignment.accepted_at && { accepted_at: new Date() }),
+        ...(data.status === task_assignment_status_enum.COMPLETED && !assignment.completed_at && { completed_at: new Date() }),
       },
     });
   }

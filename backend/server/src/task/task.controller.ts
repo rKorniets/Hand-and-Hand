@@ -43,9 +43,9 @@ export class TaskController {
   @ApiOperation({ summary: 'Створити нову задачу' })
   async create(
     @Body() data: CreateTaskDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.create(data, { id: user.sub });
+    return this.service.create(data, { id: user.id });
   }
 
   @Patch(':id')
@@ -55,9 +55,9 @@ export class TaskController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateTaskDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.update(id, data, { id: user.sub });
+    return this.service.update(id, data, { id: user.id });
   }
 
   @Delete(':id')
@@ -66,8 +66,8 @@ export class TaskController {
   @ApiOperation({ summary: 'Видалити задачу' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.remove(id, { id: user.sub });
+    return this.service.remove(id, { id: user.id });
   }
 }

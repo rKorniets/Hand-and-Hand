@@ -17,11 +17,11 @@ export class TicketService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Профіль волонтера не знайдено');
+      throw new NotFoundException('Volunteer profile not found');
     }
 
     if (profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('Ви можете створювати тікети лише від свого імені');
+      throw new ForbiddenException('You can only create tickets on your own behalf');
     }
 
     return this.prisma.ticket.create({ data });

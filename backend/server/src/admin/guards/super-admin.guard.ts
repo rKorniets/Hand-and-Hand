@@ -10,11 +10,11 @@ export class SuperAdminGuard implements CanActivate {
     const user = request.user;
 
     const adminProfile = await this.prisma.admin_profile.findUnique({
-      where: { user_id: user.sub },
+      where: { user_id: user.id },
     });
 
     if (!adminProfile?.is_super_admin) {
-      throw new ForbiddenException('Тільки супер-адмін має доступ');
+      throw new ForbiddenException('Access denied');
     }
 
     return true;

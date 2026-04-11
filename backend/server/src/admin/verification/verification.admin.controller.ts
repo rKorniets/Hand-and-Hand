@@ -10,7 +10,7 @@ import { VerificationAdminService } from './verification.admin.service';
 import { VerifyDecisionDto } from './dto/verify-decision.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, verification_status_enum } from '@prisma/client';
 
 @ApiTags('Адмін — Верифікація')
 @ApiBearerAuth()
@@ -37,7 +37,7 @@ export class VerificationAdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: VerifyDecisionDto,
   ) {
-    return this.service.verifyVolunteer(id, dto.status === 'VERIFIED');
+    return this.service.verifyVolunteer(id, dto.status === verification_status_enum.VERIFIED);
   }
 
   @Patch('organizations/:id')

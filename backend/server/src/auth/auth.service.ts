@@ -147,9 +147,9 @@ export class AuthService {
     return { accessToken };
   }
 
-  async me(user: { sub: number }) {
+  async me(user: { id: number }) {
     return this.prisma.app_user.findUnique({
-      where: { id: user.sub },
+      where: { id: user.id },
       select: {
         id: true,
         email: true,

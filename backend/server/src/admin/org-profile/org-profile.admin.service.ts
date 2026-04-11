@@ -24,7 +24,7 @@ export class OrgProfileAdminService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Профіль організації з ID ${id} не знайдено`);
+      throw new NotFoundException(`Organization profile with ID ${id} not found`);
     }
 
     return profile;

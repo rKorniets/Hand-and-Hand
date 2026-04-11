@@ -105,9 +105,9 @@ export class FundraisingCampaignController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateFundraisingCampaignDto,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.update(id, data, { id: user.sub });
+    return this.service.update(id, data, { id: user.id });
   }
 
   @Delete(':id')
@@ -116,9 +116,9 @@ export class FundraisingCampaignController {
   @ApiOperation({ summary: 'Видалити збір' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { sub: number },
+    @CurrentUser() user: { id: number },
   ) {
-    return this.service.remove(id, { id: user.sub });
+    return this.service.remove(id, { id: user.id });
   }
   @Post(':id/donations')
   @Public()

@@ -44,7 +44,7 @@ export class TicketAdminService {
     });
 
     if (!ticket) {
-      throw new NotFoundException(`Тікет з ID ${id} не знайдено`);
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
 
     return ticket;
@@ -82,7 +82,7 @@ export class TicketAdminService {
       where: { id },
       data: {
         status,
-        ...(status === 'CLOSED' && { closed_at: new Date() }),
+        ...(status === ticket_status_enum.CLOSED && { closed_at: new Date() }),
       },
     });
   }

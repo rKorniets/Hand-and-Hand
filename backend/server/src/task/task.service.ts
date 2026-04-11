@@ -27,7 +27,7 @@ export class TaskService {
     }
 
     if (task.project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('You don\'t have permission to perform this task.' );
+      throw new ForbiddenException('You don\'t have permission to perform this task.');
     }
 
     return task;
@@ -40,11 +40,11 @@ export class TaskService {
     });
 
     if (!project) {
-      throw new NotFoundException(`Проєкт з ID ${data.project_id} не знайдено`);
+      throw new NotFoundException(`Project with ID ${data.project_id} not found`);
     }
 
     if (project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('Ви не маєте прав створювати задачі для цього проєкту');
+      throw new ForbiddenException('You do not have permission to create tasks for this project');
     }
 
     return this.prisma.task.create({

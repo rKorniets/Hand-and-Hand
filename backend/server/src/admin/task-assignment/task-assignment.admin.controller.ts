@@ -16,7 +16,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
 
-@ApiTags('Admin — Task Assignments')
+@ApiTags('Адмін — Призначення на завдання')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/task-assignments')
@@ -24,7 +24,7 @@ export class TaskAssignmentAdminController {
   constructor(private readonly service: TaskAssignmentAdminService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all task assignments' })
+  @ApiOperation({ summary: 'Список усіх призначень' })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'skip', required: false })
   @ApiQuery({ name: 'taskId', required: false })
@@ -44,19 +44,19 @@ export class TaskAssignmentAdminController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get task assignment details' })
+  @ApiOperation({ summary: 'Деталі призначення' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create task assignment' })
+  @ApiOperation({ summary: 'Створити призначення' })
   async create(@Body() data: CreateTaskAssignmentDto) {
     return this.service.create(data);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update task assignment' })
+  @ApiOperation({ summary: 'Оновити призначення' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateTaskAssignmentDto,
@@ -65,7 +65,7 @@ export class TaskAssignmentAdminController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete task assignment' })
+  @ApiOperation({ summary: 'Видалити призначення' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }

@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, task_assignment_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
@@ -25,12 +25,12 @@ export class TaskAssignmentService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Профіль волонтера не знайдено');
+      throw new NotFoundException('Volunteer profile not found');
     }
 
     if (profile.user_id !== currentUser.id) {
       throw new ForbiddenException(
-        'Ви можете керувати лише своїми призначеннями на завдання',
+        'You can only manage your own task assignments',
       );
     }
 
@@ -82,7 +82,7 @@ export class TaskAssignmentService {
     });
 
     if (!assignment)
-      throw new NotFoundException(`Призначення з ID ${id} не знайдено`);
+      throw new NotFoundException(`Task assignment with ID ${id} not found`);
     return assignment;
   }
 
@@ -104,11 +104,11 @@ export class TaskAssignmentService {
         comment: data.comment,
         requester_confirmed: assignment.requester_confirmed,
         accepted_at:
-          data.status === 'ACCEPTED' && !assignment.accepted_at
+          data.status === task_assignment_status_enum.ACCEPTED && !assignment.accepted_at
             ? new Date()
             : undefined,
         completed_at:
-          data.status === 'COMPLETED' && !assignment.completed_at
+          data.status === task_assignment_status_enum.COMPLETED && !assignment.completed_at
             ? new Date()
             : undefined,
       },

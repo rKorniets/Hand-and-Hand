@@ -21,7 +21,7 @@ export class LocationService {
     const location = await this.prisma.location.findUnique({ where: { id } });
 
     if (!location) {
-      throw new NotFoundException(`Локацію з ID ${id} не знайдено`);
+      throw new NotFoundException(`Location with ID ${id} not found`);
     }
 
     return location;

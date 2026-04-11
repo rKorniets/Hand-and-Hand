@@ -36,7 +36,7 @@ export class TaskAdminService {
     });
 
     if (!task) {
-      throw new NotFoundException(`Задачу з ID ${id} не знайдено`);
+      throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
     return task;
