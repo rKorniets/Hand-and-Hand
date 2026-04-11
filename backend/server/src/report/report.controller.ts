@@ -44,6 +44,7 @@ export class ReportController {
     return this.service.findOne(id);
   }
 
+  //TODO: organization_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)

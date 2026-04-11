@@ -34,6 +34,7 @@ export class TicketController {
   }
 
   //TODO: ownership — волонтер може редагувати/видаляти тільки свої тікети
+  //TODO: volunteer_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
