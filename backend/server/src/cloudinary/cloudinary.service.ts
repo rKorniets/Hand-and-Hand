@@ -17,7 +17,7 @@ export class CloudinaryService {
     }
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        'Дозволені лише зображення форматів: JPEG, PNG, WEBP',
+        'Дозволені лише зображення форматів: JPEG, PNG, JPG',
       );
     }
 
@@ -39,10 +39,8 @@ export class CloudinaryService {
       uploadStream.end(file.buffer);
     });
   }
-
   async deleteImage(url: string): Promise<void> {
     if (!url) return;
-
     try {
       const regex = /\/upload\/(?:v\d+\/)?([^.]+)/;
       const match = url.match(regex);
@@ -50,7 +48,6 @@ export class CloudinaryService {
       if (!match || !match[1]) {
         throw new Error('Не вдалося витягнути public_id з URL');
       }
-
       const publicId = match[1];
       await cloudinary.uploader.destroy(publicId);
     } catch (error) {
