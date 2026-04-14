@@ -27,8 +27,12 @@ export class CloudinaryController {
     user_role_enum.ADMIN,
     user_role_enum.ORGANIZATION,
     user_role_enum.VOLUNTEER,
+    user_role_enum.APP_USER,
   )
-  @ApiOperation({ summary: 'Завантажити зображення' })
+  @ApiOperation({
+    summary: 'Завантажити зображення',
+    description: 'Дозволені формати: JPG, PNG. Максимальний розмір: 5MB',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -37,6 +41,7 @@ export class CloudinaryController {
         file: {
           type: 'string',
           format: 'binary',
+          description: 'Файл зображення (jpg, jpeg, png)',
         },
       },
     },
