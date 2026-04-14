@@ -29,7 +29,7 @@ export class WarningService {
       currentUser.role === user_role_enum.VOLUNTEER &&
       warning?.user_id !== currentUser.id
     ) {
-      throw new ForbiddenException('Немає доступу до цього попередження');
+      throw new ForbiddenException('Access denied to this warning');
     }
     return warning;
   }

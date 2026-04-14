@@ -1,19 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsInt,
   IsString,
   IsOptional,
-  IsEnum,
   IsEmail,
   IsNotEmpty,
+  IsInt,
 } from 'class-validator';
-import { verification_status_enum } from '@prisma/client';
 
 export class CreateOrganizationProfileDto {
-  @ApiProperty({ description: 'ID користувача-власника' })
-  @IsInt()
-  user_id: number;
-
   @ApiProperty({ description: 'Назва організації' })
   @IsString()
   @IsNotEmpty()
@@ -30,15 +24,6 @@ export class CreateOrganizationProfileDto {
   @ApiProperty({ description: 'Місія організації' })
   @IsString()
   mission: string;
-
-  @ApiPropertyOptional({
-    description: 'Статус верифікації',
-    enum: verification_status_enum,
-    default: verification_status_enum,
-  })
-  @IsOptional()
-  @IsEnum(verification_status_enum)
-  verification_status?: verification_status_enum;
 
   @ApiPropertyOptional({ description: 'Посилання на офіційні документи' })
   @IsOptional()

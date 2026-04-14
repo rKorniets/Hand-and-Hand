@@ -1,18 +1,11 @@
 import {
   Controller,
   Get,
-  Post,
-  Put,
-  Body,
-  Patch,
   Param,
-  Delete,
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import { WarningService } from './warning.service';
-import { Create_warningDto } from './dto/create_warning.dto';
-import { Update_warningDto } from './dto/update_warning.dto';
 import {
   ApiOperation,
   ApiQuery,
@@ -30,12 +23,8 @@ export class WarningController {
 
   @Get()
   @ApiBearerAuth()
-  @Roles(
-    user_role_enum.ADMIN,
-    user_role_enum.ORGANIZATION,
-    user_role_enum.VOLUNTEER,
-  )
-  @ApiOperation({ summary: 'Отримати список попереджень' })
+  @Roles(user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Отримати свої попередження (тільки власні)' })
   @ApiQuery({ name: 'status', enum: warning_status_enum, required: false })
   async findAll(
     @CurrentUser() currentUser: { id: number; role: user_role_enum },
@@ -46,54 +35,12 @@ export class WarningController {
 
   @Get(':id')
   @ApiBearerAuth()
-  @Roles(
-    user_role_enum.ADMIN,
-    user_role_enum.ORGANIZATION,
-    user_role_enum.VOLUNTEER,
-  )
-  @ApiOperation({ summary: 'Отримати попередження за ID' })
+  @Roles(user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Отримати попередження за ID (тільки власне)' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() currentUser: { id: number; role: user_role_enum },
   ) {
     return this.service.findOne(id, currentUser);
-  }
-
-  @Post()
-  @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Створити попередження' })
-  async create(@Body() data: Create_warningDto) {
-    return this.service.create(data);
-  }
-
-  @Patch(':id')
-  @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Оновити попередження' })
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: Update_warningDto,
-  ) {
-    return this.service.update(id, data);
-  }
-
-  @Put(':id')
-  @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Замінити попередження повністю' })
-  async replace(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: Create_warningDto,
-  ) {
-    return this.service.update(id, data);
-  }
-
-  @Delete(':id')
-  @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Видалити попередження' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
   }
 }

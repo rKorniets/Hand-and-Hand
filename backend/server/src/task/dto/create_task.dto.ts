@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { task_status_enum, task_difficulty_enum } from '@prisma/client';
+import { task_difficulty_enum } from '@prisma/client';
 
 export class CreateTaskDto {
   @ApiProperty({
@@ -22,12 +22,6 @@ export class CreateTaskDto {
 
   @ApiProperty({ description: 'Детальний опис задачі' })
   description: string;
-
-  @ApiPropertyOptional({
-    enum: task_status_enum,
-    default: task_status_enum.OPEN,
-  })
-  status?: task_status_enum;
 
   @ApiPropertyOptional({
     enum: task_difficulty_enum,

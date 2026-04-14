@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { Prisma, user_role_enum, user_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateAppUserDto } from './dto/create-app-user.dto';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 
 const USER_SELECT = {
@@ -19,7 +18,6 @@ const USER_SELECT = {
 
 export interface RequestUser {
   id: number;
-  role: user_role_enum;
 }
 
 @Injectable()
@@ -30,12 +28,12 @@ export class AppUserService {
     const user = await this.prisma.app_user.findUnique({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException(`Користувача з ID ${id} не знайдено`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    if (currentUser.role !== user_role_enum.ADMIN && id !== currentUser.id) {
+    if (id !== currentUser.id) {
       throw new ForbiddenException(
-        'Ви не маєте прав на керування чужим акаунтом',
+        'You do not have permission to manage another user\'s account',
       );
     }
 
@@ -70,47 +68,20 @@ export class AppUserService {
     });
   }
 
-  async createUser(data: CreateAppUserDto) {
-    return this.prisma.app_user.create({
-      data: {
-        email: data.email,
-        password_hash: data.password_hash,
-        role: data.role,
-        status: data.status ?? user_status_enum.PENDING,
-        points: data.points ?? 0,
-      },
-      select: USER_SELECT,
-    });
-  }
-
   async updateUserFull(
     id: number,
     data: UpdateAppUserDto,
     currentUser: RequestUser,
   ) {
-    const user = await this.validateUserOwnership(id, currentUser);
-
-    const updatedRole =
-      currentUser.role === user_role_enum.ADMIN && data.role
-        ? data.role
-        : user.role;
-    const updatedStatus =
-      currentUser.role === user_role_enum.ADMIN && data.status
-        ? data.status
-        : user.status;
-    const updatedPoints =
-      currentUser.role === user_role_enum.ADMIN && data.points !== undefined
-        ? data.points
-        : user.points;
+    await this.validateUserOwnership(id, currentUser);
 
     return this.prisma.app_user.update({
       where: { id },
       data: {
-        email: data.email,
-        password_hash: data.password_hash,
-        role: updatedRole,
-        status: updatedStatus,
-        points: updatedPoints,
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.first_name !== undefined && { first_name: data.first_name }),
+        ...(data.last_name !== undefined && { last_name: data.last_name }),
+        ...(data.city !== undefined && { city: data.city }),
       },
       select: USER_SELECT,
     });

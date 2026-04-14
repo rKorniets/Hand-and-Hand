@@ -4,7 +4,9 @@ import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
 import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -33,6 +35,7 @@ export class AuthController {
     return this.authService.loginOrganization(dto);
   }
 
+  @ApiBearerAuth()
   @Get('me')
   me(@CurrentUser() user: any) {
     return this.authService.me(user);
