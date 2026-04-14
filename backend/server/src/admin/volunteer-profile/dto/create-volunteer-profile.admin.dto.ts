@@ -5,5 +5,5 @@ import { CreateVolunteerProfileDto } from '../../../volunteer_profile/dto/create
 export class CreateVolunteerProfileAdminDto extends CreateVolunteerProfileDto {
   @ApiProperty({ description: 'ID користувача-власника профілю' })
   @IsInt()
-  user_id: number;
+  userId: number;
 }

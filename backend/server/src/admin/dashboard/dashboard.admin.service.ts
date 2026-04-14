@@ -42,24 +42,54 @@ export class DashboardAdminService {
       activeWarnings,
     ] = await this.prisma.$transaction([
       this.prisma.app_user.count(),
-      this.prisma.app_user.count({ where: { status: user_status_enum.ACTIVE } }),
-      this.prisma.app_user.count({ where: { status: user_status_enum.PENDING } }),
-      this.prisma.app_user.count({ where: { status: user_status_enum.BLOCKED } }),
+      this.prisma.app_user.count({
+        where: { status: user_status_enum.ACTIVE },
+      }),
+      this.prisma.app_user.count({
+        where: { status: user_status_enum.PENDING },
+      }),
+      this.prisma.app_user.count({
+        where: { status: user_status_enum.BLOCKED },
+      }),
       this.prisma.volunteer_profile.count(),
       this.prisma.volunteer_profile.count({ where: { is_verified: true } }),
       this.prisma.organization_profile.count(),
-      this.prisma.organization_profile.count({ where: { verification_status: verification_status_enum.VERIFIED } }),
-      this.prisma.approval_request.count({ where: { status: approval_request_status_enum.PENDING } }),
-      this.prisma.project.count({ where: { status: project_status_enum.ACTIVE } }),
-      this.prisma.fundraising_campaign.count({ where: { status: fundraising_campaign_status_enum.ACTIVE } }),
-      this.prisma.ticket.count({ where: { status: { in: [ticket_status_enum.OPEN, ticket_status_enum.IN_REVIEW] } } }),
-      this.prisma.warnings.count({ where: { status: warning_status_enum.ACTIVE } }),
+      this.prisma.organization_profile.count({
+        where: { verification_status: verification_status_enum.VERIFIED },
+      }),
+      this.prisma.approval_request.count({
+        where: { status: approval_request_status_enum.PENDING },
+      }),
+      this.prisma.project.count({
+        where: { status: project_status_enum.ACTIVE },
+      }),
+      this.prisma.fundraising_campaign.count({
+        where: { status: fundraising_campaign_status_enum.ACTIVE },
+      }),
+      this.prisma.ticket.count({
+        where: {
+          status: {
+            in: [ticket_status_enum.OPEN, ticket_status_enum.IN_REVIEW],
+          },
+        },
+      }),
+      this.prisma.warnings.count({
+        where: { status: warning_status_enum.ACTIVE },
+      }),
     ]);
 
     return {
-      users: { total: totalUsers, active: activeUsers, pending: pendingUsers, blocked: blockedUsers },
+      users: {
+        total: totalUsers,
+        active: activeUsers,
+        pending: pendingUsers,
+        blocked: blockedUsers,
+      },
       volunteers: { total: totalVolunteers, verified: verifiedVolunteers },
-      organizations: { total: totalOrganizations, verified: verifiedOrganizations },
+      organizations: {
+        total: totalOrganizations,
+        verified: verifiedOrganizations,
+      },
       pendingApprovals,
       activeProjects,
       activeCampaigns,
@@ -74,7 +104,13 @@ export class DashboardAdminService {
         this.prisma.app_user.findMany({
           take: 10,
           orderBy: { created_at: 'desc' },
-          select: { id: true, email: true, role: true, status: true, created_at: true },
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            created_at: true,
+          },
         }),
         this.prisma.news.findMany({
           take: 10,

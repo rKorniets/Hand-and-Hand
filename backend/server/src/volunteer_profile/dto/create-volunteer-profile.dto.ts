@@ -1,8 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateVolunteerProfileDto {
-  @ApiProperty({ description: 'Відображуване ім\'я' })
+  @ApiProperty({ description: 'ID користувача' })
+  @IsInt()
+  user_id: number;
+
+  @ApiProperty({ description: "Відображуване ім'я" })
   @IsString()
   display_name: string;
 
@@ -18,4 +28,14 @@ export class CreateVolunteerProfileDto {
   @IsOptional()
   @IsString()
   skills_text?: string;
+
+  @ApiPropertyOptional({ description: 'Рейтинг' })
+  @IsOptional()
+  @IsNumber()
+  rating?: number;
+
+  @ApiPropertyOptional({ description: 'Чи верифікований профіль' })
+  @IsOptional()
+  @IsBoolean()
+  is_verified?: boolean;
 }
