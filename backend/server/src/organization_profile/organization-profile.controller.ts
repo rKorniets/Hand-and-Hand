@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -96,7 +96,7 @@ export class OrganizationProfileController {
 
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити профіль організації' })
   async create(
     @Body() data: CreateOrganizationProfileDto,
@@ -110,7 +110,7 @@ export class OrganizationProfileController {
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити профіль організації' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -126,7 +126,7 @@ export class OrganizationProfileController {
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити профіль організації' })
   async remove(
     @Param('id', ParseIntPipe) id: number,

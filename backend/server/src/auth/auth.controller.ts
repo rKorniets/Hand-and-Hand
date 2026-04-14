@@ -6,7 +6,9 @@ import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
 import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -51,6 +53,7 @@ export class AuthController {
     );
   }
 
+  @ApiBearerAuth()
   @Get('me')
   me(@CurrentUser() user: any) {
     return this.authService.me(user);

@@ -99,7 +99,7 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    if (!user || user.role !== user_role_enum.APP_USER) {
+    if (!user || user.role === user_role_enum.ORGANIZATION) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -249,9 +249,9 @@ export class AuthService {
     return { accessToken };
   }
 
-  async me(user: { sub: number }) {
+  async me(user: { id: number }) {
     return this.prisma.app_user.findUnique({
-      where: { id: user.sub },
+      where: { id: user.id },
       select: {
         id: true,
         email: true,
