@@ -1,16 +1,63 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create_task.dto';
 import { UpdateTaskDto } from './dto/update_task.dto';
 import { Prisma } from '@prisma/client';
 
+export interface RequestUser {
+  id: number;
+}
+
 @Injectable()
 export class TaskService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateTaskDto) {
+  private async validateTaskOwnership(taskId: number, currentUser: RequestUser) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        project: {
+          include: { organization_profile: { select: { user_id: true } } },
+        },
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException(`task with ID ${taskId} was not found`);
+    }
+
+    if (task.project.organization_profile.user_id !== currentUser.id) {
+      throw new ForbiddenException('You don\'t have permission to perform this task.');
+    }
+
+    return task;
+  }
+
+  async create(data: CreateTaskDto, currentUser: RequestUser) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: data.project_id },
+      include: { organization_profile: { select: { user_id: true } } },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${data.project_id} not found`);
+    }
+
+    if (project.organization_profile.user_id !== currentUser.id) {
+      throw new ForbiddenException('You do not have permission to create tasks for this project');
+    }
+
     return this.prisma.task.create({
-      data,
+      data: {
+        project_id: data.project_id,
+        ticket_id: data.ticket_id,
+        title: data.title,
+        description: data.description,
+        difficulty: data.difficulty,
+        points_reward_base: data.points_reward_base,
+        location_id: data.location_id,
+        deadline: data.deadline,
+      },
     });
   }
 
@@ -43,16 +90,25 @@ export class TaskService {
     });
   }
 
-  async update(id: number, data: UpdateTaskDto) {
-    const updateData: Prisma.taskUpdateInput = { ...data };
+  async update(id: number, data: UpdateTaskDto, currentUser: RequestUser) {
+    await this.validateTaskOwnership(id, currentUser);
 
     return this.prisma.task.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.difficulty !== undefined && { difficulty: data.difficulty }),
+        ...(data.points_reward_base !== undefined && { points_reward_base: data.points_reward_base }),
+        ...(data.location_id !== undefined && { location_id: data.location_id }),
+        ...(data.deadline !== undefined && { deadline: data.deadline }),
+      },
     });
   }
 
-  async remove(id: number) {
+  async remove(id: number, currentUser: RequestUser) {
+    await this.validateTaskOwnership(id, currentUser);
+
     return this.prisma.task.delete({
       where: { id },
     });

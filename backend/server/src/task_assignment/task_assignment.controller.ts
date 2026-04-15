@@ -29,8 +29,9 @@ import { user_role_enum } from '@prisma/client';
 export class TaskAssignmentController {
   constructor(private readonly taskAssignmentService: TaskAssignmentService) {}
 
+  //TODO: volunteer_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({
     summary: 'Створити призначення на завдання (Взяти в роботу)',
   })
@@ -46,7 +47,6 @@ export class TaskAssignmentController {
 
   @Get()
   @Roles(
-    user_role_enum.ADMIN,
     user_role_enum.ORGANIZATION,
     user_role_enum.VOLUNTEER,
   )
@@ -108,7 +108,6 @@ export class TaskAssignmentController {
 
   @Get(':id')
   @Roles(
-    user_role_enum.ADMIN,
     user_role_enum.ORGANIZATION,
     user_role_enum.VOLUNTEER,
   )
@@ -118,7 +117,7 @@ export class TaskAssignmentController {
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити статус або додати коментар' })
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -133,7 +132,7 @@ export class TaskAssignmentController {
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити призначення (Відмовитись від завдання)' })
   remove(
     @Param('id', ParseIntPipe) id: number,

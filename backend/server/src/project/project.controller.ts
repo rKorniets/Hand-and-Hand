@@ -73,9 +73,10 @@ export class ProjectController {
     );
   }
 
+  //TODO: organization_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
   async create(@Body() data: CreateProjectDto) {
     return this.projectService.createProject(data);
@@ -83,21 +84,25 @@ export class ProjectController {
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION) //TODO ownership
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити подію' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateProjectDto,
+    @CurrentUser() user: any,
   ) {
-    return this.projectService.updateProject(id, data);
+    return this.projectService.updateProject(id, data, { id: user.id });
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ADMIN, user_role_enum.ORGANIZATION) //TODO ownership
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити подію' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.projectService.deleteProject(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.deleteProject(id, { id: user.id });
   }
 
   @Get(':id')
@@ -108,6 +113,7 @@ export class ProjectController {
   }
 
   @Post(':id/register')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Записатися на подію' })
   async register(
     @Param('id', ParseIntPipe) id: number,
@@ -117,6 +123,7 @@ export class ProjectController {
   }
 
   @Delete(':id/register')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
   async unregister(
     @Param('id', ParseIntPipe) id: number,

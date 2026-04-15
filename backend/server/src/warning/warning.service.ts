@@ -22,14 +22,13 @@ export class WarningService {
     });
   }
 
-  async findOne(id: number, currentUser: { id: number; role: user_role_enum })
-  {
+  async findOne(id: number, currentUser: { id: number; role: user_role_enum }) {
     const warning = await this.prisma.warnings.findUnique({ where: { id } });
     if (
       currentUser.role === user_role_enum.VOLUNTEER &&
       warning?.user_id !== currentUser.id
     ) {
-      throw new ForbiddenException('Немає доступу до цього попередження');
+      throw new ForbiddenException('Access denied to this warning');
     }
     return warning;
   }
