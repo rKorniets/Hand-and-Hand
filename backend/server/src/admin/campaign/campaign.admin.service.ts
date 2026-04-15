@@ -44,7 +44,9 @@ export class CampaignAdminService {
     });
 
     if (!campaign) {
-      throw new NotFoundException(`Fundraising campaign with ID ${id} not found`);
+      throw new NotFoundException(
+        `Fundraising campaign with ID ${id} not found`,
+      );
     }
 
     return campaign;

@@ -10,7 +10,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { TaskAssignmentAdminService } from './task-assignment.admin.service';
-import { CreateTaskAssignmentDto } from '../../task_assignment/dto/create_task_assignment.dto';
+import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
 import { UpdateTaskAssignmentDto } from '../../task_assignment/dto/update_task_assignment.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -51,7 +51,7 @@ export class TaskAssignmentAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити призначення' })
-  async create(@Body() data: CreateTaskAssignmentDto) {
+  async create(@Body() data: CreateTaskAssignmentAdminDto) {
     return this.service.create(data);
   }
 

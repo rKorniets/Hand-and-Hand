@@ -8,10 +8,14 @@ import {
 } from 'class-validator';
 import { task_assignment_status_enum } from '@prisma/client';
 
-export class CreateTaskAssignmentDto {
+export class CreateTaskAssignmentAdminDto {
   @ApiProperty({ description: 'ID завдання' })
   @IsInt()
   task_id: number;
+
+  @ApiProperty({ description: 'ID профілю волонтера' })
+  @IsInt()
+  volunteer_profile_id: number;
 
   @ApiPropertyOptional({
     description: 'Статус виконання',
