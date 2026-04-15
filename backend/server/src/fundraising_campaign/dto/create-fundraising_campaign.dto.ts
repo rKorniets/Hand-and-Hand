@@ -3,6 +3,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
 } from 'class-validator';
 
 export class CreateFundraisingCampaignDto {
@@ -42,10 +43,14 @@ export class CreateFundraisingCampaignDto {
   @IsString()
   end_at?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsString()
-  bank_link?: string;
+  @IsUrl()
+  jar_link: string;
+
+  @ApiProperty()
+  @IsString()
+  mono_token: string;
 
   @ApiPropertyOptional()
   @IsOptional()

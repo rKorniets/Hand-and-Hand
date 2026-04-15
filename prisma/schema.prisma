@@ -72,11 +72,13 @@ model fundraising_campaign {
   end_at                  DateTime?                        @db.Timestamptz(6)
   created_at              DateTime                         @default(now()) @db.Timestamptz(6)
   updated_at              DateTime                         @default(now()) @db.Timestamptz(6)
-  bank_link               String?
   image_url               String?
+  jar_id                  String
+  jar_link                String
+  mono_token              String
+  donation                donation[]
   organization_profile    organization_profile?            @relation(fields: [organization_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_organization")
   volunteer_profile       volunteer_profile?               @relation(fields: [volunteer_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_volunteer")
-  donation                donation[]
 
   @@index([organization_profile_id], map: "idx_fundraising_campaign_organization_profile_id")
   @@index([volunteer_profile_id], map: "idx_fundraising_campaign_volunteer_profile_id")
