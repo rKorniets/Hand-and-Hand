@@ -70,7 +70,10 @@
 
 1. **`JwtAuthGuard`** — перевіряє JWT (окрім `@Public()`)
 2. **`RolesGuard`** — перевіряє роль (якщо вказано `@Roles(...)`)
-3. **`SuperAdminGuard`** — додатково перевіряє `admin_profile.is_super_admin` (використовується на окремих ендпоїнтах)
+
+Додаткові Guard-и (підключаються через `@UseGuards()` на окремих ендпоїнтах):
+
+- **`SuperAdminGuard`** — перевіряє `admin_profile.is_super_admin` в БД
 
 ### Декоратори
 
@@ -348,7 +351,7 @@
 | Поле | Тип | Опис |
 |------|-----|------|
 | id | Int | PK |
-| type | `approval_request_type_enum` | NEWS, PROJECT, VOLUNTEER, ORGANIZATION, FUNDRAISING |
+| type | `approval_request_type_enum` | ORGANIZATION, VOLUNTEER, OTHER |
 | status | `approval_request_status_enum` | PENDING, APPROVED, REJECTED |
 | entity_id | Int | ID сутності яка на розгляді |
 | submitted_by | Int | FK -> app_user (хто подав) |

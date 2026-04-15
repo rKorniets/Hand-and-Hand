@@ -395,8 +395,8 @@ model approval_request {
   created_at       DateTime                     @default(now()) @db.Timestamptz(6)
   reviewed_at      DateTime?                    @db.Timestamptz(6)
 
-  submitter app_user  @relation("submitted_requests", fields: [submitted_by], references: [id], onUpdate: NoAction, map: "fk_approval_request_submitter")
-  reviewer  app_user? @relation("reviewed_requests", fields: [reviewed_by], references: [id], onUpdate: NoAction, map: "fk_approval_request_reviewer")
+  submitter app_user  @relation("submitted_requests", fields: [submitted_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_approval_request_submitter")
+  reviewer  app_user? @relation("reviewed_requests", fields: [reviewed_by], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_approval_request_reviewer")
 
   @@index([submitted_by], map: "idx_approval_request_submitted_by")
   @@index([reviewed_by], map: "idx_approval_request_reviewed_by")
