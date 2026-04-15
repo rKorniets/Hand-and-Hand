@@ -6,7 +6,6 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
   Put,
   Query,
 } from '@nestjs/common';
@@ -85,15 +84,8 @@ export class VolunteerProfileController {
     return this.volunteerProfileService.getVolunteerProfileById(id);
   }
 
-  @Post()
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Створити профіль волонтера' })
-  async create(@Body() data: CreateVolunteerProfileDto) {
-    return this.volunteerProfileService.createVolunteerProfile(data);
-  }
-
   @Put(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити профіль волонтера' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -108,7 +100,7 @@ export class VolunteerProfileController {
   }
 
   @Patch(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Частково оновити профіль волонтера' })
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
@@ -123,7 +115,7 @@ export class VolunteerProfileController {
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити профіль волонтера' })
   async remove(
     @Param('id', ParseIntPipe) id: number,

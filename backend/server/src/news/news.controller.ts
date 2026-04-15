@@ -1,19 +1,25 @@
 import {
   Controller,
   Get,
-  Query,
   Post,
-  Body,
   Put,
-  Param,
-  ParseIntPipe,
   Delete,
+  Query,
+  Param,
+  Body,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { user_role_enum } from '@prisma/client';
 
 @ApiTags('Новини (News)')
@@ -75,26 +81,36 @@ export class NewsController {
   }
 
   @Post()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новину' })
-  async create(@Body() data: CreateNewsDto) {
-    return this.newsService.createNews(data);
+  async create(
+    @Body() data: CreateNewsDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.newsService.createNews(data, user.id);
   }
+
   @Put(':id')
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Оновити новину' })
-  async updateFull(
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Оновити новину (тільки автор)' })
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateNewsDto,
+    @CurrentUser() user: { id: number },
   ) {
-    return this.newsService.updateNewsFull(id, data);
+    return this.newsService.updateNewsFull(id, data, { id: user.id });
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Видалити новину' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.newsService.deleteNews(id);
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Видалити новину (тільки автор)' })
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.newsService.deleteNews(id, { id: user.id });
   }
 }
-//TODO OWNERSHIP YEPPI

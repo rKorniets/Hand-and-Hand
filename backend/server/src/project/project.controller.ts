@@ -10,12 +10,18 @@ import {
   Body,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { project_status_enum, user_role_enum } from '@prisma/client';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -67,7 +73,9 @@ export class ProjectController {
     );
   }
 
+  //TODO: organization_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
+  @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
   async create(@Body() data: CreateProjectDto) {
@@ -75,25 +83,59 @@ export class ProjectController {
   }
 
   @Put(':id')
-  @Roles(user_role_enum.ORGANIZATION) //TODO ownership
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити подію' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateProjectDto,
+    @CurrentUser() user: any,
   ) {
-    return this.projectService.updateProject(id, data);
+    return this.projectService.updateProject(id, data, { id: user.id });
   }
 
   @Delete(':id')
-  @Roles(user_role_enum.ORGANIZATION) //TODO ownership
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити подію' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.projectService.deleteProject(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.deleteProject(id, { id: user.id });
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Отримати подію за ID' })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.getProjectById(id);
+  }
+
+  @Post(':id/register')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Записатися на подію' })
+  async register(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.registerForProject(id, user.id);
+  }
+
+  @Delete(':id/register')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
+  async unregister(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.projectService.unregisterFromProject(id, user.id);
+  }
+
+  @Get(':id/registrations')
+  @Public()
+  @ApiOperation({ summary: 'Список зареєстрованих людей на подію' })
+  async getRegistrations(@Param('id', ParseIntPipe) id: number) {
+    return this.projectService.getProjectRegistrations(id);
   }
 }

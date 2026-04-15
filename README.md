@@ -230,14 +230,18 @@ Where:<br>
 
 ### Allowed branch types
 
-- feature/ – new functionality<br>
-- fix/ – bug fixes<br>
-- hotfix/ – urgent production fixes<br>
-- refactor/ – code improvements without changing behavior<br>
-- docs/ – documentation updates<br>
-- style/ – formatting or styling changes<br>
-- test/ – adding or updating tests<br>
-- chore/ – maintenance tasks, configs, dependencies<br>
+| Префікс | Опис | Приклад |
+|---------|------|---------|
+| `feat/` | Нова функціональність | `feat/admin-module` |
+| `feature/` | Те саме що feat (повна форма) | `feature/add_news_tags` |
+| `fix/` | Виправлення багів | `fix/login-redirect` |
+| `hotfix/` | Терміновий фікс на продакшн | `hotfix/crash-on-startup` |
+| `refactor/` | Рефакторинг без зміни поведінки | `refactor/simplify-auth` |
+| `docs/` | Оновлення документації | `docs/update-readme` |
+| `style/` | Форматування, стилі (не CSS) | `style/lint-fixes` |
+| `test/` | Додавання/оновлення тестів | `test/auth-unit-tests` |
+| `chore/` | Конфіги, залежності, CI/CD | `chore/update-deps` |
+| `security/` | Зміни пов'язані з безпекою | `security/dto-hardening` |
 
 ### Branch naming rules
 
@@ -259,10 +263,27 @@ type: short description<br>
 
 ### Good PR title examples
 
-- feature: add separate table for news tags<br>
+- feat: add separate table for news tags<br>
 - fix: correct footer alignment on tablet<br>
 - docs: add branch and PR naming conventions<br>
 - refactor: simplify news service logic<br>
+
+### Commit message format
+
+Коміти використовують той самий формат що й PR:<br>
+
+type(scope): short description<br>
+
+- `scope` — необов'язковий, вказує модуль (admin, auth, prisma, etc.)<br>
+- опис — коротко, з малої літери, без крапки в кінці<br>
+
+### Приклади комітів
+
+- `feat(admin): додано модуль управління користувачами`<br>
+- `fix(auth): виправлено редірект після логіну`<br>
+- `refactor(task): винесено ownership валідацію`<br>
+- `docs: оновлено матрицю доступу`<br>
+- `chore: оновлено залежності prisma`<br>
 
 ### Pull Request rules
 

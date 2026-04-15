@@ -18,6 +18,11 @@ import { TicketModule } from './ticket/ticket.module';
 import { WarningModule } from './warning/warning.module';
 import { TaskModule } from './task/task.module';
 import { LocationModule } from './location/location.module';
+import { CategoryModule } from './category/category.module';
+import { RewardModule } from './reward/reward.module';
+import { TaskAssignmentModule } from './task_assignment/task_assignment.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -38,6 +43,11 @@ import { LocationModule } from './location/location.module';
     WarningModule,
     TaskModule,
     LocationModule,
+    CategoryModule,
+    RewardModule,
+    TaskAssignmentModule,
+    CloudinaryModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
