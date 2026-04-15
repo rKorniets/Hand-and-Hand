@@ -38,15 +38,18 @@ export class TaskAssignmentService {
   }
 
   async create(data: CreateTaskAssignmentDto, currentUser: RequestUser) {
-    await this.validateVolunteerOwnership(
-      data.volunteer_profile_id,
-      currentUser,
-    );
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { user_id: currentUser.id },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Volunteer profile not found');
+    }
 
     return this.prisma.task_assignment.create({
       data: {
         task_id: data.task_id,
-        volunteer_profile_id: data.volunteer_profile_id,
+        volunteer_profile_id: profile.id,
         status: data.status,
         comment: data.comment,
         requester_confirmed: false,
