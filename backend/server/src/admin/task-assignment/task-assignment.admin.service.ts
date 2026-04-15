@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateTaskAssignmentDto } from '../../task_assignment/dto/create_task_assignment.dto';
-import { UpdateTaskAssignmentDto } from '../../task_assignment/dto/update_task_assignment.dto';
+import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
+import { UpdateTaskAssignmentAdminDto } from './dto/update-task-assignment.admin.dto';
 import { Prisma, task_assignment_status_enum } from '@prisma/client';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class TaskAssignmentAdminService {
     return assignment;
   }
 
-  async create(data: CreateTaskAssignmentDto) {
+  async create(data: CreateTaskAssignmentAdminDto) {
     return this.prisma.task_assignment.create({
       data: {
         task_id: data.task_id,
@@ -59,7 +59,7 @@ export class TaskAssignmentAdminService {
     });
   }
 
-  async update(id: number, data: UpdateTaskAssignmentDto) {
+  async update(id: number, data: UpdateTaskAssignmentAdminDto) {
     const assignment = await this.findOne(id);
 
     return this.prisma.task_assignment.update({
