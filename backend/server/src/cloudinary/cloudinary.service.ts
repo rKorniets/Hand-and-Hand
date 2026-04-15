@@ -42,7 +42,7 @@ export class CloudinaryService {
   async deleteImage(url: string): Promise<void> {
     if (!url) return;
     try {
-      const regex = /\/upload\/(?:v\d+\/)?([^.]+)/;
+      const regex = /\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/;
       const match = url.match(regex);
 
       if (!match || !match[1]) {
