@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { TaskAssignmentAdminService } from './task-assignment.admin.service';
 import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
-import { UpdateTaskAssignmentDto } from '../../task_assignment/dto/update_task_assignment.dto';
+import { UpdateTaskAssignmentAdminDto } from './dto/update-task-assignment.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
@@ -59,7 +59,7 @@ export class TaskAssignmentAdminController {
   @ApiOperation({ summary: 'Оновити призначення' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateTaskAssignmentDto,
+    @Body() data: UpdateTaskAssignmentAdminDto,
   ) {
     return this.service.update(id, data);
   }
