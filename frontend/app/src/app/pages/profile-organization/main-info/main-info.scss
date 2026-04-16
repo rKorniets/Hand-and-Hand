@@ -1,0 +1,76 @@
+@use 'variables' as *;
+
+.main-info {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+
+
+  &__avatar {
+    width: 250px;
+    height: 250px;
+    border-radius: 20px;
+    background-color: #6b7280;
+    flex-shrink: 0;
+  }
+
+  &__details {
+    flex: 1;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__name {
+    font-size: 36px;
+    font-weight: $user-profile-verify-btn-font-weight;
+    margin: 0;
+  }
+
+
+  &__rating {
+    color: $user-profile-color-grey;
+    font-size: 24px;
+
+    p{
+      margin: 10px 0 0 0;
+    }
+  }
+
+  &__editor{
+    margin: -60px 0;
+  }
+
+  &__points {
+    color: $user-profile-color-grey;
+    font-weight: 400;
+    margin-left: 8px;
+  }
+
+  &__edit-btn {
+    margin-top: 110px;
+    background: none;
+    border: none;
+    color: $user-profile-color-grey;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: 20px;
+  }
+
+  &__notif-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+
+    .material-symbols-outlined {
+      font-size: 50px;
+      color: #000;
+      font-variation-settings: 'FILL' 1;
+    }
+  }
+}

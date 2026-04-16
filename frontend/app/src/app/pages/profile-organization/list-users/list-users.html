@@ -1,0 +1,41 @@
+<div class="members-card">
+  <h2 class="members-card__title">
+    Список учасників ({{ members.length }}) :
+  </h2>
+
+  <ul class="members-list">
+    @for (member of visibleMembers; track member.id) {
+      <li class="members-list__item">
+        <div class="members-list__avatar">
+          @if (!member.avatar) {
+            <span class="material-symbols-outlined">person</span>
+          } @else {
+            <img [src]="member.avatar" [alt]="getFullName(member)" />
+          }
+        </div>
+
+        <span class="members-list__name">{{ getFullName(member) }}</span>
+
+
+        <button
+          class="members-list__delete"
+          (click)="onDelete(member)"
+          [attr.aria-label]="'Видалити ' + getFullName(member)">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <div class="members-card__footer">
+    @if (members.length > collapseCount) {
+      <button class="members-card__toggle" (click)="toggleExpand()">
+        {{ expanded ? 'Згорнути' : 'Розгорнути' }}
+      </button>
+    }
+
+    <button class="members-card__add" (click)="onAdd()">
+      Додати учасників
+    </button>
+  </div>
+</div>

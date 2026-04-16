@@ -1,0 +1,26 @@
+<div class="reports">
+  <h2 #listTop class="reports__title">Звіти</h2>
+
+  <button class="add-button" routerLink="/reports/create">+</button>
+  <div class="reports__list">
+    @for (item of reports | slice:0:(isExpanded ? reports.length : 2); track item.id) {
+      <a class="reports__item" [routerLink]="['/reports', item.id]">
+        <span class="material-symbols-outlined reports__file-icon">description</span>
+        <div class="reports__body">
+          <h3 class="reports__item-title">{{ item.title }}</h3>
+          <p class="reports__text">Тип: {{ item.type }}</p>
+          @if (item.published_at) {
+            <span class="reports__date">{{ item.published_at | date: 'dd.MM.yyyy' }}</span>
+          }
+        </div>
+      </a>
+    }
+  </div>
+  @if (reports.length > 2) {
+    <div class="reports__button">
+      <button class="reports__more" (click)="getOrgReports(listTop)">
+        {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
+      </button>
+    </div>
+  }
+</div>
