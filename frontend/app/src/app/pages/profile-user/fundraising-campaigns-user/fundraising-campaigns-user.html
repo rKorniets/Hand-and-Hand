@@ -7,6 +7,8 @@
 
   <div class="list__component__grid">
     @for (campaign of (fundraisingCampaignItem | slice:0:(isExpanded ? fundraisingCampaignItem.length : 2)); track campaign.id) {
+  <div class="list__component__grid">
+    @for (campaign of fundraisingCampaignItem | slice:0:(isExpanded ? fundraisingCampaignItem.length : 2); track campaign.id) {
 
       <article class="fundraising__card">
         <a class="activity__item" [routerLink]="['/fundraising', campaign.id]">
@@ -37,6 +39,8 @@
   @if (fundraisingCampaignItem.length > 2) {
     <div class="campaings__button">
       <button class="campaings__more" (click)="toggleFundraisingCampaigns(listTop)">
+    <div class="activity__button">
+      <button class="activity__more" (click)="toggleFundraisingCampaigns(listTop)">
         {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
       </button>
     </div>

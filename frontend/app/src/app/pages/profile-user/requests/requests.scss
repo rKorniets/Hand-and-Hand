@@ -8,6 +8,7 @@
   .requests-title {
     font-size: 36px;
     font-weight: $user-profile-verify-btn-font-weight;
+    font-weight: 700;
     margin: 0;
     color: $text-color;
   }
@@ -21,11 +22,19 @@
     font-size: $user-profile-verify-btn-font-size;
     font-weight: $user-profile-verify-btn-font-weight;
     color: $user-profile-verify-btn-color;
+    padding: 12px;
+    background-color: #F3F3F3;
+    border: none;
+    border-radius: 15px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #444;
     cursor: pointer;
     transition: background-color 0.2s ease;
 
     &:hover {
       background-color: $user-profile-verify-btn-bg-hover;
+      background-color: #dadada;
     }
   }
 
@@ -43,12 +52,18 @@
     .ticket-title {
       font-size: 30px;
       font-weight: $user-profile-verify-btn-font-weight;
+    border-radius: 15px;
+
+    .ticket-title {
+      font-size: 30px;
+      font-weight: 700;
       margin: 0 0 4px 0;
     }
 
     .ticket-status {
       display: block;
       font-size: $user-profile-verify-btn-font-size;
+      font-size: 26px;
       font-weight: 600;
       margin-bottom: 8px;
     }
@@ -67,6 +82,7 @@
     .ticket-meta {
       font-size: 24px;
       font-weight: $user-profile-verify-btn-font-weight;
+      font-weight: 700;
       margin-top: 10px;
     }
   }
@@ -84,11 +100,18 @@
       font-size: $user-profile-verify-btn-font-size;
       font-weight: $user-profile-verify-btn-font-weight;
       color: $user-profile-verify-btn-color;
+      background-color: #F3F3F3;
+      border: none;
+      border-radius: 12px;
+      font-size: 26px;
+      font-weight: 700;
+      color: #444;
       cursor: pointer;
       transition: background-color 0.2s ease;
 
       &:hover {
         background-color: $user-profile-verify-btn-bg-hover;
+        background-color: #e8e8e8;
       }
     }
   }

@@ -9,6 +9,17 @@
           <div class="achievement__info">
             <p class="achievement__name">{{ rewardItem.title }}</p>
             <p class="achievement__condition">Умова: {{ rewardItem.threshold_points }}</p>
+
+      @if (user && user.points >= rewardItem.threshold_points) {
+        <div class="achievement__item">
+          <div class="achievement__image-placeholder">
+          </div>
+
+          <div class="achievement__info">
+            <p class="achievement__name">{{ rewardItem.title }}</p>
+            <p class="achievement__condition">
+              Умова: {{ rewardItem.threshold_points }}
+            </p>
             <p class="achievement__description">{{ rewardItem.description }}</p>
           </div>
         </div>
@@ -19,6 +30,7 @@
   @if (rewards.length > 3) {
     <div class="achievement__button-container">
       <button class="achievement__more" (click)="toggleAchievements(achieveTop)">
+      <button class="achievement__more" (click)="toggleAchievements()">
         {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
       </button>
     </div>

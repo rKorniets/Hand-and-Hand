@@ -7,6 +7,7 @@ export enum TicketStatus {
   CLOSED = 'CLOSED',
   CANCELLED = 'CANCELLED',
 }
+export type TicketStatus = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'CLOSED' | 'CANCELLED';
 
 export interface AppUser {
   id: number;
