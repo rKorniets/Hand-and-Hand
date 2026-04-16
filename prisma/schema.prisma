@@ -140,6 +140,7 @@ model organization_profile {
   organization_category organization_category[]
   members               app_user[]              @relation("OrganizationMembers")
 
+
   @@index([location_id], map: "idx_organization_profile_location_id")
 }
 

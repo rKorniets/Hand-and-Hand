@@ -5,8 +5,8 @@
   gap: 40px;
   align-items: flex-start;
 
+
   &__avatar {
-  &__avatar{
     width: 250px;
     height: 250px;
     border-radius: 20px;
@@ -27,26 +27,25 @@
   &__name {
     font-size: 36px;
     font-weight: $user-profile-verify-btn-font-weight;
-    font-weight: 700;
     margin: 0;
   }
 
-  &__role {
-    color: #666;
-    margin: 4px 0;
-    font-size: 24px;
-  }
 
   &__rating {
-    margin-top: 8px;
     color: $user-profile-color-grey;
-    color: #A0A0A0;
     font-size: 24px;
+
+    p{
+      margin: 10px 0 0 0;
+    }
+  }
+
+  &__editor{
+    margin: -60px 0;
   }
 
   &__points {
     color: $user-profile-color-grey;
-    color: #A0A0A0;
     font-weight: 400;
     margin-left: 8px;
   }
@@ -56,28 +55,22 @@
     background: none;
     border: none;
     color: $user-profile-color-grey;
-    color: #A0A0A0;
     text-decoration: underline;
     cursor: pointer;
     padding: 0;
     font-size: 20px;
   }
 
-  .main-info__notif-btn {
+  &__notif-btn {
     background: transparent;
     border: none;
     padding: 0;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 
-  .main-info__notif-btn .material-symbols-outlined {
-    font-size: 50px;
-    color: #000;
-    font-variation-settings: 'FILL' 1;
-    display: block;
+    .material-symbols-outlined {
+      font-size: 50px;
+      color: #000;
+      font-variation-settings: 'FILL' 1;
+    }
   }
-
 }

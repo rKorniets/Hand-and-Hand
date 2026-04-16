@@ -4,9 +4,6 @@
   </div>
 
   <button class="add-button" routerLink="/fundraisingCampaign/create">+</button>
-
-  <div class="list__component__grid">
-    @for (campaign of (fundraisingCampaignItem | slice:0:(isExpanded ? fundraisingCampaignItem.length : 2)); track campaign.id) {
   <div class="list__component__grid">
     @for (campaign of fundraisingCampaignItem | slice:0:(isExpanded ? fundraisingCampaignItem.length : 2); track campaign.id) {
 
@@ -26,7 +23,7 @@
             <div class="fundraising__card__footer">
               <div class="fundraising__card__organizer">
                 <span class="fundraising__card__org-name">
-                  Організатор: {{ campaign.volunteer_profile.first_name }} {{ campaign.volunteer_profile.last_name }}
+                  Організатор: {{ campaign.organization_profile.name }}
                 </span>
               </div>
             </div>
@@ -38,9 +35,7 @@
 
   @if (fundraisingCampaignItem.length > 2) {
     <div class="campaings__button">
-      <button class="campaings__more" (click)="toggleFundraisingCampaigns(listTop)">
-    <div class="activity__button">
-      <button class="activity__more" (click)="toggleFundraisingCampaigns(listTop)">
+      <button class="campaings__more" (click)="getOrgFundraising(listTop)">
         {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
       </button>
     </div>

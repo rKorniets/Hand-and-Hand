@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OrganizationProfile } from './organization-profile';
+import { OrgData } from './org-data';
 
-describe('OrganizationProfile', () => {
-  let component: OrganizationProfile;
-  let fixture: ComponentFixture<OrganizationProfile>;
+describe('OrgData', () => {
+  let component: OrgData;
+  let fixture: ComponentFixture<OrgData>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OrganizationProfile]
+      imports: [OrgData]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(OrganizationProfile);
+    fixture = TestBed.createComponent(OrgData);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

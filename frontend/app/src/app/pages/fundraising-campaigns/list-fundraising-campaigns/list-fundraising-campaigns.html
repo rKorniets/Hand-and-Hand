@@ -19,6 +19,7 @@
           <div class="fundraising__card__footer">
             <div class="fundraising__card__organizer">
               <span class="fundraising__card__org-name">
+                  Організатор: {{ getOrganizer(campaign) }}              </span>
                 Організатор: {{ campaign.organization_profile?.title || (campaign.volunteer_profile?.first_name + ' ' + campaign.volunteer_profile?.last_name) }}
               </span>
             </div>
