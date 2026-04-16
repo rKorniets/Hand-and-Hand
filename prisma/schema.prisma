@@ -42,6 +42,7 @@ model app_user {
   volunteer_profile                      volunteer_profile?
   warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
+  ticket  ticket[]
 }
 
 model category {
@@ -305,7 +306,7 @@ model task_category {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ticket {
   id                   Int                  @id @default(autoincrement())
-  volunteer_profile_id Int
+  user_id              Int
   title                String
   description          String
   status               ticket_status_enum   @default(OPEN)
@@ -316,10 +317,10 @@ model ticket {
   closed_at            DateTime?            @db.Timestamptz(6)
   task                 task[]
   location             location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_ticket_location")
-  volunteer_profile    volunteer_profile    @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
+  app_user             app_user             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_app_user")
 
   @@index([location_id], map: "idx_ticket_location_id")
-  @@index([volunteer_profile_id], map: "idx_ticket_volunteer_profile_id")
+  @@index([user_id], map: "idx_ticket_user_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -336,7 +337,6 @@ model volunteer_profile {
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
   app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
-  tickets              ticket[]
 }
 
 model admin_profile {

@@ -3,12 +3,6 @@ import { ticket_status_enum, ticket_priority_enum } from '@prisma/client';
 
 export class CreateTicketDto {
   @ApiProperty({
-    description: 'ID профілю волонтера, який створив тікет',
-    example: 1,
-  })
-  volunteer_profile_id: number;
-
-  @ApiProperty({
     description: 'Короткий заголовок тікету',
     example: 'Потрібна машина для доставки',
   })

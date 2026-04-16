@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
@@ -8,9 +8,12 @@ import { Prisma, ticket_status_enum } from '@prisma/client';
 export class TicketService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateTicketDto) {
+  async create(data: CreateTicketDto, userId: number) {
     return this.prisma.ticket.create({
-      data,
+      data: {
+        ...data,
+        user_id: userId,
+      },
     });
   }
 
@@ -18,21 +21,41 @@ export class TicketService {
     return this.prisma.ticket.findMany({
       orderBy: { created_at: 'desc' },
       include: {
-        volunteer_profile: true,
         location: true,
+        app_user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            role: true,
+          },
+        },
       },
     });
   }
 
   async findOne(id: number) {
-    return this.prisma.ticket.findUnique({
+    const ticket = await this.prisma.ticket.findUnique({
       where: { id },
       include: {
-        volunteer_profile: true,
+        app_user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            role: true,
+          },
+        },
         location: true,
         task: true,
       },
     });
+
+    if (!ticket) {
+      throw new NotFoundException(`Тікет з ID ${id} не знайдено`);
+    }
+
+    return ticket;
   }
 
   async update(id: number, data: UpdateTicketDto) {
