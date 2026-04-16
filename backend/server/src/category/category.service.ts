@@ -17,7 +17,7 @@ export class CategoryService {
     });
 
     if (existing) {
-      throw new ConflictException('Категорія з таким slug вже існує');
+      throw new ConflictException('Category with this slug already exists');
     }
 
     return this.prisma.category.create({ data });
@@ -35,7 +35,7 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new NotFoundException(`Категорію з ID ${id} не знайдено`);
+      throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
     return category;
@@ -49,7 +49,7 @@ export class CategoryService {
       });
 
       if (existing) {
-        throw new ConflictException('Категорія з таким slug вже існує');
+        throw new ConflictException('Category with this slug already exists');
       }
     }
 

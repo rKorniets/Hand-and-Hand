@@ -1,12 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsString, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateVolunteerProfileDto {
   @ApiProperty({ description: 'ID користувача' })
   @IsInt()
   user_id: number;
 
-  @ApiProperty({ description: 'Відображуване ім\'я' })
+  @ApiProperty({ description: "Відображуване ім'я" })
   @IsString()
   display_name: string;
 

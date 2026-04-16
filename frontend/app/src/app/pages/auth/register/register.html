@@ -1,5 +1,4 @@
 <section class="register">
-
   <div class="register__container">
 
     <div class="register__title-wrapper">
@@ -7,55 +6,54 @@
     </div>
 
     <div class="register__tabs">
-      <button
-        class="register__tab"
-        [class.register__tab--active]="activeTab === 'user'"
-        (click)="setTab('user')">
+      <button class="register__tab" [class.register__tab--active]="activeTab === 'user'" (click)="setTab('user')">
         Користувач
       </button>
-      <button
-        class="register__tab"
-        [class.register__tab--active]="activeTab === 'org'"
-        (click)="setTab('org')">
+      <button class="register__tab" [class.register__tab--active]="activeTab === 'org'" (click)="setTab('org')">
         Організація
       </button>
     </div>
 
+    @if (error) {
+      <p class="register__error">{{ error }}</p>
+    }
+
     <!-- Користувач -->
     @if (activeTab === 'user') {
-      <form class="register__form">
+      <form class="register__form" (ngSubmit)="onSubmit()">
         <div class="register__row">
           <div class="register__field">
             <span class="register__label">Ім'я:</span>
-            <input class="register__input" placeholder="Іван" />
+            <input class="register__input" placeholder="Іван"
+                   [(ngModel)]="firstName" name="firstName" required />
           </div>
           <div class="register__field">
             <span class="register__label">Прізвище:</span>
-            <input class="register__input" placeholder="Іваненко" />
+            <input class="register__input" placeholder="Іваненко"
+                   [(ngModel)]="lastName" name="lastName" required />
           </div>
         </div>
-
         <div class="register__field">
           <span class="register__label">Місто:</span>
-          <select class="register__input">
-            <option disabled selected>Вибрати</option>
+          <select class="register__input" [(ngModel)]="city" name="city" required>
+            <option disabled value="">Вибрати</option>
             <option>Львів</option>
             <option>Київ</option>
           </select>
         </div>
-
         <div class="register__field">
           <span class="register__label">Пошта:</span>
-          <input class="register__input" placeholder="example@gmail.com" />
+          <input class="register__input" type="email" placeholder="example@gmail.com"
+                 [(ngModel)]="userEmail" name="userEmail" required />
         </div>
-
         <div class="register__field">
           <span class="register__label">Пароль:</span>
-          <input type="password" class="register__input" placeholder="******" />
+          <input type="password" class="register__input" placeholder="******"
+                 [(ngModel)]="userPassword" name="userPassword" required />
         </div>
-
-        <button class="register__button">Далі</button>
-
+        <button class="register__button" type="submit" [disabled]="loading">
+          {{ loading ? 'Завантаження...' : 'Зараєструватися' }}
+        </button>
         <div class="register__login">
           <span>Вже маєш акаунт?</span>
           <a routerLink="/login">Заходь тут!</a>
@@ -65,29 +63,30 @@
 
     <!-- Організація -->
     @if (activeTab === 'org') {
-      <form class="register__form">
+      <form class="register__form" (ngSubmit)="onSubmit()">
         <div class="register__field">
           <span class="register__label">Назва:</span>
-          <input class="register__input" placeholder="Ввести" />
+          <input class="register__input" placeholder="Ввести"
+                 [(ngModel)]="orgName" name="orgName" required />
         </div>
-
         <div class="register__field">
           <span class="register__label">ЄДРПОУ:</span>
-          <input class="register__input" placeholder="8 цифр" maxlength="8" />
+          <input class="register__input" placeholder="8 цифр" maxlength="8"
+                 [(ngModel)]="orgEdrpou" name="orgEdrpou" required />
         </div>
-
         <div class="register__field">
           <span class="register__label">Пошта:</span>
-          <input class="register__input" placeholder="example@gmail.com" />
+          <input class="register__input" type="email" placeholder="example@gmail.com"
+                 [(ngModel)]="orgEmail" name="orgEmail" required />
         </div>
-
         <div class="register__field">
           <span class="register__label">Пароль:</span>
-          <input type="password" class="register__input" placeholder="******" />
+          <input type="password" class="register__input" placeholder="******"
+                 [(ngModel)]="orgPassword" name="orgPassword" required />
         </div>
-
-        <button class="register__button">Далі</button>
-
+        <button class="register__button" type="submit" [disabled]="loading">
+          {{ loading ? 'Завантаження...' : 'Зараєструватися' }}
+        </button>
         <div class="register__login">
           <span>Вже маєш акаунт?</span>
           <a routerLink="/login">Заходь тут!</a>

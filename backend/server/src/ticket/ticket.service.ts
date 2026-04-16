@@ -1,17 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
-import { Prisma, ticket_status_enum } from '@prisma/client';
+
+export interface RequestUser {
+  id: number;
+}
 
 @Injectable()
 export class TicketService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateTicketDto) {
-    return this.prisma.ticket.create({
-      data,
+  async create(data: CreateTicketDto, currentUser: RequestUser) {
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { id: data.volunteer_profile_id },
     });
+
+    if (!profile) {
+      throw new NotFoundException('Volunteer profile not found');
+    }
+
+    if (profile.user_id !== currentUser.id) {
+      throw new ForbiddenException('You can only create tickets on your own behalf');
+    }
+
+    return this.prisma.ticket.create({ data });
   }
 
   async findAll() {
@@ -36,18 +49,9 @@ export class TicketService {
   }
 
   async update(id: number, data: UpdateTicketDto) {
-    const updateData: Prisma.ticketUpdateInput = { ...data };
-
-    if (
-      data.status === ticket_status_enum.CLOSED ||
-      data.status === ticket_status_enum.CANCELLED
-    ) {
-      updateData.closed_at = new Date();
-    }
-
     return this.prisma.ticket.update({
       where: { id },
-      data: updateData,
+      data,
     });
   }
 

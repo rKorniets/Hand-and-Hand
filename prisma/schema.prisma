@@ -23,13 +23,13 @@ model news {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model app_user {
-  id                                     Int                   @id @default(autoincrement())
-  email                                  String                @unique
+  id                                     Int                    @id @default(autoincrement())
+  email                                  String                 @unique
   password_hash                          String
   role                                   user_role_enum
-  status                                 user_status_enum      @default(PENDING)
-  created_at                             DateTime              @default(now()) @db.Timestamptz(6)
-  points                                 Int                   @default(0)
+  status                                 user_status_enum       @default(PENDING)
+  created_at                             DateTime               @default(now()) @db.Timestamptz(6)
+  points                                 Int                    @default(0)
   first_name                             String?
   last_name                              String?
   city                                   String?
@@ -39,20 +39,21 @@ model app_user {
   points_transaction                     points_transaction[]
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
-  joined_organization_id                 Int?
-  joined_organization                    organization_profile? @relation("OrganizationMembers", fields: [joined_organization_id], references: [id])
-  warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
-  warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
+  password_reset_token                   password_reset_token[]
+  warnings_warnings_created_byToapp_user warnings[]             @relation("warnings_created_byToapp_user")
+  warnings_warnings_user_idToapp_user    warnings[]             @relation("warnings_user_idToapp_user")
+  submitted_requests                     approval_request[]     @relation("submitted_requests")
+  reviewed_requests                      approval_request[]     @relation("reviewed_requests")
 }
 
 model category {
-  id                     Int             @id @default(autoincrement())
-  name                   String
-  slug                   String          @unique
-  created_at             DateTime        @default(now()) @db.Timestamptz(6)
-  news_category          news_category[]
-  task_category          task_category[]
-  organization_category  organization_category[]
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  slug                  String                  @unique
+  created_at            DateTime                @default(now()) @db.Timestamptz(6)
+  news_category         news_category[]
+  task_category         task_category[]
+  organization_category organization_category[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -119,23 +120,23 @@ model news_category {
 }
 
 model organization_profile {
-  id                   Int                      @id @default(autoincrement())
-  user_id              Int                      @unique
-  name                 String
-  edrpou               String                   @unique
-  description          String?
-  verification_status  verification_status_enum @default(PENDING)
-  official_docs_url    String?
-  contact_phone        String?
-  contact_email        String?
-  location_id          Int?
-  created_at           DateTime                 @default(now()) @db.Timestamptz(6)
-  mission              String
-  fundraising_campaign fundraising_campaign[]
-  location             location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
-  app_user             app_user                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
-  project              project[]
-  report               report[]
+  id                    Int                      @id @default(autoincrement())
+  user_id               Int                      @unique
+  name                  String
+  edrpou                String                   @unique
+  description           String?
+  verification_status   verification_status_enum @default(PENDING)
+  official_docs_url     String?
+  contact_phone         String?
+  contact_email         String?
+  location_id           Int?
+  created_at            DateTime                 @default(now()) @db.Timestamptz(6)
+  mission               String
+  fundraising_campaign  fundraising_campaign[]
+  location              location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
+  app_user              app_user                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
+  project               project[]
+  report                report[]
   organization_category organization_category[]
   members               app_user[]              @relation("OrganizationMembers")
 
@@ -173,15 +174,15 @@ model points_transaction {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model project {
-  id                      Int                  @id @default(autoincrement())
+  id                      Int                    @id @default(autoincrement())
   organization_profile_id Int
   title                   String
   description             String
-  status                  project_status_enum  @default(DRAFT)
-  starts_at               DateTime?            @db.Timestamptz(6)
-  ends_at                 DateTime?            @db.Timestamptz(6)
-  created_at              DateTime             @default(now()) @db.Timestamptz(6)
-  updated_at              DateTime             @default(now()) @db.Timestamptz(6)
+  status                  project_status_enum    @default(DRAFT)
+  starts_at               DateTime?              @db.Timestamptz(6)
+  ends_at                 DateTime?              @db.Timestamptz(6)
+  created_at              DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime               @default(now()) @db.Timestamptz(6)
   main_content            String?
   organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
   report                  report[]
@@ -221,14 +222,12 @@ model reward {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reward_redemption {
-  id           Int                           @id @default(autoincrement())
-  reward_id    Int
-  user_id      Int
-  points_spent Int
-  status       reward_redemption_status_enum @default(PENDING)
-  created_at   DateTime                      @default(now()) @db.Timestamptz(6)
-  reward       reward                        @relation(fields: [reward_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_reward")
-  app_user     app_user                      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_user")
+  id         Int      @id @default(autoincrement())
+  reward_id  Int
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  reward     reward   @relation(fields: [reward_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_reward")
+  app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_user")
 
   @@index([reward_id], map: "idx_reward_redemption_reward_id")
   @@index([user_id], map: "idx_reward_redemption_user_id")
@@ -358,6 +357,48 @@ model warnings {
 
   @@index([created_by], map: "idx_warnings_created_by")
   @@index([user_id], map: "idx_warnings_user_id")
+}
+
+model password_reset_token {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  token      String   @unique
+  expires_at DateTime @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_token_user")
+
+  @@index([user_id], map: "idx_password_reset_token_user_id")
+}
+
+model approval_request {
+  id               Int                          @id @default(autoincrement())
+  type             approval_request_type_enum
+  status           approval_request_status_enum @default(PENDING)
+  entity_id        Int
+  submitted_by     Int
+  reviewed_by      Int?
+  rejection_reason String?
+  created_at       DateTime                     @default(now()) @db.Timestamptz(6)
+  reviewed_at      DateTime?                    @db.Timestamptz(6)
+
+  submitter app_user  @relation("submitted_requests", fields: [submitted_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_approval_request_submitter")
+  reviewer  app_user? @relation("reviewed_requests", fields: [reviewed_by], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_approval_request_reviewer")
+
+  @@index([submitted_by], map: "idx_approval_request_submitted_by")
+  @@index([reviewed_by], map: "idx_approval_request_reviewed_by")
+  @@index([type, status], map: "idx_approval_request_type_status")
+}
+
+enum approval_request_status_enum {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum approval_request_type_enum {
+  ORGANIZATION
+  VOLUNTEER
+  OTHER
 }
 
 enum fundraising_campaign_status_enum {
