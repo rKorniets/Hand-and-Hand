@@ -4,12 +4,12 @@
   <button class="add-button" routerLink="/requests/create">+</button>
 
   <div class="tickets-list">
-    @for (item of requests | slice:0:(isExpanded ? requests.length : 2); track item.id) {
-      <div class="ticket-card" [class.is-closed]="item.status === 'CLOSED' || item.status === 'RESOLVED'">
+    @for (item of (requests | slice:0:(isExpanded ? requests.length : 2)); track item.id) {
+      <div class="ticket-card" [class.is-closed]="isClosed(item.status)">
         <h2 class="ticket-title">{{ item.title }}</h2>
 
         <span class="ticket-status">
-          @if (item.status === 'CLOSED' || item.status === 'RESOLVED') {
+          @if (isClosed(item.status)) {
             Неактуально
           } @else {
             Актуально
@@ -20,11 +20,11 @@
 
         <div class="ticket-footer">
           <div class="ticket-info">
-            {{ item.city }}, {{ item.created_at }}
+            {{ item.city }}, {{ item.created_at | date: 'dd.MM.yyyy' }}
           </div>
 
           <div class="ticket-meta">
-            @if (item.status === 'CLOSED' || item.status === 'RESOLVED') {
+            @if (isClosed(item.status)) {
               <span class="closed-info">Організація закрила потребу</span>
             }
           </div>

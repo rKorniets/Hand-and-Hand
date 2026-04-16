@@ -1,9 +1,11 @@
+@use 'variables' as *;
+
 .main-info {
   display: flex;
   gap: 40px;
   align-items: flex-start;
 
-  &__avatar{
+  &__avatar {
     width: 250px;
     height: 250px;
     border-radius: 20px;
@@ -23,7 +25,7 @@
 
   &__name {
     font-size: 36px;
-    font-weight: 700;
+    font-weight: $user-profile-verify-btn-font-weight;
     margin: 0;
   }
 
@@ -35,12 +37,12 @@
 
   &__rating {
     margin-top: 8px;
-    color: #A0A0A0;
+    color: $user-profile-color-grey;
     font-size: 24px;
   }
 
   &__points {
-    color: #A0A0A0;
+    color: $user-profile-color-grey;
     font-weight: 400;
     margin-left: 8px;
   }
@@ -49,12 +51,13 @@
     margin-top: 110px;
     background: none;
     border: none;
-    color: #A0A0A0;
+    color: $user-profile-color-grey;
     text-decoration: underline;
     cursor: pointer;
     padding: 0;
     font-size: 20px;
   }
+
   .main-info__notif-btn {
     background: transparent;
     border: none;
@@ -71,5 +74,4 @@
     font-variation-settings: 'FILL' 1;
     display: block;
   }
-
 }

@@ -1,5 +1,4 @@
 <section class="login">
-
   <div class="login__container">
 
     <div class="login__title-wrapper">
@@ -7,35 +6,35 @@
     </div>
 
     <div class="login__tabs">
-      <button
-        class="login__tab"
-        [class.login__tab--active]="activeTab === 'user'"
-        (click)="setTab('user')">
+      <button class="login__tab" [class.login__tab--active]="activeTab === 'user'" (click)="setTab('user')">
         Користувач
       </button>
-      <button
-        class="login__tab"
-        [class.login__tab--active]="activeTab === 'org'"
-        (click)="setTab('org')">
+      <button class="login__tab" [class.login__tab--active]="activeTab === 'org'" (click)="setTab('org')">
         Організація
       </button>
     </div>
 
+    <!-- Помилка -->
+    @if (error) {
+      <p class="login__error">{{ error }}</p>
+    }
+
     <!-- Користувач -->
     @if (activeTab === 'user') {
-      <form class="login__form">
+      <form class="login__form" (ngSubmit)="onSubmit()">
         <div class="login__field">
           <label class="login__label">Пошта:</label>
-          <input class="login__input" type="email" placeholder="example@gmail.com" />
+          <input class="login__input" type="email" placeholder="example@gmail.com"
+                 [(ngModel)]="userEmail" name="userEmail" required />
         </div>
-
         <div class="login__field">
           <label class="login__label">Пароль:</label>
-          <input class="login__input" type="password" placeholder="******" />
+          <input class="login__input" type="password" placeholder="******"
+                 [(ngModel)]="userPassword" name="userPassword" required />
         </div>
-
-        <button type="submit" class="login__button">Увійти</button>
-
+        <button type="submit" class="login__button" [disabled]="loading">
+          {{ loading ? 'Завантаження...' : 'Увійти' }}
+        </button>
         <div class="login__register">
           <span>Ще не маєш акаунту?</span>
           <a routerLink="/register">Реєструйся!</a>
@@ -45,19 +44,20 @@
 
     <!-- Організація -->
     @if (activeTab === 'org') {
-      <form class="login__form">
+      <form class="login__form" (ngSubmit)="onSubmit()">
         <div class="login__field">
           <label class="login__label">ЄДРПОУ:</label>
-          <input class="login__input" type="text" placeholder="8 цифр" maxlength="8" />
+          <input class="login__input" type="text" placeholder="8 цифр" maxlength="8"
+                 [(ngModel)]="orgEdrpou" name="orgEdrpou" required />
         </div>
-
         <div class="login__field">
           <label class="login__label">Пароль:</label>
-          <input class="login__input" type="password" placeholder="******" />
+          <input class="login__input" type="password" placeholder="******"
+                 [(ngModel)]="orgPassword" name="orgPassword" required />
         </div>
-
-        <button type="submit" class="login__button">Увійти</button>
-
+        <button type="submit" class="login__button" [disabled]="loading">
+          {{ loading ? 'Завантаження...' : 'Увійти' }}
+        </button>
         <div class="login__register">
           <span>Ще не маєш акаунту?</span>
           <a routerLink="/register">Реєструйся!</a>
@@ -65,7 +65,10 @@
       </form>
     }
     <button routerLink="/profile-user">
-      Перейти на профіль (DEBUG)
+      Перейти на профіль користувача
+    </button>
+    <button routerLink="/profile-organization">
+      Перейти на профіль організації
     </button>
   </div>
 </section>

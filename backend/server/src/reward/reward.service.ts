@@ -20,7 +20,7 @@ export class RewardService {
       where: { id },
       include: { reward_redemption: true },
     });
-    if (!reward) throw new NotFoundException(`Нагороду з ID ${id} не знайдено`);
+    if (!reward) throw new NotFoundException(`Reward with ID ${id} not found`);
     return reward;
   }
 

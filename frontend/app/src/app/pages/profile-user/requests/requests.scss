@@ -7,25 +7,25 @@
 
   .requests-title {
     font-size: 36px;
-    font-weight: 700;
+    font-weight: $user-profile-verify-btn-font-weight;
     margin: 0;
     color: $text-color;
   }
 
   .add-button {
     width: 100%;
-    padding: 12px;
-    background-color: #F3F3F3;
+    padding: $user-profile-verify-btn-padding;
+    background-color: $user-profile-verify-btn-bg;
     border: none;
-    border-radius: 15px;
-    font-size: 26px;
-    font-weight: 700;
-    color: #444;
+    border-radius: $user-profile-verify-btn-border-radius;
+    font-size: $user-profile-verify-btn-font-size;
+    font-weight: $user-profile-verify-btn-font-weight;
+    color: $user-profile-verify-btn-color;
     cursor: pointer;
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: #dadada;
+      background-color: $user-profile-verify-btn-bg-hover;
     }
   }
 
@@ -38,17 +38,17 @@
   .ticket-card {
     background-color: $bg-color-block;
     padding: 16px;
-    border-radius: 15px;
+    border-radius: $user-profile-verify-btn-border-radius;
 
     .ticket-title {
       font-size: 30px;
-      font-weight: 700;
+      font-weight: $user-profile-verify-btn-font-weight;
       margin: 0 0 4px 0;
     }
 
     .ticket-status {
       display: block;
-      font-size: 26px;
+      font-size: $user-profile-verify-btn-font-size;
       font-weight: 600;
       margin-bottom: 8px;
     }
@@ -66,7 +66,7 @@
 
     .ticket-meta {
       font-size: 24px;
-      font-weight: 700;
+      font-weight: $user-profile-verify-btn-font-weight;
       margin-top: 10px;
     }
   }
@@ -78,17 +78,17 @@
     .requests__more {
       width: 100%;
       padding: 14px;
-      background-color: #F3F3F3;
+      background-color: $user-profile-verify-btn-bg;
       border: none;
       border-radius: 12px;
-      font-size: 26px;
-      font-weight: 700;
-      color: #444;
+      font-size: $user-profile-verify-btn-font-size;
+      font-weight: $user-profile-verify-btn-font-weight;
+      color: $user-profile-verify-btn-color;
       cursor: pointer;
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: #e8e8e8;
+        background-color: $user-profile-verify-btn-bg-hover;
       }
     }
   }

@@ -8,5 +8,5 @@ import { AppUser } from '../profile-user.model';
   styleUrl: './main-info.scss',
 })
 export class MainInfo {
-  @Input() user: AppUser | null = null;
+  @Input() user: AppUser | undefined;
 }

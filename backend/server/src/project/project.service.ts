@@ -2,13 +2,38 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+
+export interface RequestUser {
+  id: number;
+}
+
 @Injectable()
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
+
+  private async validateOwnership(id: number, currentUser: RequestUser) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        organization_profile: { select: { user_id: true } },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+
+    if (project.organization_profile.user_id !== currentUser.id) {
+      throw new ForbiddenException('You do not have permission to access this project');
+    }
+
+    return project;
+  }
 
   async getProjects(
     limit: number,
@@ -38,18 +63,32 @@ export class ProjectService {
 
     return { data, total };
   }
+
+  // TODO: determine organization_profile_id from currentUser instead of accepting it from DTO
+  // to prevent users from creating projects on behalf of other organizations
   async createProject(data: CreateProjectDto) {
     return this.prisma.project.create({ data });
   }
 
-  async updateProject(id: number, data: CreateProjectDto) {
+  async updateProject(id: number, data: CreateProjectDto, currentUser: RequestUser) {
+    await this.validateOwnership(id, currentUser);
+
     return this.prisma.project.update({
       where: { id },
-      data: { ...data, updated_at: new Date() },
+      data: {
+        title: data.title,
+        description: data.description,
+        status: data.status,
+        starts_at: data.starts_at,
+        ends_at: data.ends_at,
+        updated_at: new Date(),
+      },
     });
   }
 
-  async deleteProject(id: number) {
+  async deleteProject(id: number, currentUser: RequestUser) {
+    await this.validateOwnership(id, currentUser);
+
     return this.prisma.project.delete({ where: { id } });
   }
 
@@ -117,7 +156,6 @@ export class ProjectService {
             id: true,
             first_name: true,
             last_name: true,
-            role: true,
           },
         },
       },

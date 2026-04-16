@@ -11,7 +11,22 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./news-content.scss'],
 })
 export class NewsContentComponent {
-  @Input() items: NewsItem[] = [];
+  private _items: NewsItem[] = [];
+
+  @Input()
+  set items(value: any) {
+    if (Array.isArray(value)) {
+      this._items = value;
+    } else if (value && typeof value === 'object' && Array.isArray(value.data)) {
+      this._items = value.data;
+    } else {
+      this._items = [];
+    }
+  }
+
+  get items(): NewsItem[] {
+    return this._items;
+  }
 
   onImageError(event: Event): void {
     (event.target as HTMLImageElement).src = 'https://placehold.co/330x190';

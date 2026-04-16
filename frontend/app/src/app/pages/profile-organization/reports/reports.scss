@@ -1,0 +1,106 @@
+@use 'variables' as *;
+
+.reports {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+
+  &__title {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0;
+    color: $text-color;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    background-color: $bg-color-block;
+    border-radius: 20px;
+    overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: darken(#f3f3f3, 5%);
+    }
+  }
+
+  &__file-icon {
+    font-size: 48px;
+    color: rgba($text-color, 0.5);
+    flex-shrink: 0;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__item-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: $text-color;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 18px;
+    color: rgba($text-color, 0.8);
+  }
+
+  &__date {
+    font-size: 16px;
+    color: rgba($text-color, 0.6);
+  }
+
+  &__button {
+    .reports__more {
+      width: 100%;
+      padding: 12px;
+      background-color: #f3f3f3;
+      border: none;
+      border-radius: 15px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #444;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-bottom: 20px;
+
+      &:hover {
+        background-color: #dadada;
+      }
+    }
+  }
+}
+
+.add-button {
+  width: 100%;
+  padding: $user-profile-verify-btn-padding;
+  background-color: $user-profile-verify-btn-bg;
+  border: none;
+  border-radius: $user-profile-verify-btn-border-radius;
+  font-size: $user-profile-verify-btn-font-size;
+  font-weight: $user-profile-verify-btn-font-weight;
+  color: $user-profile-verify-btn-color;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: $user-profile-verify-btn-bg-hover;
+  }
+}

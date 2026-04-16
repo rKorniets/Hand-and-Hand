@@ -1,0 +1,43 @@
+<section class="list__component" #listTop>
+  <div class="list__component__header">
+    <h2 class="list__component__title">Збори</h2>
+  </div>
+
+  <button class="add-button" routerLink="/fundraisingCampaign/create">+</button>
+  <div class="list__component__grid">
+    @for (campaign of fundraisingCampaignItem | slice:0:(isExpanded ? fundraisingCampaignItem.length : 2); track campaign.id) {
+
+      <article class="fundraising__card">
+        <a class="activity__item" [routerLink]="['/fundraising', campaign.id]">
+
+          <div class="fundraising__card__image">
+          </div>
+
+          <div class="fundraising__card__body">
+            <h3 class="fundraising__card__title">{{ campaign.title }}</h3>
+
+            <p class="fundraising__card__description">
+              {{ campaign.description }}
+            </p>
+
+            <div class="fundraising__card__footer">
+              <div class="fundraising__card__organizer">
+                <span class="fundraising__card__org-name">
+                  Організатор: {{ campaign.organization_profile.name }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </article>
+    }
+  </div>
+
+  @if (fundraisingCampaignItem.length > 2) {
+    <div class="campaings__button">
+      <button class="campaings__more" (click)="getOrgFundraising(listTop)">
+        {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
+      </button>
+    </div>
+  }
+</section>

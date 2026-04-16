@@ -1,13 +1,15 @@
+@use 'variables' as *;
+
 .user-data {
-  background-color: #F3F3F3;
+  background-color: $user-profile-verify-btn-bg;
   padding: 5px 20px;
   border-radius: 16px;
 
   &__title {
     font-size: 36px;
-    font-weight: 700;
+    font-weight: $user-profile-verify-btn-font-weight;
     margin-bottom: 16px;
-    color: #444;
+    color: $user-profile-verify-btn-color;
     margin-top: 5px;
   }
 
@@ -28,7 +30,7 @@
   &__add-desc {
     background: none;
     border: none;
-    color: #A0A0A0;
+    color: $user-profile-color-grey;
     font-size: 24px;
     margin-top: 12px;
     cursor: pointer;
