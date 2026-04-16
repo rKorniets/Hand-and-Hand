@@ -137,4 +137,41 @@ export class OrganizationProfileController {
       currentUser,
     );
   }
+
+  @Public()
+  @Get(':id/projects')
+  @ApiOperation({ summary: 'Отримати проекти організації' })
+  async getProjects(@Param('id', ParseIntPipe) id: number) {
+    return this.organizationProfileService.getOrganizationProjects(id);
+  }
+
+  @Public()
+  @Get(':id/reports')
+  @ApiOperation({ summary: 'Отримати звіти організації' })
+  async getReports(@Param('id', ParseIntPipe) id: number) {
+    return this.organizationProfileService.getOrganizationReports(id);
+  }
+
+  @Public()
+  @Get(':id/members')
+  @ApiOperation({ summary: 'Отримати учасників організації' })
+  async getMembers(@Param('id', ParseIntPipe) id: number) {
+    return this.organizationProfileService.getOrganizationMembers(id);
+  }
+
+  @Public()
+  @Get(':id/fundraising')
+  @ApiOperation({ summary: 'Отримати збори організації' })
+  async getFundraising(@Param('id', ParseIntPipe) id: number) {
+    return this.organizationProfileService.getOrganizationFundraising(id);
+  }
+
+  @Public()
+  @Get('by-user/:userId')
+  @ApiOperation({ summary: 'Отримати профіль організації за user_id' })
+  async getByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    return this.organizationProfileService.getOrganizationProfileByUserId(
+      userId,
+    );
+  }
 }

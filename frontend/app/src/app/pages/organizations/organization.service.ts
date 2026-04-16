@@ -10,11 +10,11 @@ export interface PaginatedOrganization {
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {
-  private readonly apiUrl = 'http://localhost:3000/organization';
+  private readonly apiUrl = 'http://localhost:3000/organization-profiles';
 
   constructor(private http: HttpClient) {}
 
-  getOrganization(limit = 20, skip = 0, status?: string): Observable<PaginatedOrganization> {
+  getOrganization(limit = 20, skip = 0, status?: string): Observable<Organization[]> {
     let params = new HttpParams()
       .set('limit', limit)
       .set('skip', skip);
@@ -23,7 +23,7 @@ export class OrganizationService {
       params = params.set('status', status);
     }
 
-    return this.http.get<PaginatedOrganization>(this.apiUrl, { params });
+    return this.http.get<Organization[]>(this.apiUrl, { params });
   }
 
   getOrganizationById(id: number): Observable<Organization> {

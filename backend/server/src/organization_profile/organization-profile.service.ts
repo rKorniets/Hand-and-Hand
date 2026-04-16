@@ -120,4 +120,46 @@ export class OrganizationProfileService {
     await this.validateOrganizationOwnership(id, currentUser);
     return this.prisma.organization_profile.delete({ where: { id } });
   }
+
+  async getOrganizationProjects(orgId: number) {
+    return this.prisma.project.findMany({
+      where: { organization_profile_id: orgId },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async getOrganizationReports(orgId: number) {
+    return this.prisma.report.findMany({
+      where: { organization_profile_id: orgId },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async getOrganizationMembers(orgId: number) {
+    return this.prisma.organization_profile.findUnique({
+      where: { id: orgId },
+      include: {
+        members: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+            city: true,
+          },
+        },
+      },
+    });
+  }
+
+  async getOrganizationFundraising(orgId: number) {
+    return this.prisma.fundraising_campaign.findMany({
+      where: { organization_profile_id: orgId },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async getOrganizationProfileByUserId(userId: number) {
+    return this.prisma.organization_profile.findUnique({ where: { user_id: userId } });
+  }
 }

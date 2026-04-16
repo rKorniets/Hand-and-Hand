@@ -1,5 +1,6 @@
 export type UserRole = 'VOLUNTEER' | 'APP_USER';
-export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'PENDING' | 'APP_USER';
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'PENDING';
+
 export enum TicketStatus {
   OPEN = 'OPEN',
   IN_REVIEW = 'IN_REVIEW',
@@ -7,12 +8,10 @@ export enum TicketStatus {
   CLOSED = 'CLOSED',
   CANCELLED = 'CANCELLED',
 }
-export type TicketStatus = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'CLOSED' | 'CANCELLED';
 
 export interface AppUser {
   id: number;
   email: string;
-  password_hash: string;
   role: UserRole;
   status: UserStatus;
   created_at: Date;
@@ -20,7 +19,7 @@ export interface AppUser {
   first_name: string;
   last_name: string;
   city?: string;
-  joined_organization_id?: number;
+  avatar_url?: string;
   joined_organization?: {
     id: number;
     name: string;
@@ -32,8 +31,6 @@ export interface Reward {
   title: string;
   description: string;
   threshold_points: number;
-  is_active: boolean;
-  created_at: Date;
 }
 
 export interface ActivityItem {
@@ -41,7 +38,6 @@ export interface ActivityItem {
   title: string;
   starts_at: string | Date;
   description: string;
-  location: string;
 }
 
 export interface FundraisingCampaign {
@@ -51,15 +47,14 @@ export interface FundraisingCampaign {
   volunteer_profile: {
     first_name: string;
     last_name: string;
-  }
+  };
 }
 
 export interface ITicket {
   id: number;
   title: string;
   description: string;
-  status: TicketStatus;
+  status: string;
   city?: string;
   created_at: string;
-  closed_at?: Date;
 }

@@ -1,7 +1,8 @@
 <div class="main-info">
   <div class="main-info__avatar">
-    <img src="">
+    <img [src]="user?.avatar_url || 'assets/default-avatar.png'" [alt]="user?.first_name">
   </div>
+
   <div class="main-info__details">
     <div class="main-info__header">
       <h1 class="main-info__name">
@@ -11,19 +12,23 @@
           <span class="main-info__verified-badge" title="Верифікований волонтер">
             <span class="material-symbols-outlined">check_circle</span>
           </span>
-        } </h1>
+        }
+      </h1>
 
       <button class="main-info__notif-btn" aria-label="Сповіщення">
         <span class="material-symbols-outlined">notifications</span>
       </button>
     </div>
+
     <p class="main-info__role">
       {{ user?.role === 'VOLUNTEER' ? 'Волонтер' : 'Користувач' }}
     </p>
+
     <div class="main-info__rating">
       <span class="main-info__stars">Балів: </span>
-      <span class="main-info__points">{{ user?.points }}</span>
+      <span class="main-info__points">{{ user?.points || 0 }}</span>
     </div>
+
     <button class="main-info__edit-btn">Редагувати профіль</button>
   </div>
 </div>

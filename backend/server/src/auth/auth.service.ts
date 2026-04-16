@@ -88,6 +88,14 @@ export class AuthService {
         },
       });
 
+      await tx.approval_request.create({
+        data: {
+          submitted_by: u.id,
+          entity_id: u.id,
+          type: 'ORGANIZATION',
+          status: 'PENDING',
+        },
+      });
       return u;
     });
 
@@ -128,8 +136,17 @@ export class AuthService {
     const isValid = await argon2.verify(user.password_hash, dto.password);
     if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
+    if (user.status === user_status_enum.PENDING) {
+      throw new ForbiddenException(
+        'Ваш акаунт очікує підтвердження адміністратором',
+      );
+    }
+    if (user.status === user_status_enum.INACTIVE) {
+      throw new ForbiddenException('Ваш акаунт було відхилено');
+    }
+
     if (user.status !== user_status_enum.ACTIVE) {
-      throw new ForbiddenException('Organization account is not active');
+      throw new ForbiddenException('Акаун організації не активний');
     }
 
     return this.signToken(user);

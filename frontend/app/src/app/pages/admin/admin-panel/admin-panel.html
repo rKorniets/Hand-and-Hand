@@ -1,0 +1,57 @@
+<section class="pending-orgs">
+  <h2 class="pending-orgs__title">Організації на розгляді</h2>
+
+  @if (loading) {
+    <p class="pending-orgs__status">Завантаження...</p>
+  }
+
+  @if (error) {
+    <p class="pending-orgs__error">{{ error }}</p>
+  }
+
+  @if (!loading && items.length === 0) {
+    <p class="pending-orgs__status">Немає організацій що очікують підтвердження</p>
+  }
+
+  @if (!loading && items.length > 0) {
+    <div class="pending-orgs__table-wrapper">
+      <table class="pending-orgs__table">
+        <thead>
+        <tr>
+          <th>Назва</th>
+          <th>ЄДРПОУ</th>
+          <th>Email</th>
+          <th>Дата подачі</th>
+          <th>Дії</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (item of items; track item.id) {
+            <tr>
+              <td>{{ item.submitter.organization_profile.name }}</td>
+              <td>{{ item.submitter.organization_profile.edrpou }}</td>
+              <td>{{ item.submitter.email }}</td>
+              <td>{{ item.created_at | date: 'dd.MM.yyyy' }}</td>
+              <td class="pending-orgs__actions">
+                <button
+                  class="pending-orgs__btn pending-orgs__btn--approve"
+                  (click)="approve(item.id)"
+                  [disabled]="actionLoading === item.id"
+                >
+                  {{ actionLoading === item.id ? '...' : 'Прийняти' }}
+                </button>
+                <button
+                  class="pending-orgs__btn pending-orgs__btn--reject"
+                  (click)="reject(item.id)"
+                  [disabled]="actionLoading === item.id"
+                >
+                  {{ actionLoading === item.id ? '...' : 'Відхилити' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

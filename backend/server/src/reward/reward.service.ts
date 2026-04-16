@@ -25,13 +25,24 @@ export class RewardService {
   }
 
   async create(data: CreateRewardDto) {
-    return this.prisma.reward.create({ data });
+    return this.prisma.reward.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        cost_points: data.cost_points,
+        stock: data.stock,
+        is_active: data.is_active ?? true,
+      },
+    });
   }
 
   async update(id: number, data: UpdateRewardDto) {
     await this.findOne(id);
     const updateData: Prisma.rewardUpdateInput = { ...data };
-    return this.prisma.reward.update({ where: { id }, data: updateData });
+    return this.prisma.reward.update({
+      where: { id },
+      data: updateData,
+    });
   }
 
   async remove(id: number) {

@@ -8,9 +8,6 @@ CREATE TYPE "points_transaction_type_enum" AS ENUM ('EARN', 'SPEND', 'BONUS', 'P
 CREATE TYPE "project_status_enum" AS ENUM ('DRAFT', 'ACTIVE', 'COMPLETED', 'ARCHIVED');
 
 -- CreateEnum
-CREATE TYPE "recipient_type_enum" AS ENUM ('PERSON', 'SHELTER', 'OTHER');
-
--- CreateEnum
 CREATE TYPE "report_type_enum" AS ENUM ('FINANCIAL', 'RESULT', 'ACTIVITY', 'OTHER');
 
 -- CreateEnum
@@ -32,7 +29,7 @@ CREATE TYPE "ticket_priority_enum" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
 CREATE TYPE "ticket_status_enum" AS ENUM ('OPEN', 'IN_REVIEW', 'RESOLVED', 'CLOSED', 'CANCELLED');
 
 -- CreateEnum
-CREATE TYPE "user_role_enum" AS ENUM ('VOLUNTEER', 'ORGANIZATION', 'RECIPIENT', 'ADMIN');
+CREATE TYPE "user_role_enum" AS ENUM ('APP_USER', 'VOLUNTEER', 'ORGANIZATION', 'ADMIN');
 
 -- CreateEnum
 CREATE TYPE "user_status_enum" AS ENUM ('ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING');
@@ -46,6 +43,12 @@ CREATE TYPE "warning_severity_enum" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 -- CreateEnum
 CREATE TYPE "warning_status_enum" AS ENUM ('ACTIVE', 'RESOLVED', 'CANCELLED');
 
+-- CreateEnum
+CREATE TYPE "approval_request_type_enum" AS ENUM ('NEWS', 'PROJECT', 'VOLUNTEER', 'ORGANIZATION', 'FUNDRAISING');
+
+-- CreateEnum
+CREATE TYPE "approval_request_status_enum" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
 -- CreateTable
 CREATE TABLE "news" (
     "id" SERIAL NOT NULL,
@@ -53,9 +56,9 @@ CREATE TABLE "news" (
     "image_url" TEXT,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "is_pinned" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" INTEGER,
     "description" TEXT NOT NULL,
     "main_content" TEXT NOT NULL,
-    "created_by" INTEGER,
 
     CONSTRAINT "news_pkey" PRIMARY KEY ("id")
 );
@@ -69,6 +72,9 @@ CREATE TABLE "app_user" (
     "status" "user_status_enum" NOT NULL DEFAULT 'PENDING',
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "points" INTEGER NOT NULL DEFAULT 0,
+    "first_name" TEXT,
+    "last_name" TEXT,
+    "city" TEXT,
 
     CONSTRAINT "app_user_pkey" PRIMARY KEY ("id")
 );
@@ -143,16 +149,27 @@ CREATE TABLE "organization_profile" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "edrpou" TEXT NOT NULL,
+    "description" TEXT,
     "verification_status" "verification_status_enum" NOT NULL DEFAULT 'PENDING',
     "official_docs_url" TEXT,
-    "contact_phone" TEXT NOT NULL,
-    "contact_email" TEXT NOT NULL,
+    "contact_phone" TEXT,
+    "contact_email" TEXT,
     "location_id" INTEGER,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "mission" TEXT,
+    "mission" TEXT NOT NULL,
 
     CONSTRAINT "organization_profile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "organization_category" (
+    "id" SERIAL NOT NULL,
+    "organization_id" INTEGER NOT NULL,
+    "category_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "organization_category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -179,22 +196,9 @@ CREATE TABLE "project" (
     "ends_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "main_content" TEXT,
 
     CONSTRAINT "project_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "recipient_profile" (
-    "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "recipient_type" "recipient_type_enum" NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "contact_info" TEXT NOT NULL,
-    "default_location_id" INTEGER,
-    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "recipient_profile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -217,8 +221,7 @@ CREATE TABLE "reward" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "cost_points" INTEGER NOT NULL,
-    "stock" INTEGER NOT NULL,
+    "threshold_points" INTEGER NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -230,11 +233,19 @@ CREATE TABLE "reward_redemption" (
     "id" SERIAL NOT NULL,
     "reward_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "points_spent" INTEGER NOT NULL,
-    "status" "reward_redemption_status_enum" NOT NULL DEFAULT 'PENDING',
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "reward_redemption_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "project_registration" (
+    "id" SERIAL NOT NULL,
+    "project_id" INTEGER NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "registered_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "project_registration_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -265,7 +276,7 @@ CREATE TABLE "task_assignment" (
     "accepted_at" TIMESTAMPTZ(6),
     "completed_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "recipient_status" BOOLEAN NOT NULL DEFAULT false,
+    "requester_confirmed" BOOLEAN NOT NULL DEFAULT false,
     "comment" TEXT,
 
     CONSTRAINT "task_assignment_pkey" PRIMARY KEY ("id")
@@ -284,7 +295,7 @@ CREATE TABLE "task_category" (
 -- CreateTable
 CREATE TABLE "ticket" (
     "id" SERIAL NOT NULL,
-    "recipient_profile_id" INTEGER NOT NULL,
+    "volunteer_profile_id" INTEGER NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "status" "ticket_status_enum" NOT NULL DEFAULT 'OPEN',
@@ -342,6 +353,21 @@ CREATE TABLE "warnings" (
     CONSTRAINT "warnings_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "approval_request" (
+    "id" SERIAL NOT NULL,
+    "type" "approval_request_type_enum" NOT NULL,
+    "status" "approval_request_status_enum" NOT NULL DEFAULT 'PENDING',
+    "entity_id" INTEGER NOT NULL,
+    "submitted_by" INTEGER NOT NULL,
+    "reviewed_by" INTEGER,
+    "rejection_reason" TEXT,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "reviewed_at" TIMESTAMPTZ(6),
+
+    CONSTRAINT "approval_request_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "idx_news_created_by" ON "news"("created_by");
 
@@ -373,7 +399,19 @@ CREATE UNIQUE INDEX "uq_news_category" ON "news_category"("news_id", "category_i
 CREATE UNIQUE INDEX "organization_profile_user_id_key" ON "organization_profile"("user_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "organization_profile_edrpou_key" ON "organization_profile"("edrpou");
+
+-- CreateIndex
 CREATE INDEX "idx_organization_profile_location_id" ON "organization_profile"("location_id");
+
+-- CreateIndex
+CREATE INDEX "idx_organization_category_category_id" ON "organization_category"("category_id");
+
+-- CreateIndex
+CREATE INDEX "idx_organization_category_org_id" ON "organization_category"("organization_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "uq_organization_category" ON "organization_category"("organization_id", "category_id");
 
 -- CreateIndex
 CREATE INDEX "idx_points_transaction_task_assignment_id" ON "points_transaction"("task_assignment_id");
@@ -383,12 +421,6 @@ CREATE INDEX "idx_points_transaction_user_id" ON "points_transaction"("user_id")
 
 -- CreateIndex
 CREATE INDEX "idx_project_organization_profile_id" ON "project"("organization_profile_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "recipient_profile_user_id_key" ON "recipient_profile"("user_id");
-
--- CreateIndex
-CREATE INDEX "idx_recipient_profile_default_location_id" ON "recipient_profile"("default_location_id");
 
 -- CreateIndex
 CREATE INDEX "idx_report_organization_profile_id" ON "report"("organization_profile_id");
@@ -401,6 +433,18 @@ CREATE INDEX "idx_reward_redemption_reward_id" ON "reward_redemption"("reward_id
 
 -- CreateIndex
 CREATE INDEX "idx_reward_redemption_user_id" ON "reward_redemption"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "idx_reward_redemption_unique" ON "reward_redemption"("reward_id", "user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_project_registration_project_id" ON "project_registration"("project_id");
+
+-- CreateIndex
+CREATE INDEX "idx_project_registration_user_id" ON "project_registration"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "uq_project_registration" ON "project_registration"("project_id", "user_id");
 
 -- CreateIndex
 CREATE INDEX "idx_task_location_id" ON "task"("location_id");
@@ -430,7 +474,7 @@ CREATE UNIQUE INDEX "uq_task_category" ON "task_category"("task_id", "category_i
 CREATE INDEX "idx_ticket_location_id" ON "ticket"("location_id");
 
 -- CreateIndex
-CREATE INDEX "idx_ticket_recipient_profile_id" ON "ticket"("recipient_profile_id");
+CREATE INDEX "idx_ticket_volunteer_profile_id" ON "ticket"("volunteer_profile_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "volunteer_profile_user_id_key" ON "volunteer_profile"("user_id");
@@ -446,6 +490,15 @@ CREATE INDEX "idx_warnings_created_by" ON "warnings"("created_by");
 
 -- CreateIndex
 CREATE INDEX "idx_warnings_user_id" ON "warnings"("user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_approval_request_submitted_by" ON "approval_request"("submitted_by");
+
+-- CreateIndex
+CREATE INDEX "idx_approval_request_reviewed_by" ON "approval_request"("reviewed_by");
+
+-- CreateIndex
+CREATE INDEX "idx_approval_request_type_status" ON "approval_request"("type", "status");
 
 -- AddForeignKey
 ALTER TABLE "news" ADD CONSTRAINT "fk_news_created_by" FOREIGN KEY ("created_by") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
@@ -472,6 +525,12 @@ ALTER TABLE "organization_profile" ADD CONSTRAINT "fk_organization_profile_locat
 ALTER TABLE "organization_profile" ADD CONSTRAINT "fk_organization_profile_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
+ALTER TABLE "organization_category" ADD CONSTRAINT "fk_organization_category_category" FOREIGN KEY ("category_id") REFERENCES "category"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "organization_category" ADD CONSTRAINT "fk_organization_category_org" FOREIGN KEY ("organization_id") REFERENCES "organization_profile"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
 ALTER TABLE "points_transaction" ADD CONSTRAINT "fk_points_transaction_task_assignment" FOREIGN KEY ("task_assignment_id") REFERENCES "task_assignment"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 
 -- AddForeignKey
@@ -479,12 +538,6 @@ ALTER TABLE "points_transaction" ADD CONSTRAINT "fk_points_transaction_user" FOR
 
 -- AddForeignKey
 ALTER TABLE "project" ADD CONSTRAINT "fk_project_organization" FOREIGN KEY ("organization_profile_id") REFERENCES "organization_profile"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
-
--- AddForeignKey
-ALTER TABLE "recipient_profile" ADD CONSTRAINT "fk_recipient_profile_default_location" FOREIGN KEY ("default_location_id") REFERENCES "location"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
-
--- AddForeignKey
-ALTER TABLE "recipient_profile" ADD CONSTRAINT "fk_recipient_profile_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "report" ADD CONSTRAINT "fk_report_organization" FOREIGN KEY ("organization_profile_id") REFERENCES "organization_profile"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
@@ -497,6 +550,12 @@ ALTER TABLE "reward_redemption" ADD CONSTRAINT "fk_reward_redemption_reward" FOR
 
 -- AddForeignKey
 ALTER TABLE "reward_redemption" ADD CONSTRAINT "fk_reward_redemption_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "project_registration" ADD CONSTRAINT "fk_project_registration_project" FOREIGN KEY ("project_id") REFERENCES "project"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "project_registration" ADD CONSTRAINT "fk_project_registration_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "task" ADD CONSTRAINT "fk_task_location" FOREIGN KEY ("location_id") REFERENCES "location"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
@@ -523,7 +582,7 @@ ALTER TABLE "task_category" ADD CONSTRAINT "fk_task_category_task" FOREIGN KEY (
 ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_location" FOREIGN KEY ("location_id") REFERENCES "location"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_recipient_profile" FOREIGN KEY ("recipient_profile_id") REFERENCES "recipient_profile"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_volunteer_profile" FOREIGN KEY ("volunteer_profile_id") REFERENCES "volunteer_profile"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "volunteer_profile" ADD CONSTRAINT "fk_volunteer_profile_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
@@ -536,3 +595,9 @@ ALTER TABLE "warnings" ADD CONSTRAINT "fk_warnings_created_by" FOREIGN KEY ("cre
 
 -- AddForeignKey
 ALTER TABLE "warnings" ADD CONSTRAINT "fk_warnings_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "approval_request" ADD CONSTRAINT "fk_approval_request_submitter" FOREIGN KEY ("submitted_by") REFERENCES "app_user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "approval_request" ADD CONSTRAINT "fk_approval_request_reviewer" FOREIGN KEY ("reviewed_by") REFERENCES "app_user"("id") ON DELETE SET NULL ON UPDATE NO ACTION;

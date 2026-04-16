@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 export interface AuthResponse {
   accessToken: string;
@@ -10,6 +11,11 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly API = 'http://localhost:3000/auth';
+  private loggedIn$ = new BehaviorSubject<boolean>(!!localStorage.getItem('access_token'));
+
+  get isLoggedIn$() {
+    return this.loggedIn$.asObservable();
+  }
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -41,6 +47,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('access_token');
+    this.loggedIn$.next(false);
     this.router.navigate(['/login']);
   }
 
@@ -52,8 +59,25 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  getMe() {
+    return this.http.get(`${this.API}/me`);
+  }
+
+  getRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role;
+    } catch {
+      return null;
+    }
+  }
+
   private saveToken(token: string) {
     localStorage.setItem('access_token', token);
+    this.loggedIn$.next(true);
     this.router.navigate(['/']);
   }
 }
