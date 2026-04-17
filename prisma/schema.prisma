@@ -75,7 +75,9 @@ model fundraising_campaign {
   image_url               String?
   jar_id                  String
   jar_link                String
-  mono_token              String
+  /// Sensitive Monobank credential. Exclude from Prisma Client to avoid accidental reads/leaks.
+  /// Prefer replacing this persisted secret with a reference to an external secrets store.
+  mono_token              String                           @ignore
   donation                donation[]
   organization_profile    organization_profile?            @relation(fields: [organization_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_organization")
   volunteer_profile       volunteer_profile?               @relation(fields: [volunteer_profile_id], references: [id], onUpdate: NoAction, map: "fk_fundraising_campaign_volunteer")
