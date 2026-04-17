@@ -21,10 +21,21 @@ export class ApprovalAdminService {
         orderBy: { created_at: 'desc' },
         include: {
           submitter: {
-            select: { id: true, email: true, first_name: true, last_name: true, role: true },
+            select: {
+              id: true,
+              email: true,
+              first_name: true,
+              last_name: true,
+              role: true,
+            },
           },
           reviewer: {
-            select: { id: true, email: true, first_name: true, last_name: true },
+            select: {
+              id: true,
+              email: true,
+              first_name: true,
+              last_name: true,
+            },
           },
         },
       }),
@@ -39,7 +50,13 @@ export class ApprovalAdminService {
       where: { id },
       include: {
         submitter: {
-          select: { id: true, email: true, first_name: true, last_name: true, role: true },
+          select: {
+            id: true,
+            email: true,
+            first_name: true,
+            last_name: true,
+            role: true,
+          },
         },
         reviewer: {
           select: { id: true, email: true, first_name: true, last_name: true },
@@ -55,7 +72,7 @@ export class ApprovalAdminService {
   }
 
   async approve(id: number, adminUserId: number) {
-    const request = await this.findOne(id);
+    await this.findOne(id);
 
     return this.prisma.approval_request.update({
       where: { id },
@@ -68,7 +85,7 @@ export class ApprovalAdminService {
   }
 
   async reject(id: number, adminUserId: number, reason: string) {
-    const request = await this.findOne(id);
+    await this.findOne(id);
 
     return this.prisma.approval_request.update({
       where: { id },

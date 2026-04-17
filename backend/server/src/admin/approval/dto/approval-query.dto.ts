@@ -1,31 +1,21 @@
 import { IsOptional, IsEnum, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-
-export enum ApprovalRequestType {
-  NEWS = 'NEWS',
-  PROJECT = 'PROJECT',
-  VOLUNTEER = 'VOLUNTEER',
-  ORGANIZATION = 'ORGANIZATION',
-  FUNDRAISING = 'FUNDRAISING',
-}
-
-export enum ApprovalRequestStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
+import {
+  approval_request_type_enum,
+  approval_request_status_enum,
+} from '@prisma/client';
 
 export class ApprovalQueryDto {
-  @ApiPropertyOptional({ enum: ApprovalRequestType })
+  @ApiPropertyOptional({ enum: approval_request_type_enum })
   @IsOptional()
-  @IsEnum(ApprovalRequestType)
-  type?: ApprovalRequestType;
+  @IsEnum(approval_request_type_enum)
+  type?: approval_request_type_enum;
 
-  @ApiPropertyOptional({ enum: ApprovalRequestStatus })
+  @ApiPropertyOptional({ enum: approval_request_status_enum })
   @IsOptional()
-  @IsEnum(ApprovalRequestStatus)
-  status?: ApprovalRequestStatus;
+  @IsEnum(approval_request_status_enum)
+  status?: approval_request_status_enum;
 
   @ApiPropertyOptional({ default: 10 })
   @IsOptional()
