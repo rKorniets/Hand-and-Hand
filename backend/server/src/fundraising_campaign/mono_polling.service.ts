@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { QueueServiceClient } from '@azure/storage-queue';
+import { ConfigService } from '@nestjs/config';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 
 @Injectable()
@@ -7,8 +8,18 @@ export class MonoPollingService implements OnModuleInit {
   private readonly logger = new Logger(MonoPollingService.name);
   private queueClient: ReturnType<QueueServiceClient['getQueueClient']>;
 
-  constructor(private fundraisingService: FundraisingCampaignService) {
-    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING ?? '';
+  constructor(
+    private fundraisingService: FundraisingCampaignService,
+    private configService: ConfigService,
+  ) {
+    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+
+    if (!connectionString) {
+      console.warn(
+        'AZURE_STORAGE_CONNECTION_STRING is not set. Mono polling disabled.',
+      );
+      return;
+    }
 
     this.queueClient =
       QueueServiceClient.fromConnectionString(connectionString).getQueueClient(
@@ -17,15 +28,28 @@ export class MonoPollingService implements OnModuleInit {
   }
 
   onModuleInit() {
+    const enabled =
+      this.configService.get<string>('ENABLE_MONO_POLLING') === 'true';
+
+    if (!enabled) {
+      this.logger.log('Mono polling is disabled');
+      return;
+    }
+
     this.logger.log('Mono polling started');
     void this.processMessages();
     this.startPolling();
   }
 
-  private startPolling() {
-    setInterval(() => {
-      void this.processMessages();
-    }, 30000);
+  private async startPolling() {
+    while (true) {
+      await this.processMessages();
+      await this.sleep(30000);
+    }
+  }
+
+  private sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private async processMessages() {
@@ -50,7 +74,7 @@ export class MonoPollingService implements OnModuleInit {
         if (campaign) {
           await this.fundraisingService.updateBalance(
             campaign.id,
-            data.balance / 100,
+            (data.balance / 100).toFixed(2),
           );
 
           this.logger.log(

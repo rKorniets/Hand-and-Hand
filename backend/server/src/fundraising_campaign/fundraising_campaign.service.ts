@@ -19,6 +19,14 @@ export class FundraisingCampaignService {
     private monobankService: MonobankService,
   ) {}
 
+  private sanitizeCampaign(campaign: {
+    mono_token?: string;
+    [key: string]: unknown;
+  }) {
+    const { mono_token, ...safeCampaign } = campaign;
+    return safeCampaign;
+  }
+
   private async validateOwnership(id: number, currentUser: RequestUser) {
     const campaign = await this.prisma.fundraising_campaign.findUnique({
       where: { id },
@@ -70,17 +78,21 @@ export class FundraisingCampaignService {
       this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
 
-    return { data, total };
+    const safeData = data.map((c) => this.sanitizeCampaign(c));
+
+    return { data: safeData, total };
   }
 
   async create(data: CreateFundraisingCampaignDto) {
     this.monobankService.validateMonoData(data.jar_link, data.mono_token);
 
-    const sendId = this.monobankService.extractSendId(data.jar_link!);
-    const clientInfo = await this.monobankService.fetchClientInfo(data.mono_token!,);
+    const sendId = this.monobankService.extractSendId(data.jar_link);
+    const clientInfo = await this.monobankService.fetchClientInfo(
+      data.mono_token,
+    );
     const jar = this.monobankService.findJarBySendId(clientInfo, sendId);
 
-    await this.monobankService.setWebhook(data.mono_token!);
+    await this.monobankService.setWebhook(data.mono_token);
 
     const createData: Prisma.fundraising_campaignCreateInput = {
       title: data.title,
@@ -107,9 +119,11 @@ export class FundraisingCampaignService {
       };
     }
 
-    return this.prisma.fundraising_campaign.create({
+    const campaign = await this.prisma.fundraising_campaign.create({
       data: createData,
     });
+
+    return this.sanitizeCampaign(campaign);
   }
 
   async update(
@@ -119,26 +133,30 @@ export class FundraisingCampaignService {
   ) {
     await this.validateOwnership(id, currentUser);
 
-    return this.prisma.fundraising_campaign.update({
+    const campaign = await this.prisma.fundraising_campaign.update({
       where: { id },
       data: {
         title: data.title,
         description: data.description,
         main_content: data.main_content,
         goal_amount: data.goal_amount,
-        start_at: data.start_at,
-        end_at: data.end_at,
-        jar_link: data.jar_link,
+        start_at: data.start_at ? new Date(data.start_at) : undefined,
+        end_at: data.end_at ? new Date(data.end_at) : undefined,
         image_url: data.image_url,
         updated_at: new Date(),
       },
     });
+    return this.sanitizeCampaign(campaign);
   }
 
   async remove(id: number, currentUser: RequestUser) {
     await this.validateOwnership(id, currentUser);
 
-    return this.prisma.fundraising_campaign.delete({ where: { id } });
+    const campaign = await this.prisma.fundraising_campaign.delete({
+      where: { id },
+    });
+
+    return this.sanitizeCampaign(campaign);
   }
 
   async processDonation(
@@ -172,11 +190,15 @@ export class FundraisingCampaignService {
   async findByJarId(jarId: string) {
     return this.prisma.fundraising_campaign.findFirst({
       where: { jar_id: jarId.trim() },
+      select: {
+        id: true,
+        jar_id: true,
+      },
     });
   }
 
-  async updateBalance(campaignId: number, balance: number) {
-    return this.prisma.fundraising_campaign.update({
+  async updateBalance(campaignId: number, balance: string) {
+    await this.prisma.fundraising_campaign.update({
       where: { id: campaignId },
       data: {
         current_amount: new Prisma.Decimal(balance),

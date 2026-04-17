@@ -10,5 +10,6 @@ import { MonobankService } from './monobank.service';
   imports: [PrismaModule, ConfigModule],
   controllers: [FundraisingCampaignController],
   providers: [FundraisingCampaignService, MonoPollingService, MonobankService],
+  exports: [MonobankService],
 })
 export class FundraisingCampaignModule {}

@@ -3,10 +3,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CampaignQueryAdminDto } from './dto/campaign-query.admin.dto';
 import { CreateFundraisingCampaignDto } from '../../fundraising_campaign/dto/create-fundraising_campaign.dto';
 import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
+import { MonobankService } from '../../fundraising_campaign/monobank.service';
 
 @Injectable()
 export class CampaignAdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly monobankService: MonobankService,
+  ) {}
 
   async findAll(query: CampaignQueryAdminDto) {
     const where: Prisma.fundraising_campaignWhereInput = {
@@ -44,26 +48,52 @@ export class CampaignAdminService {
     });
 
     if (!campaign) {
-      throw new NotFoundException(`Fundraising campaign with ID ${id} not found`);
+      throw new NotFoundException(
+        `Fundraising campaign with ID ${id} not found`,
+      );
     }
 
     return campaign;
   }
 
   async create(data: CreateFundraisingCampaignDto) {
+    this.monobankService.validateMonoData(data.jar_link, data.mono_token);
+
+    const sendId = this.monobankService.extractSendId(data.jar_link);
+    const clientInfo = await this.monobankService.fetchClientInfo(
+      data.mono_token,
+    );
+    const jar = this.monobankService.findJarBySendId(clientInfo, sendId);
+
+    await this.monobankService.setWebhook(data.mono_token);
+
+    const createData: Prisma.fundraising_campaignCreateInput = {
+      title: data.title,
+      description: data.description,
+      main_content: data.main_content,
+      goal_amount: data.goal_amount,
+      start_at: data.start_at ? new Date(data.start_at) : undefined,
+      end_at: data.end_at ? new Date(data.end_at) : undefined,
+      jar_link: data.jar_link,
+      jar_id: jar.id,
+      mono_token: data.mono_token,
+      image_url: data.image_url,
+    };
+
+    if (data.organization_profile_id) {
+      createData.organization_profile = {
+        connect: { id: data.organization_profile_id },
+      };
+    }
+
+    if (data.volunteer_profile_id) {
+      createData.volunteer_profile = {
+        connect: { id: data.volunteer_profile_id },
+      };
+    }
+
     return this.prisma.fundraising_campaign.create({
-      data: {
-        organization_profile_id: data.organization_profile_id,
-        volunteer_profile_id: data.volunteer_profile_id,
-        title: data.title,
-        description: data.description,
-        main_content: data.main_content,
-        goal_amount: data.goal_amount,
-        start_at: data.start_at,
-        end_at: data.end_at,
-        bank_link: data.bank_link,
-        image_url: data.image_url,
-      },
+      data: createData,
     });
   }
 
@@ -79,7 +109,7 @@ export class CampaignAdminService {
         goal_amount: data.goal_amount,
         start_at: data.start_at,
         end_at: data.end_at,
-        bank_link: data.bank_link,
+        jar_link: data.jar_link,
         image_url: data.image_url,
         updated_at: new Date(),
       },
