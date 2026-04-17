@@ -32,6 +32,11 @@
           <input class="login__input" type="password" placeholder="******"
                  [(ngModel)]="userPassword" name="userPassword" required />
         </div>
+
+        <div class="login__forgot">
+          <a routerLink="/forgot-password">Забули пароль?</a>
+        </div>
+
         <button type="submit" class="login__button" [disabled]="loading">
           {{ loading ? 'Завантаження...' : 'Увійти' }}
         </button>
@@ -55,6 +60,11 @@
           <input class="login__input" type="password" placeholder="******"
                  [(ngModel)]="orgPassword" name="orgPassword" required />
         </div>
+
+        <div class="login__forgot">
+          <a routerLink="/forgot-password">Забули пароль?</a>
+        </div>
+
         <button type="submit" class="login__button" [disabled]="loading">
           {{ loading ? 'Завантаження...' : 'Увійти' }}
         </button>

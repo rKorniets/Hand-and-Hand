@@ -15,6 +15,8 @@ import { LoginComponent } from './pages/auth/login/login';
 import { RegisterComponent } from './pages/auth/register/register';
 import { ProfileUserComponent } from './pages/profile-user/profile-user';
 import { ProfileOrganization } from './pages/profile-organization/profile-organization';
+import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
+import { ResetPassword } from './pages/auth/reset-password/reset-password'
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -32,4 +34,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'profile-user', component: ProfileUserComponent },
   { path: 'profile-organization', component: ProfileOrganization },
+  { path: 'forgot-password', component: ForgotPassword },
+  { path: 'reset-password', component: ResetPassword },
 ];
