@@ -1,0 +1,54 @@
+@use 'variables' as *;
+
+.user__profile__page {
+  display: block;
+  padding: 40px 80px 0 80px;
+
+  &__wrapper {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+
+    section {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    section {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  &__actions {
+    .verify-button {
+      width: 100%;
+      padding: $user-profile-verify-btn-padding;
+      background-color: $user-profile-verify-btn-bg;
+      border: none;
+      border-radius: $user-profile-verify-btn-border-radius;
+      font-size: $user-profile-verify-btn-font-size;
+      font-weight: $user-profile-verify-btn-font-weight;
+      color: $user-profile-verify-btn-color;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: $user-profile-verify-btn-bg-hover;
+      }
+    }
+  }
+}

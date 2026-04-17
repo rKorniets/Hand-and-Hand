@@ -16,4 +16,9 @@ export interface FundraisingCampaignItem {
   organization_profile?: {
     title: string;
   };
+
+  volunteer_profile?: {
+    first_name: string;
+    last_name: string;
+  };
 }

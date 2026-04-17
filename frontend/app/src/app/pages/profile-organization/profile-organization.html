@@ -1,0 +1,42 @@
+<main class="user__profile__page">
+  <div class="user__profile__page__wrapper">
+
+    <div class="user__profile__page__content">
+      @if (organization) {
+        <section>
+          <app-main-info
+            [organization]="organization"
+            (locationChange)="onLocationChange($event)"
+          />
+        </section>
+
+        <section>
+          <app-activity [organization]="organization"></app-activity>
+        </section>
+
+        <section>
+          <app-fundraising-campaigns-org [organization]="organization"></app-fundraising-campaigns-org>
+        </section>
+
+        <section>
+          <app-reports
+            [organization]="organization">
+          </app-reports>
+        </section>
+      }
+    </div>
+
+    <aside class="user__profile__page__sidebar">
+      @if (organization) {
+        <section>
+          <app-org-data [organization]="organization"></app-org-data>
+        </section>
+
+        <section>
+          <app-list-users [organization]="organization"></app-list-users>
+        </section>
+      }
+    </aside>
+
+  </div>
+</main>

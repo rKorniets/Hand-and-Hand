@@ -1,0 +1,21 @@
+<div class="org-data">
+  <div class="org-data__header">
+    <h3 class="org-data__title">Опис:</h3>
+    <button class="org-data__edit-btn" (click)="editing ? onSave() : toggleEdit()">
+      <span class="material-symbols-outlined">{{ editing ? 'check' : 'edit' }}</span>
+    </button>
+  </div>
+
+  <div class="org-data__list">
+    @if (editing) {
+      <textarea
+        class="org-data__textarea"
+        [(ngModel)]="description"
+      ></textarea>
+    } @else {
+      <p class="org-data__text">
+        {{ description || 'Опис відсутній' }}
+      </p>
+    }
+  </div>
+</div>

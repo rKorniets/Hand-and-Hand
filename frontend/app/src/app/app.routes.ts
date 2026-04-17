@@ -13,6 +13,8 @@ import { OrganizationResolver} from './pages/organizations/organizations.resolve
 import { NewsDetailComponent } from './pages/news/news-detail/news-detail';
 import { LoginComponent } from './pages/auth/login/login';
 import { RegisterComponent } from './pages/auth/register/register';
+import { ProfileUserComponent } from './pages/profile-user/profile-user';
+import { ProfileOrganization } from './pages/profile-organization/profile-organization';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -28,4 +30,6 @@ export const routes: Routes = [
   { path: 'news', component: NewsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'profile-user', component: ProfileUserComponent },
+  { path: 'profile-organization', component: ProfileOrganization },
 ];

@@ -1,0 +1,49 @@
+@use 'variables' as *;
+
+.org-data {
+  background-color: $user-profile-verify-btn-bg;
+  padding: 5px 20px;
+  border-radius: 16px;
+
+  &__title {
+    font-size: 36px;
+    font-weight: $user-profile-verify-btn-font-weight;
+    margin-top: 5px;
+  }
+
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    font-size: 24px;
+    overflow-y: auto;
+  }
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $user-profile-color-grey;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  &__textarea {
+    width: 100%;
+    min-height: 150px;
+    font-size: 20px;
+    font-family: inherit;
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+  }
+}
