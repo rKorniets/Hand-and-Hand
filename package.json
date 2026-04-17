@@ -16,6 +16,8 @@
     "@prisma/client": "^7.5.0",
     "argon2": "^0.44.0",
     "bcrypt": "^6.0.0",
+    "buffer-to-stream": "^1.0.0",
+    "cloudinary": "^2.9.0",
     "jwt-decode": "^4.0.0",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
@@ -27,6 +29,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.21",
+    "@types/multer": "^2.1.0",
     "@types/nodemailer": "^8.0.0",
     "concurrently": "^9.2.1",
     "typescript": "^5.5.3"

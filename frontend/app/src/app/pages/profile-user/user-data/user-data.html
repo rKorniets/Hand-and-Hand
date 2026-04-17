@@ -1,0 +1,21 @@
+<div class="user-data">
+  <h3 class="user-data__title">Інформація про волонтера</h3>
+  <ul class="user-data__list">
+    <li class="user-data__item">
+      <span class="material-symbols-outlined user-data__icon">mail</span>
+      {{ user?.email }}
+    </li>
+
+    <li class="user-data__item">
+      <span class="material-symbols-outlined user-data__icon">location_on</span>
+      {{ user?.city }}
+    </li>
+
+    @if (user?.joined_organization) {
+      <li class="user-data__item">
+        <span class="material-symbols-outlined user-data__icon">group</span>
+        Учасник: {{ user?.joined_organization?.name }}
+      </li>
+    }
+  </ul>
+</div>

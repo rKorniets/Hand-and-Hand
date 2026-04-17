@@ -1,0 +1,32 @@
+<div class="main-info">
+  <div class="main-info__avatar">
+    <img src="">
+  </div>
+  <div class="main-info__details">
+    <div class="main-info__header">
+      <h1 class="main-info__name">
+        {{ organization?.name }}
+      </h1>
+      <button class="main-info__notif-btn" aria-label="Сповіщення">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+    </div>
+
+    <div class="main-info__rating">
+     <p> <span class="main-info__stars">Адреса: </span>
+       <span class="main-info__points">{{ location?.city }}, {{ location?.address }} </span></p>
+
+      <p><span class="main-info__stars">Категорія: </span>
+        <span class="main-info__points">{{ organization?.category }}</span></p>
+
+      <p><span class="main-info__stars">Зв'язок: </span>
+        <span class="main-info__points">{{ organization?.contact_email }}</span></p>
+    </div>
+    <div class="main-info__editor">
+      <button class="main-info__edit-btn" (click)="onEditProfile()">
+        <span class="material-symbols-outlined">edit</span>
+        Редагувати профіль
+      </button>
+    </div>
+  </div>
+</div>
