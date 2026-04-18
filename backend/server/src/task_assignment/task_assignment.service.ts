@@ -38,15 +38,18 @@ export class TaskAssignmentService {
   }
 
   async create(data: CreateTaskAssignmentDto, currentUser: RequestUser) {
-    await this.validateVolunteerOwnership(
-      data.volunteer_profile_id,
-      currentUser,
-    );
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { user_id: currentUser.id },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Volunteer profile not found');
+    }
 
     return this.prisma.task_assignment.create({
       data: {
         task_id: data.task_id,
-        volunteer_profile_id: data.volunteer_profile_id,
+        volunteer_profile_id: profile.id,
         status: data.status,
         comment: data.comment,
         requester_confirmed: false,
@@ -104,11 +107,13 @@ export class TaskAssignmentService {
         comment: data.comment,
         requester_confirmed: assignment.requester_confirmed,
         accepted_at:
-          data.status === task_assignment_status_enum.ACCEPTED && !assignment.accepted_at
+          data.status === task_assignment_status_enum.ACCEPTED &&
+          !assignment.accepted_at
             ? new Date()
             : undefined,
         completed_at:
-          data.status === task_assignment_status_enum.COMPLETED && !assignment.completed_at
+          data.status === task_assignment_status_enum.COMPLETED &&
+          !assignment.completed_at
             ? new Date()
             : undefined,
       },

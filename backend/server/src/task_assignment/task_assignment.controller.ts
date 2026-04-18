@@ -29,7 +29,6 @@ import { user_role_enum } from '@prisma/client';
 export class TaskAssignmentController {
   constructor(private readonly taskAssignmentService: TaskAssignmentService) {}
 
-  //TODO: volunteer_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({
@@ -46,10 +45,7 @@ export class TaskAssignmentController {
   }
 
   @Get()
-  @Roles(
-    user_role_enum.ORGANIZATION,
-    user_role_enum.VOLUNTEER,
-  )
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Отримати список призначень' })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'skip', required: false })

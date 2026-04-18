@@ -10,9 +10,14 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { TaskAssignmentAdminService } from './task-assignment.admin.service';
-import { CreateTaskAssignmentDto } from '../../task_assignment/dto/create_task_assignment.dto';
-import { UpdateTaskAssignmentDto } from '../../task_assignment/dto/update_task_assignment.dto';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
+import { UpdateTaskAssignmentAdminDto } from './dto/update-task-assignment.admin.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
 
@@ -35,10 +40,15 @@ export class TaskAssignmentAdminController {
     @Query('taskId') taskIdStr?: string,
     @Query('volunteerId') volunteerIdStr?: string,
   ) {
-    const limit = Math.min(Math.max(parseInt(limitStr ?? '10', 10) || 10, 1), 50);
+    const limit = Math.min(
+      Math.max(parseInt(limitStr ?? '10', 10) || 10, 1),
+      50,
+    );
     const skip = Math.max(parseInt(skipStr ?? '0', 10) || 0, 0);
     const taskId = taskIdStr ? parseInt(taskIdStr, 10) : undefined;
-    const volunteerId = volunteerIdStr ? parseInt(volunteerIdStr, 10) : undefined;
+    const volunteerId = volunteerIdStr
+      ? parseInt(volunteerIdStr, 10)
+      : undefined;
 
     return this.service.findAll(limit, skip, taskId, volunteerId);
   }
@@ -51,7 +61,7 @@ export class TaskAssignmentAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити призначення' })
-  async create(@Body() data: CreateTaskAssignmentDto) {
+  async create(@Body() data: CreateTaskAssignmentAdminDto) {
     return this.service.create(data);
   }
 
@@ -59,7 +69,7 @@ export class TaskAssignmentAdminController {
   @ApiOperation({ summary: 'Оновити призначення' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateTaskAssignmentDto,
+    @Body() data: UpdateTaskAssignmentAdminDto,
   ) {
     return this.service.update(id, data);
   }

@@ -1,14 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateTaskAssignmentDto } from '../../task_assignment/dto/create_task_assignment.dto';
-import { UpdateTaskAssignmentDto } from '../../task_assignment/dto/update_task_assignment.dto';
+import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
+import { UpdateTaskAssignmentAdminDto } from './dto/update-task-assignment.admin.dto';
 import { Prisma, task_assignment_status_enum } from '@prisma/client';
 
 @Injectable()
 export class TaskAssignmentAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(limit: number, skip: number, taskId?: number, volunteerId?: number) {
+  async findAll(
+    limit: number,
+    skip: number,
+    taskId?: number,
+    volunteerId?: number,
+  ) {
     const where: Prisma.task_assignmentWhereInput = {
       ...(taskId && { task_id: taskId }),
       ...(volunteerId && { volunteer_profile_id: volunteerId }),
@@ -47,7 +52,7 @@ export class TaskAssignmentAdminService {
     return assignment;
   }
 
-  async create(data: CreateTaskAssignmentDto) {
+  async create(data: CreateTaskAssignmentAdminDto) {
     return this.prisma.task_assignment.create({
       data: {
         task_id: data.task_id,
@@ -59,7 +64,7 @@ export class TaskAssignmentAdminService {
     });
   }
 
-  async update(id: number, data: UpdateTaskAssignmentDto) {
+  async update(id: number, data: UpdateTaskAssignmentAdminDto) {
     const assignment = await this.findOne(id);
 
     return this.prisma.task_assignment.update({
@@ -67,9 +72,13 @@ export class TaskAssignmentAdminService {
       data: {
         ...(data.status !== undefined && { status: data.status }),
         ...(data.comment !== undefined && { comment: data.comment }),
-        ...(data.requester_confirmed !== undefined && { requester_confirmed: data.requester_confirmed }),
-        ...(data.status === task_assignment_status_enum.ACCEPTED && !assignment.accepted_at && { accepted_at: new Date() }),
-        ...(data.status === task_assignment_status_enum.COMPLETED && !assignment.completed_at && { completed_at: new Date() }),
+        ...(data.requester_confirmed !== undefined && {
+          requester_confirmed: data.requester_confirmed,
+        }),
+        ...(data.status === task_assignment_status_enum.ACCEPTED &&
+          !assignment.accepted_at && { accepted_at: new Date() }),
+        ...(data.status === task_assignment_status_enum.COMPLETED &&
+          !assignment.completed_at && { completed_at: new Date() }),
       },
     });
   }

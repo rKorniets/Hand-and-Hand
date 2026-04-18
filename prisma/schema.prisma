@@ -44,6 +44,9 @@ model app_user {
   warnings_warnings_user_idToapp_user    warnings[]             @relation("warnings_user_idToapp_user")
   submitted_requests                     approval_request[]     @relation("submitted_requests")
   reviewed_requests                      approval_request[]     @relation("reviewed_requests")
+  organizationProfile                    organization_profile?  @relation(fields: [organization_profileId], references: [id])
+  organization_profileId                 Int?
+  organizationProfile                    organization_profile?  @relation(fields: [organization_profileId], references: [id])
 }
 
 model category {
@@ -140,8 +143,7 @@ model organization_profile {
   project               project[]
   report                report[]
   organization_category organization_category[]
-  members               app_user[]              @relation("OrganizationMembers")
-
+  members               app_user[]               @relation("OrganizationMembers")
 
   @@index([location_id], map: "idx_organization_profile_location_id")
 }
@@ -177,15 +179,15 @@ model points_transaction {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model project {
-  id                      Int                    @id @default(autoincrement())
+  id                      Int                  @id @default(autoincrement())
   organization_profile_id Int
   title                   String
   description             String
-  status                  project_status_enum    @default(DRAFT)
-  starts_at               DateTime?              @db.Timestamptz(6)
-  ends_at                 DateTime?              @db.Timestamptz(6)
-  created_at              DateTime               @default(now()) @db.Timestamptz(6)
-  updated_at              DateTime               @default(now()) @db.Timestamptz(6)
+  status                  project_status_enum  @default(DRAFT)
+  starts_at               DateTime?            @db.Timestamptz(6)
+  ends_at                 DateTime?            @db.Timestamptz(6)
+  created_at              DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime             @default(now()) @db.Timestamptz(6)
   main_content            String?
   organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
   report                  report[]
@@ -374,16 +376,22 @@ model password_reset_token {
 }
 
 model approval_request {
-  id                Int                          @id @default(autoincrement())
-  submitted_user_id Int
-  reviewed_user_id  Int?
-  status            approval_request_status_enum @default(PENDING)
-  type              approval_request_type_enum
-  created_at        DateTime                     @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime                     @default(now()) @db.Timestamptz(6)
+  id               Int                          @id @default(autoincrement())
+  type             approval_request_type_enum
+  status           approval_request_status_enum @default(PENDING)
+  entity_id        Int
+  submitted_by     Int
+  reviewed_by      Int?
+  rejection_reason String?
+  created_at       DateTime                     @default(now()) @db.Timestamptz(6)
+  reviewed_at      DateTime?                    @db.Timestamptz(6)
 
-  submitter   app_user  @relation("submitted_requests", fields: [submitted_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  reviewed_by app_user? @relation("reviewed_requests", fields: [reviewed_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  submitter app_user  @relation("submitted_requests", fields: [submitted_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_approval_request_submitter")
+  reviewer  app_user? @relation("reviewed_requests", fields: [reviewed_by], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_approval_request_reviewer")
+
+  @@index([submitted_by], map: "idx_approval_request_submitted_by")
+  @@index([reviewed_by], map: "idx_approval_request_reviewed_by")
+  @@index([type, status], map: "idx_approval_request_type_status")
 }
 
 enum approval_request_status_enum {

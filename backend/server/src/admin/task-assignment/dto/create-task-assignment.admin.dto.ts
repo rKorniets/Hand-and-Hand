@@ -1,11 +1,21 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsEnum, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsEnum,
+  IsString,
+  IsBoolean,
+} from 'class-validator';
 import { task_assignment_status_enum } from '@prisma/client';
 
-export class CreateTaskAssignmentDto {
+export class CreateTaskAssignmentAdminDto {
   @ApiProperty({ description: 'ID завдання' })
   @IsInt()
   task_id: number;
+
+  @ApiProperty({ description: 'ID профілю волонтера' })
+  @IsInt()
+  volunteer_profile_id: number;
 
   @ApiPropertyOptional({
     description: 'Статус виконання',
@@ -19,4 +29,11 @@ export class CreateTaskAssignmentDto {
   @IsOptional()
   @IsString()
   comment?: string;
+
+  @ApiPropertyOptional({
+    description: 'Підтвердження від організатора (Тільки Адмін/Орг)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  requester_confirmed?: boolean;
 }
