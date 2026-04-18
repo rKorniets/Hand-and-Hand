@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsEnum,
   IsString,
-  IsBoolean,
 } from 'class-validator';
 import { task_assignment_status_enum } from '@prisma/client';
 
@@ -12,10 +11,6 @@ export class CreateTaskAssignmentDto {
   @ApiProperty({ description: 'ID завдання' })
   @IsInt()
   task_id: number;
-
-  @ApiProperty({ description: 'ID профілю волонтера' })
-  @IsInt()
-  volunteer_profile_id: number;
 
   @ApiPropertyOptional({
     description: 'Статус виконання',
@@ -30,10 +25,4 @@ export class CreateTaskAssignmentDto {
   @IsString()
   comment?: string;
 
-  @ApiPropertyOptional({
-    description: 'Підтвердження від організатора (Тільки Адмін/Орг)',
-  })
-  @IsOptional()
-  @IsBoolean()
-  requester_confirmed?: boolean;
 }
