@@ -111,6 +111,7 @@ model project_registration {
   project    project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@unique([project_id, user_id])
   @@index([project_id])
   @@index([user_id])
 }
@@ -431,6 +432,9 @@ enum approval_request_type_enum {
   ORGANIZATION
   VOLUNTEER
   OTHER
+  NEWS
+  PROJECT
+  FUNDRAISING
 }
 
 enum approval_request_status_enum {

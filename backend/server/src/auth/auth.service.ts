@@ -146,7 +146,7 @@ export class AuthService {
     }
 
     if (user.status !== user_status_enum.ACTIVE) {
-      throw new ForbiddenException('Акаун організації не активний');
+      throw new ForbiddenException('Акаунт організації не активний');
     }
 
     return this.signToken(user);

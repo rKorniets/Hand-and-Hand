@@ -53,7 +53,6 @@ export class AdminProfileComponent implements OnInit {
   }
 
   logout() {
-    console.log('Вихід із системи...');
     this.authService.logout();
   }
 }

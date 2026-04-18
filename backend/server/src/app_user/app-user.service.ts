@@ -14,6 +14,7 @@ const USER_SELECT = {
   city: true,
   role: true,
   status: true,
+  points: true,
   created_at: true,
   admin_profile: {
     select: {
@@ -61,10 +62,10 @@ export class AppUserService {
     return this.prisma.app_user.update({
       where: { id },
       data: {
-        ...(data.email && { email: data.email }),
-        ...(data.first_name && { first_name: data.first_name }),
-        ...(data.last_name && { last_name: data.last_name }),
-        ...(data.city && { city: data.city }),
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.first_name !== undefined && { first_name: data.first_name }),
+        ...(data.last_name !== undefined && { last_name: data.last_name }),
+        ...(data.city !== undefined && { city: data.city }),
       },
       select: USER_SELECT,
     });

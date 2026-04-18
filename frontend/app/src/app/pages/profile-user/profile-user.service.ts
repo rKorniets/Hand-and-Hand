@@ -16,7 +16,7 @@ export class UserProfileService {
   }
 
   getRewards(): Observable<Reward[]> {
-    return this.http.get<Reward[]>(`${this.apiUrl}/reward`);
+    return this.http.get<Reward[]>(`${this.apiUrl}/rewards`);
   }
 
   getUserRequests(): Observable<ITicket[]> {
@@ -28,6 +28,6 @@ export class UserProfileService {
   }
 
   getFundraisingCampaigns(): Observable<FundraisingCampaign[]> {
-    return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising`);
+    return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising_campaigns`);
   }
 }

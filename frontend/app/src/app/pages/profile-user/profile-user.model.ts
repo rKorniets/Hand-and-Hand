@@ -30,7 +30,10 @@ export interface Reward {
   id: number;
   title: string;
   description: string;
-  threshold_points: number;
+  cost_points: number;
+  stock: number;
+  is_active: boolean;
+  created_at: Date;
 }
 
 export interface ActivityItem {

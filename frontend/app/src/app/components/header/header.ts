@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../pages/auth/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
+  standalone: true,
   selector: 'app-header',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

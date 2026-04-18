@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 export interface AuthResponse {
   accessToken: string;
@@ -68,8 +69,18 @@ export class AuthService {
     if (!token) return null;
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = jwtDecode<{ role: string }>(token);
       return payload.role;
+    } catch {
+      return null;
+    }
+  }
+
+  getUserId(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      return jwtDecode<{ sub: number }>(token).sub;
     } catch {
       return null;
     }
@@ -78,6 +89,5 @@ export class AuthService {
   private saveToken(token: string) {
     localStorage.setItem('access_token', token);
     this.loggedIn$.next(true);
-    this.router.navigate(['/']);
   }
 }

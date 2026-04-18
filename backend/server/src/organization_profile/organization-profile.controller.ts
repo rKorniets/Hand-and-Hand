@@ -66,8 +66,7 @@ export class OrganizationProfileController {
 
     let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
     if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
-
-    let verificationStatus: verification_status_enum | undefined;
+    let verificationStatus: verification_status_enum = verification_status_enum.VERIFIED;
     if (verificationStatusStr !== undefined) {
       if (
         !Object.values(verification_status_enum).includes(

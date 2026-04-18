@@ -41,7 +41,6 @@ export class ProfileUserComponent implements OnInit {
   ngOnInit(): void {
     this.profileUserService.getUser().subscribe({
       next: (data) => {
-        console.log('USER DATA:', data);
         this.user = data;
         this.cdr.detectChanges();
       },

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { Organization, ActivityItem, FundraisingCampaign, Report } from './profile-organization.model';
 import { AuthService } from '../auth/auth.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -20,14 +21,12 @@ export class OrganizationProfileService {
     if (!token) return throwError(() => new Error('Токен відсутній'));
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = jwtDecode<{ sub: number }>(token);
       const userId = payload.sub;
 
-      if (!userId) return throwError(() => new Error('ID не знайдено в токені'));
-
-      return this.http.get<Organization>(`${this.apiUrl}/by-user/${userId}`);
-    } catch (e) {
-      return throwError(() => new Error('Помилка обробки токена'));
+      return this.http.get<Organization>(`${this.apiUrl}/${userId}`);
+    } catch {
+      return throwError(() => new Error('Невалідний токен'));
     }
   }
 

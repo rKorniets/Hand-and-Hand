@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './pages/auth/auth.guard';  // ← додати імпорт
 import { Home } from './pages/home/home';
 import { AboutUs } from './pages/about-us/about-us';
 import { PolicyAndRules } from './pages/policy-and-rules/policy-and-rules';
@@ -27,11 +28,12 @@ export const routes: Routes = [
   { path: 'news', component: NewsComponent, resolve: { data: NewsResolver } },
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
-  { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver }},
+  { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'profile/admin', component: AdminProfileComponent },
-  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent },
-  { path: 'profile-organization', component: ProfileOrganization},
-  { path: 'profile-user', component: ProfileUserComponent },
+
+  { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
+  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard] },
+  { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
+  { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
 ];

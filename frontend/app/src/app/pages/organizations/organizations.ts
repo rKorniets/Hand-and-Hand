@@ -23,8 +23,6 @@ export class OrganizationsPage implements OnInit {
       } else {
         this.organizations = res['data'];
       }
-
-      console.log('Тепер у this.organizations лежить масив:', this.organizations);
     });
   }
 }

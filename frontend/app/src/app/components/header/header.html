@@ -13,15 +13,15 @@
     <a routerLink="/about" class="header_a">Про нас</a>
 
     @if (isLoggedIn) {
-      <div (click)="goToProfile()" class="header__profile">
+      <button type="button" (click)="goToProfile()" class="header__profile">
         <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
-        <a class="header_profile">Профіль</a>
-      </div>
+        <span class="header_profile">Профіль</span>
+      </button>
     } @else {
-      <div routerLink="/login" class="header__profile">
+      <a routerLink="/login" class="header__profile">
         <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
-        <a class="header_profile">Профіль</a>
-      </div>
+        <span class="header_profile">Профіль</span>
+      </a>
     }
   </section>
 </header>
