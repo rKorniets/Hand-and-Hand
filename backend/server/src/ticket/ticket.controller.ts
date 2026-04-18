@@ -13,7 +13,7 @@ import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, ticket } from '@prisma/client';
 import {
   AbstractCrudController,
   IBaseCrudService,
@@ -22,9 +22,9 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Tickets')
 @Controller('tickets')
-export class TicketController extends AbstractCrudController<unknown> {
+export class TicketController extends AbstractCrudController<ticket[]> {
   constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<unknown>);
+    super(service as unknown as IBaseCrudService<ticket[]>);
   }
 
   @Get()
