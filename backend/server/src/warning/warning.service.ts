@@ -1,8 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, warning_status_enum, user_role_enum } from '@prisma/client';
-import { Create_warningDto } from './dto/create_warning.dto';
-import { Update_warningDto } from './dto/update_warning.dto';
 
 @Injectable()
 export class WarningService {
@@ -11,15 +9,31 @@ export class WarningService {
   async findAll(
     currentUser: { id: number; role: user_role_enum },
     status?: warning_status_enum,
+    limit?: number,
+    skip?: number,
+    search?: string,
   ) {
-    const whereClause: Prisma.warningsWhereInput = status ? { status } : {};
-    if (currentUser.role === user_role_enum.VOLUNTEER) {
-      whereClause.user_id = currentUser.id;
-    }
-    return this.prisma.warnings.findMany({
-      where: whereClause,
-      orderBy: { created_at: 'desc' },
-    });
+    const whereClause: Prisma.warningsWhereInput = {
+      ...(status && { status }),
+      ...(currentUser.role === user_role_enum.VOLUNTEER && {
+        user_id: currentUser.id,
+      }),
+      ...(search && {
+        reason: { contains: search, mode: 'insensitive' },
+      }),
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.warnings.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.warnings.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number, currentUser: { id: number; role: user_role_enum }) {
@@ -31,22 +45,5 @@ export class WarningService {
       throw new ForbiddenException('Access denied to this warning');
     }
     return warning;
-  }
-
-  async create(data: Create_warningDto) {
-    return this.prisma.warnings.create({ data });
-  }
-
-  async update(id: number, data: Update_warningDto) {
-    return this.prisma.warnings.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async remove(id: number) {
-    return this.prisma.warnings.delete({
-      where: { id },
-    });
   }
 }
