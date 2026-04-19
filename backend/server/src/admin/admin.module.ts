@@ -51,8 +51,15 @@ import { VolunteerProfileAdminService } from './volunteer-profile/volunteer-prof
 
 import { SuperAdminGuard } from './guards/super-admin.guard';
 
+import { FundraisingCampaignModule } from '../fundraising_campaign/fundraising_campaign.module';
+
 @Module({
-  imports: [PrismaModule, RewardModule, LocationModule],
+  imports: [
+    PrismaModule,
+    RewardModule,
+    LocationModule,
+    FundraisingCampaignModule,
+  ],
   controllers: [
     ApprovalAdminController,
     UserAdminController,

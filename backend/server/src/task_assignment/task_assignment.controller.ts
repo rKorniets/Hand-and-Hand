@@ -45,10 +45,7 @@ export class TaskAssignmentController {
   }
 
   @Get()
-  @Roles(
-    user_role_enum.ORGANIZATION,
-    user_role_enum.VOLUNTEER,
-  )
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Отримати список призначень' })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'skip', required: false })

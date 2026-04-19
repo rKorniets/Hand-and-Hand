@@ -107,11 +107,13 @@ export class TaskAssignmentService {
         comment: data.comment,
         requester_confirmed: assignment.requester_confirmed,
         accepted_at:
-          data.status === task_assignment_status_enum.ACCEPTED && !assignment.accepted_at
+          data.status === task_assignment_status_enum.ACCEPTED &&
+          !assignment.accepted_at
             ? new Date()
             : undefined,
         completed_at:
-          data.status === task_assignment_status_enum.COMPLETED && !assignment.completed_at
+          data.status === task_assignment_status_enum.COMPLETED &&
+          !assignment.completed_at
             ? new Date()
             : undefined,
       },

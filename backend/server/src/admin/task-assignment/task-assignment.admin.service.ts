@@ -8,7 +8,12 @@ import { Prisma, task_assignment_status_enum } from '@prisma/client';
 export class TaskAssignmentAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(limit: number, skip: number, taskId?: number, volunteerId?: number) {
+  async findAll(
+    limit: number,
+    skip: number,
+    taskId?: number,
+    volunteerId?: number,
+  ) {
     const where: Prisma.task_assignmentWhereInput = {
       ...(taskId && { task_id: taskId }),
       ...(volunteerId && { volunteer_profile_id: volunteerId }),
@@ -67,9 +72,13 @@ export class TaskAssignmentAdminService {
       data: {
         ...(data.status !== undefined && { status: data.status }),
         ...(data.comment !== undefined && { comment: data.comment }),
-        ...(data.requester_confirmed !== undefined && { requester_confirmed: data.requester_confirmed }),
-        ...(data.status === task_assignment_status_enum.ACCEPTED && !assignment.accepted_at && { accepted_at: new Date() }),
-        ...(data.status === task_assignment_status_enum.COMPLETED && !assignment.completed_at && { completed_at: new Date() }),
+        ...(data.requester_confirmed !== undefined && {
+          requester_confirmed: data.requester_confirmed,
+        }),
+        ...(data.status === task_assignment_status_enum.ACCEPTED &&
+          !assignment.accepted_at && { accepted_at: new Date() }),
+        ...(data.status === task_assignment_status_enum.COMPLETED &&
+          !assignment.completed_at && { completed_at: new Date() }),
       },
     });
   }

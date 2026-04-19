@@ -1,10 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsInt,
-  IsOptional,
-  IsEnum,
-  IsString,
-} from 'class-validator';
+import { IsInt, IsOptional, IsEnum, IsString } from 'class-validator';
 import { task_assignment_status_enum } from '@prisma/client';
 
 export class CreateTaskAssignmentDto {
@@ -24,5 +19,4 @@ export class CreateTaskAssignmentDto {
   @IsOptional()
   @IsString()
   comment?: string;
-
 }

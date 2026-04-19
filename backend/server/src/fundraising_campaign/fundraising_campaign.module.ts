@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { FundraisingCampaignController } from './fundraising_campaign.controller';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { MonoPollingService } from './mono_polling.service';
+import { MonobankService } from './monobank.service';
+
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ConfigModule],
   controllers: [FundraisingCampaignController],
-  providers: [FundraisingCampaignService],
+  providers: [FundraisingCampaignService, MonoPollingService, MonobankService],
+  exports: [MonobankService],
 })
 export class FundraisingCampaignModule {}
