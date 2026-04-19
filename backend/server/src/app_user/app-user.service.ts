@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
+import type { AuthUser } from './app-user.controller';
 
 const USER_SELECT = {
   id: true,
@@ -26,15 +27,11 @@ const USER_SELECT = {
   },
 } as const;
 
-export interface RequestUser {
-  id: number;
-}
-
 @Injectable()
 export class AppUserService {
   constructor(private prisma: PrismaService) {}
 
-  private async validateUserOwnership(id: number, currentUser: RequestUser) {
+  private async validateUserOwnership(id: number, currentUser: AuthUser) {
     const user = await this.prisma.app_user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
     if (id !== currentUser.id) {
@@ -45,7 +42,7 @@ export class AppUserService {
     return user;
   }
 
-  async getUserById(id: number, currentUser: RequestUser) {
+  async getUserById(id: number, currentUser: AuthUser) {
     await this.validateUserOwnership(id, currentUser);
     return this.prisma.app_user.findUnique({
       where: { id },
@@ -56,7 +53,7 @@ export class AppUserService {
   async updateUserFull(
     id: number,
     data: UpdateAppUserDto,
-    currentUser: RequestUser,
+    currentUser: AuthUser,
   ) {
     await this.validateUserOwnership(id, currentUser);
     return this.prisma.app_user.update({
@@ -71,7 +68,7 @@ export class AppUserService {
     });
   }
 
-  async deleteUser(id: number, currentUser: RequestUser) {
+  async deleteUser(id: number, currentUser: AuthUser) {
     await this.validateUserOwnership(id, currentUser);
     return this.prisma.app_user.delete({
       where: { id },
