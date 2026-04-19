@@ -5,6 +5,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
@@ -12,18 +13,29 @@ import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, ticket } from '@prisma/client';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Tickets')
 @Controller('tickets')
-export class TicketController {
-  constructor(private readonly service: TicketService) {}
+export class TicketController extends AbstractCrudController<ticket[]> {
+  constructor(private readonly service: TicketService) {
+    super(service as unknown as IBaseCrudService<ticket[]>);
+  }
 
   @Get()
   @Public()
   @ApiOperation({ summary: 'Отримати список усіх тікетів' })
-  async findAll() {
-    return this.service.findAll();
+  async findAll(@Query() query: PaginationDto) {
+    return this.service.findAll(
+      query.limit ?? 5,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Get(':id')

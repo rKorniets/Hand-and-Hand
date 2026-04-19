@@ -150,15 +150,19 @@
   }
 
   &__forgot {
-    width: 100%;
-    margin: 2px 0 20px;
     text-align: right;
-    font-size: 20px;
-    line-height: 1.2;
+    margin: 10px 0 0 550px;
 
     a {
-      color: $color-black;
+      font-size: 20px;
+      color: #666;
       text-decoration: none;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #007bff;
+        text-decoration: underline;
+      }
     }
   }
 

@@ -41,6 +41,10 @@
           }
         </div>
 
+        <div class="login__forgot">
+          <a routerLink="/forgot-password">Забули пароль?</a>
+        </div>
+
         <button type="submit" class="login__button" [disabled]="loading">
           {{ loading ? 'Завантаження...' : 'Увійти' }}
         </button>
@@ -72,6 +76,10 @@
           @if (getError(orgForm, 'password'); as msg) {
             <span class="login__validation-error">{{ msg }}</span>
           }
+        </div>
+
+        <div class="login__forgot">
+          <a routerLink="/forgot-password">Забули пароль?</a>
         </div>
 
         <button type="submit" class="login__button" [disabled]="loading">

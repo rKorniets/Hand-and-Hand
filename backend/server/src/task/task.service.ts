@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create_task.dto';
 import { UpdateTaskDto } from './dto/update_task.dto';
@@ -12,7 +16,10 @@ export interface RequestUser {
 export class TaskService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async validateTaskOwnership(taskId: number, currentUser: RequestUser) {
+  private async validateTaskOwnership(
+    taskId: number,
+    currentUser: RequestUser,
+  ) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -27,7 +34,9 @@ export class TaskService {
     }
 
     if (task.project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('You don\'t have permission to perform this task.');
+      throw new ForbiddenException(
+        "You don't have permission to perform this task.",
+      );
     }
 
     return task;
@@ -40,11 +49,15 @@ export class TaskService {
     });
 
     if (!project) {
-      throw new NotFoundException(`Project with ID ${data.project_id} not found`);
+      throw new NotFoundException(
+        `Project with ID ${data.project_id} not found`,
+      );
     }
 
     if (project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('You do not have permission to create tasks for this project');
+      throw new ForbiddenException(
+        'You do not have permission to create tasks for this project',
+      );
     }
 
     return this.prisma.task.create({
@@ -61,8 +74,20 @@ export class TaskService {
     });
   }
 
-  async findAll() {
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const where: Prisma.taskWhereInput = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
     return this.prisma.task.findMany({
+      where,
+      take: limit,
+      skip: skip,
       orderBy: { created_at: 'desc' },
       include: {
         project: true,
@@ -97,10 +122,16 @@ export class TaskService {
       where: { id },
       data: {
         ...(data.title !== undefined && { title: data.title }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.difficulty !== undefined && { difficulty: data.difficulty }),
-        ...(data.points_reward_base !== undefined && { points_reward_base: data.points_reward_base }),
-        ...(data.location_id !== undefined && { location_id: data.location_id }),
+        ...(data.points_reward_base !== undefined && {
+          points_reward_base: data.points_reward_base,
+        }),
+        ...(data.location_id !== undefined && {
+          location_id: data.location_id,
+        }),
         ...(data.deadline !== undefined && { deadline: data.deadline }),
       },
     });

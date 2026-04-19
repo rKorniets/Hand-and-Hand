@@ -18,6 +18,8 @@ import { AdminProfileComponent } from './pages/admin/admin-profile/admin-profile
 import { AdminPanelComponent } from './pages/admin/admin-panel/admin-panel';
 import { ProfileOrganization } from './pages/profile-organization/profile-organization';
 import { ProfileUserComponent } from './pages/profile-user/profile-user';
+import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
+import { ResetPassword } from './pages/auth/reset-password/reset-password'
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -36,4 +38,8 @@ export const routes: Routes = [
   { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard] },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
+  { path: 'profile-user', component: ProfileUserComponent },
+  { path: 'profile-organization', component: ProfileOrganization },
+  { path: 'forgot-password', component: ForgotPassword },
+  { path: 'reset-password', component: ResetPassword },
 ];
