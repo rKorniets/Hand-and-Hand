@@ -6,6 +6,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+interface MonoJar {
+  id: string;
+  sendId: string;
+  title: string;
+  description?: string;
+  balance: number;
+}
+
+interface MonoClientInfo {
+  jars: MonoJar[];
+}
+
 @Injectable()
 export class MonobankService {
   constructor(private readonly configService: ConfigService) {}
@@ -22,13 +34,13 @@ export class MonobankService {
     return url;
   }
 
-  validateMonoData(jarLink?: string, monoToken?: string) {
+  private validateMonoData(jarLink?: string, monoToken?: string) {
     if (!jarLink || !monoToken) {
       throw new BadRequestException('jar_link and mono_token are required');
     }
   }
 
-  extractSendId(jarLink: string): string {
+  private extractSendId(jarLink: string): string {
     const sendId = jarLink.split('/').pop();
 
     if (!sendId) {
@@ -38,7 +50,7 @@ export class MonobankService {
     return sendId;
   }
 
-  async fetchClientInfo(monoToken: string): Promise<any> {
+  async fetchClientInfo(monoToken: string): Promise<MonoClientInfo> {
     try {
       const response = await fetch(
         'https://api.monobank.ua/personal/client-info',
@@ -55,7 +67,12 @@ export class MonobankService {
         );
       }
 
-      return await response.json();
+      const data: unknown = await response.json();
+      if (typeof data !== 'object' || data === null || !('jars' in data)) {
+        throw new InternalServerErrorException('Invalid Monobank response');
+      }
+
+      return data as MonoClientInfo;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -67,8 +84,8 @@ export class MonobankService {
     }
   }
 
-  findJarBySendId(clientInfo: any, sendId: string) {
-    const jar = clientInfo.jars?.find((j: any) => j.sendId === `jar/${sendId}`);
+  private findJarBySendId(clientInfo: MonoClientInfo, sendId: string): MonoJar {
+    const jar = clientInfo.jars.find((j) => j.sendId === `jar/${sendId}`);
 
     if (!jar) {
       throw new BadRequestException(
@@ -103,5 +120,16 @@ export class MonobankService {
 
       throw new InternalServerErrorException('Failed to connect to Monobank');
     }
+  }
+  async prepareJarData(jarLink: string, monoToken: string): Promise<MonoJar> {
+    this.validateMonoData(jarLink, monoToken);
+
+    const sendId = this.extractSendId(jarLink);
+    const clientInfo = await this.fetchClientInfo(monoToken);
+    const jar = this.findJarBySendId(clientInfo, sendId);
+
+    await this.setWebhook(monoToken);
+
+    return jar;
   }
 }
