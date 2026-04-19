@@ -6,12 +6,18 @@
   align-items: flex-start;
 
   &__avatar {
-  &__avatar{
     width: 250px;
     height: 250px;
     border-radius: 20px;
     background-color: #6b7280;
     flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
   }
 
   &__details {
@@ -26,9 +32,11 @@
 
   &__name {
     font-size: 36px;
-    font-weight: $user-profile-verify-btn-font-weight;
     font-weight: 700;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   &__role {
@@ -39,13 +47,11 @@
 
   &__rating {
     margin-top: 8px;
-    color: $user-profile-color-grey;
     color: #A0A0A0;
     font-size: 24px;
   }
 
   &__points {
-    color: $user-profile-color-grey;
     color: #A0A0A0;
     font-weight: 400;
     margin-left: 8px;
@@ -55,7 +61,6 @@
     margin-top: 110px;
     background: none;
     border: none;
-    color: $user-profile-color-grey;
     color: #A0A0A0;
     text-decoration: underline;
     cursor: pointer;
@@ -63,7 +68,7 @@
     font-size: 20px;
   }
 
-  .main-info__notif-btn {
+  &__notif-btn {
     background: transparent;
     border: none;
     padding: 0;
@@ -71,13 +76,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .material-symbols-outlined {
+      font-size: 50px;
+      color: #000;
+      font-variation-settings: 'FILL' 1;
+      display: block;
+    }
   }
 
-  .main-info__notif-btn .material-symbols-outlined {
-    font-size: 50px;
-    color: #000;
-    font-variation-settings: 'FILL' 1;
-    display: block;
-  }
+  &__verified-badge {
+    color: #4caf50;
+    display: flex;
+    align-items: center;
 
+    .material-symbols-outlined {
+      font-size: 30px;
+    }
+  }
 }

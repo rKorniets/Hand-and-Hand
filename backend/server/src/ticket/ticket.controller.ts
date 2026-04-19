@@ -5,6 +5,9 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Req,
+  ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
@@ -12,18 +15,35 @@ import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, ticket } from '@prisma/client';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
+type RequestWithUser = {
+  user: {
+    sub: number;
+    role: string;
+  };
+};
 @ApiTags('Tickets')
 @Controller('tickets')
-export class TicketController {
-  constructor(private readonly service: TicketService) {}
+export class TicketController extends AbstractCrudController<ticket[]> {
+  constructor(private readonly service: TicketService) {
+    super(service as unknown as IBaseCrudService<ticket[]>);
+  }
 
   @Get()
   @Public()
   @ApiOperation({ summary: 'Отримати список усіх тікетів' })
-  async findAll() {
-    return this.service.findAll();
+  async findAll(@Query() query: PaginationDto) {
+    return this.service.findAll(
+      query.limit ?? 5,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Get(':id')
@@ -32,17 +52,55 @@ export class TicketController {
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
   }
-
-  //TODO: ownership — волонтер може редагувати/видаляти тільки свої тікети
-  //TODO: volunteer_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новий тікет від волонтера' })
-  async create(
-    @Body() data: CreateTicketDto,
-    @CurrentUser() user: { id: number },
+  async create(@Body() data: CreateTicketDto, @Req() req: RequestWithUser) {
+    return this.service.create(data, req.user.sub);
+  }
+
+  @Patch(':id')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Оновити існуючий тікет' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateTicketDto,
+    @Req() req: RequestWithUser,
   ) {
-    return this.service.create(data, { id: user.id });
+    const userId = req.user.sub;
+    const ticket = await this.service.findOne(id);
+    if (!ticket || ticket.user_id !== userId) {
+      throw new ForbiddenException('Ви можете редагувати тільки власні запити');
+    }
+    return this.service.update(id, data);
+  }
+
+  @Delete(':id')
+  @ApiBearerAuth()
+  @Roles(
+    user_role_enum.APP_USER,
+    user_role_enum.VOLUNTEER,
+    user_role_enum.ADMIN,
+  )
+  @ApiOperation({ summary: 'Видалити тікет' })
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
+    const userRole = req.user.role;
+    const ticket = await this.service.findOne(id);
+    if (!ticket) {
+      throw new ForbiddenException('Тікет не знайдено');
+    }
+    if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {
+      throw new ForbiddenException(
+        'У вас немає прав на видалення цього запиту',
+      );
+    }
+
+    return this.service.remove(id);
   }
 }

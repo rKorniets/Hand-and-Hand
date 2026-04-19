@@ -1,21 +1,10 @@
 <div class="activity">
-  <h3 #listTop class="activity__title">Активність</h3>
+  <h2 #listTop class="activity__title">Волонтерська діяльність</h2>
 
   <div class="activity__list">
     @for (item of (activities | slice:0:(isExpanded ? activities.length : 2)); track item.id) {
       <a class="activity__item" [routerLink]="['/events', item.id]">
-        <div class="activity__info">
-          <h3 class="activity__item-title">{{ item.title }}</h3>
-          @if (item.starts_at) {
-            <span class="activity__date">{{ item.starts_at | date: 'dd.MM.yyyy' }}</span>
-          }
-  <h2 #listTop class="activity__title">Волонтерська діяльність</h2>
-
-  <div class="activity__list">
-    @for (item of activities | slice:0:(isExpanded ? activities.length : 2); track item.id) {
-      <a class="activity__item" [routerLink]="['/events', item.id]">
-        <div class="activity__image">
-        </div>
+        <div class="activity__image"></div>
 
         <div class="activity__body">
           <div class="activity__top">
@@ -39,11 +28,4 @@
       </button>
     </div>
   }
-  @if (activities.length > 2) {
-  <div class="activity__button">
-    <button class="activity__more" (click)="toggleActivities(listTop)">
-      {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
-    </button>
-  </div>
-}
 </div>

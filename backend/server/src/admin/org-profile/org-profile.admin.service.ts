@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from '../../organization_profile/dto/create-organization-profile.dto';
-import { verification_status_enum } from '@prisma/client';
+import {
+  verification_status_enum,
+  approval_request_status_enum,
+  user_status_enum,
+} from '@prisma/client';
 
 @Injectable()
 export class OrgProfileAdminService {
@@ -13,18 +17,111 @@ export class OrgProfileAdminService {
     });
   }
 
+  async findPending() {
+    return this.prisma.approval_request.findMany({
+      where: { type: 'ORGANIZATION', status: 'PENDING' },
+      orderBy: { created_at: 'desc' },
+      include: {
+        submitter: {
+          select: {
+            id: true,
+            email: true,
+            status: true,
+            organization_profile: {
+              select: {
+                id: true,
+                name: true,
+                edrpou: true,
+                contact_email: true,
+                created_at: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+  async approveOrganization(approvalRequestId: number, adminUserId: number) {
+    const request = await this.prisma.approval_request.findUnique({
+      where: { id: approvalRequestId },
+      include: { submitter: { include: { organization_profile: true } } },
+    });
+
+    if (!request) throw new NotFoundException('Запит не знайдено');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.approval_request.update({
+        where: { id: approvalRequestId },
+        data: {
+          status: approval_request_status_enum.APPROVED,
+          reviewed_by: adminUserId,
+          reviewed_at: new Date(),
+        },
+      });
+
+      await tx.app_user.update({
+        where: { id: request.submitted_by },
+        data: { status: user_status_enum.ACTIVE },
+      });
+
+      if (request.submitter.organization_profile) {
+        await tx.organization_profile.update({
+          where: { user_id: request.submitted_by },
+          data: { verification_status: verification_status_enum.VERIFIED },
+        });
+      }
+    });
+
+    return { message: 'Організацію підтверджено' };
+  }
+
+  async rejectOrganization(approvalRequestId: number, adminUserId: number) {
+    const request = await this.prisma.approval_request.findUnique({
+      where: { id: approvalRequestId },
+    });
+
+    if (!request) throw new NotFoundException('Запит не знайдено');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.approval_request.update({
+        where: { id: approvalRequestId },
+        data: {
+          status: approval_request_status_enum.REJECTED,
+          reviewed_by: adminUserId,
+          reviewed_at: new Date(),
+        },
+      });
+
+      await tx.app_user.update({
+        where: { id: request.submitted_by },
+        data: { status: user_status_enum.INACTIVE },
+      });
+
+      await tx.organization_profile.update({
+        where: { user_id: request.submitted_by },
+        data: { verification_status: verification_status_enum.REJECTED },
+      });
+    });
+
+    return { message: 'Організацію відхилено' };
+  }
+
   async findOne(id: number) {
     const profile = await this.prisma.organization_profile.findUnique({
       where: { id },
       include: {
-        app_user: { select: { id: true, email: true, role: true, status: true } },
+        app_user: {
+          select: { id: true, email: true, role: true, status: true },
+        },
         location: true,
-        project: true,
+        projects: true,
       },
     });
 
     if (!profile) {
-      throw new NotFoundException(`Organization profile with ID ${id} not found`);
+      throw new NotFoundException(
+        `Organization profile with ID ${id} not found`,
+      );
     }
 
     return profile;

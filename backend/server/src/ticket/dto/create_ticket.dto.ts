@@ -3,13 +3,6 @@ import { IsInt, IsString, IsOptional } from 'class-validator';
 
 export class CreateTicketDto {
   @ApiProperty({
-    description: 'ID профілю волонтера, який створив тікет',
-    example: 1,
-  })
-  @IsInt()
-  volunteer_profile_id: number;
-
-  @ApiProperty({
     description: 'Короткий заголовок тікету',
     example: 'Потрібна машина для доставки',
   })

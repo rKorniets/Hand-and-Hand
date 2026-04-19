@@ -8,7 +8,7 @@ import {
   Body,
   Query,
   ParseIntPipe,
-  BadRequestException,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -26,62 +26,41 @@ import {
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
-export class FundraisingCampaignController {
-  constructor(private readonly service: FundraisingCampaignService) {}
+export class FundraisingCampaignController extends AbstractCrudController<unknown> {
+  constructor(private readonly service: FundraisingCampaignService) {
+    super(service as unknown as IBaseCrudService<unknown>);
+  }
 
-  @Public()
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Отримати список зборів' })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    description: 'Кількість записів (за замовчуванням 5)',
-  })
   @ApiQuery({
     name: 'status',
     required: false,
+    enum: fundraising_campaign_status_enum,
     description: 'Фільтр за статусом',
   })
-  @ApiQuery({ name: 'skip', required: false })
-  @ApiQuery({ name: 'search', required: false })
   async findAll(
-    @Query('limit') limitStr?: string,
-    @Query('skip') skipStr?: string,
-    @Query('status') status?: string,
-    @Query('search') search?: string,
+    @Query() query: PaginationDto,
+    @Query(
+      'status',
+      new ParseEnumPipe(fundraising_campaign_status_enum, { optional: true }),
+    )
+    status?: fundraising_campaign_status_enum,
   ) {
-    const DEFAULT_LIMIT = 5;
-    const MIN_LIMIT = 1;
-    const MAX_LIMIT = 50;
-
-    const parsedLimit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
-    const normalizedLimit = Number.isNaN(parsedLimit)
-      ? DEFAULT_LIMIT
-      : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
-    const DEFAULT_SKIP = 0;
-    const parsedSkip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
-    const normalizedSkip = Number.isNaN(parsedSkip)
-      ? DEFAULT_SKIP
-      : Math.max(parsedSkip, DEFAULT_SKIP);
-    let normalizedStatus: fundraising_campaign_status_enum | undefined;
-    if (status !== undefined) {
-      if (!(status in fundraising_campaign_status_enum)) {
-        throw new BadRequestException('Invalid status value');
-      }
-      normalizedStatus =
-        fundraising_campaign_status_enum[
-          status as keyof typeof fundraising_campaign_status_enum
-        ];
-    }
-
     return this.service.findAll(
-      normalizedLimit,
-      normalizedSkip,
-      normalizedStatus,
-      search,
+      query.limit ?? 5,
+      query.skip ?? 0,
+      status,
+      query.search,
     );
   }
 
@@ -120,6 +99,7 @@ export class FundraisingCampaignController {
   ) {
     return this.service.remove(id, { id: user.id });
   }
+
   @Post(':id/donations')
   @Public()
   @ApiOperation({ summary: 'Зробити донат на конкретний збір' })

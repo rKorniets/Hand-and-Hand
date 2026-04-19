@@ -1,15 +1,27 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsInt, Min, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateRewardDto {
   @ApiProperty({ description: 'Назва нагороди', example: 'Футболка волонтера' })
+  @IsString()
   title: string;
 
   @ApiProperty({ description: 'Опис нагороди' })
+  @IsString()
   description: string;
 
-  @ApiProperty({ description: 'Поріг балів для розблокування', example: 200 })
-  threshold_points: number;
+  @ApiProperty({ description: 'Вартість нагороди в балах', example: 200 })
+  @IsInt()
+  @Min(0)
+  cost_points: number;
+
+  @ApiProperty({ description: 'Кількість одиниць в наявності', example: 50 })
+  @IsInt()
+  @Min(0)
+  stock: number;
 
   @ApiPropertyOptional({ description: 'Чи активна нагорода', default: true })
+  @IsOptional()
+  @IsBoolean()
   is_active?: boolean;
 }

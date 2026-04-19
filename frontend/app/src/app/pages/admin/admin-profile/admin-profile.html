@@ -1,0 +1,24 @@
+@if (loading) {
+  <div class="loader">
+    <p>⏳ Завантаження даних адміністратора...</p>
+  </div>
+}
+
+@if (error) {
+  <div class="error-message">
+    <p>❌ {{ error }}</p>
+  </div>
+}
+
+@if (profile && !loading) {
+  <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
+  <p>Email: {{ profile.email }}</p>
+  <p>Місто: {{ profile.city }}</p>
+  <p>Роль: {{ profile.role }}</p>
+  <p>Статус: {{ profile.status }}</p>
+  <a routerLink="/profile/admin/pending-organizations">
+    Організації на розгляді
+  </a>
+
+  <button (click)="logout()">Вийти з акаунту</button>
+}
