@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLocationDto } from './dto/create_location.dto';
 import { UpdateLocationDto } from './dto/update_location.dto';
@@ -11,10 +12,24 @@ export class LocationService {
     return this.prisma.location.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.location.findMany({
-      orderBy: { city: 'asc' },
-    });
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const whereClause: Prisma.locationWhereInput = search
+      ? {
+          city: { contains: search, mode: 'insensitive' },
+        }
+      : {};
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.location.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { city: 'asc' },
+      }),
+      this.prisma.location.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {

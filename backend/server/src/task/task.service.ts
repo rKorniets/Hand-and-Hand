@@ -84,20 +84,25 @@ export class TaskService {
         }
       : {};
 
-    return this.prisma.task.findMany({
-      where,
-      take: limit,
-      skip: skip,
-      orderBy: { created_at: 'desc' },
-      include: {
-        project: true,
-        ticket: true,
-        location: true,
-        task_category: {
-          include: { category: true },
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.task.findMany({
+        where,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+        include: {
+          project: true,
+          ticket: true,
+          location: true,
+          task_category: {
+            include: { category: true },
+          },
         },
-      },
-    });
+      }),
+      this.prisma.task.count({ where }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {

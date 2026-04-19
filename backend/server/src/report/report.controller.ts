@@ -9,6 +9,7 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -22,19 +23,38 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { report_type_enum, user_role_enum } from '@prisma/client';
+import { report_type_enum, user_role_enum, report } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Reports')
 @Controller('reports')
-export class ReportController {
-  constructor(private readonly service: ReportService) {}
+export class ReportController extends AbstractCrudController<report[]> {
+  constructor(private readonly service: ReportService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll(undefined, limit, skip, search),
+    } as unknown as IBaseCrudService<report[]>);
+  }
 
   @Get()
   @Public()
   @ApiOperation({ summary: 'Отримати список звітів' })
   @ApiQuery({ name: 'type', enum: report_type_enum, required: false })
-  async findAll(@Query('type') type?: report_type_enum) {
-    return this.service.findAll(type);
+  async getReports(
+    @Query() query: PaginationDto,
+    @Query('type', new ParseEnumPipe(report_type_enum, { optional: true }))
+    type?: report_type_enum,
+  ) {
+    return this.service.findAll(
+      type,
+      query.limit ?? 5,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Get(':id')
@@ -44,7 +64,6 @@ export class ReportController {
     return this.service.findOne(id);
   }
 
-  //TODO: organization_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)

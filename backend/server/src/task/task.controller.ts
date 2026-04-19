@@ -16,24 +16,27 @@ import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, task } from '@prisma/client';
 import {
   AbstractCrudController,
-  IBaseCrudService,
+  type IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Tasks')
 @Controller('tasks')
-export class TaskController extends AbstractCrudController<unknown> {
+export class TaskController extends AbstractCrudController<task[]> {
   constructor(private readonly service: TaskService) {
-    super(service as unknown as IBaseCrudService<unknown>);
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll(limit, skip, search),
+    } as unknown as IBaseCrudService<task[]>);
   }
 
   @Get()
   @Public()
   @ApiOperation({ summary: 'Отримати список усіх задач' })
-  async findAll(@Query() query: PaginationDto) {
+  async getTasks(@Query() query: PaginationDto) {
     return this.service.findAll(
       query.limit ?? 5,
       query.skip ?? 0,
@@ -48,7 +51,6 @@ export class TaskController extends AbstractCrudController<unknown> {
     return this.service.findOne(id);
   }
 
-  //TODO: ownership — організація може створювати/редагувати/видаляти тільки задачі своїх проєктів
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)

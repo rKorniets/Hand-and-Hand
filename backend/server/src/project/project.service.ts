@@ -38,8 +38,8 @@ export class ProjectService {
   }
 
   async getProjects(
-    limit: number,
-    skip: number,
+    limit?: number,
+    skip?: number,
     status?: project_status_enum,
     search?: string,
   ) {

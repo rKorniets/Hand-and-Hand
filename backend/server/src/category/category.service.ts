@@ -1,30 +1,25 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateCategoryDto) {
-    const existing = await this.prisma.category.findUnique({
-      where: { slug: data.slug },
-    });
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const where: Prisma.categoryWhereInput = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { slug: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
 
-    if (existing) {
-      throw new ConflictException('Category with this slug already exists');
-    }
-
-    return this.prisma.category.create({ data });
-  }
-
-  async findAll() {
     return this.prisma.category.findMany({
+      where,
+      take: limit,
+      skip: skip,
       orderBy: { name: 'asc' },
     });
   }
@@ -39,28 +34,5 @@ export class CategoryService {
     }
 
     return category;
-  }
-
-  async update(id: number, data: UpdateCategoryDto) {
-    await this.findOne(id);
-    if (data.slug) {
-      const existing = await this.prisma.category.findFirst({
-        where: { slug: data.slug, id: { not: id } },
-      });
-
-      if (existing) {
-        throw new ConflictException('Category with this slug already exists');
-      }
-    }
-
-    return this.prisma.category.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async remove(id: number) {
-    await this.findOne(id);
-    return this.prisma.category.delete({ where: { id } });
   }
 }

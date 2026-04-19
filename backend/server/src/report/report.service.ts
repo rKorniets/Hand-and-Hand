@@ -31,12 +31,33 @@ export class ReportService {
     return report;
   }
 
-  async findAll(type?: report_type_enum) {
-    const whereClause: Prisma.reportWhereInput = type ? { type } : {};
-    return this.prisma.report.findMany({
-      where: whereClause,
-      orderBy: { created_at: 'desc' },
-    });
+  async findAll(
+    type?: report_type_enum,
+    limit?: number,
+    skip?: number,
+    search?: string,
+  ) {
+    const whereClause: Prisma.reportWhereInput = {
+      ...(type && { type }),
+      ...(search && {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.report.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.report.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {
@@ -58,7 +79,9 @@ export class ReportService {
         ...(data.title !== undefined && { title: data.title }),
         ...(data.type !== undefined && { type: data.type }),
         ...(data.file_url !== undefined && { file_url: data.file_url }),
-        ...(data.published_at !== undefined && { published_at: data.published_at }),
+        ...(data.published_at !== undefined && {
+          published_at: data.published_at,
+        }),
       },
     });
   }
