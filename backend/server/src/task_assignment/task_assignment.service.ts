@@ -58,24 +58,34 @@ export class TaskAssignmentService {
   }
 
   async findAll(
-    limit: number,
-    skip: number,
+    limit?: number,
+    skip?: number,
     taskId?: number,
     volunteerId?: number,
+    search?: string,
   ) {
-    const whereClause: Prisma.task_assignmentWhereInput = {};
-    if (taskId) whereClause.task_id = taskId;
-    if (volunteerId) whereClause.volunteer_profile_id = volunteerId;
+    const whereClause: Prisma.task_assignmentWhereInput = {
+      ...(taskId && { task_id: taskId }),
+      ...(volunteerId && { volunteer_profile_id: volunteerId }),
+      ...(search && {
+        comment: { contains: search, mode: 'insensitive' },
+      }),
+    };
 
-    return this.prisma.task_assignment.findMany({
-      where: whereClause,
-      take: limit,
-      skip: skip,
-      orderBy: { created_at: 'desc' },
-      include: {
-        task: { select: { title: true, status: true } },
-      },
-    });
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.task_assignment.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+        include: {
+          task: { select: { title: true, status: true } },
+        },
+      }),
+      this.prisma.task_assignment.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {
