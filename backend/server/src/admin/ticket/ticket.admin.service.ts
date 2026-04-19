@@ -53,11 +53,12 @@ export class TicketAdminService {
   async create(data: CreateTicketDto) {
     return this.prisma.ticket.create({
       data: {
-        volunteer_profile_id: data.volunteer_profile_id,
         title: data.title,
         description: data.description,
-        location_id: data.location_id,
-      },
+        ...(data.location_id !== undefined && {
+          location_id: data.location_id,
+        }),
+      } as Prisma.ticketUncheckedCreateInput,
     });
   }
 
@@ -68,8 +69,12 @@ export class TicketAdminService {
       where: { id },
       data: {
         ...(data.title !== undefined && { title: data.title }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.location_id !== undefined && { location_id: data.location_id }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
+        ...(data.location_id !== undefined && {
+          location_id: data.location_id,
+        }),
         updated_at: new Date(),
       },
     });
@@ -89,7 +94,6 @@ export class TicketAdminService {
 
   async remove(id: number) {
     await this.findOne(id);
-
     return this.prisma.ticket.delete({ where: { id } });
   }
 }

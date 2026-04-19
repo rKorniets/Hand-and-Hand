@@ -25,17 +25,12 @@ model app_user {
   points_transaction                     points_transaction[]
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
-  warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
-  warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
-  ticket  ticket[]
+  ticket                                 ticket[]
   password_reset_token                   password_reset_token[]
   warnings_warnings_created_byToapp_user warnings[]             @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]             @relation("warnings_user_idToapp_user")
   submitted_requests                     approval_request[]     @relation("submitted_requests")
   reviewed_requests                      approval_request[]     @relation("reviewed_requests")
-  organizationProfile                    organization_profile?  @relation(fields: [organization_profileId], references: [id])
-  organization_profileId                 Int?
-  organizationProfile                    organization_profile?  @relation(fields: [organization_profileId], references: [id])
   project_registration                   project_registration[]
 }
 
@@ -52,7 +47,7 @@ model volunteer_profile {
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
   app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
-  tickets              ticket[]
+  tickets              ticket[]               @relation("VolunteerTickets")
 }
 
 model organization_profile {
@@ -182,7 +177,7 @@ model fundraising_campaign {
   created_at              DateTime                         @default(now()) @db.Timestamptz(6)
   updated_at              DateTime                         @default(now()) @db.Timestamptz(6)
   image_url               String?
-  jar_id                  String
+  jar_id                  String?
   jar_link                String
   mono_token              String
   donation                donation[]
@@ -314,6 +309,7 @@ model task_assignment {
 model ticket {
   id                   Int                  @id @default(autoincrement())
   user_id              Int
+  volunteer_profile_id Int?
   title                String
   description          String
   status               ticket_status_enum   @default(OPEN)
@@ -324,7 +320,12 @@ model ticket {
   closed_at            DateTime?            @db.Timestamptz(6)
   task                 task[]
   location             location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_ticket_location")
-  volunteer_profile    volunteer_profile    @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
+  app_user             app_user             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_app_user")
+  volunteer_profile    volunteer_profile?   @relation("VolunteerTickets", fields: [volunteer_profile_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
+
+  @@index([location_id], map: "idx_ticket_location_id")
+  @@index([user_id], map: "idx_ticket_user_id")
+  @@index([volunteer_profile_id], map: "idx_ticket_volunteer_profile_id")
 }
 
 model organization_category {
@@ -336,6 +337,8 @@ model organization_category {
   organization_profile organization_profile @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_org")
 
   @@unique([organization_id, category_id], map: "uq_organization_category")
+  @@index([category_id], map: "idx_organization_category_category_id")
+  @@index([organization_id], map: "idx_organization_category_org_id")
 }
 
 model warnings {

@@ -67,7 +67,6 @@ export class AuthService {
   getRole(): string | null {
     const token = this.getToken();
     if (!token) return null;
-
     try {
       const payload = jwtDecode<{ role: string }>(token);
       return payload.role;
@@ -84,6 +83,14 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  resetPassword(email: string) {
+    return this.http.post(`${this.API}/forgot-password`, { email });
+  }
+
+  confirmResetPassword(token: string, password: string) {
+    return this.http.post(`${this.API}/reset-password`, { token, password });
   }
 
   private saveToken(token: string) {
