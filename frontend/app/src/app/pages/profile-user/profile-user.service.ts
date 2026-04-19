@@ -7,12 +7,12 @@ import { ITicket, ActivityItem, FundraisingCampaign, Reward, AppUser } from './p
   providedIn: 'root',
 })
 export class UserProfileService {
-  private readonly apiUrl = 'http://localhost:3000/profile-user';
+  private readonly apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
   getUser(): Observable<AppUser> {
-    return this.http.get<AppUser>(`${this.apiUrl}/user/me`);
+    return this.http.get<AppUser>(`${this.apiUrl}/app-users/me`);
   }
 
   getRewards(): Observable<Reward[]> {
@@ -20,14 +20,14 @@ export class UserProfileService {
   }
 
   getUserRequests(): Observable<ITicket[]> {
-    return this.http.get<ITicket[]>(`${this.apiUrl}/user/requests`);
+    return this.http.get<ITicket[]>(`${this.apiUrl}/project-registration/my`);
   }
 
   getUserActivities(): Observable<ActivityItem[]> {
-    return this.http.get<ActivityItem[]>(`${this.apiUrl}/user/activities`);
+    return this.http.get<ActivityItem[]>(`${this.apiUrl}/app-users/activities`);
   }
 
   getFundraisingCampaigns(): Observable<FundraisingCampaign[]> {
-    return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/user/campaigns`);
+    return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising_campaigns`);
   }
 }

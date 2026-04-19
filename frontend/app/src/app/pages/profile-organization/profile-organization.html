@@ -6,7 +6,6 @@
         <section>
           <app-main-info
             [organization]="organization"
-            (locationChange)="onLocationChange($event)"
           />
         </section>
 
@@ -35,6 +34,10 @@
         <section>
           <app-list-users [organization]="organization"></app-list-users>
         </section>
+
+        <div>
+          <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
+        </div>
       }
     </aside>
 

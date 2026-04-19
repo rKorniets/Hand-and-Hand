@@ -14,23 +14,31 @@
       </button>
     </div>
 
-    <!-- Помилка -->
     @if (error) {
       <p class="login__error">{{ error }}</p>
     }
 
-    <!-- Користувач -->
     @if (activeTab === 'user') {
-      <form class="login__form" (ngSubmit)="onSubmit()">
+      <form class="login__form" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+
         <div class="login__field">
-          <label class="login__label">Пошта:</label>
-          <input class="login__input" type="email" placeholder="example@gmail.com"
-                 [(ngModel)]="userEmail" name="userEmail" required />
+          <div class="login__field-inner" [class.login__field-inner--error]="getError(userForm, 'email')">
+            <span class="login__label">Пошта:</span>
+            <input class="login__input" type="email" placeholder="example@gmail.com" formControlName="email" />
+          </div>
+          @if (getError(userForm, 'email'); as msg) {
+            <span class="login__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="login__field">
-          <label class="login__label">Пароль:</label>
-          <input class="login__input" type="password" placeholder="******"
-                 [(ngModel)]="userPassword" name="userPassword" required />
+          <div class="login__field-inner" [class.login__field-inner--error]="getError(userForm, 'password')">
+            <span class="login__label">Пароль:</span>
+            <input class="login__input" type="password" placeholder="******" formControlName="password" />
+          </div>
+          @if (getError(userForm, 'password'); as msg) {
+            <span class="login__validation-error">{{ msg }}</span>
+          }
         </div>
 
         <div class="login__forgot">
@@ -47,18 +55,27 @@
       </form>
     }
 
-    <!-- Організація -->
     @if (activeTab === 'org') {
-      <form class="login__form" (ngSubmit)="onSubmit()">
+      <form class="login__form" [formGroup]="orgForm" (ngSubmit)="onSubmit()">
+
         <div class="login__field">
-          <label class="login__label">ЄДРПОУ:</label>
-          <input class="login__input" type="text" placeholder="8 цифр" maxlength="8"
-                 [(ngModel)]="orgEdrpou" name="orgEdrpou" required />
+          <div class="login__field-inner" [class.login__field-inner--error]="getError(orgForm, 'edrpou')">
+            <span class="login__label">ЄДРПОУ:</span>
+            <input class="login__input" type="text" placeholder="8 цифр" maxlength="8" formControlName="edrpou" />
+          </div>
+          @if (getError(orgForm, 'edrpou'); as msg) {
+            <span class="login__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="login__field">
-          <label class="login__label">Пароль:</label>
-          <input class="login__input" type="password" placeholder="******"
-                 [(ngModel)]="orgPassword" name="orgPassword" required />
+          <div class="login__field-inner" [class.login__field-inner--error]="getError(orgForm, 'password')">
+            <span class="login__label">Пароль:</span>
+            <input class="login__input" type="password" placeholder="******" formControlName="password" />
+          </div>
+          @if (getError(orgForm, 'password'); as msg) {
+            <span class="login__validation-error">{{ msg }}</span>
+          }
         </div>
 
         <div class="login__forgot">
@@ -74,12 +91,5 @@
         </div>
       </form>
     }
-    <button routerLink="/profile-user">
-      Перейти на профіль користувача
-    </button>
-    <button routerLink="/profile-organization">
-      Перейти на профіль організації
-      Перейти на профіль (DEBUG)
-    </button>
   </div>
 </section>

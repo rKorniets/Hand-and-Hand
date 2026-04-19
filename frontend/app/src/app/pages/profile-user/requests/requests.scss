@@ -7,7 +7,6 @@
 
   .requests-title {
     font-size: 36px;
-    font-weight: $user-profile-verify-btn-font-weight;
     font-weight: 700;
     margin: 0;
     color: $text-color;
@@ -15,13 +14,6 @@
 
   .add-button {
     width: 100%;
-    padding: $user-profile-verify-btn-padding;
-    background-color: $user-profile-verify-btn-bg;
-    border: none;
-    border-radius: $user-profile-verify-btn-border-radius;
-    font-size: $user-profile-verify-btn-font-size;
-    font-weight: $user-profile-verify-btn-font-weight;
-    color: $user-profile-verify-btn-color;
     padding: 12px;
     background-color: #F3F3F3;
     border: none;
@@ -33,7 +25,6 @@
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: $user-profile-verify-btn-bg-hover;
       background-color: #dadada;
     }
   }
@@ -47,11 +38,6 @@
   .ticket-card {
     background-color: $bg-color-block;
     padding: 16px;
-    border-radius: $user-profile-verify-btn-border-radius;
-
-    .ticket-title {
-      font-size: 30px;
-      font-weight: $user-profile-verify-btn-font-weight;
     border-radius: 15px;
 
     .ticket-title {
@@ -62,7 +48,6 @@
 
     .ticket-status {
       display: block;
-      font-size: $user-profile-verify-btn-font-size;
       font-size: 26px;
       font-weight: 600;
       margin-bottom: 8px;
@@ -81,11 +66,10 @@
 
     .ticket-meta {
       font-size: 24px;
-      font-weight: $user-profile-verify-btn-font-weight;
       font-weight: 700;
       margin-top: 10px;
     }
-  }
+  } // Тут бракувало цієї дужки для закриття .ticket-card
 
   .load-more__button {
     width: 100%;
@@ -94,12 +78,6 @@
     .requests__more {
       width: 100%;
       padding: 14px;
-      background-color: $user-profile-verify-btn-bg;
-      border: none;
-      border-radius: 12px;
-      font-size: $user-profile-verify-btn-font-size;
-      font-weight: $user-profile-verify-btn-font-weight;
-      color: $user-profile-verify-btn-color;
       background-color: #F3F3F3;
       border: none;
       border-radius: 12px;
@@ -110,7 +88,6 @@
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: $user-profile-verify-btn-bg-hover;
         background-color: #e8e8e8;
       }
     }

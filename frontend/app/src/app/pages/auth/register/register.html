@@ -18,41 +18,66 @@
       <p class="register__error">{{ error }}</p>
     }
 
-    <!-- Користувач -->
     @if (activeTab === 'user') {
-      <form class="register__form" (ngSubmit)="onSubmit()">
+      <form class="register__form" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+
         <div class="register__row">
           <div class="register__field">
-            <span class="register__label">Ім'я:</span>
-            <input class="register__input" placeholder="Іван"
-                   [(ngModel)]="firstName" name="firstName" required />
+            <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'firstName')">
+              <span class="register__label">Ім'я:</span>
+              <input class="register__input" placeholder="Іван" formControlName="firstName" />
+            </div>
+            @if (getError(userForm, 'firstName'); as msg) {
+              <span class="register__validation-error">{{ msg }}</span>
+            }
           </div>
           <div class="register__field">
-            <span class="register__label">Прізвище:</span>
-            <input class="register__input" placeholder="Іваненко"
-                   [(ngModel)]="lastName" name="lastName" required />
+            <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'lastName')">
+              <span class="register__label">Прізвище:</span>
+              <input class="register__input" placeholder="Іваненко" formControlName="lastName" />
+            </div>
+            @if (getError(userForm, 'lastName'); as msg) {
+              <span class="register__validation-error">{{ msg }}</span>
+            }
           </div>
         </div>
+
         <div class="register__field">
-          <span class="register__label">Місто:</span>
-          <select class="register__input" [(ngModel)]="city" name="city" required>
-            <option disabled value="">Вибрати</option>
-            <option>Львів</option>
-            <option>Київ</option>
-          </select>
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'city')">
+            <span class="register__label">Місто:</span>
+            <select class="register__input" formControlName="city">
+              <option disabled value="">Вибрати</option>
+              <option>Львів</option>
+              <option>Київ</option>
+            </select>
+          </div>
+          @if (getError(userForm, 'city'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="register__field">
-          <span class="register__label">Пошта:</span>
-          <input class="register__input" type="email" placeholder="example@gmail.com"
-                 [(ngModel)]="userEmail" name="userEmail" required />
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'email')">
+            <span class="register__label">Пошта:</span>
+            <input class="register__input" type="email" placeholder="example@gmail.com" formControlName="email" />
+          </div>
+          @if (getError(userForm, 'email'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="register__field">
-          <span class="register__label">Пароль:</span>
-          <input type="password" class="register__input" placeholder="******"
-                 [(ngModel)]="userPassword" name="userPassword" required />
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'password')">
+            <span class="register__label">Пароль:</span>
+            <input class="register__input" type="password" placeholder="******" formControlName="password" />
+          </div>
+          @if (getError(userForm, 'password'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <button class="register__button" type="submit" [disabled]="loading">
-          {{ loading ? 'Завантаження...' : 'Зараєструватися' }}
+          {{ loading ? 'Завантаження...' : 'Зареєструватися' }}
         </button>
         <div class="register__login">
           <span>Вже маєш акаунт?</span>
@@ -61,31 +86,51 @@
       </form>
     }
 
-    <!-- Організація -->
     @if (activeTab === 'org') {
-      <form class="register__form" (ngSubmit)="onSubmit()">
+      <form class="register__form" [formGroup]="orgForm" (ngSubmit)="onSubmit()">
+
         <div class="register__field">
-          <span class="register__label">Назва:</span>
-          <input class="register__input" placeholder="Ввести"
-                 [(ngModel)]="orgName" name="orgName" required />
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'name')">
+            <span class="register__label">Назва:</span>
+            <input class="register__input" placeholder="Ввести" formControlName="name" />
+          </div>
+          @if (getError(orgForm, 'name'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="register__field">
-          <span class="register__label">ЄДРПОУ:</span>
-          <input class="register__input" placeholder="8 цифр" maxlength="8"
-                 [(ngModel)]="orgEdrpou" name="orgEdrpou" required />
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'edrpou')">
+            <span class="register__label">ЄДРПОУ:</span>
+            <input class="register__input" placeholder="8 цифр" maxlength="8" formControlName="edrpou" />
+          </div>
+          @if (getError(orgForm, 'edrpou'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="register__field">
-          <span class="register__label">Пошта:</span>
-          <input class="register__input" type="email" placeholder="example@gmail.com"
-                 [(ngModel)]="orgEmail" name="orgEmail" required />
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'email')">
+            <span class="register__label">Пошта:</span>
+            <input class="register__input" type="email" placeholder="example@gmail.com" formControlName="email" />
+          </div>
+          @if (getError(orgForm, 'email'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <div class="register__field">
-          <span class="register__label">Пароль:</span>
-          <input type="password" class="register__input" placeholder="******"
-                 [(ngModel)]="orgPassword" name="orgPassword" required />
+          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'password')">
+            <span class="register__label">Пароль:</span>
+            <input class="register__input" type="password" placeholder="******" formControlName="password" />
+          </div>
+          @if (getError(orgForm, 'password'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
         </div>
+
         <button class="register__button" type="submit" [disabled]="loading">
-          {{ loading ? 'Завантаження...' : 'Зараєструватися' }}
+          {{ loading ? 'Завантаження...' : 'Зареєструватися' }}
         </button>
         <div class="register__login">
           <span>Вже маєш акаунт?</span>

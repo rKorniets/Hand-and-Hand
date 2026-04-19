@@ -2,11 +2,7 @@
   <section routerLink="/" class="header__brand" aria-label="Hand and Hand">
     <a class="brand__name">Hand&Hand</a>
     <div class="brand__icon" aria-hidden="true">
-      <img
-        src="/images/black-logo.png"
-        alt=""
-        loading="lazy"
-      />
+      <img src="/images/black-logo.png" alt="" loading="lazy" />
     </div>
   </section>
   <section class="header__buttons">
@@ -15,9 +11,17 @@
     <a routerLink="/news" class="header_a">Новини</a>
     <a routerLink="/fundraising" class="header_a">Збори</a>
     <a routerLink="/about" class="header_a">Про нас</a>
-    <div routerLink="/login" class="header__profile">
-      <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
-      <a class="header_profile">Профіль</a>
-    </div>
+
+    @if (isLoggedIn) {
+      <button type="button" (click)="goToProfile()" class="header__profile">
+        <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
+        <span class="header_profile">Профіль</span>
+      </button>
+    } @else {
+      <a routerLink="/login" class="header__profile">
+        <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
+        <span class="header_profile">Профіль</span>
+      </a>
+    }
   </section>
 </header>

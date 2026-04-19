@@ -19,12 +19,18 @@
           <div class="fundraising__card__footer">
             <div class="fundraising__card__organizer">
               <span class="fundraising__card__org-name">
-                  Організатор: {{ getOrganizer(campaign) }}              </span>
-                Організатор: {{ campaign.organization_profile?.title || (campaign.volunteer_profile?.first_name + ' ' + campaign.volunteer_profile?.last_name) }}
+                Організатор:
+                @if (campaign.organization_profile) {
+                  {{ campaign.organization_profile.title }}
+                } @else {
+                  {{ campaign.volunteer_profile?.first_name }} {{ campaign.volunteer_profile?.last_name }}
+                }
               </span>
             </div>
 
-            <a [href]="campaign.bank_link" target="_blank" class="fundraising__card__button">Приєднатися до збору</a>
+            <a [href]="campaign.bank_link" target="_blank" class="fundraising__card__button">
+              Приєднатися до збору
+            </a>
           </div>
         </div>
       </article>
