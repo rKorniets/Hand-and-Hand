@@ -114,7 +114,7 @@ export class OrgProfileAdminService {
           select: { id: true, email: true, role: true, status: true },
         },
         location: true,
-        projects: true,
+        project: true,
       },
     });
 

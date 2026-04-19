@@ -3,14 +3,14 @@
 
   <div class="achievement__list">
     @for (rewardItem of (rewards | slice:0:(isExpanded ? rewards.length : 3)); track rewardItem.id) {
-      @if (user && user.points >= rewardItem.threshold_points) {
+      @if (user && user.points >= rewardItem.cost_points) {
         <div class="achievement__item">
           <div class="achievement__image-placeholder"></div>
 
           <div class="achievement__info">
             <p class="achievement__name">{{ rewardItem.title }}</p>
             <p class="achievement__condition">
-              Умова: {{ rewardItem.threshold_points }} балів
+              Умова: {{ rewardItem.cost_points }} балів
             </p>
             <p class="achievement__description">{{ rewardItem.description }}</p>
           </div>

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
+import { UpdateTicketDto } from './dto/update_ticket.dto';
 import { Prisma } from '@prisma/client';
 
 export interface RequestUser {
@@ -18,22 +19,14 @@ export class TicketService {
   async create(data: CreateTicketDto, userId: number) {
     return this.prisma.ticket.create({
       data: {
-        ...data,
+        title: data.title,
+        description: data.description,
+        ...(data.location_id !== undefined && {
+          location_id: data.location_id,
+        }),
         user_id: userId,
       },
     });
-
-    if (!profile) {
-      throw new NotFoundException('Volunteer profile not found');
-    }
-
-    if (profile.user_id !== currentUser.id) {
-      throw new ForbiddenException(
-        'You can only create tickets on your own behalf',
-      );
-    }
-
-    return this.prisma.ticket.create({ data });
   }
 
   async findAll(limit?: number, skip?: number, search?: string) {
@@ -87,5 +80,28 @@ export class TicketService {
     }
 
     return ticket;
+  }
+
+  async update(id: number, data: UpdateTicketDto) {
+    await this.findOne(id);
+
+    return this.prisma.ticket.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
+        ...(data.location_id !== undefined && {
+          location_id: data.location_id,
+        }),
+        updated_at: new Date(),
+      },
+    });
+  }
+
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.prisma.ticket.delete({ where: { id } });
   }
 }

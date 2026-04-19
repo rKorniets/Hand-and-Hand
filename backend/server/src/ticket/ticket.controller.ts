@@ -2,6 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
   Body,
   Param,
   ParseIntPipe,
@@ -11,10 +13,10 @@ import {
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
+import { UpdateTicketDto } from './dto/update_ticket.dto';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { user_role_enum, ticket } from '@prisma/client';
 import {
   AbstractCrudController,
@@ -28,6 +30,7 @@ type RequestWithUser = {
     role: string;
   };
 };
+
 @ApiTags('Tickets')
 @Controller('tickets')
 export class TicketController extends AbstractCrudController<ticket[]> {
@@ -52,6 +55,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
   }
+
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
@@ -100,7 +104,6 @@ export class TicketController extends AbstractCrudController<ticket[]> {
         'У вас немає прав на видалення цього запиту',
       );
     }
-
     return this.service.remove(id);
   }
 }
