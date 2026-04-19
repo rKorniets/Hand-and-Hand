@@ -8,7 +8,7 @@ import {
   Post,
   Put,
   Query,
-  BadRequestException,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -16,73 +16,67 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { user_role_enum, verification_status_enum } from '@prisma/client';
-import * as organizationProfileService_1 from './organization-profile.service';
+import {
+  user_role_enum,
+  verification_status_enum,
+  organization_profile,
+} from '@prisma/client';
+import {
+  OrganizationProfileService,
+  type RequestUser,
+} from './organization-profile.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Organization Profiles')
 @Controller('organization-profiles')
-export class OrganizationProfileController {
+export class OrganizationProfileController extends AbstractCrudController<
+  organization_profile[]
+> {
   constructor(
-    private readonly organizationProfileService: organizationProfileService_1.OrganizationProfileService,
-  ) {}
+    private readonly organizationProfileService: OrganizationProfileService,
+  ) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        organizationProfileService.getOrganizationProfiles(
+          limit,
+          skip,
+          verification_status_enum.VERIFIED,
+          search,
+        ),
+    } as unknown as IBaseCrudService<organization_profile[]>);
+  }
 
   @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список профілів організацій' })
   @ApiQuery({
-    name: 'limit',
-    required: false,
-    description: 'Кількість записів на сторінці (за замовчуванням 5)',
-  })
-  @ApiQuery({
-    name: 'skip',
-    required: false,
-    description: 'Скільки записів пропустити',
-  })
-  @ApiQuery({
     name: 'verificationStatus',
     required: false,
+    enum: verification_status_enum,
     description: 'Фільтр за статусом верифікації (PENDING, VERIFIED, REJECTED)',
   })
-  @ApiQuery({ name: 'search', required: false })
   async getOrganizationProfiles(
-    @Query('limit') limitStr?: string,
-    @Query('skip') skipStr?: string,
-    @Query('verificationStatus') verificationStatusStr?: string,
-    @Query('search') search?: string,
+    @Query() query: PaginationDto,
+    @Query(
+      'verificationStatus',
+      new ParseEnumPipe(verification_status_enum, { optional: true }),
+    )
+    verificationStatus?: verification_status_enum,
   ) {
-    const DEFAULT_LIMIT = 5;
-    const MIN_LIMIT = 1;
-    const MAX_LIMIT = 50;
-    const DEFAULT_SKIP = 0;
-
-    let limit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
-    if (isNaN(limit) || limit < MIN_LIMIT) limit = DEFAULT_LIMIT;
-    limit = Math.min(limit, MAX_LIMIT);
-
-    let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
-    if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
-    let verificationStatus: verification_status_enum = verification_status_enum.VERIFIED;
-    if (verificationStatusStr !== undefined) {
-      if (
-        !Object.values(verification_status_enum).includes(
-          verificationStatusStr as verification_status_enum,
-        )
-      ) {
-        throw new BadRequestException('Invalid verificationStatus value');
-      }
-      verificationStatus = verificationStatusStr as verification_status_enum;
-    }
-
+    const status = verificationStatus ?? verification_status_enum.VERIFIED;
     return this.organizationProfileService.getOrganizationProfiles(
-      limit,
-      skip,
-      verificationStatus,
-      search,
+      query.limit ?? 5,
+      query.skip ?? 0,
+      status,
+      query.search,
     );
   }
 
@@ -99,7 +93,7 @@ export class OrganizationProfileController {
   @ApiOperation({ summary: 'Створити профіль організації' })
   async create(
     @Body() data: CreateOrganizationProfileDto,
-    @CurrentUser() currentUser: organizationProfileService_1.RequestUser,
+    @CurrentUser() currentUser: RequestUser,
   ) {
     return this.organizationProfileService.createOrganizationProfile(
       data,
@@ -114,7 +108,7 @@ export class OrganizationProfileController {
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateOrganizationProfileDto,
-    @CurrentUser() currentUser: organizationProfileService_1.RequestUser,
+    @CurrentUser() currentUser: RequestUser,
   ) {
     return this.organizationProfileService.updateOrganizationProfileFull(
       id,
@@ -129,7 +123,7 @@ export class OrganizationProfileController {
   @ApiOperation({ summary: 'Видалити профіль організації' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: organizationProfileService_1.RequestUser,
+    @CurrentUser() currentUser: RequestUser,
   ) {
     return this.organizationProfileService.deleteOrganizationProfile(
       id,

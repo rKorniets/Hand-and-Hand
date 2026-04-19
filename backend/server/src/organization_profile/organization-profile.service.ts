@@ -3,10 +3,7 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  Prisma,
-  verification_status_enum,
-} from '@prisma/client';
+import { Prisma, verification_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
 
@@ -27,12 +24,14 @@ export class OrganizationProfileService {
     });
 
     if (!profile) {
-      throw new NotFoundException(`Organization profile with ID ${id} not found`);
+      throw new NotFoundException(
+        `Organization profile with ID ${id} not found`,
+      );
     }
 
     if (profile.user_id !== currentUser.id) {
       throw new ForbiddenException(
-        'You do not have permission to edit or delete another user\'s profile',
+        "You do not have permission to edit or delete another user's profile",
       );
     }
 
@@ -40,8 +39,8 @@ export class OrganizationProfileService {
   }
 
   async getOrganizationProfiles(
-    limit: number,
-    skip: number,
+    limit?: number,
+    skip?: number,
     verificationStatus?: verification_status_enum,
     search?: string,
   ) {
@@ -160,6 +159,8 @@ export class OrganizationProfileService {
   }
 
   async getOrganizationProfileByUserId(userId: number) {
-    return this.prisma.organization_profile.findUnique({ where: { user_id: userId } });
+    return this.prisma.organization_profile.findUnique({
+      where: { user_id: userId },
+    });
   }
 }
