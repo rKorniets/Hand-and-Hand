@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Controller,
   Get,
   Query,
@@ -9,6 +8,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -16,64 +16,50 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { project_status_enum, user_role_enum } from '@prisma/client';
+import { project_status_enum, user_role_enum, project } from '@prisma/client';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Projects')
 @Controller('projects')
-export class ProjectController {
-  constructor(private readonly projectService: ProjectService) {}
+export class ProjectController extends AbstractCrudController<project[]> {
+  constructor(private readonly projectService: ProjectService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        projectService.getProjects(limit, skip, undefined, search),
+    } as unknown as IBaseCrudService<project[]>);
+  }
 
   @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список подій' })
-  @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'skip', required: false })
-  @ApiQuery({ name: 'status', required: false })
-  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: project_status_enum,
+    description: 'Фільтр за статусом',
+  })
   async getProjects(
-    @Query('limit') limitStr?: string,
-    @Query('skip') skipStr?: string,
-    @Query('status') status?: string,
-    @Query('search') search?: string,
+    @Query() query: PaginationDto,
+    @Query('status', new ParseEnumPipe(project_status_enum, { optional: true }))
+    status?: project_status_enum,
   ) {
-    const DEFAULT_LIMIT = 5;
-    const MIN_LIMIT = 1;
-    const MAX_LIMIT = 50;
-    const DEFAULT_SKIP = 0;
-
-    const parsedLimit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
-    const normalizedLimit = Number.isNaN(parsedLimit)
-      ? DEFAULT_LIMIT
-      : Math.min(Math.max(parsedLimit, MIN_LIMIT), MAX_LIMIT);
-
-    const parsedSkip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
-    const normalizedSkip = Number.isNaN(parsedSkip)
-      ? DEFAULT_SKIP
-      : Math.max(parsedSkip, DEFAULT_SKIP);
-
-    let normalizedStatus: project_status_enum | undefined;
-    if (status !== undefined) {
-      if (!(status in project_status_enum)) {
-        throw new BadRequestException('Invalid status value');
-      }
-      normalizedStatus =
-        project_status_enum[status as keyof typeof project_status_enum];
-    }
-
     return await this.projectService.getProjects(
-      normalizedLimit,
-      normalizedSkip,
-      normalizedStatus,
-      search,
+      query.limit ?? 5,
+      query.skip ?? 0,
+      status,
+      query.search,
     );
   }
 
-  //TODO: organization_profile_id має визначатися з JWT токена, а не передаватися в DTO
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
@@ -89,7 +75,7 @@ export class ProjectController {
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateProjectDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.projectService.updateProject(id, data, { id: user.id });
   }
@@ -100,7 +86,7 @@ export class ProjectController {
   @ApiOperation({ summary: 'Видалити подію' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.projectService.deleteProject(id, { id: user.id });
   }
@@ -117,7 +103,7 @@ export class ProjectController {
   @ApiOperation({ summary: 'Записатися на подію' })
   async register(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.projectService.registerForProject(id, user.id);
   }
@@ -127,7 +113,7 @@ export class ProjectController {
   @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
   async unregister(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.projectService.unregisterFromProject(id, user.id);
   }
