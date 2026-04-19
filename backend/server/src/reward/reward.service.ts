@@ -8,11 +8,25 @@ import { UpdateRewardDto } from './dto/update-reward.dto';
 export class RewardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.reward.findMany({
-      orderBy: { created_at: 'desc' },
-      include: { reward_redemption: true },
-    });
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const whereClause: Prisma.rewardWhereInput = search
+      ? {
+          title: { contains: search, mode: 'insensitive' },
+        }
+      : {};
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.reward.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+        include: { reward_redemption: true },
+      }),
+      this.prisma.reward.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {
