@@ -29,7 +29,9 @@ export class ProjectService {
     }
 
     if (project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('You do not have permission to access this project');
+      throw new ForbiddenException(
+        'You do not have permission to access this project',
+      );
     }
 
     return project;
@@ -64,13 +66,15 @@ export class ProjectService {
     return { data, total };
   }
 
-  // TODO: determine organization_profile_id from currentUser instead of accepting it from DTO
-  // to prevent users from creating projects on behalf of other organizations
   async createProject(data: CreateProjectDto) {
     return this.prisma.project.create({ data });
   }
 
-  async updateProject(id: number, data: CreateProjectDto, currentUser: RequestUser) {
+  async updateProject(
+    id: number,
+    data: CreateProjectDto,
+    currentUser: RequestUser,
+  ) {
     await this.validateOwnership(id, currentUser);
 
     return this.prisma.project.update({
@@ -130,14 +134,14 @@ export class ProjectService {
   }
 
   async unregisterFromProject(projectId: number, userId: number) {
-    const registration = await this.prisma.project_registration.findUnique({
+    // Оскільки унікального ключа project_id_user_id немає, використовуємо findFirst
+    const registration = await this.prisma.project_registration.findFirst({
       where: {
-        project_id_user_id: {
-          project_id: projectId,
-          user_id: userId,
-        },
+        project_id: projectId,
+        user_id: userId,
       },
     });
+
     if (!registration) {
       throw new NotFoundException('Registration was not found');
     }
@@ -159,7 +163,7 @@ export class ProjectService {
           },
         },
       },
-      orderBy: { registered_at: 'desc' },
+      orderBy: { created_at: 'desc' },
     });
   }
 }

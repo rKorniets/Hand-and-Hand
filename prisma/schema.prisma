@@ -6,22 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model news {
-  id            Int             @id @default(autoincrement())
-  title         String
-  image_url     String?
-  created_at    DateTime        @default(now()) @db.Timestamptz(6)
-  is_pinned     Boolean         @default(false)
-  created_by    Int?
-  description   String
-  main_content  String
-  app_user      app_user?       @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_news_created_by")
-  news_category news_category[]
-
-  @@index([created_by], map: "idx_news_created_by")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model app_user {
   id                                     Int                    @id @default(autoincrement())
   email                                  String                 @unique
@@ -33,15 +17,130 @@ model app_user {
   first_name                             String?
   last_name                              String?
   city                                   String?
+  organization_id                        Int?
+  organization                           organization_profile?  @relation("OrganizationMembers", fields: [organization_id], references: [id])
   admin_profile                          admin_profile?
   news                                   news[]
-  organization_profile                   organization_profile?
+  organization_profile                   organization_profile?  @relation("OrganizationOwner")
   points_transaction                     points_transaction[]
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
   warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
   ticket  ticket[]
+  password_reset_token                   password_reset_token[]
+  warnings_warnings_created_byToapp_user warnings[]             @relation("warnings_created_byToapp_user")
+  warnings_warnings_user_idToapp_user    warnings[]             @relation("warnings_user_idToapp_user")
+  submitted_requests                     approval_request[]     @relation("submitted_requests")
+  reviewed_requests                      approval_request[]     @relation("reviewed_requests")
+  project_registration                   project_registration[]
+}
+
+model volunteer_profile {
+  id                   Int                    @id @default(autoincrement())
+  user_id              Int                    @unique
+  display_name         String                 @unique
+  phone                String
+  bio                  String
+  skills_text          String?
+  rating               Decimal?               @db.Decimal(3, 2)
+  is_verified          Boolean                @default(false)
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  fundraising_campaign fundraising_campaign[]
+  task_assignment      task_assignment[]
+  app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
+  tickets              ticket[]
+}
+
+model organization_profile {
+  id                    Int                      @id @default(autoincrement())
+  user_id               Int                      @unique
+  name                  String
+  edrpou                String                   @unique
+  description           String?
+  verification_status   verification_status_enum @default(PENDING)
+  official_docs_url     String?
+  contact_phone         String?
+  contact_email         String?
+  location_id           Int?
+  created_at            DateTime                 @default(now()) @db.Timestamptz(6)
+  mission               String
+  members               app_user[]               @relation("OrganizationMembers")
+  news                  news[]
+  project               project[]
+  fundraising_campaign  fundraising_campaign[]
+  location              location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
+  app_user              app_user                 @relation("OrganizationOwner", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
+  report                report[]
+  organization_category organization_category[]
+
+  @@index([location_id], map: "idx_organization_profile_location_id")
+}
+
+model admin_profile {
+  id             Int      @id @default(autoincrement())
+  user_id        Int      @unique
+  full_name      String
+  is_super_admin Boolean  @default(false)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  app_user       app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_admin_profile_user")
+}
+
+model project {
+  id                      Int                    @id @default(autoincrement())
+  organization_profile_id Int
+  title                   String
+  description             String
+  status                  project_status_enum    @default(DRAFT)
+  starts_at               DateTime?              @db.Timestamptz(6)
+  ends_at                 DateTime?              @db.Timestamptz(6)
+  created_at              DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime               @default(now()) @db.Timestamptz(6)
+  main_content            String?
+  organization_profile    organization_profile   @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
+  report                  report[]
+  task                    task[]
+  project_registration    project_registration[]
+
+  @@index([organization_profile_id], map: "idx_project_organization_profile_id")
+}
+
+model project_registration {
+  id         Int      @id @default(autoincrement())
+  project_id Int
+  user_id    Int
+  status     String   @default("PENDING")
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  project    project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, user_id])
+  @@index([project_id])
+  @@index([user_id])
+}
+
+model task {
+  id                 Int                  @id @default(autoincrement())
+  project_id         Int
+  ticket_id          Int?
+  title              String
+  description        String
+  status             task_status_enum     @default(OPEN)
+  difficulty         task_difficulty_enum @default(MEDIUM)
+  points_reward_base Int
+  location_id        Int?
+  deadline           DateTime?            @db.Timestamptz(6)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  location           location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_task_location")
+  project            project              @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_project")
+  ticket             ticket?              @relation(fields: [ticket_id], references: [id], onUpdate: NoAction, map: "fk_task_ticket")
+  task_assignment    task_assignment[]
+  task_category      task_category[]
+
+  @@index([location_id], map: "idx_task_location_id")
+  @@index([project_id], map: "idx_task_project_id")
+  @@index([ticket_id], map: "idx_task_ticket_id")
 }
 
 model category {
@@ -54,7 +153,17 @@ model category {
   organization_category organization_category[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model task_category {
+  id          Int      @id @default(autoincrement())
+  task_id     Int
+  category_id Int
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_category_category")
+  task        task     @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_category_task")
+
+  @@unique([task_id, category_id], map: "uq_task_category")
+}
+
 model fundraising_campaign {
   id                      Int                              @id @default(autoincrement())
   organization_profile_id Int?
@@ -91,7 +200,35 @@ model donation {
   @@index([campaign_id], map: "idx_donation_campaign_id")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model news {
+  id              Int                   @id @default(autoincrement())
+  title           String
+  image_url       String?
+  created_at      DateTime              @default(now()) @db.Timestamptz(6)
+  is_pinned       Boolean               @default(false)
+  description     String
+  main_content    String
+  created_by      Int?
+  app_user        app_user?             @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_news_created_by")
+  organization_id Int?
+  organization    organization_profile? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  news_category   news_category[]
+
+  @@index([created_by], map: "idx_news_created_by")
+  @@index([organization_id])
+}
+
+model news_category {
+  id          Int      @id @default(autoincrement())
+  news_id     Int
+  category_id Int
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_category_category")
+  news        news     @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_category_news")
+
+  @@unique([news_id, category_id], map: "uq_news_category")
+}
+
 model location {
   id                   Int                    @id @default(autoincrement())
   lat                  Decimal                @db.Decimal(9, 6)
@@ -104,110 +241,23 @@ model location {
   ticket               ticket[]
 }
 
-model news_category {
-  id          Int      @id @default(autoincrement())
-  news_id     Int
-  category_id Int
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
-  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_category_category")
-  news        news     @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_category_news")
+model approval_request {
+  id               Int                          @id @default(autoincrement())
+  type             approval_request_type_enum
+  status           approval_request_status_enum @default(PENDING)
+  entity_id        Int
+  submitted_by     Int
+  reviewed_by      Int?
+  rejection_reason String?
+  created_at       DateTime                     @default(now()) @db.Timestamptz(6)
+  reviewed_at      DateTime?                    @db.Timestamptz(6)
+  submitter        app_user                     @relation("submitted_requests", fields: [submitted_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_approval_request_submitter")
+  reviewer         app_user?                    @relation("reviewed_requests", fields: [reviewed_by], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_approval_request_reviewer")
 
-  @@unique([news_id, category_id], map: "uq_news_category")
-  @@index([category_id], map: "idx_news_category_category_id")
-  @@index([news_id], map: "idx_news_category_news_id")
+  @@index([submitted_by], map: "idx_approval_request_submitted_by")
+  @@index([reviewed_by], map: "idx_approval_request_reviewed_by")
 }
 
-model organization_profile {
-  id                    Int                      @id @default(autoincrement())
-  user_id               Int                      @unique
-  name                  String
-  edrpou                String                   @unique
-  description           String?
-  verification_status   verification_status_enum @default(PENDING)
-  official_docs_url     String?
-  contact_phone         String?
-  contact_email         String?
-  location_id           Int?
-  created_at            DateTime                 @default(now()) @db.Timestamptz(6)
-  mission               String
-  fundraising_campaign  fundraising_campaign[]
-  location              location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
-  app_user              app_user                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
-  project               project[]
-  report                report[]
-  organization_category organization_category[]
-  members               app_user[]              @relation("OrganizationMembers")
-
-
-  @@index([location_id], map: "idx_organization_profile_location_id")
-}
-
-model organization_category {
-  id                   Int                  @id @default(autoincrement())
-  organization_id      Int
-  category_id          Int
-  created_at           DateTime             @default(now()) @db.Timestamptz(6)
-  category             category             @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_category")
-  organization_profile organization_profile @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_org")
-
-  @@unique([organization_id, category_id], map: "uq_organization_category")
-  @@index([category_id], map: "idx_organization_category_category_id")
-  @@index([organization_id], map: "idx_organization_category_org_id")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model points_transaction {
-  id                 Int                          @id @default(autoincrement())
-  user_id            Int
-  task_assignment_id Int?
-  amount             Int
-  type               points_transaction_type_enum
-  reason             String
-  created_at         DateTime                     @default(now()) @db.Timestamptz(6)
-  task_assignment    task_assignment?             @relation(fields: [task_assignment_id], references: [id], onUpdate: NoAction, map: "fk_points_transaction_task_assignment")
-  app_user           app_user                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_points_transaction_user")
-
-  @@index([task_assignment_id], map: "idx_points_transaction_task_assignment_id")
-  @@index([user_id], map: "idx_points_transaction_user_id")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model project {
-  id                      Int                    @id @default(autoincrement())
-  organization_profile_id Int
-  title                   String
-  description             String
-  status                  project_status_enum    @default(DRAFT)
-  starts_at               DateTime?              @db.Timestamptz(6)
-  ends_at                 DateTime?              @db.Timestamptz(6)
-  created_at              DateTime               @default(now()) @db.Timestamptz(6)
-  updated_at              DateTime               @default(now()) @db.Timestamptz(6)
-  main_content            String?
-  organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
-  report                  report[]
-  task                    task[]
-
-  @@index([organization_profile_id], map: "idx_project_organization_profile_id")
-}
-
-model report {
-  id                      Int                  @id @default(autoincrement())
-  organization_profile_id Int
-  project_id              Int?
-  title                   String
-  type                    report_type_enum
-  file_url                String
-  published_at            DateTime             @db.Timestamptz(6)
-  created_at              DateTime             @default(now()) @db.Timestamptz(6)
-  updated_at              DateTime             @default(now()) @db.Timestamptz(6)
-  organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_report_organization")
-  project                 project?             @relation(fields: [project_id], references: [id], onUpdate: NoAction, map: "fk_report_project")
-
-  @@index([organization_profile_id], map: "idx_report_organization_profile_id")
-  @@index([project_id], map: "idx_report_project_id")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reward {
   id                Int                 @id @default(autoincrement())
   title             String
@@ -219,7 +269,6 @@ model reward {
   reward_redemption reward_redemption[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reward_redemption {
   id         Int      @id @default(autoincrement())
   reward_id  Int
@@ -227,37 +276,20 @@ model reward_redemption {
   created_at DateTime @default(now()) @db.Timestamptz(6)
   reward     reward   @relation(fields: [reward_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_reward")
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reward_redemption_user")
-
-  @@index([reward_id], map: "idx_reward_redemption_reward_id")
-  @@index([user_id], map: "idx_reward_redemption_user_id")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model task {
-  id                 Int                  @id @default(autoincrement())
-  project_id         Int
-  ticket_id          Int?
-  title              String
-  description        String
-  status             task_status_enum     @default(OPEN)
-  difficulty         task_difficulty_enum @default(MEDIUM)
-  points_reward_base Int
-  location_id        Int?
-  deadline           DateTime?            @db.Timestamptz(6)
-  created_at         DateTime             @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
-  location           location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_task_location")
-  project            project              @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_project")
-  ticket             ticket?              @relation(fields: [ticket_id], references: [id], onUpdate: NoAction, map: "fk_task_ticket")
-  task_assignment    task_assignment[]
-  task_category      task_category[]
-
-  @@index([location_id], map: "idx_task_location_id")
-  @@index([project_id], map: "idx_task_project_id")
-  @@index([ticket_id], map: "idx_task_ticket_id")
+model points_transaction {
+  id                 Int                          @id @default(autoincrement())
+  user_id            Int
+  task_assignment_id Int?
+  amount             Int
+  type               points_transaction_type_enum
+  reason             String
+  created_at         DateTime                     @default(now()) @db.Timestamptz(6)
+  task_assignment    task_assignment?             @relation(fields: [task_assignment_id], references: [id], onUpdate: NoAction, map: "fk_points_transaction_task_assignment")
+  app_user           app_user                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_points_transaction_user")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model task_assignment {
   id                   Int                         @id @default(autoincrement())
   task_id              Int
@@ -272,25 +304,8 @@ model task_assignment {
   points_transaction   points_transaction[]
   task                 task                        @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignment_task")
   volunteer_profile    volunteer_profile           @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignment_volunteer_profile")
-
-  @@index([task_id], map: "idx_task_assignment_task_id")
-  @@index([volunteer_profile_id], map: "idx_task_assignment_volunteer_profile_id")
 }
 
-model task_category {
-  id          Int      @id @default(autoincrement())
-  task_id     Int
-  category_id Int
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
-  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_category_category")
-  task        task     @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_category_task")
-
-  @@unique([task_id, category_id], map: "uq_task_category")
-  @@index([category_id], map: "idx_task_category_category_id")
-  @@index([task_id], map: "idx_task_category_task_id")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ticket {
   id                   Int                  @id @default(autoincrement())
   user_id              Int
@@ -304,38 +319,20 @@ model ticket {
   closed_at            DateTime?            @db.Timestamptz(6)
   task                 task[]
   location             location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_ticket_location")
-  app_user             app_user             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_app_user")
-
-  @@index([location_id], map: "idx_ticket_location_id")
-  @@index([user_id], map: "idx_ticket_user_id")
+  volunteer_profile    volunteer_profile    @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model volunteer_profile {
-  id                   Int                    @id @default(autoincrement())
-  user_id              Int                    @unique
-  display_name         String                 @unique
-  phone                String
-  bio                  String
-  skills_text          String?
-  rating               Decimal?               @db.Decimal(3, 2)
-  is_verified          Boolean                @default(false)
-  created_at           DateTime               @default(now()) @db.Timestamptz(6)
-  fundraising_campaign fundraising_campaign[]
-  task_assignment      task_assignment[]
-  app_user             app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteer_profile_user")
+model organization_category {
+  id                   Int                  @id @default(autoincrement())
+  organization_id      Int
+  category_id          Int
+  created_at           DateTime             @default(now()) @db.Timestamptz(6)
+  category             category             @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_category")
+  organization_profile organization_profile @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_category_org")
+
+  @@unique([organization_id, category_id], map: "uq_organization_category")
 }
 
-model admin_profile {
-  id             Int      @id @default(autoincrement())
-  user_id        Int      @unique
-  full_name      String
-  is_super_admin Boolean  @default(false)
-  created_at     DateTime @default(now()) @db.Timestamptz(6)
-  app_user       app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_admin_profile_user")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model warnings {
   id                                     Int                   @id @default(autoincrement())
   user_id                                Int
@@ -352,9 +349,6 @@ model warnings {
   created_at                             DateTime              @default(now()) @db.Timestamptz(6)
   app_user_warnings_created_byToapp_user app_user              @relation("warnings_created_byToapp_user", fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_warnings_created_by")
   app_user_warnings_user_idToapp_user    app_user              @relation("warnings_user_idToapp_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_warnings_user")
-
-  @@index([created_by], map: "idx_warnings_created_by")
-  @@index([user_id], map: "idx_warnings_user_id")
 }
 
 model password_reset_token {
@@ -364,39 +358,62 @@ model password_reset_token {
   expires_at DateTime @db.Timestamptz(6)
   created_at DateTime @default(now()) @db.Timestamptz(6)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_token_user")
-
-  @@index([user_id], map: "idx_password_reset_token_user_id")
 }
 
-model approval_request {
-  id               Int                          @id @default(autoincrement())
-  type             approval_request_type_enum
-  status           approval_request_status_enum @default(PENDING)
-  entity_id        Int
-  submitted_by     Int
-  reviewed_by      Int?
-  rejection_reason String?
-  created_at       DateTime                     @default(now()) @db.Timestamptz(6)
-  reviewed_at      DateTime?                    @db.Timestamptz(6)
-
-  submitter app_user  @relation("submitted_requests", fields: [submitted_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_approval_request_submitter")
-  reviewer  app_user? @relation("reviewed_requests", fields: [reviewed_by], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_approval_request_reviewer")
-
-  @@index([submitted_by], map: "idx_approval_request_submitted_by")
-  @@index([reviewed_by], map: "idx_approval_request_reviewed_by")
-  @@index([type, status], map: "idx_approval_request_type_status")
+model report {
+  id                      Int                  @id @default(autoincrement())
+  organization_profile_id Int
+  project_id              Int?
+  title                   String
+  type                    report_type_enum
+  file_url                String
+  published_at            DateTime             @db.Timestamptz(6)
+  created_at              DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime             @default(now()) @db.Timestamptz(6)
+  organization_profile    organization_profile @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_report_organization")
+  project                 project?             @relation(fields: [project_id], references: [id], onUpdate: NoAction, map: "fk_report_project")
 }
 
-enum approval_request_status_enum {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum approval_request_type_enum {
-  ORGANIZATION
+enum user_role_enum {
+  APP_USER
   VOLUNTEER
-  OTHER
+  ORGANIZATION
+  ADMIN
+}
+
+enum user_status_enum {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+  PENDING
+}
+
+enum project_status_enum {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum task_status_enum {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum task_difficulty_enum {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum task_assignment_status_enum {
+  ASSIGNED
+  ACCEPTED
+  COMPLETED
+  CANCELLED
 }
 
 enum fundraising_campaign_status_enum {
@@ -414,54 +431,25 @@ enum points_transaction_type_enum {
   ADJUSTMENT
 }
 
-enum project_status_enum {
-  DRAFT
-  ACTIVE
-  COMPLETED
-  ARCHIVED
-}
-
-enum report_type_enum {
-  FINANCIAL
-  RESULT
-  ACTIVITY
+enum approval_request_type_enum {
+  ORGANIZATION
+  VOLUNTEER
   OTHER
+  NEWS
+  PROJECT
+  FUNDRAISING
 }
 
-enum reward_redemption_status_enum {
+enum approval_request_status_enum {
   PENDING
   APPROVED
   REJECTED
-  COMPLETED
-  CANCELLED
 }
 
-enum task_assignment_status_enum {
-  ASSIGNED
-  ACCEPTED
-  COMPLETED
-  CANCELLED
-}
-
-enum task_difficulty_enum {
-  EASY
-  MEDIUM
-  HARD
-}
-
-enum task_status_enum {
-  OPEN
-  ASSIGNED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-enum ticket_priority_enum {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
+enum verification_status_enum {
+  PENDING
+  VERIFIED
+  REJECTED
 }
 
 enum ticket_status_enum {
@@ -472,24 +460,17 @@ enum ticket_status_enum {
   CANCELLED
 }
 
-enum user_role_enum {
-  APP_USER
-  VOLUNTEER
-  ORGANIZATION
-  ADMIN
+enum ticket_priority_enum {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
-enum user_status_enum {
+enum warning_status_enum {
   ACTIVE
-  INACTIVE
-  BLOCKED
-  PENDING
-}
-
-enum verification_status_enum {
-  PENDING
-  VERIFIED
-  REJECTED
+  RESOLVED
+  CANCELLED
 }
 
 enum warning_severity_enum {
@@ -498,8 +479,9 @@ enum warning_severity_enum {
   HIGH
 }
 
-enum warning_status_enum {
-  ACTIVE
-  RESOLVED
-  CANCELLED
+enum report_type_enum {
+  FINANCIAL
+  RESULT
+  ACTIVITY
+  OTHER
 }

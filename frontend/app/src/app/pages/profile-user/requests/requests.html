@@ -9,17 +9,7 @@
         <h2 class="ticket-title">{{ item.title }}</h2>
 
         <span class="ticket-status">
-          @if (isClosed(item.status)) {
-    @for (item of requests | slice:0:(isExpanded ? requests.length : 2); track item.id) {
-      <div class="ticket-card" [class.is-closed]="item.status === 'CLOSED' || item.status === 'RESOLVED'">
-        <h2 class="ticket-title">{{ item.title }}</h2>
-
-        <span class="ticket-status">
-          @if (item.status === 'CLOSED' || item.status === 'RESOLVED') {
-            Неактуально
-          } @else {
-            Актуально
-          }
+          {{ isClosed(item.status) ? 'Неактуально' : 'Актуально' }}
         </span>
 
         <p class="ticket-description">{{ item.description }}</p>
@@ -31,11 +21,6 @@
 
           <div class="ticket-meta">
             @if (isClosed(item.status)) {
-            {{ item.city }}, {{ item.created_at }}
-          </div>
-
-          <div class="ticket-meta">
-            @if (item.status === 'CLOSED' || item.status === 'RESOLVED') {
               <span class="closed-info">Організація закрила потребу</span>
             }
           </div>

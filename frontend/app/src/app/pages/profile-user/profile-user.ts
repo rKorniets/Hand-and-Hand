@@ -1,63 +1,54 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MainInfo } from './main-info/main-info';
 import { Activity } from './activity/activity';
 import { Requests } from './requests/requests';
 import { UserData } from './user-data/user-data';
 import { Achievement } from './achievement/achievement';
-import { AppUser } from './profile-user.model';
 import { FundraisingCampaignsUser } from './fundraising-campaigns-user/fundraising-campaigns-user';
 import { UserProfileService } from './profile-user.service';
+import { AppUser } from './profile-user.model';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-profile-user',
   standalone: true,
-  imports: [MainInfo, Activity, Requests, UserData, Achievement, FundraisingCampaignsUser],
-import {Component, OnInit} from '@angular/core';
-import { MainInfo } from './main-info/main-info';
-import { Activity } from './activity/activity';
-import { Requests } from './requests/requests';
-import { UserData } from './user-data/user-data'
-import { Achievement } from './achievement/achievement';
-import { AppUser } from './profile-user.model';
-import { FundraisingCampaignsUser } from './fundraising-campaigns-user/fundraising-campaigns-user';
-
-@Component({
-  selector: 'app-profile-user',
-  imports: [ MainInfo, Activity, Requests, UserData, Achievement, FundraisingCampaignsUser],
+  imports: [
+    CommonModule,
+    MainInfo,
+    Activity,
+    Requests,
+    UserData,
+    Achievement,
+    FundraisingCampaignsUser
+  ],
   templateUrl: './profile-user.html',
   styleUrl: './profile-user.scss',
 })
 export class ProfileUserComponent implements OnInit {
-  user: AppUser | undefined;
+  user: AppUser | null = null;
 
-  constructor(private profileUserService: UserProfileService) {}
+  constructor(
+    private profileUserService: UserProfileService,
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
+  ) {}
 
-  user: AppUser = {
-    id: 1,
-    email: 'rayangosling@gmail.com',
-    password_hash: '',
-    role: 'VOLUNTEER',
-    status: 'ACTIVE',
-    created_at: new Date('2026-03-13T10:00:00Z'),
-    points: 6767,
-    first_name: 'Раян',
-    last_name: 'Гослінг',
-    city: 'Львів',
-    joined_organization_id: 101,
-    joined_organization: {
-      id: 101,
-      name: 'ГО Нитка часу'
-    }
-  };
   get isVolunteer(): boolean {
     return this.user?.role === 'VOLUNTEER';
   }
 
   ngOnInit(): void {
     this.profileUserService.getUser().subscribe({
-      next: (data) => this.user = data,
-      error: (err) => console.error(err),
+      next: (data) => {
+        this.user = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Помилка завантаження профілю:', err),
     });
   }
-  ngOnInit(): void {}
+
+  logout() {
+    this.authService.logout();
+  }
 }

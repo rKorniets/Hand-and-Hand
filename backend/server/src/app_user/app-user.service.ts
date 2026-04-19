@@ -3,17 +3,27 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, user_role_enum, user_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 
 const USER_SELECT = {
   id: true,
   email: true,
+  first_name: true,
+  last_name: true,
+  city: true,
   role: true,
   status: true,
   points: true,
   created_at: true,
+  admin_profile: {
+    select: {
+      id: true,
+      full_name: true,
+      is_super_admin: true,
+      created_at: true,
+    },
+  },
 } as const;
 
 export interface RequestUser {
@@ -26,42 +36,17 @@ export class AppUserService {
 
   private async validateUserOwnership(id: number, currentUser: RequestUser) {
     const user = await this.prisma.app_user.findUnique({ where: { id } });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
     if (id !== currentUser.id) {
       throw new ForbiddenException(
-        'You do not have permission to manage another user\'s account',
+        'You do not have permission to manage another account',
       );
     }
-
     return user;
-  }
-
-  async getUsers(
-    limit: number,
-    skip: number,
-    role?: user_role_enum,
-    status?: user_status_enum,
-  ) {
-    const whereClause: Prisma.app_userWhereInput = {};
-    if (role !== undefined) whereClause.role = role;
-    if (status !== undefined) whereClause.status = status;
-
-    return this.prisma.app_user.findMany({
-      where: whereClause,
-      take: limit,
-      skip: skip,
-      orderBy: { created_at: 'desc' },
-      select: USER_SELECT,
-    });
   }
 
   async getUserById(id: number, currentUser: RequestUser) {
     await this.validateUserOwnership(id, currentUser);
-
     return this.prisma.app_user.findUnique({
       where: { id },
       select: USER_SELECT,
@@ -74,7 +59,6 @@ export class AppUserService {
     currentUser: RequestUser,
   ) {
     await this.validateUserOwnership(id, currentUser);
-
     return this.prisma.app_user.update({
       where: { id },
       data: {
@@ -89,7 +73,6 @@ export class AppUserService {
 
   async deleteUser(id: number, currentUser: RequestUser) {
     await this.validateUserOwnership(id, currentUser);
-
     return this.prisma.app_user.delete({
       where: { id },
       select: USER_SELECT,

@@ -10,12 +10,6 @@
     gap: 40px;
     align-items: flex-start;
   }
-    &__wrapper {
-      display: grid;
-      grid-template-columns: 2.5fr 1.5fr;
-      gap: 40px;
-      align-items: flex-start;
-    }
 
   &__content {
     display: flex;
@@ -40,15 +34,8 @@
   }
 
   &__actions {
-    .verify-button {
-      width: 100%;
-      padding: $user-profile-verify-btn-padding;
-      background-color: $user-profile-verify-btn-bg;
-      border: none;
-      border-radius: $user-profile-verify-btn-border-radius;
-      font-size: $user-profile-verify-btn-font-size;
-      font-weight: $user-profile-verify-btn-font-weight;
-      color: $user-profile-verify-btn-color;
+    width: 100%;
+    margin-top: 10px;
 
     .verify-button {
       width: 100%;
@@ -63,9 +50,25 @@
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: $user-profile-verify-btn-bg-hover;
         background-color: #dadada;
       }
     }
+  }
+}
+
+.logout__button {
+  width: 100%;
+  padding: 12px;
+  background-color: #F3F3F3;
+  border: none;
+  border-radius: 15px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #c0392b;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #fadbd8;
   }
 }

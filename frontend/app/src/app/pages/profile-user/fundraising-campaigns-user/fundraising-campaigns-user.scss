@@ -84,9 +84,10 @@
     line-height: 1.55;
     color: rgba($text-color, 0.9);
     display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
   }
-
 
   &__org-name {
     font-size: 22px;
@@ -96,12 +97,9 @@
   }
 }
 
-.campaings__button {
-  width: 100%;
-
-  .campaings__more {
 .activity__button {
   width: 100%;
+  margin-top: 10px;
 
   .activity__more {
     width: 100%;
@@ -120,19 +118,20 @@
     }
   }
 }
+
 .add-button {
   width: 100%;
-  padding: $user-profile-verify-btn-padding;
-  background-color: $user-profile-verify-btn-bg;
+  padding: 12px;
+  background-color: #F3F3F3;
   border: none;
-  border-radius: $user-profile-verify-btn-border-radius;
-  font-size: $user-profile-verify-btn-font-size;
-  font-weight: $user-profile-verify-btn-font-weight;
-  color: $user-profile-verify-btn-color;
+  border-radius: 15px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #444;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: $user-profile-verify-btn-bg-hover;
+    background-color: #dadada;
   }
 }
