@@ -8,6 +8,7 @@ import {
   Patch,
   Put,
   Query,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -21,59 +22,52 @@ import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, volunteer_profile } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Volunteer Profiles')
 @ApiBearerAuth()
 @Controller('volunteer-profiles')
-export class VolunteerProfileController {
+export class VolunteerProfileController extends AbstractCrudController<
+  volunteer_profile[]
+> {
   constructor(
     private readonly volunteerProfileService: VolunteerProfileService,
-  ) {}
+  ) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        volunteerProfileService.getVolunteerProfiles(
+          limit,
+          skip,
+          undefined,
+          search,
+        ),
+    } as unknown as IBaseCrudService<volunteer_profile[]>);
+  }
 
   @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список профілів волонтерів' })
   @ApiQuery({
-    name: 'limit',
-    required: false,
-    description: 'Кількість записів на сторінці (за замовчуванням 5)',
-  })
-  @ApiQuery({
-    name: 'skip',
-    required: false,
-    description: 'Скільки записів пропустити',
-  })
-  @ApiQuery({
     name: 'isVerified',
     required: false,
+    type: Boolean,
     description: 'Фільтр за верифікацією (true/false)',
   })
   async getVolunteerProfiles(
-    @Query('limit') limitStr?: string,
-    @Query('skip') skipStr?: string,
-    @Query('isVerified') isVerifiedStr?: string,
+    @Query() query: PaginationDto,
+    @Query('isVerified', new ParseBoolPipe({ optional: true }))
+    isVerified?: boolean,
   ) {
-    const DEFAULT_LIMIT = 5;
-    const MIN_LIMIT = 1;
-    const MAX_LIMIT = 50;
-    const DEFAULT_SKIP = 0;
-
-    let limit = limitStr ? parseInt(limitStr, 10) : DEFAULT_LIMIT;
-    if (isNaN(limit) || limit < MIN_LIMIT) limit = DEFAULT_LIMIT;
-    limit = Math.min(limit, MAX_LIMIT);
-
-    let skip = skipStr ? parseInt(skipStr, 10) : DEFAULT_SKIP;
-    if (isNaN(skip) || skip < 0) skip = DEFAULT_SKIP;
-
-    let isVerified: boolean | undefined = undefined;
-    if (isVerifiedStr === 'true') isVerified = true;
-    if (isVerifiedStr === 'false') isVerified = false;
-
     return this.volunteerProfileService.getVolunteerProfiles(
-      limit,
-      skip,
+      query.limit ?? 5,
+      query.skip ?? 0,
       isVerified,
+      query.search,
     );
   }
 
@@ -90,7 +84,7 @@ export class VolunteerProfileController {
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateVolunteerProfileDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.volunteerProfileService.updateVolunteerProfileFull(
       id,
@@ -105,7 +99,7 @@ export class VolunteerProfileController {
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateVolunteerProfileDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.volunteerProfileService.updateVolunteerProfilePartial(
       id,
@@ -119,7 +113,7 @@ export class VolunteerProfileController {
   @ApiOperation({ summary: 'Видалити профіль волонтера' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: any,
+    @CurrentUser() user: { id: number },
   ) {
     return this.volunteerProfileService.deleteVolunteerProfile(id, user);
   }

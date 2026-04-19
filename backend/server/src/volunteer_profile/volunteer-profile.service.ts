@@ -27,7 +27,7 @@ export class VolunteerProfileService {
 
     if (profile.user_id !== currentUser.id) {
       throw new ForbiddenException(
-        'You do not have permission to edit or delete another user\'s profile',
+        "You do not have permission to edit or delete another user's profile",
       );
     }
 
@@ -35,36 +35,36 @@ export class VolunteerProfileService {
   }
 
   async getVolunteerProfiles(
-    limit: number,
-    skip: number,
+    limit?: number,
+    skip?: number,
     isVerified?: boolean,
+    search?: string,
   ) {
-    const whereClause: Prisma.volunteer_profileWhereInput = {};
-    if (isVerified !== undefined) whereClause.is_verified = isVerified;
+    const whereClause: Prisma.volunteer_profileWhereInput = {
+      ...(isVerified !== undefined && { is_verified: isVerified }),
+      ...(search && {
+        display_name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
 
-    return this.prisma.volunteer_profile.findMany({
-      where: whereClause,
-      take: limit,
-      skip: skip,
-      orderBy: { created_at: 'desc' },
-    });
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.volunteer_profile.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.volunteer_profile.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async getVolunteerProfileById(id: number) {
     return this.prisma.volunteer_profile.findUnique({ where: { id } });
-  }
-
-  async createVolunteerProfile(data: CreateVolunteerProfileDto, currentUser: RequestUser) {
-    return this.prisma.volunteer_profile.create({
-      data: {
-        user_id: currentUser.id,
-        display_name: data.display_name,
-        phone: data.phone,
-        bio: data.bio,
-        skills_text: data.skills_text,
-        is_verified: false,
-      },
-    });
   }
 
   async updateVolunteerProfileFull(
