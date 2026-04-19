@@ -25,6 +25,9 @@ model app_user {
   points_transaction                     points_transaction[]
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
+  warnings_warnings_created_byToapp_user warnings[]            @relation("warnings_created_byToapp_user")
+  warnings_warnings_user_idToapp_user    warnings[]            @relation("warnings_user_idToapp_user")
+  ticket  ticket[]
   password_reset_token                   password_reset_token[]
   warnings_warnings_created_byToapp_user warnings[]             @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]             @relation("warnings_user_idToapp_user")
@@ -305,7 +308,7 @@ model task_assignment {
 
 model ticket {
   id                   Int                  @id @default(autoincrement())
-  volunteer_profile_id Int
+  user_id              Int
   title                String
   description          String
   status               ticket_status_enum   @default(OPEN)

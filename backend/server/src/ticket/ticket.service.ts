@@ -15,9 +15,12 @@ export interface RequestUser {
 export class TicketService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateTicketDto, currentUser: RequestUser) {
-    const profile = await this.prisma.volunteer_profile.findUnique({
-      where: { id: data.volunteer_profile_id },
+  async create(data: CreateTicketDto, userId: number) {
+    return this.prisma.ticket.create({
+      data: {
+        ...data,
+        user_id: userId,
+      },
     });
 
     if (!profile) {
@@ -49,20 +52,40 @@ export class TicketService {
       skip: skip,
       orderBy: { created_at: 'desc' },
       include: {
-        volunteer_profile: true,
         location: true,
+        app_user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            role: true,
+          },
+        },
       },
     });
   }
 
   async findOne(id: number) {
-    return this.prisma.ticket.findUnique({
+    const ticket = await this.prisma.ticket.findUnique({
       where: { id },
       include: {
-        volunteer_profile: true,
+        app_user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            role: true,
+          },
+        },
         location: true,
         task: true,
       },
     });
+
+    if (!ticket) {
+      throw new NotFoundException(`Тікет з ID ${id} не знайдено`);
+    }
+
+    return ticket;
   }
 }
