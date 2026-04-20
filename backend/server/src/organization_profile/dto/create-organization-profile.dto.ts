@@ -1,10 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
-  IsOptional,
   IsEmail,
-  IsNotEmpty,
   IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Matches,
 } from 'class-validator';
 
 export class CreateOrganizationProfileDto {
@@ -13,8 +15,9 @@ export class CreateOrganizationProfileDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'ЄДРПОУ (8 або 10 цифр)' })
+  @ApiProperty({ description: 'ЄДРПОУ (8 цифр)' })
   @IsString()
+  @Matches(/^\d{8}$/, { message: 'ЄДРПОУ must be exactly 8 digits' })
   edrpou: string;
 
   @ApiProperty({ description: 'Опис діяльності' })
@@ -28,10 +31,14 @@ export class CreateOrganizationProfileDto {
   @ApiPropertyOptional({ description: 'Посилання на офіційні документи' })
   @IsOptional()
   @IsString()
+  @IsUrl()
   official_docs_url?: string;
 
   @ApiProperty({ description: 'Контактний телефон' })
   @IsString()
+  @Matches(/^\+?[\d\s\-()]{7,15}$/, {
+    message: 'contact_phone must be a valid phone number',
+  })
   contact_phone: string;
 
   @ApiProperty({ description: 'Контактна пошта' })

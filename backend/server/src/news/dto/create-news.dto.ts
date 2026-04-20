@@ -1,21 +1,32 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateNewsDto {
   @ApiProperty({ description: 'Заголовок новини' })
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
   title: string;
 
   @ApiProperty({ description: 'Короткий опис' })
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(5000)
   description: string;
 
   @ApiProperty({ description: 'Основний контент' })
   @IsString()
   main_content: string;
 
-  @ApiProperty({ description: 'URL зображення' })
+  @ApiPropertyOptional({ description: 'URL зображення' })
   @IsOptional()
   @IsString()
+  @IsUrl()
   image_url?: string;
 }
