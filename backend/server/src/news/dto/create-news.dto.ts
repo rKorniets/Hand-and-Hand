@@ -22,6 +22,8 @@ export class CreateNewsDto {
 
   @ApiProperty({ description: 'Основний контент' })
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(10000)
   main_content: string;
 
   @ApiPropertyOptional({ description: 'URL зображення' })
