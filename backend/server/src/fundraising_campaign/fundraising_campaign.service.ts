@@ -10,10 +10,23 @@ import {
   user_role_enum,
 } from '@prisma/client';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
+import { MonobankService } from './monobank.service';
 
 @Injectable()
 export class FundraisingCampaignService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private monobankService: MonobankService,
+  ) {}
+
+  private sanitizeCampaign(campaign: {
+    mono_token?: string;
+    [key: string]: unknown;
+  }) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { mono_token, ...safeCampaign } = campaign;
+    return safeCampaign;
+  }
 
   private async checkOwnership(
     campaignId: number,
@@ -70,7 +83,8 @@ export class FundraisingCampaignService {
       this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
 
-    return { data, total };
+    const safeData = data.map((c) => this.sanitizeCampaign(c));
+    return { data: safeData, total };
   }
 
   async create(data: CreateFundraisingCampaignDto, userId: number) {
@@ -87,13 +101,27 @@ export class FundraisingCampaignService {
       );
     }
 
-    return this.prisma.fundraising_campaign.create({
+    let jarId: string | null = null;
+    try {
+      const jar = await this.monobankService.prepareJarData(
+        data.jar_link,
+        data.mono_token,
+      );
+      jarId = jar.id;
+    } catch (e) {
+      console.warn('Monobank setup failed:', e);
+    }
+
+    const campaign = await this.prisma.fundraising_campaign.create({
       data: {
         ...data,
+        jar_id: jarId,
         volunteer_profile_id: volunteer?.id,
         organization_profile_id: organization?.id,
       },
     });
+
+    return this.sanitizeCampaign(campaign);
   }
 
   async update(
@@ -103,15 +131,19 @@ export class FundraisingCampaignService {
     role: user_role_enum,
   ) {
     await this.checkOwnership(id, userId, role);
-    return this.prisma.fundraising_campaign.update({
+    const campaign = await this.prisma.fundraising_campaign.update({
       where: { id },
       data: { ...data, updated_at: new Date() },
     });
+    return this.sanitizeCampaign(campaign);
   }
 
   async remove(id: number, userId: number, role: user_role_enum) {
     await this.checkOwnership(id, userId, role);
-    return this.prisma.fundraising_campaign.delete({ where: { id } });
+    const campaign = await this.prisma.fundraising_campaign.delete({
+      where: { id },
+    });
+    return this.sanitizeCampaign(campaign);
   }
 
   async processDonation(
@@ -144,7 +176,11 @@ export class FundraisingCampaignService {
 
   async findByJarId(jarId: string) {
     return this.prisma.fundraising_campaign.findFirst({
-      where: { jar_link: jarId },
+      where: { jar_id: jarId.trim() },
+      select: {
+        id: true,
+        jar_id: true,
+      },
     });
   }
 
@@ -152,7 +188,7 @@ export class FundraisingCampaignService {
     return this.prisma.fundraising_campaign.update({
       where: { id },
       data: {
-        current_amount: parseFloat(balance),
+        current_amount: new Prisma.Decimal(balance),
         updated_at: new Date(),
       },
     });
