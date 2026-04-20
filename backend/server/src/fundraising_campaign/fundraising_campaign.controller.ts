@@ -72,32 +72,42 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     user_role_enum.ADMIN,
   )
   @ApiOperation({ summary: 'Створити збір' })
-  //TODO: визначити profile_id автоматично з currentUser замість DTO
-  async create(@Body() data: CreateFundraisingCampaignDto) {
-    return this.service.create(data);
+  async create(
+    @Body() data: CreateFundraisingCampaignDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.create(data, user.id);
   }
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+    user_role_enum.ADMIN,
+  )
   @ApiOperation({ summary: 'Оновити збір' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateFundraisingCampaignDto,
-    @CurrentUser() user: { id: number },
+    @CurrentUser() user: { id: number; role: user_role_enum },
   ) {
-    return this.service.update(id, data, { id: user.id });
+    return this.service.update(id, data, user.id, user.role);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(
+    user_role_enum.ORGANIZATION,
+    user_role_enum.VOLUNTEER,
+    user_role_enum.ADMIN,
+  )
   @ApiOperation({ summary: 'Видалити збір' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { id: number },
+    @CurrentUser() user: { id: number; role: user_role_enum },
   ) {
-    return this.service.remove(id, { id: user.id });
+    return this.service.remove(id, user.id, user.role);
   }
 
   @Post(':id/donations')
