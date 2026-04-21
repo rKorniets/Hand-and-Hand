@@ -8,21 +8,27 @@ import { Prisma } from '@prisma/client';
 export class NewsAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: NewsQueryAdminDto) {
-    const where: Prisma.newsWhereInput = {
-      ...(query.search && {
-        title: { contains: query.search, mode: 'insensitive' },
+  async findAll(
+    params: NewsQueryAdminDto & {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+  ) {
+    const whereClause: Prisma.newsWhereInput = {
+      ...(params.search && {
+        title: { contains: params.search, mode: 'insensitive' },
       }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.news.findMany({
-        where,
-        take: query.limit,
-        skip: query.skip,
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
         orderBy: { created_at: 'desc' },
       }),
-      this.prisma.news.count({ where }),
+      this.prisma.news.count({ where: whereClause }),
     ]);
 
     return { data, total };
