@@ -5,10 +5,10 @@ import { OrganizationService } from './organization.service';
 import { Organization } from './organizations.model';
 
 @Injectable({ providedIn: 'root' })
-export class OrganizationResolver implements Resolve<Organization[]> {
+export class OrganizationResolver implements Resolve<{ data: Organization[]; total: number }> {
   constructor(private organizationService: OrganizationService) {}
 
-  resolve(): Observable<Organization[]> {
-    return this.organizationService.getOrganization();
+  resolve(): Observable<{ data: Organization[]; total: number }> {
+    return this.organizationService.getOrganizations();
   }
 }

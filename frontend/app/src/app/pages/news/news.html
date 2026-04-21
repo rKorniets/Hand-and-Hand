@@ -2,7 +2,10 @@
   <div class="news-page__wrapper">
 
     <aside class="news-page__sidebar">
-      <app-news-filter></app-news-filter>
+      <app-filters
+        [config]="filterConfig"
+        (filtersChanged)="onFiltersChanged($event)"
+      />
     </aside>
 
     <section class="news-page__main">

@@ -14,7 +14,7 @@ import { AuthService } from '../auth.service';
 export class ResetPassword implements OnInit {
   password = '';
   token = '';
-
+  userId = '';
   error = '';
   successMessage = '';
   loading = false;
@@ -27,32 +27,42 @@ export class ResetPassword implements OnInit {
 
   ngOnInit() {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
+    this.userId = this.route.snapshot.queryParamMap.get('id') || '';
 
-    if (!this.token) {
-      this.error = 'Токен відсутній. Перейдіть за посиланням з листа ще раз.';
+    if (!this.token || !this.userId) {
+      this.error = 'Перейдіть за посиланням з листа ще раз.';
     }
   }
 
   onSubmit() {
-    if (!this.password || !this.token) return;
+    if (!this.password || !this.token || !this.userId) return;
 
     this.error = '';
     this.successMessage = '';
     this.loading = true;
 
-    this.authService.confirmResetPassword(this.token, this.password).subscribe({
+    this.authService.resetPassword(this.userId, this.token, this.password).subscribe({
       next: () => {
         this.loading = false;
         this.successMessage = 'Пароль успішно оновлено!';
-
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
+        setTimeout(() => this.router.navigate(['/login']), 2000);
       },
       error: (err: any) => {
         this.loading = false;
         this.error = err.error?.message || 'Не вдалося змінити пароль. Спробуйте ще раз.';
       }
     });
+  }
+  get buttonText(): string {
+    if (this.loading) {
+      return 'Завантаження...';
+    }
+    if (this.successMessage) {
+      return 'Увійти...';
+    }
+    if (this.error) {
+      return 'Спробуйте ще раз';
+    }
+    return 'Оновити пароль';
   }
 }

@@ -3,31 +3,26 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Organization } from './organizations.model';
 
-export interface PaginatedOrganization {
-  data: Organization[];
-  total: number;
-}
-
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {
   private readonly apiUrl = 'http://localhost:3000/organization-profiles';
 
   constructor(private http: HttpClient) {}
 
-  getOrganization(limit = 20, skip = 0, status?: string): Observable<Organization[]> {
-    let params = new HttpParams()
-      .set('limit', limit)
-      .set('skip', skip);
+  getOrganizations(
+    limit = 10,
+    skip = 0,
+    search?: string,
+    categories?: string[],
+  ): Observable<{ data: Organization[]; total: number }> {
+    let params = new HttpParams().set('limit', limit).set('skip', skip);
 
-    if (status !== undefined) {
-      params = params.set('status', status);
-    }
+    if (search) params = params.set('search', search);
+    if (categories?.length) params = params.set('categories', categories.join(','));
 
-    return this.http.get<Organization[]>(this.apiUrl, { params });
+    return this.http.get<{ data: Organization[]; total: number }>(this.apiUrl, { params });
   }
-
   getOrganizationById(id: number): Observable<Organization> {
-    const params = new HttpParams().set('t', Date.now().toString());
-    return this.http.get<Organization>(`${this.apiUrl}/${id}`, { params });
+    return this.http.get<Organization>(`${this.apiUrl}/${id}`);
   }
 }

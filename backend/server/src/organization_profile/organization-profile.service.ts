@@ -43,15 +43,20 @@ export class OrganizationProfileService {
     skip?: number,
     verificationStatus?: verification_status_enum,
     search?: string,
+    categories?: string[],
   ) {
     const whereClause: Prisma.organization_profileWhereInput = {
-      ...(verificationStatus && {
-        verification_status: verificationStatus,
-      }),
+      ...(verificationStatus && { verification_status: verificationStatus }),
       ...(search && {
-        name: {
-          contains: search,
-          mode: 'insensitive',
+        name: { contains: search, mode: 'insensitive' },
+      }),
+      ...(categories?.length && {
+        organization_category: {
+          some: {
+            category: {
+              slug: { in: categories },
+            },
+          },
         },
       }),
     };
@@ -60,7 +65,7 @@ export class OrganizationProfileService {
       this.prisma.organization_profile.findMany({
         where: whereClause,
         take: limit,
-        skip: skip,
+        skip,
         orderBy: { created_at: 'desc' },
       }),
       this.prisma.organization_profile.count({ where: whereClause }),

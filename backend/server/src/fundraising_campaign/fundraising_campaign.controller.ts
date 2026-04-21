@@ -48,19 +48,22 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     enum: fundraising_campaign_status_enum,
     description: 'Фільтр за статусом',
   })
+  @ApiQuery({
+    name: 'categories',
+    required: false,
+    description: 'Фільтр за категоріями',
+  })
   async findAll(
     @Query() query: PaginationDto,
-    @Query(
-      'status',
-      new ParseEnumPipe(fundraising_campaign_status_enum, { optional: true }),
-    )
-    status?: fundraising_campaign_status_enum,
+    @Query('status') status?: string,
+    @Query('categories') categories?: string,
   ) {
     return this.service.findAll(
       query.limit ?? 5,
       query.skip ?? 0,
-      status,
+      status ? status.split(',') : [],
       query.search,
+      categories ? categories.split(',') : [],
     );
   }
 

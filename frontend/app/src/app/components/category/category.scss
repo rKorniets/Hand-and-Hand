@@ -19,23 +19,21 @@
     color: $text-color;
   }
 
-  &__search {
-    margin-bottom: -10px;
+  &__input-search,
+  &__input-date,
+  &__select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 15px;
+    border: 1px solid $border-color;
+    border-radius: 15px;
+    background: $color-white;
+    font-size: 22px;
+    font-family: inherit;
+    color: $text-color;
+    outline: none;
+    transition: border-color 0.2s ease;
 
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px 15px;
-      border: 1px solid $border-color;
-      border-radius: 15px;
-      background: $color-white;
-      font-size: 22px;
-      font-family: inherit;
-      color: $text-color;
-      outline: none;
-      transition: border-color 0.2s ease;
-
-    }
   }
 
   &__group {
@@ -64,5 +62,22 @@
     border: none;
     border-top: 1px solid rgba($text-color, 0.1);
     margin: 25px 0;
+  }
+
+  &__date-picker {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: rgba($text-color, 0.7);
+    }
+  }
+
+  &__select-wrapper {
+    position: relative;
+    width: 100%;
   }
 }

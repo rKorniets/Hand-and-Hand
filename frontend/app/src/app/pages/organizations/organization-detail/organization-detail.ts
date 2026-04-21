@@ -24,7 +24,6 @@ export class OrganizationDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Отримуємо ID з параметрів маршруту
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (id) {
@@ -47,7 +46,6 @@ export class OrganizationDetailComponent implements OnInit {
     }
   }
 
-  // Додаємо функцію перемикання опису
   toggleDesc(): void {
     this.showFullDesc = !this.showFullDesc;
   }

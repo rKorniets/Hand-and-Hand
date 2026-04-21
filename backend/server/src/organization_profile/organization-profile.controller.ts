@@ -57,12 +57,7 @@ export class OrganizationProfileController extends AbstractCrudController<
   @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список профілів організацій' })
-  @ApiQuery({
-    name: 'verificationStatus',
-    required: false,
-    enum: verification_status_enum,
-    description: 'Фільтр за статусом верифікації (PENDING, VERIFIED, REJECTED)',
-  })
+  @ApiQuery({ name: 'categories', required: false })
   async getOrganizationProfiles(
     @Query() query: PaginationDto,
     @Query(
@@ -70,6 +65,7 @@ export class OrganizationProfileController extends AbstractCrudController<
       new ParseEnumPipe(verification_status_enum, { optional: true }),
     )
     verificationStatus?: verification_status_enum,
+    @Query('categories') categories?: string,
   ) {
     const status = verificationStatus ?? verification_status_enum.VERIFIED;
     return this.organizationProfileService.getOrganizationProfiles(
@@ -77,6 +73,7 @@ export class OrganizationProfileController extends AbstractCrudController<
       query.skip ?? 0,
       status,
       query.search,
+      categories ? categories.split(',') : [],
     );
   }
 

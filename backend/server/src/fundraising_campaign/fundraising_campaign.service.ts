@@ -20,10 +20,11 @@ export class FundraisingCampaignService {
   ) {}
 
   private sanitizeCampaign(campaign: {
-    mono_token?: string;
+    mono_token?: string | null;
     [key: string]: unknown;
   }) {
-    const { mono_token, ...safeCampaign } = campaign;
+    const safeCampaign = { ...campaign };
+    delete safeCampaign.mono_token;
     return safeCampaign;
   }
 
@@ -37,7 +38,7 @@ export class FundraisingCampaignService {
     });
 
     if (!campaign) {
-      throw new NotFoundException(`Campaing with ${id} was not found`);
+      throw new NotFoundException(`Campaign with ${id} was not found`);
     }
 
     const ownerUserId =
@@ -55,34 +56,44 @@ export class FundraisingCampaignService {
   async findAll(
     limit: number,
     skip: number,
-    status?: fundraising_campaign_status_enum,
+    status?: string[],
     search?: string,
+    categories?: string[],
   ) {
-    const whereClause: Prisma.fundraising_campaignWhereInput = {
-      ...(status && { status }),
-      ...(search && {
-        title: {
-          contains: search,
-          mode: 'insensitive',
+    const whereClause: Prisma.fundraising_campaignWhereInput = {};
+
+    if (search) {
+      whereClause.title = { contains: search, mode: 'insensitive' };
+    }
+
+    if (status?.length) {
+      whereClause.status = {
+        in: status as fundraising_campaign_status_enum[],
+      };
+    }
+
+    if (categories?.length) {
+      whereClause.fundraising_category = {
+        some: {
+          category: {
+            slug: { in: categories },
+          },
         },
-      }),
-    };
+      };
+    }
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.fundraising_campaign.findMany({
         where: whereClause,
         take: limit,
-        skip: skip,
+        skip,
         orderBy: { created_at: 'desc' },
       }),
       this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
 
-    const safeData = data.map((c) => this.sanitizeCampaign(c));
-
-    return { data: safeData, total };
+    return { data: data.map((c) => this.sanitizeCampaign(c)), total };
   }
-
   async create(data: CreateFundraisingCampaignDto) {
     let jarId: string | null = null;
 

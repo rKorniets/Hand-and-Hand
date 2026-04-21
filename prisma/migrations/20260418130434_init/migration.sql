@@ -23,7 +23,7 @@ CREATE TYPE "fundraising_campaign_status_enum" AS ENUM ('DRAFT', 'ACTIVE', 'COMP
 CREATE TYPE "points_transaction_type_enum" AS ENUM ('EARN', 'SPEND', 'BONUS', 'PENALTY', 'ADJUSTMENT');
 
 -- CreateEnum
-CREATE TYPE "approval_request_type_enum" AS ENUM ('ORGANIZATION', 'VOLUNTEER', 'OTHER', 'NEWS', 'PROJECT', 'FUNDRAISING');
+CREATE TYPE "approval_request_type_enum" AS ENUM ('ORGANIZATION', 'VOLUNTEER', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "approval_request_status_enum" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
@@ -187,10 +187,8 @@ CREATE TABLE "fundraising_campaign" (
     "end_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "bank_link" TEXT,
     "image_url" TEXT,
-    "jar_id" TEXT,
-    "jar_link" TEXT NOT NULL,
-    "mono_token" TEXT NOT NULL,
 
     CONSTRAINT "fundraising_campaign_pkey" PRIMARY KEY ("id")
 );
@@ -314,8 +312,7 @@ CREATE TABLE "task_assignment" (
 -- CreateTable
 CREATE TABLE "ticket" (
     "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "volunteer_profile_id" INTEGER,
+    "volunteer_profile_id" INTEGER NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "status" "ticket_status_enum" NOT NULL DEFAULT 'OPEN',
@@ -414,9 +411,6 @@ CREATE INDEX "project_registration_project_id_idx" ON "project_registration"("pr
 CREATE INDEX "project_registration_user_id_idx" ON "project_registration"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "project_registration_project_id_user_id_key" ON "project_registration"("project_id", "user_id");
-
--- CreateIndex
 CREATE INDEX "idx_task_location_id" ON "task"("location_id");
 
 -- CreateIndex
@@ -454,21 +448,6 @@ CREATE INDEX "idx_approval_request_submitted_by" ON "approval_request"("submitte
 
 -- CreateIndex
 CREATE INDEX "idx_approval_request_reviewed_by" ON "approval_request"("reviewed_by");
-
--- CreateIndex
-CREATE INDEX "idx_ticket_location_id" ON "ticket"("location_id");
-
--- CreateIndex
-CREATE INDEX "idx_ticket_user_id" ON "ticket"("user_id");
-
--- CreateIndex
-CREATE INDEX "idx_ticket_volunteer_profile_id" ON "ticket"("volunteer_profile_id");
-
--- CreateIndex
-CREATE INDEX "idx_organization_category_category_id" ON "organization_category"("category_id");
-
--- CreateIndex
-CREATE INDEX "idx_organization_category_org_id" ON "organization_category"("organization_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "uq_organization_category" ON "organization_category"("organization_id", "category_id");
@@ -564,10 +543,7 @@ ALTER TABLE "task_assignment" ADD CONSTRAINT "fk_task_assignment_volunteer_profi
 ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_location" FOREIGN KEY ("location_id") REFERENCES "location"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_app_user" FOREIGN KEY ("user_id") REFERENCES "app_user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
-
--- AddForeignKey
-ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_volunteer_profile" FOREIGN KEY ("volunteer_profile_id") REFERENCES "volunteer_profile"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
+ALTER TABLE "ticket" ADD CONSTRAINT "fk_ticket_volunteer_profile" FOREIGN KEY ("volunteer_profile_id") REFERENCES "volunteer_profile"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "organization_category" ADD CONSTRAINT "fk_organization_category_category" FOREIGN KEY ("category_id") REFERENCES "category"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
