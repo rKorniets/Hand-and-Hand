@@ -15,7 +15,7 @@ export class CreateOrganizationProfileDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'ЄДРПОУ (8 цифр)' })
+  @ApiProperty({ description: 'ЄДРПОУ' })
   @IsString()
   @Matches(/^\d{8}$/, { message: 'ЄДРПОУ must be exactly 8 digits' })
   edrpou: string;
