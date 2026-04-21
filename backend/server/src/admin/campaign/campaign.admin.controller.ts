@@ -32,7 +32,7 @@ export class CampaignAdminController extends AbstractCrudController<
   constructor(private readonly service: CampaignAdminService) {
     super({
       findAll: (limit?: number, skip?: number, search?: string) =>
-        service.findAll({ limit, skip, search } as any),
+        service.findAll({ limit, skip, search } as CampaignQueryAdminDto),
     } as unknown as IBaseCrudService<fundraising_campaign[]>);
   }
 
