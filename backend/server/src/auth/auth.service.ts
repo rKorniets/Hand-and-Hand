@@ -52,7 +52,7 @@ export class AuthService {
       },
     });
 
-    return { message: 'Registered successfully', userId: user.id };
+    return this.signToken(user);
   }
 
   async registerOrganization(dto: RegisterOrganizationDto) {

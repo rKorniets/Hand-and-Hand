@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CampaignQueryAdminDto } from './dto/campaign-query.admin.dto';
-import { CreateFundraisingCampaignDto } from '../../fundraising_campaign/dto/create-fundraising_campaign.dto';
+import { CreateCampaignAdminDto } from './dto/create-campaign.admin.dto';
 import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
 import { MonobankService } from '../../fundraising_campaign/monobank.service';
 
@@ -56,7 +56,7 @@ export class CampaignAdminService {
     return campaign;
   }
 
-  async create(data: CreateFundraisingCampaignDto) {
+  async create(data: CreateCampaignAdminDto) {
     let jarId: string | null = null;
 
     try {
@@ -99,7 +99,7 @@ export class CampaignAdminService {
     });
   }
 
-  async update(id: number, data: CreateFundraisingCampaignDto) {
+  async update(id: number, data: CreateCampaignAdminDto) {
     await this.findOne(id);
 
     return this.prisma.fundraising_campaign.update({

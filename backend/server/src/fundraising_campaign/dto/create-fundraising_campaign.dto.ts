@@ -1,22 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUrl,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateFundraisingCampaignDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
-  organization_profile_id?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
-  volunteer_profile_id?: number;
-
   @ApiProperty()
   @IsString()
   title: string;
