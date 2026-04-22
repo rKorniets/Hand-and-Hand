@@ -19,10 +19,10 @@ export class FundraisingCampaignService {
     private monobankService: MonobankService,
   ) {}
 
-  private sanitizeCampaign(campaign: {
-    mono_token?: string | null;
-    [key: string]: unknown;
-  }) {
+  private sanitizeCampaign<T extends { mono_token?: string | null }>(
+    campaign: T,
+  ): Omit<T, 'mono_token'> | null {
+    if (!campaign) return null;
     const safeCampaign = { ...campaign };
     delete safeCampaign.mono_token;
     return safeCampaign;
@@ -92,8 +92,7 @@ export class FundraisingCampaignService {
       this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
 
-    return { data: data.map((c) => this.sanitizeCampaign(c)), total };
-  }
+    return { data: data.map((c) => this.sanitizeCampaign(c)), total };  }
   async create(data: CreateFundraisingCampaignDto) {
     let jarId: string | null = null;
 

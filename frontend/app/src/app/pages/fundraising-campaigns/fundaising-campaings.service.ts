@@ -24,9 +24,6 @@ export class FundraisingService {
     if (categories?.length) {
       params = params.set('categories', categories.join(','));
     }
-    if (status?.length) {
-      params = params.set('status', status.join(','));
-    }
 
     return this.http.get<FundraisingCampaignItem[]>(this.apiUrl, { params });
   }

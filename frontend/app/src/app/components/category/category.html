@@ -37,25 +37,6 @@
     <hr class="filters__divider" />
   }
 
-  @if (config.showStatus) {
-    <div class="filters__section">
-      <h3 class="filters__title">Статус</h3>
-      <div class="filters__group">
-        @for (s of statusOptions; track s) {
-          <label class="filters__checkbox">
-            <input
-              type="checkbox"
-              [checked]="isChecked(filters.status, s)"
-              (change)="toggleStatus(s)"
-            />
-            {{ s }}
-          </label>
-        }
-      </div>
-    </div>
-    <hr class="filters__divider" />
-  }
-
   @if (config.showDateRange) {
     <div class="filters__section">
       <h3 class="filters__title">Дати</h3>

@@ -24,7 +24,7 @@ export class FundraisingCampaigns implements OnInit {
   readonly filterConfig: FilterConfig = {
     showSearch: true,
     categoryContext: 'fundraising',
-    showStatus: true,
+    showStatus: false,
   };
 
   activeFilters: FilterState = {
@@ -37,7 +37,6 @@ export class FundraisingCampaigns implements OnInit {
   };
 
   constructor(private fundraisingService: FundraisingService) {}
-
   ngOnInit(): void {
     this.loadCampaigns();
   }
@@ -53,15 +52,9 @@ export class FundraisingCampaigns implements OnInit {
     const skip = (this.currentPage - 1) * this.limit;
 
     this.fundraisingService
-      .getCampaigns(
-        this.limit,
-        skip,
-        this.activeFilters.search,
-        this.activeFilters.categories,
-        this.activeFilters.status,
-      )
+      .getCampaigns(this.limit, skip, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
-        next: (data) => {
+        next: (data: FundraisingCampaignItem[]) => {
           this.campaigns = data;
           this.hasNextPage = data.length === this.limit;
           this.loading = false;
