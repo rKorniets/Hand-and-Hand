@@ -1,9 +1,4 @@
-import { project_status_enum } from '@prisma/client';
+import { PartialType } from '@nestjs/swagger';
+import { CreateProjectDto } from './create-project.dto';
 
-export class UpdateProjectDto {
-  title?: string;
-  description?: string;
-  status?: project_status_enum;
-  starts_at?: string;
-  ends_at?: string;
-}
+export class UpdateProjectDto extends PartialType(CreateProjectDto) {}

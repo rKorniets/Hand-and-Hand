@@ -65,7 +65,9 @@ export class ReportAdminService {
         ...(data.title !== undefined && { title: data.title }),
         ...(data.type !== undefined && { type: data.type }),
         ...(data.file_url !== undefined && { file_url: data.file_url }),
-        ...(data.published_at !== undefined && { published_at: data.published_at }),
+        ...(data.published_at !== undefined && {
+          published_at: data.published_at,
+        }),
       },
     });
   }
