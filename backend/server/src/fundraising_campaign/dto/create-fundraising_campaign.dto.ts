@@ -1,5 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsDateString,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  IsUrl,
+  Min,
+} from 'class-validator';
 
 export class CreateFundraisingCampaignDto {
   @ApiProperty()
@@ -16,16 +24,18 @@ export class CreateFundraisingCampaignDto {
 
   @ApiProperty()
   @IsNumber()
+  @Min(1)
+  @IsPositive()
   goal_amount: number;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsDateString()
   start_at?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsDateString()
   end_at?: string;
 
   @ApiProperty()
@@ -40,5 +50,6 @@ export class CreateFundraisingCampaignDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @IsUrl()
   image_url?: string;
 }

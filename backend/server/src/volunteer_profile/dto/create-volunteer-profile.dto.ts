@@ -1,10 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsInt,
-  IsString,
-  IsOptional,
   IsBoolean,
+  IsInt,
   IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
 } from 'class-validator';
 
 export class CreateVolunteerProfileDto {
@@ -18,6 +19,9 @@ export class CreateVolunteerProfileDto {
 
   @ApiProperty({ description: 'Номер телефону' })
   @IsString()
+  @Matches(/^\+?[\d\s\-()]{7,15}$/, {
+    message: 'phone must be a valid phone number',
+  })
   phone: string;
 
   @ApiProperty({ description: 'Біографія волонтера' })
