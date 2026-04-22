@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ProjectQueryAdminDto } from './dto/project-query.admin.dto';
-import { CreateProjectDto } from '../../project/dto/create-project.dto';
+import { CreateProjectAdminDto } from './dto/create-project.admin.dto';
 import { UpdateProjectDto } from '../../project/dto/update-project.dto';
 import { Prisma, project_status_enum } from '@prisma/client';
 
@@ -52,10 +52,12 @@ export class ProjectAdminService {
     return project;
   }
 
-  async create(data: CreateProjectDto) {
+  async create(data: CreateProjectAdminDto) {
     return this.prisma.project.create({
       data: {
-        organization_profile_id: data.organization_profile_id,
+        organization_profile: {
+          connect: { id: data.organization_profile_id },
+        },
         title: data.title,
         description: data.description,
         status: data.status,
@@ -72,7 +74,9 @@ export class ProjectAdminService {
       where: { id },
       data: {
         ...(data.title !== undefined && { title: data.title }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.status !== undefined && { status: data.status }),
         ...(data.starts_at !== undefined && { starts_at: data.starts_at }),
         ...(data.ends_at !== undefined && { ends_at: data.ends_at }),

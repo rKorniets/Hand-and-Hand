@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateReportDto } from '../../report/dto/create-report.dto';
+import { CreateReportAdminDto } from './dto/create-report.admin.dto';
 import { UpdateReportDto } from '../../report/dto/update-report.dto';
 import { Prisma, report_type_enum } from '@prisma/client';
 
@@ -37,8 +37,23 @@ export class ReportAdminService {
     return report;
   }
 
-  async create(data: CreateReportDto) {
-    return this.prisma.report.create({ data });
+  async create(data: CreateReportAdminDto) {
+    return this.prisma.report.create({
+      data: {
+        title: data.title,
+        type: data.type,
+        file_url: data.file_url,
+        published_at: data.published_at,
+        organization_profile: {
+          connect: { id: data.organization_profile_id },
+        },
+        ...(data.project_id && {
+          project: {
+            connect: { id: data.project_id },
+          },
+        }),
+      },
+    });
   }
 
   async update(id: number, data: UpdateReportDto) {

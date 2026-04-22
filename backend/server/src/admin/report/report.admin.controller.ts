@@ -10,9 +10,14 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ReportAdminService } from './report.admin.service';
-import { CreateReportDto } from '../../report/dto/create-report.dto';
+import { CreateReportAdminDto } from './dto/create-report.admin.dto';
 import { UpdateReportDto } from '../../report/dto/update-report.dto';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { user_role_enum, report_type_enum } from '@prisma/client';
 
@@ -38,7 +43,7 @@ export class ReportAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити звіт' })
-  async create(@Body() data: CreateReportDto) {
+  async create(@Body() data: CreateReportAdminDto) {
     return this.service.create(data);
   }
 
