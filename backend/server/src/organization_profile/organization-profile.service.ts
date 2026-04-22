@@ -244,6 +244,7 @@ export class OrganizationProfileService {
           direction: organization_membership_request_direction_enum.REQUEST,
           status: organization_membership_request_status_enum.PENDING,
           reviewed_at: null,
+          created_at: new Date(),
         },
       });
     }
@@ -263,20 +264,26 @@ export class OrganizationProfileService {
     orgId: number,
   ) {
     return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.organization_membership_request.update({
+      // Conditional update — захист від гонки: якщо між попередніми перевірками
+      // і цією транзакцією юзер встиг приєднатись до іншої орг, updateMany поверне 0.
+      const userUpdate = await tx.app_user.updateMany({
+        where: { id: userId, organization_id: null },
+        data: { organization_id: orgId },
+      });
+
+      if (userUpdate.count === 0) {
+        throw new ConflictException(
+          'User already belongs to an organization',
+        );
+      }
+
+      return tx.organization_membership_request.update({
         where: { id: recordId },
         data: {
           status: organization_membership_request_status_enum.ACCEPTED,
           reviewed_at: new Date(),
         },
       });
-
-      await tx.app_user.update({
-        where: { id: userId },
-        data: { organization_id: orgId },
-      });
-
-      return updated;
     });
   }
 
@@ -452,6 +459,7 @@ export class OrganizationProfileService {
           direction: organization_membership_request_direction_enum.INVITE,
           status: organization_membership_request_status_enum.PENDING,
           reviewed_at: null,
+          created_at: new Date(),
         },
       });
     }

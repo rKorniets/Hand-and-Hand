@@ -255,33 +255,8 @@ export class OrganizationProfileController extends AbstractCrudController<
     );
   }
 
-  @Get(':id/invitations')
-  @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION)
-  @ApiOperation({ summary: 'Список надісланих запрошень' })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: organization_membership_request_status_enum,
-  })
-  async listInvitations(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: RequestUser,
-    @Query(
-      'status',
-      new ParseEnumPipe(organization_membership_request_status_enum, {
-        optional: true,
-      }),
-    )
-    status?: organization_membership_request_status_enum,
-  ) {
-    return this.organizationProfileService.listOrganizationInvitations(
-      id,
-      currentUser,
-      status,
-    );
-  }
-
+  // Static "me/..." routes MUST be declared BEFORE ":id/..." routes,
+  // otherwise Express matches "me" against ":id" and ParseIntPipe throws 400.
   @Get('me/invitations')
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
@@ -318,6 +293,46 @@ export class OrganizationProfileController extends AbstractCrudController<
     );
   }
 
+  @Get(':id/invitations')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Список надісланих запрошень' })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: organization_membership_request_status_enum,
+  })
+  async listInvitations(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+    @Query(
+      'status',
+      new ParseEnumPipe(organization_membership_request_status_enum, {
+        optional: true,
+      }),
+    )
+    status?: organization_membership_request_status_enum,
+  ) {
+    return this.organizationProfileService.listOrganizationInvitations(
+      id,
+      currentUser,
+      status,
+    );
+  }
+
+  // Static ":id/members/me" MUST be declared BEFORE ":id/members/:userId"
+  // so "me" isn't captured as userId and rejected by ParseIntPipe.
+  @Delete(':id/members/me')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Вийти з організації' })
+  async leaveOrganization(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.organizationProfileService.leaveOrganization(id, currentUser);
+  }
+
   @Delete(':id/members/:userId')
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
@@ -332,17 +347,6 @@ export class OrganizationProfileController extends AbstractCrudController<
       userId,
       currentUser,
     );
-  }
-
-  @Delete(':id/members/me')
-  @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
-  @ApiOperation({ summary: 'Вийти з організації' })
-  async leaveOrganization(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: RequestUser,
-  ) {
-    return this.organizationProfileService.leaveOrganization(id, currentUser);
   }
 
   @Public()
