@@ -254,6 +254,16 @@ export class AuthService {
       status: String(user.status),
     };
 
+    if (user.role === user_role_enum.ORGANIZATION) {
+      const orgProfile = await this.prisma.organization_profile.findUnique({
+        where: { user_id: user.id },
+        select: { id: true },
+      });
+      if (orgProfile) {
+        payload.organization_profile_id = orgProfile.id;
+      }
+    }
+
     const secret = this.config.getOrThrow<string>('JWT_ACCESS_SECRET');
     const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
 

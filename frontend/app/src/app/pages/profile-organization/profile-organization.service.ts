@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { Organization, ActivityItem, FundraisingCampaign, Report } from './profile-organization.model';
+import { map } from 'rxjs/operators';
+import {
+  Organization,
+  ActivityItem,
+  FundraisingCampaign,
+  Report,
+  OrgMember,
+} from './profile-organization.model';
 import { AuthService } from '../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
 
@@ -10,10 +17,11 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class OrganizationProfileService {
   private readonly apiUrl = 'http://localhost:3000/organization-profiles';
+  private readonly projectsUrl = 'http://localhost:3000/projects';
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   getOrganization(): Observable<Organization> {
@@ -23,15 +31,18 @@ export class OrganizationProfileService {
     try {
       const payload = jwtDecode<{ sub: number }>(token);
       const userId = payload.sub;
-
-      return this.http.get<Organization>(`${this.apiUrl}/${userId}`);
+      return this.http.get<Organization>(`${this.apiUrl}/by-user/${userId}`);
     } catch {
       return throwError(() => new Error('Невалідний токен'));
     }
   }
 
-  getOrgMembers(orgId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${orgId}/members`);
+  getOrganizationById(id: number): Observable<Organization> {
+    return this.http.get<Organization>(`${this.apiUrl}/${id}`);
+  }
+
+  getOrgMembers(orgId: number): Observable<OrgMember[]> {
+    return this.http.get<OrgMember[]>(`${this.apiUrl}/${orgId}/members`);
   }
 
   getOrgReports(orgId: number): Observable<Report[]> {
@@ -39,7 +50,12 @@ export class OrganizationProfileService {
   }
 
   getOrgActivities(orgId: number): Observable<ActivityItem[]> {
-    return this.http.get<ActivityItem[]>(`${this.apiUrl}/${orgId}/activities`);
+    return this.http
+      .get<{
+        data: ActivityItem[];
+        total: number;
+      }>(`${this.projectsUrl}?organization_profile_id=${orgId}&limit=50`)
+      .pipe(map((res) => res.data));
   }
 
   getOrgFundraising(orgId: number): Observable<FundraisingCampaign[]> {

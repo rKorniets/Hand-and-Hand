@@ -42,14 +42,23 @@ export class ProjectService {
     skip?: number,
     status?: project_status_enum,
     search?: string,
+    organizationProfileId?: number,
   ) {
+    const approvedRequests = await this.prisma.approval_request.findMany({
+      where: { type: 'PROJECT', status: 'APPROVED' },
+      select: { entity_id: true },
+    });
+
+    const approvedProjectIds = approvedRequests.map((r) => r.entity_id);
+
     const whereClause: Prisma.projectWhereInput = {
+      id: { in: approvedProjectIds },
       ...(status && { status }),
+      ...(organizationProfileId && {
+        organization_profile_id: organizationProfileId,
+      }),
       ...(search && {
-        title: {
-          contains: search,
-          mode: 'insensitive',
-        },
+        title: { contains: search, mode: 'insensitive' },
       }),
     };
 
@@ -66,8 +75,56 @@ export class ProjectService {
     return { data, total };
   }
 
-  async createProject(data: CreateProjectDto) {
-    return this.prisma.project.create({ data });
+  async createProject(data: CreateProjectDto, currentUser: RequestUser) {
+    return this.prisma.$transaction(async (tx) => {
+      let locationId: number | undefined;
+
+      if (data.location) {
+        const loc = await tx.location.create({
+          data: {
+            city: data.location.city,
+            address: data.location.address,
+            region: data.location.region,
+            lat: data.location.lat ?? 0,
+            lng: data.location.lng ?? 0,
+          },
+        });
+        locationId = loc.id;
+      }
+
+      const project = await tx.project.create({
+        data: {
+          organization_profile_id: data.organization_profile_id,
+          title: data.title,
+          description: data.description,
+          main_content: data.main_content,
+          what_volunteers_will_do: data.what_volunteers_will_do,
+          why_its_important: data.why_its_important,
+          time: data.time,
+          application_deadline: data.application_deadline
+            ? new Date(data.application_deadline)
+            : null,
+          partners: data.partners,
+          image_url: data.image_url,
+          status: 'DRAFT',
+          starts_at: data.starts_at ? new Date(data.starts_at) : null,
+          ends_at: data.ends_at ? new Date(data.ends_at) : null,
+          ...(locationId && { location_id: locationId }),
+          ...(data.category_id && { category_id: data.category_id }),
+        },
+      });
+
+      await tx.approval_request.create({
+        data: {
+          type: 'PROJECT',
+          status: 'PENDING',
+          entity_id: project.id,
+          submitted_by: currentUser.id,
+        },
+      });
+
+      return project;
+    });
   }
 
   async updateProject(
@@ -82,9 +139,10 @@ export class ProjectService {
       data: {
         title: data.title,
         description: data.description,
+        main_content: data.main_content,
         status: data.status,
-        starts_at: data.starts_at,
-        ends_at: data.ends_at,
+        starts_at: data.starts_at ? new Date(data.starts_at) : null,
+        ends_at: data.ends_at ? new Date(data.ends_at) : null,
         updated_at: new Date(),
       },
     });
@@ -92,17 +150,68 @@ export class ProjectService {
 
   async deleteProject(id: number, currentUser: RequestUser) {
     await this.validateOwnership(id, currentUser);
-
     return this.prisma.project.delete({ where: { id } });
   }
 
   async getProjectById(id: number) {
-    return this.prisma.project.findUnique({
+    const project = await this.prisma.project.findUnique({
       where: { id },
       include: {
         _count: { select: { project_registration: true } },
+        location: true,
+        category: {
+          select: { id: true, name: true },
+        },
+        organization_profile: {
+          select: {
+            id: true,
+            name: true,
+            contact_email: true,
+            contact_phone: true,
+            mission: true,
+            description: true,
+            city: true,
+            logo_url: true,
+          },
+        },
+        project_registration: {
+          take: 10,
+          orderBy: { created_at: 'desc' },
+          include: {
+            app_user: {
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                volunteer_profile: {
+                  select: { avatar_url: true },
+                },
+              },
+            },
+          },
+        },
       },
     });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+
+    return {
+      ...project,
+      organization_profile: project.organization_profile
+        ? {
+            ...project.organization_profile,
+            email: project.organization_profile.contact_email,
+          }
+        : null,
+      volunteers: project.project_registration.map((r) => ({
+        id: r.app_user.id,
+        full_name:
+          `${r.app_user.first_name ?? ''} ${r.app_user.last_name ?? ''}`.trim(),
+        avatar_url: r.app_user.volunteer_profile?.avatar_url ?? null,
+      })),
+    };
   }
 
   async registerForProject(projectId: number, userId: number) {
@@ -115,10 +224,7 @@ export class ProjectService {
 
     try {
       return await this.prisma.project_registration.create({
-        data: {
-          project_id: projectId,
-          user_id: userId,
-        },
+        data: { project_id: projectId, user_id: userId },
       });
     } catch (error) {
       if (
@@ -134,12 +240,8 @@ export class ProjectService {
   }
 
   async unregisterFromProject(projectId: number, userId: number) {
-    // Оскільки унікального ключа project_id_user_id немає, використовуємо findFirst
     const registration = await this.prisma.project_registration.findFirst({
-      where: {
-        project_id: projectId,
-        user_id: userId,
-      },
+      where: { project_id: projectId, user_id: userId },
     });
 
     if (!registration) {
@@ -156,11 +258,7 @@ export class ProjectService {
       where: { project_id: projectId },
       include: {
         app_user: {
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-          },
+          select: { id: true, first_name: true, last_name: true },
         },
       },
       orderBy: { created_at: 'desc' },

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './pages/auth/auth.guard';  // ← додати імпорт
+import { authGuard } from './pages/auth/auth.guard';
 import { Home } from './pages/home/home';
 import { AboutUs } from './pages/about-us/about-us';
 import { PolicyAndRules } from './pages/policy-and-rules/policy-and-rules';
@@ -19,7 +19,8 @@ import { AdminPanelComponent } from './pages/admin/admin-panel/admin-panel';
 import { ProfileOrganization } from './pages/profile-organization/profile-organization';
 import { ProfileUserComponent } from './pages/profile-user/profile-user';
 import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
-import { ResetPassword } from './pages/auth/reset-password/reset-password'
+import { ResetPassword } from './pages/auth/reset-password/reset-password';
+import { EventsConstructorComponent } from './pages/constructors/events-constructor/events-constructor';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -33,13 +34,12 @@ export const routes: Routes = [
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
-  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard] },
+  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard], },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
-  { path: 'profile-user', component: ProfileUserComponent },
-  { path: 'profile-organization', component: ProfileOrganization },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
+  { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
+  { path: 'organizations/:id', component: ProfileOrganization },
 ];

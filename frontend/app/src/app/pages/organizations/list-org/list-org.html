@@ -5,7 +5,7 @@
 
   <div class="org__grid">
     @for (org of organizations; track org.id) {
-      <article class="org-card">
+      <article class="org-card" (click)="goToOrg(org.id)" style="cursor: pointer">
         <div class="org-card__header">
           <div class="org-card__logo-placeholder">
             <img src="assets/images/default-org.png" [alt]="org.name">

@@ -6,17 +6,40 @@
   <div class="events-list__list">
     @for (event of events; track event.id) {
       <a class="events-list__item" [routerLink]="['/events', event.id]">
-        <div class="events-list__image"></div>
+        <div class="events-list__image"
+             [style.background-image]="event.image_url ? 'url(' + event.image_url + ')' : null">
+          @if (event.category) {
+            <span class="events-list__category">{{ event.category.name }}</span>
+          }
+        </div>
 
         <div class="events-list__body">
           <div class="events-list__top">
             <h3 class="events-list__item-title">{{ event.title }}</h3>
-            @if (event.starts_at) {
-              <span class="events-list__date">{{ event.starts_at | date: 'dd.MM.yyyy' }}</span>
-            }
+            <div class="events-list__info">
+              @if (event.starts_at) {
+                <span class="events-list__date">
+                  {{ event.starts_at | date: 'dd.MM.yyyy' }}
+                  @if (event.time) { • {{ event.time }} }
+                </span>
+              }
+            </div>
           </div>
+
+          @if (event.location) {
+            <div class="events-list__location">
+              {{ event.location.city }}{{ event.location.address ? ', ' + event.location.address : '' }}
+            </div>
+          }
+
           @if (event.description) {
             <p class="events-list__text">{{ event.description }}</p>
+          }
+
+          @if (event.status) {
+            <div class="events-list__status events-list__status--{{ event.status | lowercase }}">
+              {{ event.status }}
+            </div>
           }
         </div>
       </a>

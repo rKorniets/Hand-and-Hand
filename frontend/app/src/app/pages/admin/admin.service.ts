@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 export interface PendingOrganization {
-  id: number; // approval_request id
+  id: number;
   created_at: string;
   submitter: {
     id: number;
@@ -18,22 +18,62 @@ export interface PendingOrganization {
   };
 }
 
+export interface PendingProject {
+  id: number;
+  created_at: string;
+  entity_id: number;
+  submitter: {
+    id: number;
+    email: string;
+    organization_profile: {
+      name: string;
+    };
+  };
+  project: {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private readonly API = 'http://localhost:3000/admin/organization-profiles';
+  private readonly API = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
   getPendingOrganizations() {
     const nocache = `?t=${new Date().getTime()}`;
-    return this.http.get<PendingOrganization[]>(`${this.API}/pending${nocache}`);
+    return this.http.get<PendingOrganization[]>(
+      `${this.API}/admin/organization-profiles/pending${nocache}`,
+    );
   }
 
   approveOrganization(approvalRequestId: number) {
-    return this.http.patch(`${this.API}/approvals/${approvalRequestId}/approve`, {});
+    return this.http.patch(
+      `${this.API}/admin/organization-profiles/approvals/${approvalRequestId}/approve`,
+      {},
+    );
   }
 
   rejectOrganization(approvalRequestId: number) {
-    return this.http.patch(`${this.API}/approvals/${approvalRequestId}/reject`, {});
+    return this.http.patch(
+      `${this.API}/admin/organization-profiles/approvals/${approvalRequestId}/reject`,
+      {},
+    );
+  }
+
+  getPendingProjects() {
+    const nocache = `?t=${new Date().getTime()}`;
+    return this.http.get<PendingProject[]>(`${this.API}/admin/projects/pending${nocache}`);
+  }
+
+  approveProject(approvalRequestId: number) {
+    return this.http.patch(`${this.API}/admin/approvals/${approvalRequestId}/approve`, {});
+  }
+
+  rejectProject(approvalRequestId: number) {
+    return this.http.patch(`${this.API}/admin/approvals/${approvalRequestId}/reject`, {});
   }
 }

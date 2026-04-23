@@ -79,4 +79,12 @@
       }
     }
   }
+
+  &__row--clickable {
+    cursor: pointer;
+
+    &:hover td {
+      background: #f0f4ff;
+    }
+  }
 }

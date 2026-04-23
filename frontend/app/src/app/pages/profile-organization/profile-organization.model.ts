@@ -14,14 +14,16 @@ export interface FundraisingCampaign {
   description: string;
   organization_profile: {
     name: string;
-  }
+  };
 }
 
 export interface OrgMember {
   id: number;
+  user_id: number;
   first_name: string;
   last_name: string;
-  avatar?: string;
+  role: string;
+  avatar_url?: string;
 }
 
 export interface Organization {
