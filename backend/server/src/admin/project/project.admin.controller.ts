@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ProjectAdminService } from './project.admin.service';
 import { ProjectQueryAdminDto } from './dto/project-query.admin.dto';
-import { CreateProjectDto } from '../../project/dto/create-project.dto';
+import { CreateProjectAdminDto } from './dto/create-project.admin.dto';
 import { UpdateProjectDto } from '../../project/dto/update-project.dto';
 import { UpdateProjectStatusAdminDto } from './dto/update-project-status.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -57,7 +57,7 @@ export class ProjectAdminController extends AbstractCrudController<project[]> {
 
   @Post()
   @ApiOperation({ summary: 'Створити проєкт' })
-  async create(@Body() data: CreateProjectDto) {
+  async create(@Body() data: CreateProjectAdminDto) {
     return this.service.create(data);
   }
 

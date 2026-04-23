@@ -10,7 +10,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ReportAdminService } from './report.admin.service';
-import { CreateReportDto } from '../../report/dto/create-report.dto';
+import { CreateReportAdminDto } from './dto/create-report.admin.dto';
 import { UpdateReportDto } from '../../report/dto/update-report.dto';
 import {
   ApiTags,
@@ -61,7 +61,7 @@ export class ReportAdminController extends AbstractCrudController<report[]> {
 
   @Post()
   @ApiOperation({ summary: 'Створити звіт' })
-  async create(@Body() data: CreateReportDto) {
+  async create(@Body() data: CreateReportAdminDto) {
     return this.service.create(data);
   }
 
