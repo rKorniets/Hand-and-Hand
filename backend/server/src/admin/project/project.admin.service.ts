@@ -41,6 +41,39 @@ export class ProjectAdminService {
     return { data, total };
   }
 
+  async findPending() {
+    const requests = await this.prisma.approval_request.findMany({
+      where: {
+        type: 'PROJECT',
+        status: 'PENDING',
+      },
+      orderBy: { created_at: 'desc' },
+      include: {
+        submitter: {
+          select: {
+            id: true,
+            email: true,
+            organization_profile: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    });
+
+    const result = await Promise.all(
+      requests.map(async (req) => {
+        const project = await this.prisma.project.findUnique({
+          where: { id: req.entity_id },
+          select: { id: true, title: true, description: true, status: true },
+        });
+        return { ...req, project };
+      }),
+    );
+
+    return result;
+  }
+
   async findOne(id: number) {
     const project = await this.prisma.project.findUnique({
       where: { id },

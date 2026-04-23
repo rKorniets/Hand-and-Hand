@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ApprovalQueryDto } from './dto/approval-query.dto';
-import { Prisma, approval_request_status_enum } from '@prisma/client';
+import {
+  Prisma,
+  approval_request_status_enum,
+  approval_request_type_enum,
+  project_status_enum,
+  verification_status_enum,
+} from '@prisma/client';
 
 @Injectable()
 export class ApprovalAdminService {
@@ -81,29 +87,63 @@ export class ApprovalAdminService {
   }
 
   async approve(id: number, adminUserId: number) {
-    await this.findOne(id);
-
-    return this.prisma.approval_request.update({
-      where: { id },
-      data: {
-        status: approval_request_status_enum.APPROVED,
-        reviewed_by: adminUserId,
-        reviewed_at: new Date(),
-      },
-    });
+    return this.handleResolution(
+      id,
+      adminUserId,
+      approval_request_status_enum.APPROVED,
+    );
   }
 
   async reject(id: number, adminUserId: number, reason: string) {
-    await this.findOne(id);
+    return this.handleResolution(
+      id,
+      adminUserId,
+      approval_request_status_enum.REJECTED,
+      reason,
+    );
+  }
 
-    return this.prisma.approval_request.update({
-      where: { id },
-      data: {
-        status: approval_request_status_enum.REJECTED,
-        reviewed_by: adminUserId,
-        reviewed_at: new Date(),
-        rejection_reason: reason,
-      },
+  private async handleResolution(
+    id: number,
+    adminUserId: number,
+    status: approval_request_status_enum,
+    reason?: string,
+  ) {
+    const request = await this.findOne(id);
+    const isApprove = status === approval_request_status_enum.APPROVED;
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.approval_request.update({
+        where: { id },
+        data: {
+          status,
+          reviewed_by: adminUserId,
+          reviewed_at: new Date(),
+          rejection_reason: reason,
+        },
+      });
+
+      if (request.type === approval_request_type_enum.PROJECT) {
+        await tx.project.update({
+          where: { id: request.entity_id },
+          data: {
+            status: isApprove
+              ? project_status_enum.ACTIVE
+              : project_status_enum.ARCHIVED,
+          },
+        });
+      }
+
+      if (request.type === approval_request_type_enum.ORGANIZATION) {
+        await tx.organization_profile.update({
+          where: { id: request.entity_id },
+          data: {
+            verification_status: isApprove
+              ? verification_status_enum.VERIFIED
+              : verification_status_enum.REJECTED,
+          },
+        });
+      }
     });
   }
 }

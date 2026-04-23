@@ -41,12 +41,8 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список подій' })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: project_status_enum,
-    description: 'Фільтр за статусом',
-  })
+  @ApiQuery({ name: 'status', required: false, enum: project_status_enum })
+  @ApiQuery({ name: 'organization_profile_id', required: false, type: Number })
   async getProjects(
     @Query() query: PaginationDto,
     @Query('status', new ParseEnumPipe(project_status_enum, { optional: true }))
@@ -57,6 +53,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
       query.skip ?? 0,
       status,
       query.search,
+      query.organization_profile_id,
     );
   }
 
@@ -68,6 +65,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
     @Body() data: CreateProjectDto,
     @CurrentUser() user: { id: number },
   ) {
+    return this.projectService.createProject(data, { id: user.id });
     return this.projectService.createProject(data, user.id);
   }
 

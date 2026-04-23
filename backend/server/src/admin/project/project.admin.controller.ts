@@ -49,6 +49,12 @@ export class ProjectAdminController extends AbstractCrudController<project[]> {
     });
   }
 
+  @Get('pending')
+  @ApiOperation({ summary: 'Проєкти на розгляді' })
+  async findPending() {
+    return this.service.findPending();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Деталі проєкту' })
   async findOne(@Param('id', ParseIntPipe) id: number) {

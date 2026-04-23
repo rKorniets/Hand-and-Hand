@@ -48,6 +48,7 @@ model volunteer_profile {
   skills_text          String?
   rating               Decimal?               @db.Decimal(3, 2)
   is_verified          Boolean                @default(false)
+  avatar_url           String?
   created_at           DateTime               @default(now()) @db.Timestamptz(6)
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
@@ -65,6 +66,8 @@ model organization_profile {
   official_docs_url     String?
   contact_phone         String?
   contact_email         String?
+  city                  String?
+  logo_url              String?
   location_id           Int?
   created_at            DateTime                 @default(now()) @db.Timestamptz(6)
   mission               String
@@ -118,13 +121,25 @@ model project {
   created_at              DateTime               @default(now()) @db.Timestamptz(6)
   updated_at              DateTime               @default(now()) @db.Timestamptz(6)
   main_content            String?
+  what_volunteers_will_do String?
+  why_its_important       String?
+  time                    String?
+  application_deadline    DateTime?              @db.Timestamptz(6)
+  location_id             Int?
+  category_id             Int?
+  partners                String?
+  image_url               String?
   organization_profile    organization_profile   @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
+  location                location?              @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_project_location")
+  category                category?              @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "fk_project_category")
   project_registration    project_registration[]
   report                  report[]
   task                    task[]
   project_category        project_category[]
 
   @@index([organization_profile_id], map: "idx_project_organization_profile_id")
+  @@index([location_id], map: "idx_project_location_id")
+  @@index([category_id], map: "idx_project_category_id")
 }
 
 model project_registration {
@@ -171,6 +186,7 @@ model category {
   created_at            DateTime                @default(now()) @db.Timestamptz(6)
   news_category         news_category[]
   organization_category organization_category[]
+  project               project[]
   task_category         task_category[]
   fundraising_category  fundraising_category[]
   project_category      project_category[]
@@ -289,6 +305,7 @@ model location {
   organization_profile organization_profile[]
   task                 task[]
   ticket               ticket[]
+  project              project[]
 }
 
 model approval_request {

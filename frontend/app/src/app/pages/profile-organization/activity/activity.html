@@ -2,12 +2,11 @@
   <h2 #listTop class="activity__title">Волонтерська діяльність</h2>
 
   <button class="add-button" routerLink="/activity/create">+</button>
-  <div class="activity__list">
-    @for (item of activities | slice:0:(isExpanded ? activities.length : 2); track item.id) {
-      <a class="activity__item" [routerLink]="['/project', item.id]">
-        <div class="activity__image">
-        </div>
 
+  <div class="activity__list">
+    @for (item of visibleActivities; track item.id) {
+      <a class="activity__item" [routerLink]="['/events', item.id]">
+        <div class="activity__image"></div>
         <div class="activity__body">
           <div class="activity__top">
             <h3 class="activity__item-title">{{ item.title }}</h3>
@@ -22,10 +21,11 @@
       </a>
     }
   </div>
-  @if (activities.length > 2) {
+
+  @if (activities.length > 5) {
     <div class="activity__button">
       <button class="activity__more" (click)="toggleActivities(listTop)">
-        {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
+        {{ isExpanded ? 'Згорнути' : 'Переглянути більше' }}
       </button>
     </div>
   }
