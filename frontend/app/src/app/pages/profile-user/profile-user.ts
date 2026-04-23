@@ -9,12 +9,14 @@ import { FundraisingCampaignsUser } from './fundraising-campaigns-user/fundraisi
 import { UserProfileService } from './profile-user.service';
 import { AppUser } from './profile-user.model';
 import { AuthService } from '../auth/auth.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-profile-user',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     MainInfo,
     Activity,
     Requests,
