@@ -1,41 +1,71 @@
-<section class="list__component">
-  <div class="list__component__header">
-    <h2 class="list__component__title">Приєднатися до збору</h2>
+<section class="fundraising-list">
+  <div class="fundraising-list__header">
+    <h2 class="fundraising-list__title">Активні збори</h2>
+    <p class="fundraising-list__subtitle">Підтримайте ініціативи, які змінюють життя на краще</p>
   </div>
 
-  <div class="list__component__grid">
+  <div class="fundraising-grid">
     @for (campaign of fundraisingCampaignItem; track campaign.id) {
-      <article class="fundraising__card">
-        <div class="fundraising__card__image">
+      <article class="campaign-card">
+        <div class="campaign-card__image">
+          @if (campaign.image_url) {
+            <img [src]="campaign.image_url" [alt]="campaign.title">
+          } @else {
+            <div class="image-placeholder">Ніхто не бачив, але збір важливий</div>
+          }
+          <div class="campaign-card__badge" [class]="campaign.status.toLowerCase()">{{ campaign.status }}</div>
         </div>
 
-        <div class="fundraising__card__body">
-          <h3 class="fundraising__card__title">{{ campaign.title }}</h3>
-
-          <p class="fundraising__card__description">
-            {{ campaign.description }}
-          </p>
-
-          <div class="fundraising__card__footer">
-            <div class="fundraising__card__organizer">
-              <span class="fundraising__card__org-name">
-                Організатор:
-                @if (campaign.organization_profile) {
-                  {{ campaign.organization_profile.title }}
-                } @else {
-                  {{ campaign.volunteer_profile?.first_name }} {{ campaign.volunteer_profile?.last_name }}
-                }
-              </span>
+        <div class="campaign-card__content">
+          <div class="campaign-card__organizer">
+            <span class="icon">👤</span>
+            {{ campaign.organization_profile?.name || campaign.volunteer_profile?.display_name || 'Адмін' }}
+          </div>
+          <h3 class="campaign-card__title">
+            <a [routerLink]="['/fundraising', campaign.id]">{{ campaign.title }}</a>
+          </h3>
+          <p class="campaign-card__description">{{ campaign.description }}</p>
+          <div class="campaign-card__progress-container">
+            <div class="progress-info">
+              <span class="current">{{ campaign.current_amount }} ₴</span>
+              <span class="goal">з {{ campaign.goal_amount }} ₴</span>
             </div>
-
-            <a [href]="campaign.bank_link" target="_blank" class="fundraising__card__button">
-              Приєднатися до збору
-            </a>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="(+campaign.current_amount / +campaign.goal_amount) * 100"></div>
+            </div>
+          </div>
+          <div class="campaign-card__actions">
+            <a [routerLink]="['/fundraising', campaign.id]" class="btn-secondary">Детальніше</a>
+            <a [href]="campaign.jar_link" target="_blank" rel="noopener noreferrer" class="btn-primary">Задонатити</a>
           </div>
         </div>
       </article>
     } @empty {
-      <div class="list__empty-message">Наразі активних зборів немає.</div>
+      <div class="empty-state">
+        <p>Наразі активних зборів не знайдено.</p>
+      </div>
     }
   </div>
+
+  @if (totalPages > 1) {
+    <div class="pagination-wrapper">
+      <div class="pagination-container">
+        <button class="page-btn nav-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">&lt;&lt;</button>
+        <button class="page-btn nav-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">&lt;</button>
+
+        @for (page of getPagesArray(); track $index) {
+          @if (page === '...') {
+            <span class="page-dots">...</span>
+          } @else {
+            <button class="page-btn" [class.active]="currentPage === page" (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button class="page-btn nav-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">&gt;</button>
+        <button class="page-btn nav-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">&gt;&gt;</button>
+      </div>
+    </div>
+  }
 </section>

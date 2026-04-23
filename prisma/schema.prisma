@@ -35,6 +35,7 @@ model app_user {
   submitted_requests                     approval_request[]     @relation("submitted_requests")
   reviewed_requests                      approval_request[]     @relation("reviewed_requests")
   project_registration                   project_registration[]
+  donation                               donation[]
   organization_membership_request        organization_membership_request[]
 }
 
@@ -239,11 +240,14 @@ model donation {
   amount               Float
   donor_name           String?
   message              String?
+  user_id              Int?
   created_at           DateTime             @default(now()) @db.Timestamptz(6)
   campaign_id          Int
   fundraising_campaign fundraising_campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_donation_campaign")
+  app_user             app_user?            @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_donation_user")
 
   @@index([campaign_id], map: "idx_donation_campaign_id")
+  @@index([user_id])
 }
 
 model news {

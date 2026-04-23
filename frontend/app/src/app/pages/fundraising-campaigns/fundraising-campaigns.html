@@ -20,6 +20,11 @@
           [fundraisingCampaignItem]="campaigns"
         />
       }
+      <app-list-fundraising-campaigns
+        [fundraisingCampaignItem]="campaignsList"
+        [totalPages]="totalPages"
+        (pageChanged)="onPageChanged($event)">
+      </app-list-fundraising-campaigns>
     </div>
 
   </div>

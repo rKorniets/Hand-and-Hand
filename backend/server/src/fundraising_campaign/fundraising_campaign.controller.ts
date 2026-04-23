@@ -65,14 +65,17 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     @Query('categories') categories?: string[],
   ) {
     return this.service.findAll(
-      query.limit ?? 5,
+      query.limit ?? 8,
       query.skip ?? 0,
       status,
       query.search,
       categories,
     );
   }
-
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(+id);
+  }
   @Post()
   @ApiBearerAuth()
   @Roles(
@@ -87,7 +90,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     @Body() data: CreateFundraisingCampaignDto,
     @CurrentUser() user: { id: number },
   ) {
-    return this.service.create(data, user.id);
+    return this.service.create(data, user);
   }
 
   @Put(':id')

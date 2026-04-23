@@ -12,12 +12,6 @@ import { IsAfter } from '../../common/validators/is-after.validator';
 
 export class CreateProjectDto {
   @ApiProperty()
-  organization_profile_id: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
   title: string;
 
   @ApiProperty()

@@ -64,8 +64,11 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
-  async create(@Body() data: CreateProjectDto) {
-    return this.projectService.createProject(data);
+  async create(
+    @Body() data: CreateProjectDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.projectService.createProject(data, user.id);
   }
 
   @Put(':id')
