@@ -2,12 +2,23 @@
   <div class="organizations__wrapper">
 
     <aside class="organizations__sidebar">
-      <app-categories-org></app-categories-org>
+      <app-filters
+        [config]="filterConfig"
+        (filtersChanged)="onFiltersChanged($event)"
+      />
     </aside>
 
-    <section class="organizations__main">
-      <app-list-org [organizations]="organizations"></app-list-org>
-    </section>
+    <div class="organizations__main">
+      @if (loading) {
+        <p>Завантаження...</p>
+      }
+      @if (error) {
+        <p>Помилка завантаження. Спробуйте пізніше.</p>
+      }
+      @if (!loading) {
+        <app-list-org [organizations]="organizations" />
+      }
+    </div>
 
   </div>
 </main>

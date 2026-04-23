@@ -2,15 +2,30 @@
   <div class="fundraising__campaigns__wrapper">
 
     <aside class="fundraising__campaigns__sidebar">
-      <app-categories></app-categories>
+      <app-filters
+        [config]="filterConfig"
+        (filtersChanged)="onFiltersChanged($event)"
+      />
     </aside>
 
     <div class="fundraising__campaigns__main">
+      @if (loading) {
+        <p>Завантаження...</p>
+      }
+      @if (error) {
+        <p>Помилка завантаження. Спробуйте пізніше.</p>
+      }
+      @if (!loading) {
+        <app-list-fundraising-campaigns
+          [fundraisingCampaignItem]="campaigns"
+        />
+      }
       <app-list-fundraising-campaigns
         [fundraisingCampaignItem]="campaignsList"
         [totalPages]="totalPages"
         (pageChanged)="onPageChanged($event)">
       </app-list-fundraising-campaigns>
     </div>
+
   </div>
 </main>

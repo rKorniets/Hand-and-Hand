@@ -18,38 +18,58 @@ export class AuthService {
     return this.loggedIn$.asObservable();
   }
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) {}
 
   registerUser(data: {
-    firstName: string; lastName: string;
-    city: string; email: string; password: string;
+    firstName: string;
+    lastName: string;
+    city: string;
+    email: string;
+    password: string;
   }) {
     return this.http.post(`${this.API}/register/user`, data);
   }
 
   registerOrganization(data: {
-    name: string; edrpou: string;
-    email: string; password: string;
+    name: string;
+    code: string; // edrpou
+    email: string;
+    password: string;
   }) {
     return this.http.post(`${this.API}/register/organization`, data);
   }
 
   loginUser(data: { email: string; password: string }) {
-    return this.http.post<AuthResponse>(`${this.API}/login/user`, data).pipe(
-      tap(res => this.saveToken(res.accessToken))
-    );
+    return this.http
+      .post<AuthResponse>(`${this.API}/login/user`, data)
+      .pipe(tap((res) => this.saveToken(res.accessToken)));
   }
 
-  loginOrganization(data: { edrpou: string; password: string }) {
-    return this.http.post<AuthResponse>(`${this.API}/login/organization`, data).pipe(
-      tap(res => this.saveToken(res.accessToken))
-    );
+  loginOrganization(data: { code: string; password: string }) {
+    return this.http
+      .post<AuthResponse>(`${this.API}/login/organization`, data)
+      .pipe(tap((res) => this.saveToken(res.accessToken)));
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post(`${this.API}/forgot-password`, { email });
+  }
+
+  resetPassword(userId: string, token: string, newPassword: string) {
+    return this.http.post(`${this.API}/reset-password`, {
+      userId: Number(userId),
+      token,
+      newPassword,
+    });
   }
 
   logout() {
     localStorage.removeItem('access_token');
     this.loggedIn$.next(false);
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
@@ -68,8 +88,7 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return null;
     try {
-      const payload = jwtDecode<{ role: string }>(token);
-      return payload.role;
+      return jwtDecode<{ role: string }>(token).role;
     } catch {
       return null;
     }
@@ -83,14 +102,6 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  resetPassword(email: string) {
-    return this.http.post(`${this.API}/forgot-password`, { email });
-  }
-
-  confirmResetPassword(token: string, password: string) {
-    return this.http.post(`${this.API}/reset-password`, { token, password });
   }
 
   private saveToken(token: string) {

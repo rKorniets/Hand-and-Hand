@@ -1,0 +1,41 @@
+<section class="verification">
+  <div class="verification__container">
+
+    <div class="verification__title-wrapper">
+      <h1 class="verification__title">Варифікація волонтера</h1>
+    </div>
+
+    <form class="verification__form" (ngSubmit)="onSubmit()">
+
+      <div class="verification__field">
+        <div class="verification__field-inner" [class.verification__field-inner--error]="error">
+          <span class="verification__label">ЄДРПОУ:</span>
+          <input class="verification__input" placeholder="8 цифр" maxlength="8"
+                 [value]="edrpou" (input)="edrpou = $any($event.target).value" />
+        </div>
+        @if (error) {
+          <span class="verification__validation-error">{{ error }}</span>
+        }
+      </div>
+
+      <div class="verification__field">
+        <div class="verification__field-inner verification__field-inner--upload">
+          <span class="verification__upload-label">Витяг про реєстрацію:</span>
+          <label class="verification__upload-area" (click)="fileInput.click()">
+            @if (uploadedFile) {
+              <span class="verification__upload-name">{{ uploadedFile.name }}</span>
+            } @else {
+              <span class="material-symbols-outlined verification__upload-icon">description</span>
+            }
+          </label>
+          <input #fileInput type="file" accept=".pdf,.jpg,.png" hidden
+                 (change)="onFileChange()" />
+        </div>
+      </div>
+
+      <button class="verification__button" type="submit" [disabled]="loading">
+        {{ loading ? 'Завантаження...' : 'Готово' }}
+      </button>
+    </form>
+  </div>
+</section>

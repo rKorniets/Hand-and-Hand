@@ -1,5 +1,3 @@
-import { OrgLocation } from './location.model';
-
 export interface OrgEvent {
   id: number;
   title: string;
@@ -18,12 +16,12 @@ export interface FundraisingCampaign {
   bank_link?: string;
 }
 
-// export interface OrgMember {
-//   id: number;
-//   name: string;
-//   role?: string;
-//   avatar?: string;
-// }
+export interface OrgMember {
+  id: number;
+  name: string;
+  role?: string;
+  avatar?: string;
+}
 
 export interface Organization {
   id: number;
@@ -41,5 +39,13 @@ export interface Organization {
   category?: string;
   events?: OrgEvent[];
   fundraising_campaigns?: FundraisingCampaign[];
-  //members?: OrgMember[];
+  members?: OrgMember[];
+}
+export interface OrgLocation {
+  id: number;
+  lat?: number;
+  lng?: number;
+  address: string;
+  region?: string;
+  city: string;
 }

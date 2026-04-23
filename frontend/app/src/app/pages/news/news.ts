@@ -2,20 +2,16 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { NewsContentComponent } from './news-content/news-content';
-import { NewsFilterComponent } from './news-filter/news-filter';
 import { NewsPinnedComponent } from './news-pinned/news-pinned';
 import { NewsItem } from './news.model';
 import { NewsService } from './news.service';
+import { FiltersComponent } from '../../components/category/category';
+import { FilterConfig, FilterState } from '../../components/category/category.model';
 
 @Component({
   selector: 'app-news',
   standalone: true,
-  imports: [
-    CommonModule,
-    NewsPinnedComponent,
-    NewsContentComponent,
-    NewsFilterComponent,
-  ],
+  imports: [CommonModule, NewsPinnedComponent, NewsContentComponent, FiltersComponent],
   templateUrl: './news.html',
   styleUrls: ['./news.scss'],
 })
@@ -29,10 +25,24 @@ export class NewsComponent implements OnInit {
   readonly limit = 10;
   hasNextPage = false;
 
+  filterConfig: FilterConfig = {
+    showSearch: true,
+    categoryContext: 'news',
+  };
+
+  activeFilters: FilterState = {
+    search: '',
+    categories: [],
+    status: [],
+    dateFrom: '',
+    dateTo: '',
+    city: '',
+  };
+
   constructor(
     private route: ActivatedRoute,
     private newsService: NewsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -43,23 +53,31 @@ export class NewsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  onFiltersChanged(filters: FilterState): void {
+    this.activeFilters = filters;
+    this.currentPage = 1;
+    this.loadRegular();
+  }
+
   loadRegular(): void {
     this.loading = true;
     const skip = (this.currentPage - 1) * this.limit;
 
-    this.newsService.getNews(this.limit, skip, false).subscribe({
-      next: (data) => {
-        this.regularNews = data;
-        this.hasNextPage = data.length === this.limit;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.error = true;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.newsService
+      .getNews(this.limit, skip, false, this.activeFilters.search, this.activeFilters.categories)
+      .subscribe({
+        next: (data) => {
+          this.regularNews = data;
+          this.hasNextPage = data.length === this.limit;
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.error = true;
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   goToPage(page: number): void {
@@ -79,7 +97,11 @@ export class NewsComponent implements OnInit {
     } else {
       pages.push(1);
       if (this.currentPage > 3) pages.push(-1);
-      for (let i = Math.max(2, this.currentPage - 1); i <= Math.min(last - 1, this.currentPage + 1); i++) {
+      for (
+        let i = Math.max(2, this.currentPage - 1);
+        i <= Math.min(last - 1, this.currentPage + 1);
+        i++
+      ) {
         pages.push(i);
       }
       if (this.currentPage < last - 2) pages.push(-1);

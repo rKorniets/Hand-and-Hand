@@ -22,6 +22,8 @@ import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
 import { ResetPassword } from './pages/auth/reset-password/reset-password';
 import { EventsConstructorComponent } from './pages/constructors/events-constructor/events-constructor';
 import { ResetPassword } from './pages/auth/reset-password/reset-password'
+import { VolVerification } from './pages/auth/vol-verification/vol-verification';
+import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
 
 export const routes: Routes = [
@@ -36,6 +38,8 @@ export const routes: Routes = [
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'vol-verification', component: VolVerification},
+  { path: 'application-submitted', component: ApplicationSubmitted},
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
   { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard], },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
