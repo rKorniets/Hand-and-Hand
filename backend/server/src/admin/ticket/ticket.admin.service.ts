@@ -9,17 +9,26 @@ import { Prisma, ticket_status_enum } from '@prisma/client';
 export class TicketAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: TicketQueryAdminDto) {
-    const where: Prisma.ticketWhereInput = {
-      ...(query.status && { status: query.status }),
-      ...(query.priority && { priority: query.priority }),
+  async findAll(
+    params: TicketQueryAdminDto & {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+  ) {
+    const whereClause: Prisma.ticketWhereInput = {
+      ...(params.status && { status: params.status }),
+      ...(params.priority && { priority: params.priority }),
+      ...(params.search && {
+        title: { contains: params.search, mode: 'insensitive' },
+      }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.ticket.findMany({
-        where,
-        take: query.limit,
-        skip: query.skip,
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
         orderBy: { created_at: 'desc' },
         include: {
           volunteer_profile: {
@@ -27,7 +36,7 @@ export class TicketAdminService {
           },
         },
       }),
-      this.prisma.ticket.count({ where }),
+      this.prisma.ticket.count({ where: whereClause }),
     ]);
 
     return { data, total };
@@ -50,6 +59,7 @@ export class TicketAdminService {
     return ticket;
   }
 
+  // noinspection DuplicatedCode
   async create(data: CreateTicketDto) {
     return this.prisma.ticket.create({
       data: {
@@ -62,6 +72,7 @@ export class TicketAdminService {
     });
   }
 
+  // noinspection DuplicatedCode
   async update(id: number, data: UpdateTicketDto) {
     await this.findOne(id);
 

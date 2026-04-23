@@ -19,38 +19,48 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, task_assignment } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Призначення на завдання')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/task-assignments')
-export class TaskAssignmentAdminController {
-  constructor(private readonly service: TaskAssignmentAdminService) {}
+export class TaskAssignmentAdminController extends AbstractCrudController<
+  task_assignment[]
+> {
+  constructor(private readonly service: TaskAssignmentAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll(limit, skip, undefined, undefined, search),
+    } as unknown as IBaseCrudService<task_assignment[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список усіх призначень' })
-  @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'skip', required: false })
-  @ApiQuery({ name: 'taskId', required: false })
-  @ApiQuery({ name: 'volunteerId', required: false })
-  async findAll(
-    @Query('limit') limitStr?: string,
-    @Query('skip') skipStr?: string,
+  @ApiQuery({ name: 'taskId', required: false, type: String })
+  @ApiQuery({ name: 'volunteerId', required: false, type: String })
+  async getTaskAssignments(
+    @Query() pagination: PaginationDto,
     @Query('taskId') taskIdStr?: string,
     @Query('volunteerId') volunteerIdStr?: string,
   ) {
-    const limit = Math.min(
-      Math.max(parseInt(limitStr ?? '10', 10) || 10, 1),
-      50,
-    );
-    const skip = Math.max(parseInt(skipStr ?? '0', 10) || 0, 0);
     const taskId = taskIdStr ? parseInt(taskIdStr, 10) : undefined;
     const volunteerId = volunteerIdStr
       ? parseInt(volunteerIdStr, 10)
       : undefined;
 
-    return this.service.findAll(limit, skip, taskId, volunteerId);
+    return this.service.findAll(
+      pagination.limit ?? 10,
+      pagination.skip ?? 0,
+      taskId,
+      volunteerId,
+      pagination.search,
+    );
   }
 
   @Get(':id')

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from '../../organization_profile/dto/create-organization-profile.dto';
 import {
+  Prisma,
   verification_status_enum,
   approval_request_status_enum,
   user_status_enum,
@@ -11,10 +12,24 @@ import {
 export class OrgProfileAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.organization_profile.findMany({
-      orderBy: { created_at: 'desc' },
-    });
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const whereClause: Prisma.organization_profileWhereInput = search
+      ? {
+          name: { contains: search, mode: 'insensitive' },
+        }
+      : {};
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.organization_profile.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.organization_profile.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findPending() {
@@ -41,6 +56,7 @@ export class OrgProfileAdminService {
       },
     });
   }
+
   async approveOrganization(approvalRequestId: number, adminUserId: number) {
     const request = await this.prisma.approval_request.findUnique({
       where: { id: approvalRequestId },

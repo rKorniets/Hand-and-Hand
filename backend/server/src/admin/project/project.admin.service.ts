@@ -9,19 +9,25 @@ import { Prisma, project_status_enum } from '@prisma/client';
 export class ProjectAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: ProjectQueryAdminDto) {
-    const where: Prisma.projectWhereInput = {
-      ...(query.status && { status: query.status }),
-      ...(query.search && {
-        title: { contains: query.search, mode: 'insensitive' },
+  async findAll(
+    params: ProjectQueryAdminDto & {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+  ) {
+    const whereClause: Prisma.projectWhereInput = {
+      ...(params.status && { status: params.status }),
+      ...(params.search && {
+        title: { contains: params.search, mode: 'insensitive' },
       }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.project.findMany({
-        where,
-        take: query.limit,
-        skip: query.skip,
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
         orderBy: { created_at: 'desc' },
         include: {
           organization_profile: {
@@ -29,7 +35,7 @@ export class ProjectAdminService {
           },
         },
       }),
-      this.prisma.project.count({ where }),
+      this.prisma.project.count({ where: whereClause }),
     ]);
 
     return { data, total };
@@ -52,6 +58,7 @@ export class ProjectAdminService {
     return project;
   }
 
+  // noinspection DuplicatedCode
   async create(data: CreateProjectDto) {
     return this.prisma.project.create({
       data: {
@@ -65,6 +72,7 @@ export class ProjectAdminService {
     });
   }
 
+  // noinspection DuplicatedCode
   async update(id: number, data: UpdateProjectDto) {
     await this.findOne(id);
 
@@ -72,7 +80,9 @@ export class ProjectAdminService {
       where: { id },
       data: {
         ...(data.title !== undefined && { title: data.title }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.status !== undefined && { status: data.status }),
         ...(data.starts_at !== undefined && { starts_at: data.starts_at }),
         ...(data.ends_at !== undefined && { ends_at: data.ends_at }),

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CampaignQueryAdminDto } from './dto/campaign-query.admin.dto';
-import { CreateFundraisingCampaignDto } from '../../fundraising_campaign/dto/create-fundraising_campaign.dto';
+import { CreateCampaignAdminDto } from './dto/create-campaign.admin.dto';
 import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
 import { MonobankService } from '../../fundraising_campaign/monobank.service';
 
@@ -12,26 +12,32 @@ export class CampaignAdminService {
     private readonly monobankService: MonobankService,
   ) {}
 
-  async findAll(query: CampaignQueryAdminDto) {
-    const where: Prisma.fundraising_campaignWhereInput = {
-      ...(query.status && { status: query.status }),
-      ...(query.search && {
-        title: { contains: query.search, mode: 'insensitive' },
+  async findAll(
+    params: CampaignQueryAdminDto & {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+  ) {
+    const whereClause: Prisma.fundraising_campaignWhereInput = {
+      ...(params.status && { status: params.status }),
+      ...(params.search && {
+        title: { contains: params.search, mode: 'insensitive' },
       }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.fundraising_campaign.findMany({
-        where,
-        take: query.limit,
-        skip: query.skip,
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
         orderBy: { created_at: 'desc' },
         include: {
           organization_profile: { select: { id: true, name: true } },
           volunteer_profile: { select: { id: true, display_name: true } },
         },
       }),
-      this.prisma.fundraising_campaign.count({ where }),
+      this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
 
     return { data, total };
@@ -55,8 +61,10 @@ export class CampaignAdminService {
 
     return campaign;
   }
-
   async create(data: CreateFundraisingCampaignDto) {
+    // noinspection DuplicatedCode
+
+  async create(data: CreateCampaignAdminDto) {
     let jarId: string | null = null;
 
     try {
@@ -99,7 +107,7 @@ export class CampaignAdminService {
     });
   }
 
-  async update(id: number, data: CreateFundraisingCampaignDto) {
+  async update(id: number, data: CreateCampaignAdminDto) {
     await this.findOne(id);
 
     return this.prisma.fundraising_campaign.update({

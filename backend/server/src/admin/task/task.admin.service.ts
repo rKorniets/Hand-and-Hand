@@ -2,23 +2,38 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTaskDto } from '../../task/dto/create_task.dto';
 import { UpdateTaskDto } from '../../task/dto/update_task.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TaskAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.task.findMany({
-      orderBy: { created_at: 'desc' },
-      include: {
-        project: true,
-        ticket: true,
-        location: true,
-        task_category: {
-          include: { category: true },
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const whereClause: Prisma.taskWhereInput = search
+      ? {
+          title: { contains: search, mode: 'insensitive' },
+        }
+      : {};
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.task.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { created_at: 'desc' },
+        include: {
+          project: true,
+          ticket: true,
+          location: true,
+          task_category: {
+            include: { category: true },
+          },
         },
-      },
-    });
+      }),
+      this.prisma.task.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {
@@ -42,6 +57,7 @@ export class TaskAdminService {
     return task;
   }
 
+  // noinspection DuplicatedCode
   async create(data: CreateTaskDto) {
     return this.prisma.task.create({
       data: {
@@ -57,17 +73,24 @@ export class TaskAdminService {
     });
   }
 
+  // noinspection DuplicatedCode
   async update(id: number, data: UpdateTaskDto) {
     await this.findOne(id);
-
+    // noinspection DuplicatedCode
     return this.prisma.task.update({
       where: { id },
       data: {
         ...(data.title !== undefined && { title: data.title }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.difficulty !== undefined && { difficulty: data.difficulty }),
-        ...(data.points_reward_base !== undefined && { points_reward_base: data.points_reward_base }),
-        ...(data.location_id !== undefined && { location_id: data.location_id }),
+        ...(data.points_reward_base !== undefined && {
+          points_reward_base: data.points_reward_base,
+        }),
+        ...(data.location_id !== undefined && {
+          location_id: data.location_id,
+        }),
         ...(data.deadline !== undefined && { deadline: data.deadline }),
       },
     });
