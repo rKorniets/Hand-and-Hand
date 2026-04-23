@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
-export type CategoryContext = 'news' | 'tasks' | 'organizations' | 'fundraising';
+export type CategoryContext = 'news' | 'projects' | 'organizations' | 'fundraising';
 
 export interface Category {
   id: number;

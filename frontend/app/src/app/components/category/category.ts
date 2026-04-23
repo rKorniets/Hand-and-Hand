@@ -31,8 +31,6 @@ export class FiltersComponent implements OnInit {
     city: '',
   };
 
-  readonly statusOptions = ['активні', 'завершені'];
-
   constructor(private categoryService: CategoryService) {}
 
   ngOnInit(): void {
@@ -67,7 +65,13 @@ export class FiltersComponent implements OnInit {
   toggleStatus(value: string): void {
     this.toggleArrayValue(this.filters.status, value);
   }
+  get today(): string {
+    return new Date().toISOString().split('T')[0];
+  }
 
+  get minDateTo(): string {
+    return this.filters.dateFrom || this.today;
+  }
   isChecked(arr: string[], value: string): boolean {
     return arr.includes(value);
   }

@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Categories } from './categories/categories';
+import { FiltersComponent } from '../../components/category/category';
+import { FilterConfig, FilterState } from '../../components/category/category.model';
 import { ListEvents } from './list-events/list-events';
 import { Map } from './map/map';
 import { EventService } from './event.service';
@@ -9,7 +10,7 @@ import { NewEvent } from './event.model';
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, Categories, Map, ListEvents],
+  imports: [CommonModule, FiltersComponent, Map, ListEvents],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })
@@ -19,9 +20,26 @@ export class Events implements OnInit {
   totalPages = 1;
   events: NewEvent[] = [];
 
+  filterConfig: FilterConfig = {
+    showSearch: true,
+    categoryContext: 'projects',
+    showCity: true,
+    showStatus: true,
+    showDateRange: true,
+  };
+
+  activeFilters: FilterState = {
+    search: '',
+    categories: [],
+    status: [],
+    dateFrom: '',
+    dateTo: '',
+    city: '',
+  };
+
   constructor(
     private eventService: EventService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +61,11 @@ export class Events implements OnInit {
 
   get hasNextPage(): boolean {
     return this.currentPage < this.totalPages;
+  }
+  onFiltersChanged(filters: FilterState): void {
+    this.activeFilters = filters;
+    this.currentPage = 1;
+    this.loadEvents();
   }
 
   goToPage(page: number): void {

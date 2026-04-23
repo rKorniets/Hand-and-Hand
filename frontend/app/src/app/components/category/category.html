@@ -45,6 +45,7 @@
         <input
           type="date"
           class="filters__input-date"
+          [min]="today"
           [(ngModel)]="filters.dateFrom"
           (ngModelChange)="onDateChange()"
         />
@@ -54,6 +55,7 @@
         <input
           type="date"
           class="filters__input-date"
+          [min]="minDateTo"
           [(ngModel)]="filters.dateTo"
           (ngModelChange)="onDateChange()"
         />

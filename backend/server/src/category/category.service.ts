@@ -29,6 +29,8 @@ export class CategoryService {
       where.organization_category = { some: {} };
     } else if (context === 'fundraising') {
       where.fundraising_category = { some: {} };
+    } else if (context === 'projects') {
+      where.project_category = { some: {} };
     }
 
     return this.prisma.category.findMany({
