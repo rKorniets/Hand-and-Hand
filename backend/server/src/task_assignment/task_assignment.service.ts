@@ -3,8 +3,13 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, task_assignment_status_enum } from '@prisma/client';
+import {
+  Prisma,
+  points_transaction_type_enum,
+  task_assignment_status_enum,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PointsService } from '../points/points.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
 
@@ -14,7 +19,10 @@ export interface RequestUser {
 
 @Injectable()
 export class TaskAssignmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private pointsService: PointsService,
+  ) {}
 
   private async validateVolunteerOwnership(
     volunteerProfileId: number,
@@ -110,23 +118,66 @@ export class TaskAssignmentService {
       currentUser,
     );
 
-    return this.prisma.task_assignment.update({
-      where: { id },
-      data: {
-        status: data.status,
-        comment: data.comment,
-        requester_confirmed: assignment.requester_confirmed,
-        accepted_at:
-          data.status === task_assignment_status_enum.ACCEPTED &&
-          !assignment.accepted_at
-            ? new Date()
-            : undefined,
-        completed_at:
-          data.status === task_assignment_status_enum.COMPLETED &&
-          !assignment.completed_at
-            ? new Date()
-            : undefined,
-      },
+    const wantsComplete =
+      data.status === task_assignment_status_enum.COMPLETED;
+
+    return this.prisma.$transaction(async (tx) => {
+      let completedJustNow = false;
+
+      if (wantsComplete) {
+        const res = await tx.task_assignment.updateMany({
+          where: { id, completed_at: null },
+          data: {
+            status: data.status,
+            comment: data.comment,
+            completed_at: new Date(),
+          },
+        });
+        completedJustNow = res.count === 1;
+
+        if (!completedJustNow) {
+          await tx.task_assignment.update({
+            where: { id },
+            data: { status: data.status, comment: data.comment },
+          });
+        }
+      } else {
+        await tx.task_assignment.update({
+          where: { id },
+          data: {
+            status: data.status,
+            comment: data.comment,
+            accepted_at:
+              data.status === task_assignment_status_enum.ACCEPTED &&
+              !assignment.accepted_at
+                ? new Date()
+                : undefined,
+          },
+        });
+      }
+
+      if (completedJustNow) {
+        const fresh = await tx.task_assignment.findUnique({
+          where: { id },
+          select: {
+            requester_confirmed: true,
+            task: { select: { points_reward_base: true, title: true } },
+          },
+        });
+
+        if (fresh?.requester_confirmed && fresh.task.points_reward_base > 0) {
+          await this.pointsService.createTransaction(
+            currentUser.id,
+            points_transaction_type_enum.EARN,
+            fresh.task.points_reward_base,
+            id,
+            `Task "${fresh.task.title}" completed`, //meow <3
+            tx,
+          );
+        }
+      }
+
+      return tx.task_assignment.findUnique({ where: { id } });
     });
   }
 

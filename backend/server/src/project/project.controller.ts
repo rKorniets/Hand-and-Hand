@@ -66,6 +66,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
     @CurrentUser() user: { id: number },
   ) {
     return this.projectService.createProject(data, { id: user.id });
+    return this.projectService.createProject(data, user.id);
   }
 
   @Put(':id')

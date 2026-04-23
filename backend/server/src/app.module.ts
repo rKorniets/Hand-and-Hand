@@ -23,6 +23,7 @@ import { RewardModule } from './reward/reward.module';
 import { TaskAssignmentModule } from './task_assignment/task_assignment.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdminModule } from './admin/admin.module';
+import { MyModule } from './my/my.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AdminModule } from './admin/admin.module';
     TaskAssignmentModule,
     CloudinaryModule,
     AdminModule,
+    MyModule,
   ],
   controllers: [AppController],
   providers: [

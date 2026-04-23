@@ -21,6 +21,8 @@ import { ProfileUserComponent } from './pages/profile-user/profile-user';
 import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
 import { ResetPassword } from './pages/auth/reset-password/reset-password';
 import { EventsConstructorComponent } from './pages/constructors/events-constructor/events-constructor';
+import { ResetPassword } from './pages/auth/reset-password/reset-password'
+import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -42,4 +44,14 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'organizations/:id', component: ProfileOrganization },
+
+  {
+    path: 'fundraisingCampaign/create',
+    loadComponent: () =>
+      import('./pages/constructors/create-fundraising/create-fundraising').then(
+        (m) => m.CreateFundraisingComponent,
+      ),
+  },
+  {
+    path: 'fundraising/:id', component: FundraisingCampaignsDetail, },
 ];

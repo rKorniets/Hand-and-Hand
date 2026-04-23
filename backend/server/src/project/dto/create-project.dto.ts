@@ -22,6 +22,16 @@ export class CreateProjectDto {
   @IsInt()
   category_id?: number;
 
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+import { IsAfter } from '../../common/validators/is-after.validator';
+
+export class CreateProjectDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -84,11 +94,14 @@ export class CreateProjectDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @IsDateString()
   starts_at?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @IsDateString()
+  @IsAfter('starts_at')
   ends_at?: string;
 
   @ApiPropertyOptional()

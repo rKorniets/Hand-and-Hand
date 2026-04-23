@@ -14,19 +14,38 @@ import { WarningQueryAdminDto } from './dto/warning-query.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, warnings } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { AuthAdmin } from '../approval/approval.admin.controller'; // Для ідеальної типізації
 
 @ApiTags('Адмін — Попередження')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/warnings')
-export class WarningAdminController {
-  constructor(private readonly service: WarningAdminService) {}
+export class WarningAdminController extends AbstractCrudController<warnings[]> {
+  constructor(private readonly service: WarningAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll({ limit, skip, search } as WarningQueryAdminDto),
+    } as unknown as IBaseCrudService<warnings[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список усіх попереджень' })
-  async findAll(@Query() query: WarningQueryAdminDto) {
-    return this.service.findAll(query);
+  async getWarnings(
+    @Query() paginationQuery: PaginationDto,
+    @Query() warningQuery: WarningQueryAdminDto,
+  ) {
+    return this.service.findAll({
+      ...warningQuery,
+      limit: paginationQuery.limit ?? 10,
+      skip: paginationQuery.skip ?? 0,
+      search: paginationQuery.search,
+    });
   }
 
   @Get(':id')
@@ -39,7 +58,7 @@ export class WarningAdminController {
   @ApiOperation({ summary: 'Видати попередження користувачу' })
   async create(
     @Body() dto: CreateWarningAdminDto,
-    @CurrentUser() user: { id: number },
+    @CurrentUser() user: AuthAdmin,
   ) {
     return this.service.create(dto, user.id);
   }

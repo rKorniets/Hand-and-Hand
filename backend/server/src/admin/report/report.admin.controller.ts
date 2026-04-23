@@ -10,24 +10,47 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ReportAdminService } from './report.admin.service';
-import { CreateReportDto } from '../../report/dto/create-report.dto';
+import { CreateReportAdminDto } from './dto/create-report.admin.dto';
 import { UpdateReportDto } from '../../report/dto/update-report.dto';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum, report_type_enum } from '@prisma/client';
+import { user_role_enum, report_type_enum, report } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Звіти')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/reports')
-export class ReportAdminController {
-  constructor(private readonly service: ReportAdminService) {}
+export class ReportAdminController extends AbstractCrudController<report[]> {
+  constructor(private readonly service: ReportAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll({ limit, skip, search }),
+    } as unknown as IBaseCrudService<report[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список всіх звітів' })
   @ApiQuery({ name: 'type', enum: report_type_enum, required: false })
-  async findAll(@Query('type') type?: report_type_enum) {
-    return this.service.findAll(type);
+  async getReports(
+    @Query() paginationQuery: PaginationDto,
+    @Query('type') type?: report_type_enum,
+  ) {
+    return this.service.findAll({
+      type,
+      limit: paginationQuery.limit ?? 10,
+      skip: paginationQuery.skip ?? 0,
+      search: paginationQuery.search,
+    });
   }
 
   @Get(':id')
@@ -38,7 +61,7 @@ export class ReportAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити звіт' })
-  async create(@Body() data: CreateReportDto) {
+  async create(@Body() data: CreateReportAdminDto) {
     return this.service.create(data);
   }
 

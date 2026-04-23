@@ -11,24 +11,42 @@ import {
 } from '@nestjs/common';
 import { ProjectAdminService } from './project.admin.service';
 import { ProjectQueryAdminDto } from './dto/project-query.admin.dto';
-import { CreateProjectDto } from '../../project/dto/create-project.dto';
+import { CreateProjectAdminDto } from './dto/create-project.admin.dto';
 import { UpdateProjectDto } from '../../project/dto/update-project.dto';
 import { UpdateProjectStatusAdminDto } from './dto/update-project-status.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, project } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Проєкти')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/projects')
-export class ProjectAdminController {
-  constructor(private readonly service: ProjectAdminService) {}
+export class ProjectAdminController extends AbstractCrudController<project[]> {
+  constructor(private readonly service: ProjectAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll({ limit, skip, search } as ProjectQueryAdminDto),
+    } as unknown as IBaseCrudService<project[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список усіх проєктів' })
-  async findAll(@Query() query: ProjectQueryAdminDto) {
-    return this.service.findAll(query);
+  async getProjects(
+    @Query() paginationQuery: PaginationDto,
+    @Query() projectQuery: ProjectQueryAdminDto,
+  ) {
+    return this.service.findAll({
+      ...projectQuery,
+      limit: paginationQuery.limit ?? 10,
+      skip: paginationQuery.skip ?? 0,
+      search: paginationQuery.search,
+    });
   }
 
   @Get('pending')
@@ -45,7 +63,7 @@ export class ProjectAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити проєкт' })
-  async create(@Body() data: CreateProjectDto) {
+  async create(@Body() data: CreateProjectAdminDto) {
     return this.service.create(data);
   }
 

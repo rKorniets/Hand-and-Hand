@@ -32,6 +32,8 @@ model app_user {
   submitted_requests                     approval_request[]     @relation("submitted_requests")
   reviewed_requests                      approval_request[]     @relation("reviewed_requests")
   project_registration                   project_registration[]
+  donation                               donation[]
+  organization_membership_request        organization_membership_request[]
 }
 
 model volunteer_profile {
@@ -74,8 +76,25 @@ model organization_profile {
   app_user              app_user                 @relation("OrganizationOwner", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
   report                report[]
   organization_category organization_category[]
+  membership_requests   organization_membership_request[]
 
   @@index([location_id], map: "idx_organization_profile_location_id")
+}
+
+model organization_membership_request {
+  id              Int                                            @id @default(autoincrement())
+  organization_id Int
+  user_id         Int
+  direction       organization_membership_request_direction_enum @default(REQUEST)
+  status          organization_membership_request_status_enum    @default(PENDING)
+  created_at      DateTime                                       @default(now()) @db.Timestamptz(6)
+  reviewed_at     DateTime?                                      @db.Timestamptz(6)
+  organization    organization_profile                        @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_org_membership_request_org")
+  user            app_user                                    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_org_membership_request_user")
+
+  @@unique([organization_id, user_id], map: "uq_org_membership_request")
+  @@index([organization_id], map: "idx_org_membership_request_org_id")
+  @@index([user_id], map: "idx_org_membership_request_user_id")
 }
 
 model admin_profile {
@@ -209,11 +228,14 @@ model donation {
   amount               Float
   donor_name           String?
   message              String?
+  user_id              Int?
   created_at           DateTime             @default(now()) @db.Timestamptz(6)
   campaign_id          Int
   fundraising_campaign fundraising_campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_donation_campaign")
+  app_user             app_user?            @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_donation_user")
 
   @@index([campaign_id], map: "idx_donation_campaign_id")
+  @@index([user_id])
 }
 
 model news {
@@ -502,6 +524,18 @@ enum warning_severity_enum {
   LOW
   MEDIUM
   HIGH
+}
+
+enum organization_membership_request_status_enum {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum organization_membership_request_direction_enum {
+  REQUEST
+  INVITE
 }
 
 enum report_type_enum {

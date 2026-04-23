@@ -52,7 +52,8 @@ export class AuthService {
       },
     });
 
-    return { message: 'Registered successfully', userId: user.id };
+    const token = await this.signToken(user);
+    return { message: 'Registered successfully', ...token };
   }
 
   async registerOrganization(dto: RegisterOrganizationDto) {

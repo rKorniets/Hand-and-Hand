@@ -11,23 +11,43 @@ import {
 } from '@nestjs/common';
 import { CampaignAdminService } from './campaign.admin.service';
 import { CampaignQueryAdminDto } from './dto/campaign-query.admin.dto';
-import { CreateFundraisingCampaignDto } from '../../fundraising_campaign/dto/create-fundraising_campaign.dto';
+import { CreateCampaignAdminDto } from './dto/create-campaign.admin.dto';
 import { UpdateCampaignStatusAdminDto } from './dto/update-campaign-status.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, fundraising_campaign } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Збори коштів')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/campaigns')
-export class CampaignAdminController {
-  constructor(private readonly service: CampaignAdminService) {}
+export class CampaignAdminController extends AbstractCrudController<
+  fundraising_campaign[]
+> {
+  constructor(private readonly service: CampaignAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll({ limit, skip, search } as CampaignQueryAdminDto),
+    } as unknown as IBaseCrudService<fundraising_campaign[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Всі збори коштів' })
-  async findAll(@Query() query: CampaignQueryAdminDto) {
-    return this.service.findAll(query);
+  async getCampaigns(
+    @Query() paginationQuery: PaginationDto,
+    @Query() campaignQuery: CampaignQueryAdminDto,
+  ) {
+    return this.service.findAll({
+      ...campaignQuery,
+      limit: paginationQuery.limit ?? 10,
+      skip: paginationQuery.skip ?? 0,
+      search: paginationQuery.search,
+    });
   }
 
   @Get(':id')
@@ -38,7 +58,7 @@ export class CampaignAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити збір коштів' })
-  async create(@Body() data: CreateFundraisingCampaignDto) {
+  async create(@Body() data: CreateCampaignAdminDto) {
     return this.service.create(data);
   }
 
@@ -46,7 +66,7 @@ export class CampaignAdminController {
   @ApiOperation({ summary: 'Оновити збір коштів' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: CreateFundraisingCampaignDto,
+    @Body() data: CreateCampaignAdminDto,
   ) {
     return this.service.update(id, data);
   }
