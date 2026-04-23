@@ -135,9 +135,32 @@
 |----------|-------|--------|-----------|
 | `/organization-profiles` | GET | Public | — |
 | `/organization-profiles/:id` | GET | Public | — |
+| `/organization-profiles/by-user/:userId` | GET | Public | — |
+| `/organization-profiles/:id/projects` | GET | Public | — |
+| `/organization-profiles/:id/reports` | GET | Public | — |
+| `/organization-profiles/:id/members` | GET | Public | — |
+| `/organization-profiles/:id/fundraising` | GET | Public | — |
 | `/organization-profiles` | POST | ORGANIZATION | user_id з JWT |
 | `/organization-profiles/:id` | PUT | ORGANIZATION | Тільки свій |
 | `/organization-profiles/:id` | DELETE | ORGANIZATION | Тільки свій |
+
+### Членство в організаціях (`/organization-profiles/:id/membership-requests`, `/invitations`, `/members`)
+
+Двобічний workflow: волонтер може подати заявку на вступ, а організація — надіслати запрошення. Зустрічний pending-запис (наприклад, організація запросила волонтера, який в свою чергу подав заявку) автоматично перетворюється на членство.
+
+| Ендпоїнт | Метод | Доступ | Опис |
+|----------|-------|--------|------|
+| `/organization-profiles/:id/membership-requests` | POST | VOLUNTEER | Подати заявку на вступ. Перевіряє: орг VERIFIED, юзер не в іншій орг, не власник. |
+| `/organization-profiles/:id/membership-requests` | GET | ORGANIZATION | Список заявок (тільки власник; `?status=PENDING\|ACCEPTED\|REJECTED\|CANCELLED`). |
+| `/organization-profiles/:id/membership-requests/:requestId/accept` | PATCH | ORGANIZATION | Прийняти заявку → `app_user.organization_id = :id`. |
+| `/organization-profiles/:id/membership-requests/:requestId/reject` | PATCH | ORGANIZATION | Відхилити заявку. |
+| `/organization-profiles/:id/invitations` | POST | ORGANIZATION | Запросити волонтера (body: `{ user_id }`). Перевіряє: цільовий юзер має роль VOLUNTEER, не в іншій орг. |
+| `/organization-profiles/:id/invitations` | GET | ORGANIZATION | Список надісланих запрошень (`?status=...`). |
+| `/organization-profiles/me/invitations` | GET | VOLUNTEER | Мої pending-запрошення. |
+| `/organization-profiles/me/invitations/:invitationId/accept` | PATCH | VOLUNTEER | Прийняти запрошення → стати членом організації. |
+| `/organization-profiles/me/invitations/:invitationId/reject` | PATCH | VOLUNTEER | Відхилити запрошення. |
+| `/organization-profiles/:id/members/:userId` | DELETE | ORGANIZATION | Видалити учасника з організації (власник не може видалити себе). |
+| `/organization-profiles/:id/members/me` | DELETE | VOLUNTEER | Вийти з організації. |
 
 ### Новини (`/news`)
 
@@ -351,7 +374,7 @@
 | Поле | Тип | Опис |
 |------|-----|------|
 | id | Int | PK |
-| type | `approval_request_type_enum` | ORGANIZATION, VOLUNTEER, OTHER |
+| type | `approval_request_type_enum` | ORGANIZATION, VOLUNTEER, OTHER, NEWS, PROJECT, FUNDRAISING |
 | status | `approval_request_status_enum` | PENDING, APPROVED, REJECTED |
 | entity_id | Int | ID сутності яка на розгляді |
 | submitted_by | Int | FK -> app_user (хто подав) |
@@ -359,6 +382,33 @@
 | rejection_reason | String? | Причина відмови |
 | created_at | DateTime | Дата подання |
 | reviewed_at | DateTime? | Дата розгляду |
+
+---
+
+## Organization Membership Request (заявки та запрошення до організації)
+
+Модель `organization_membership_request` — уніфікована таблиця і для заявок волонтера, і для запрошень організації. Розрізняються через поле `direction`.
+
+| Поле | Тип | Опис |
+|------|-----|------|
+| id | Int | PK |
+| organization_id | Int | FK -> organization_profile |
+| user_id | Int | FK -> app_user (волонтер) |
+| direction | `organization_membership_request_direction_enum` | `REQUEST` (волонтер → орг), `INVITE` (орг → волонтер) |
+| status | `organization_membership_request_status_enum` | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED` |
+| created_at | DateTime | Дата створення |
+| reviewed_at | DateTime? | Дата прийняття/відхилення |
+
+Унікальний індекс на `(organization_id, user_id)`: між однією парою юзер–організація одночасно існує максимум один запис (повторна заявка після REJECTED перезаписує наявний запис).
+
+Саме членство зберігається у `app_user.organization_id`. На ACCEPTED це поле виставляється, на DELETE `/members/...` — скидається в `null`.
+
+### Авто-matching
+
+При створенні зустрічного запису pending-запрошення + заявка одразу конвертуються в членство:
+
+- якщо волонтер подає заявку до організації, що його вже запросила (`INVITE` + `PENDING`) → запис стає `ACCEPTED`, `organization_id` заповнюється;
+- якщо організація запрошує волонтера, який вже подав заявку (`REQUEST` + `PENDING`) → аналогічно.
 
 ---
 
