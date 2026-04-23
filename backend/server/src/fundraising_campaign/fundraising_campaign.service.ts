@@ -58,8 +58,12 @@ export class FundraisingCampaignService {
     status?: fundraising_campaign_status_enum,
     search?: string,
   ) {
+    const filterStatus = status
+      ? status
+      : fundraising_campaign_status_enum.ACTIVE;
+
     const whereClause: Prisma.fundraising_campaignWhereInput = {
-      ...(status && { status }),
+      status: filterStatus,
       ...(search && {
         title: {
           contains: search,
@@ -74,6 +78,14 @@ export class FundraisingCampaignService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
+        include: {
+          organization_profile: {
+            select: { name: true },
+          },
+          volunteer_profile: {
+            select: { display_name: true },
+          },
+        },
       }),
       this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
@@ -83,25 +95,7 @@ export class FundraisingCampaignService {
     return { data: safeData, total };
   }
 
-  async create(data: CreateFundraisingCampaignDto, userId: number) {
-    const orgProfile = await this.prisma.organization_profile.findFirst({
-      where: { user_id: userId },
-      select: { id: true },
-    });
-
-    const volProfile = !orgProfile
-      ? await this.prisma.volunteer_profile.findFirst({
-          where: { user_id: userId },
-          select: { id: true },
-        })
-      : null;
-
-    if (!orgProfile && !volProfile) {
-      throw new ForbiddenException(
-        'Не знайдено профіль організації або волонтера для цього користувача',
-      );
-    }
-
+  async create(data: CreateFundraisingCampaignDto, currentUser: RequestUser) {
     let jarId: string | null = null;
 
     try {
@@ -113,7 +107,28 @@ export class FundraisingCampaignService {
     } catch (e) {
       console.warn('Monobank setup failed:', e);
     }
+    let orgProfileId: number | undefined = undefined;
+    let volProfileId: number | undefined = undefined;
 
+    const orgProfile = await this.prisma.organization_profile.findUnique({
+      where: { user_id: currentUser.id },
+    });
+
+    if (orgProfile) {
+      orgProfileId = orgProfile.id;
+    } else {
+      const volProfile = await this.prisma.volunteer_profile.findUnique({
+        where: { user_id: currentUser.id },
+      });
+
+      if (volProfile) {
+        volProfileId = volProfile.id;
+      } else {
+        throw new ForbiddenException(
+          'Для створення збору потрібно мати профіль організації або волонтера.',
+        );
+      }
+    }
     const createData: Prisma.fundraising_campaignCreateInput = {
       title: data.title,
       description: data.description,
@@ -127,10 +142,16 @@ export class FundraisingCampaignService {
       image_url: data.image_url,
     };
 
-    if (orgProfile) {
-      createData.organization_profile = { connect: { id: orgProfile.id } };
-    } else if (volProfile) {
-      createData.volunteer_profile = { connect: { id: volProfile.id } };
+    if (orgProfileId) {
+      createData.organization_profile = {
+        connect: { id: orgProfileId },
+      };
+    }
+
+    if (volProfileId) {
+      createData.volunteer_profile = {
+        connect: { id: volProfileId },
+      };
     }
 
     const campaign = await this.prisma.fundraising_campaign.create({
@@ -212,12 +233,48 @@ export class FundraisingCampaignService {
   }
 
   async updateBalance(campaignId: number, balance: string) {
+    const campaign = await this.prisma.fundraising_campaign.findUnique({
+      where: { id: campaignId },
+      select: { goal_amount: true, status: true },
+    });
+
+    if (!campaign) return;
+
+    const currentBalance = new Prisma.Decimal(balance);
+    let newStatus = campaign.status;
+    if (
+      currentBalance.gte(campaign.goal_amount) &&
+      campaign.status === fundraising_campaign_status_enum.ACTIVE
+    ) {
+      newStatus = fundraising_campaign_status_enum.COMPLETED;
+    }
+
     await this.prisma.fundraising_campaign.update({
       where: { id: campaignId },
       data: {
-        current_amount: new Prisma.Decimal(balance),
+        current_amount: currentBalance,
+        status: newStatus,
         updated_at: new Date(),
       },
     });
+  }
+  async findOne(id: number) {
+    const campaign = await this.prisma.fundraising_campaign.findUnique({
+      where: { id },
+      include: {
+        organization_profile: {
+          select: { name: true },
+        },
+        volunteer_profile: {
+          select: { display_name: true },
+        },
+      },
+    });
+
+    if (!campaign) {
+      throw new NotFoundException(`Збір з ID ${id} не знайдено`);
+    }
+
+    return this.sanitizeCampaign(campaign);
   }
 }
