@@ -6,8 +6,8 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
-  Request,
   Header,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -15,23 +15,41 @@ import { OrgProfileAdminService } from './org-profile.admin.service';
 import { CreateOrgProfileAdminDto } from './dto/create-org-profile.admin.dto';
 import { CreateOrganizationProfileDto } from '../../organization_profile/dto/create-organization-profile.dto';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum } from '@prisma/client';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { user_role_enum, organization_profile } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { AuthAdmin } from '../approval/approval.admin.controller';
 
 @ApiTags('Адмін — Профілі організацій')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/organization-profiles')
-export class OrgProfileAdminController {
-  constructor(private readonly service: OrgProfileAdminService) {}
+export class OrgProfileAdminController extends AbstractCrudController<
+  organization_profile[]
+> {
+  constructor(private readonly service: OrgProfileAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll(limit, skip, search),
+    } as unknown as IBaseCrudService<organization_profile[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список всіх профілів організацій' })
-  async findAll() {
-    return this.service.findAll();
+  async getOrgProfiles(@Query() query: PaginationDto) {
+    return this.service.findAll(
+      query.limit ?? 10,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Get('pending')
-  @Header('Cache-Control', 'no-store, no-cache, must-revalidate') // Забороняємо кеш
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
   @ApiOperation({ summary: 'Список організацій що очікують підтвердження' })
   async findPending() {
     return this.service.findPending();
@@ -39,14 +57,20 @@ export class OrgProfileAdminController {
 
   @Patch('approvals/:id/approve')
   @ApiOperation({ summary: 'Прийняти організацію' })
-  async approve(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
-    return this.service.approveOrganization(id, req.user.id);
+  async approve(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: AuthAdmin,
+  ) {
+    return this.service.approveOrganization(id, user.id);
   }
 
   @Patch('approvals/:id/reject')
   @ApiOperation({ summary: 'Відхилити організацію' })
-  async reject(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
-    return this.service.rejectOrganization(id, req.user.id);
+  async reject(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: AuthAdmin,
+  ) {
+    return this.service.rejectOrganization(id, user.id);
   }
 
   @Get(':id')

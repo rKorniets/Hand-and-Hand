@@ -19,19 +19,37 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { SuperAdminGuard } from '../guards/super-admin.guard';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, app_user } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Користувачі')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/users')
-export class UserAdminController {
-  constructor(private readonly service: UserAdminService) {}
+export class UserAdminController extends AbstractCrudController<app_user[]> {
+  constructor(private readonly service: UserAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll({ limit, skip, search } as UserQueryDto),
+    } as unknown as IBaseCrudService<app_user[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список користувачів' })
-  async findAll(@Query() query: UserQueryDto) {
-    return this.service.findAll(query);
+  async getUsers(
+    @Query() paginationQuery: PaginationDto,
+    @Query() userQuery: UserQueryDto,
+  ) {
+    return this.service.findAll({
+      ...userQuery,
+      limit: paginationQuery.limit ?? 10,
+      skip: paginationQuery.skip ?? 0,
+      search: paginationQuery.search,
+    });
   }
 
   @Get(':id')
@@ -56,7 +74,9 @@ export class UserAdminController {
   }
 
   @Patch(':id/status')
-  @ApiOperation({ summary: 'Змінити статус користувача (ACTIVE/BLOCKED/INACTIVE)' })
+  @ApiOperation({
+    summary: 'Змінити статус користувача (ACTIVE/BLOCKED/INACTIVE)',
+  })
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserStatusDto,

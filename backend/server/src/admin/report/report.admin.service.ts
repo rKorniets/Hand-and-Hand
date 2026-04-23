@@ -8,17 +8,34 @@ import { Prisma, report_type_enum } from '@prisma/client';
 export class ReportAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(type?: report_type_enum) {
-    const where: Prisma.reportWhereInput = type ? { type } : {};
+  async findAll(params: {
+    type?: report_type_enum;
+    limit?: number;
+    skip?: number;
+    search?: string;
+  }) {
+    const whereClause: Prisma.reportWhereInput = {
+      ...(params.type && { type: params.type }),
+      ...(params.search && {
+        title: { contains: params.search, mode: 'insensitive' },
+      }),
+    };
 
-    return this.prisma.report.findMany({
-      where,
-      orderBy: { created_at: 'desc' },
-      include: {
-        organization_profile: { select: { id: true, name: true } },
-        project: { select: { id: true, title: true } },
-      },
-    });
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.report.findMany({
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
+        orderBy: { created_at: 'desc' },
+        include: {
+          organization_profile: { select: { id: true, name: true } },
+          project: { select: { id: true, title: true } },
+        },
+      }),
+      this.prisma.report.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {
@@ -37,6 +54,7 @@ export class ReportAdminService {
     return report;
   }
 
+  // noinspection DuplicatedCode
   async create(data: CreateReportDto) {
     return this.prisma.report.create({
       data: {
@@ -46,9 +64,10 @@ export class ReportAdminService {
     });
   }
 
+  // noinspection DuplicatedCode
   async update(id: number, data: UpdateReportDto) {
     await this.findOne(id);
-
+    // noinspection DuplicatedCode
     return this.prisma.report.update({
       where: { id },
       data: {

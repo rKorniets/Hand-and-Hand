@@ -6,15 +6,30 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCategoryDto } from '../../category/dto/create-category.dto';
 import { UpdateCategoryDto } from '../../category/dto/update-category.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoryAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.category.findMany({
-      orderBy: { id: 'asc' },
-    });
+  async findAll(limit?: number, skip?: number, search?: string) {
+    const whereClause: Prisma.categoryWhereInput = search
+      ? {
+          name: { contains: search, mode: 'insensitive' },
+        }
+      : {};
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.category.findMany({
+        where: whereClause,
+        take: limit,
+        skip: skip,
+        orderBy: { id: 'asc' },
+      }),
+      this.prisma.category.count({ where: whereClause }),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: number) {
