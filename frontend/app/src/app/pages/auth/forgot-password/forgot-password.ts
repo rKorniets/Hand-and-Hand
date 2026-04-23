@@ -23,7 +23,7 @@ export class ForgotPassword {
     if (!this.email) return;
     this.loading = true;
 
-    this.authService.resetPassword(this.email).subscribe({
+    this.authService.forgotPassword(this.email).subscribe({
       next: () => {
         this.loading = false;
         this.successMessage = 'Перевірте пошту';

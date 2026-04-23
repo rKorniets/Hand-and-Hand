@@ -1,0 +1,137 @@
+.fundraising-page-detailed {
+  padding: 50px 0 100px;
+  background-color: #fdfdfd;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+
+  .container-fix {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+}
+
+.top-navigation {
+  margin-bottom: 30px;
+  .back-link {
+    background: none; border: none; color: #64748b; cursor: pointer;
+    font-size: 16px; font-weight: 500; padding: 0;
+    &:hover { color: #000; }
+  }
+}
+
+.split-layout {
+  display: flex;
+  gap: 70px;
+  align-items: flex-start;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+.text-side {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0;
+
+  .campaign-title {
+    font-size: 3.2rem;
+    font-weight: 850;
+    line-height: 1.15;
+    margin: 0 0 40px 0;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+
+  .description-area {
+    h2 { font-size: 1.8rem; margin-bottom: 24px; color: #1e293b; font-weight: 700; }
+    .main-text {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      color: #334155;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.sticky-side {
+  flex: 0 0 420px;
+  position: sticky;
+  top: 40px;
+}
+
+.solid-campaign-card {
+  background: #fff;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08);
+
+  .card-top-image {
+    width: 100%;
+    height: 280px;
+    background: #f1f5f9;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  }
+
+  .card-bottom-info {
+    padding: 35px;
+    box-sizing: border-box;
+
+    .organizer-tag {
+      margin-bottom: 25px;
+      .label { font-size: 12px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+      .name { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin: 0; }
+    }
+
+    .progress-section {
+      margin-bottom: 30px;
+      .amount-row {
+        display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;
+        .current { font-size: 2rem; font-weight: 900; color: #000; }
+        .goal { font-size: 1rem; color: #64748b; }
+      }
+      .bar-container {
+        height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;
+        .bar-fill { height: 100%; background: #0f172a; transition: width 0.6s ease; }
+      }
+    }
+
+    .button-wrapper {
+      width: 100%;
+
+      .btn-donate-now {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px;
+        background: #0f172a;
+        color: #fff;
+        text-align: center;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.15rem;
+        transition: 0.2s;
+        border: none;
+
+        &:hover { background: #1e293b; transform: translateY(-2px); }
+      }
+    }
+
+    .meta-footer {
+      margin-top: 30px; padding-top: 25px; border-top: 1px solid #f1f5f9;
+      .meta-row {
+        display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 12px;
+        span { color: #94a3b8; }
+        strong { color: #475569; }
+        .status-badge {
+          background: #f1f5f9; padding: 4px 10px; border-radius: 6px;
+          color: #64748b; font-weight: 700; font-size: 12px; text-transform: uppercase;
+        }
+      }
+    }
+  }
+}

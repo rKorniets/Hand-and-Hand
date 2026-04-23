@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { NewEvent } from '../event.model';
+import { NewEvent, EventLocation } from '../event.model';
 import { RouterLink} from '@angular/router';
+
 
 @Component({
   selector: 'app-list-events',
@@ -13,4 +14,10 @@ import { RouterLink} from '@angular/router';
 })
 export class ListEvents {
   @Input() events: NewEvent[] = [];
+
+  formatLocation(location: EventLocation): string {
+    if (!location) return '';
+    const { city, address } = location;
+    return address ? `${city}, ${address}` : city;
+  }
 }

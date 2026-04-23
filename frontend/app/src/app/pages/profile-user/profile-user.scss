@@ -38,7 +38,8 @@
     margin-top: 10px;
 
     .verify-button {
-      width: 100%;
+      display: block;
+      width: 620px;
       padding: 12px;
       background-color: #F3F3F3;
       border: none;
@@ -47,6 +48,8 @@
       font-weight: 700;
       color: #444;
       cursor: pointer;
+      text-align: center;
+      text-decoration: none;
       transition: background-color 0.2s ease;
 
       &:hover {

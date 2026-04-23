@@ -1,0 +1,109 @@
+<main class="constructor-page">
+  <div class="constructor-container">
+
+    <div class="constructor-header">
+      <h1 class="constructor-title">Створити збір</h1>
+      <p class="constructor-subtitle">Заповніть деталі вашої ініціативи. Чим детальніше — тим більше довіри!</p>
+    </div>
+
+    <form [formGroup]="campaignForm" (ngSubmit)="onSubmit()" class="constructor-form">
+
+      <h2 class="section-title">Основна інформація</h2>
+
+      <div class="form-group">
+        <label>Назва збору <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <input type="text" formControlName="title" placeholder="Наприклад: На 5 дронів DJI Mavic 3 для 47 ОМБр">
+          <p class="field-hint">Коротка і зрозуміла назва (максимум 100 символів).</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Категорія</label>
+        <div class="input-wrapper select-wrapper">
+          <select formControlName="category">
+            <option value="" disabled selected>Оберіть напрямок допомоги</option>
+            <option value="military">Мілітарна допомога</option>
+            <option value="medical">Медицина та реабілітація</option>
+            <option value="rebuild">Відбудова</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Короткий опис <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <textarea formControlName="description" rows="2" placeholder="Опишіть головну ціль у двох реченнях..."></textarea>
+          <p class="field-hint">Цей текст буде видно на картці збору в загальному списку.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Детальна інформація <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <textarea formControlName="main_content" rows="6" placeholder="Розкажіть історію: для кого збираєте, чому це важливо, які терміни..."></textarea>
+          <p class="field-hint">Тут можна розписати все детально. Люди донатять на історії, які викликають емоції.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title mt-40">Фінанси та інтеграція</h2>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>Ціль збору (грн) <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="number" formControlName="goal_amount" placeholder="Наприклад: 450000">
+          </div>
+        </div>
+        <div class="form-group half-width">
+          <label>Запланований кінець збору</label>
+          <div class="input-wrapper">
+            <input type="date" formControlName="end_at">
+            <p class="field-hint">Орієнтовна дата закриття (необов'язково).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>Посилання на банку <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="text" formControlName="jar_link" placeholder="https://send.monobank.ua/...">
+          </div>
+        </div>
+
+        <div class="form-group half-width">
+          <label>Токен Монобанку <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="password" formControlName="mono_token" placeholder="Введіть ваш API токен">
+            <p class="field-hint">Можна отримати на сторінці <a href="https://api.monobank.ua/" target="_blank">api.monobank.ua</a> для автоматичного оновлення суми.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group mt-20">
+        <label>Обкладинка збору (Фото)</label>
+        <div class="input-wrapper">
+          <input type="file" id="file-upload" accept="image/*" (change)="onFileSelected($event)" class="hidden-file-input">
+
+          <label for="file-upload" class="custom-file-dropzone">
+            <div class="dropzone-content">
+              <span class="icon-camera">📸</span>
+              <span class="upload-title">Натисніть, щоб обрати фото</span>
+              <span class="upload-subtitle">або перетягніть файл сюди (JPG, PNG до 5MB)</span>
+            </div>
+          </label>
+
+          @if (selectedFile) {
+            <p class="file-success-msg">✅ Вибрано файл: {{ selectedFile.name }}</p>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting || campaignForm.invalid">
+        {{ isSubmitting ? 'Створення...' : 'СТВОРИТИ ЗБІР' }}
+      </button>
+
+    </form>
+  </div>
+</main>

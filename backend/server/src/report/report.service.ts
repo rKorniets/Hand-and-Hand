@@ -66,9 +66,33 @@ export class ReportService {
     });
   }
 
-  async create(data: CreateReportDto) {
+  async create(data: CreateReportDto, userId: number) {
+    const orgProfile = await this.prisma.organization_profile.findFirst({
+      where: { user_id: userId },
+      select: { id: true },
+    });
+
+    if (!orgProfile) {
+      throw new NotFoundException(
+        'Не знайдено профіль організації для цього користувача',
+      );
+    }
+
     return this.prisma.report.create({
-      data: { ...data, published_at: data.published_at ?? new Date() },
+      data: {
+        title: data.title,
+        type: data.type,
+        file_url: data.file_url,
+        published_at: data.published_at,
+        organization_profile: {
+          connect: { id: orgProfile.id },
+        },
+        ...(data.project_id && {
+          project: {
+            connect: { id: data.project_id },
+          },
+        }),
+      },
     });
   }
 

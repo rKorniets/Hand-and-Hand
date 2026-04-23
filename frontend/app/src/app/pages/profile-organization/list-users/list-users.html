@@ -7,10 +7,10 @@
     @for (member of visibleMembers; track member.id) {
       <li class="members-list__item">
         <div class="members-list__avatar">
-          @if (!member.avatar) {
+          @if (!member.avatar_url) {
             <span class="material-symbols-outlined">person</span>
           } @else {
-            <img [src]="member.avatar" [alt]="getFullName(member)" />
+            <img [src]="member.avatar_url" [alt]="getFullName(member)" />
           }
         </div>
 

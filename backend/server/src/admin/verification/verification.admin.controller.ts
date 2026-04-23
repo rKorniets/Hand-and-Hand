@@ -3,6 +3,7 @@ import {
   Get,
   Patch,
   Param,
+  Query,
   Body,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { VerifyDecisionDto } from './dto/verify-decision.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { user_role_enum, verification_status_enum } from '@prisma/client';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Верифікація')
 @ApiBearerAuth()
@@ -21,14 +23,22 @@ export class VerificationAdminController {
 
   @Get('volunteers')
   @ApiOperation({ summary: 'Неверифіковані волонтери' })
-  async findUnverifiedVolunteers() {
-    return this.service.findUnverifiedVolunteers();
+  async findUnverifiedVolunteers(@Query() query: PaginationDto) {
+    return this.service.findUnverifiedVolunteers(
+      query.limit ?? 10,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Get('organizations')
   @ApiOperation({ summary: 'Неверифіковані організації' })
-  async findUnverifiedOrganizations() {
-    return this.service.findUnverifiedOrganizations();
+  async findUnverifiedOrganizations(@Query() query: PaginationDto) {
+    return this.service.findUnverifiedOrganizations(
+      query.limit ?? 10,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Patch('volunteers/:id')
@@ -37,7 +47,10 @@ export class VerificationAdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: VerifyDecisionDto,
   ) {
-    return this.service.verifyVolunteer(id, dto.status === verification_status_enum.VERIFIED);
+    return this.service.verifyVolunteer(
+      id,
+      dto.status === verification_status_enum.VERIFIED,
+    );
   }
 
   @Patch('organizations/:id')

@@ -68,8 +68,11 @@ export class ReportController extends AbstractCrudController<report[]> {
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити новий звіт' })
-  async create(@Body() data: CreateReportDto) {
-    return this.service.create(data);
+  async create(
+    @Body() data: CreateReportDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.create(data, user.id);
   }
 
   @Patch(':id')

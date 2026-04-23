@@ -13,12 +13,6 @@ import {
 } from 'class-validator';
 
 export class CreateReportDto {
-  @ApiProperty({
-    description: 'ID профілю організації, яка створила звіт',
-    example: 1,
-  })
-  organization_profile_id: number;
-
   @ApiPropertyOptional({
     description: 'ID проєкту до якого відноситься звіт',
     example: 3,

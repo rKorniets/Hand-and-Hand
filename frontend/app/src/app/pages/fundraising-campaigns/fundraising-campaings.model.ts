@@ -1,24 +1,29 @@
 export interface FundraisingCampaignItem {
   id: number;
-  organization_profile_id: number;
   title: string;
   description: string;
-  goal_amount: number;
-  current_amount: number;
-  status: string;
+  main_content: string;
+  goal_amount: number | string;
+  current_amount: number | string;
+  status: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+
+  jar_link: string;
+  jar_id: string | null;
+  image_url: string | null;
+
   created_at: string;
-  start_at: string;
-  end_at: string;
   updated_at: string;
-  bank_link: string;
-  image_url: string;
+  start_at: string | null;
+  end_at: string | null;
+
+  organization_profile_id: number | null;
+  volunteer_profile_id: number | null;
 
   organization_profile?: {
-    title: string;
+    name: string;
   };
 
   volunteer_profile?: {
-    first_name: string;
-    last_name: string;
+    display_name: string;
   };
 }

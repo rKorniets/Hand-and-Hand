@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { Reports } from './reports/reports';
 import { MainInfo } from './main-info/main-info';
 import { OrgData } from './org-data/org-data';
@@ -13,10 +14,7 @@ import { AuthService } from '../auth/auth.service';
 @Component({
   selector: 'app-profile-organization',
   standalone: true,
-  imports: [
-    CommonModule, Reports, FundraisingCampaignsOrg,
-    OrgData, ListUsers, MainInfo, Activity
-  ],
+  imports: [CommonModule, Reports, FundraisingCampaignsOrg, OrgData, ListUsers, MainInfo, Activity],
   templateUrl: './profile-organization.html',
   styleUrl: './profile-organization.scss',
 })
@@ -28,13 +26,19 @@ export class ProfileOrganization implements OnInit {
   constructor(
     private orgService: OrganizationProfileService,
     private cdr: ChangeDetectorRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.orgService.getOrganization().subscribe({
-      next: (data: Organization) => {
+    const idParam = this.route.snapshot.paramMap.get('id');
 
+    const request$ = idParam
+      ? this.orgService.getOrganizationById(+idParam)
+      : this.orgService.getOrganization();
+
+    request$.subscribe({
+      next: (data: Organization) => {
         if (data) {
           this.organization = data;
           this.location = data.location;
@@ -42,10 +46,9 @@ export class ProfileOrganization implements OnInit {
         } else {
           console.warn('Сервер повернув null. Перевірте базу даних.');
         }
-
         this.cdr.detectChanges();
       },
-      error: (err: any) => console.error('Помилка завантаження профілю:', err),
+      error: (err: unknown) => console.error('Помилка завантаження профілю:', err),
     });
   }
 
@@ -55,7 +58,7 @@ export class ProfileOrganization implements OnInit {
         this.reports = reports || [];
         this.cdr.detectChanges();
       },
-      error: (err: any) => console.error('Помилка завантаження звітів:', err)
+      error: (err: unknown) => console.error('Помилка завантаження звітів:', err),
     });
   }
 

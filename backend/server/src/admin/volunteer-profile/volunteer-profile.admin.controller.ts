@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
 } from '@nestjs/common';
 import { VolunteerProfileAdminService } from './volunteer-profile.admin.service';
@@ -15,19 +16,35 @@ import { CreateVolunteerProfileDto } from '../../volunteer_profile/dto/create-vo
 import { UpdateVolunteerProfileDto } from '../../volunteer_profile/dto/update-volunteer-profile.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, volunteer_profile } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Адмін — Профілі волонтерів')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/volunteer-profiles')
-export class VolunteerProfileAdminController {
-  constructor(private readonly service: VolunteerProfileAdminService) {}
+export class VolunteerProfileAdminController extends AbstractCrudController<
+  volunteer_profile[]
+> {
+  constructor(private readonly service: VolunteerProfileAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll(limit, skip, search),
+    } as unknown as IBaseCrudService<volunteer_profile[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Список всіх профілів волонтерів' })
-  async findAll() {
-    return this.service.findAll();
+  async getVolunteerProfiles(@Query() query: PaginationDto) {
+    return this.service.findAll(
+      query.limit ?? 10,
+      query.skip ?? 0,
+      query.search,
+    );
   }
 
   @Get(':id')
