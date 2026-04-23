@@ -52,6 +52,7 @@ import { VolunteerProfileAdminService } from './volunteer-profile/volunteer-prof
 import { SuperAdminGuard } from './guards/super-admin.guard';
 
 import { FundraisingCampaignModule } from '../fundraising_campaign/fundraising_campaign.module';
+import { PointsModule } from '../points/points.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { FundraisingCampaignModule } from '../fundraising_campaign/fundraising_c
     RewardModule,
     LocationModule,
     FundraisingCampaignModule,
+    PointsModule,
   ],
   controllers: [
     ApprovalAdminController,
