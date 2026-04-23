@@ -3,8 +3,13 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, task_assignment_status_enum } from '@prisma/client';
+import {
+  Prisma,
+  points_transaction_type_enum,
+  task_assignment_status_enum,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PointsService } from '../points/points.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
 
@@ -14,7 +19,10 @@ export interface RequestUser {
 
 @Injectable()
 export class TaskAssignmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private pointsService: PointsService,
+  ) {}
 
   private async validateVolunteerOwnership(
     volunteerProfileId: number,
@@ -110,23 +118,46 @@ export class TaskAssignmentService {
       currentUser,
     );
 
-    return this.prisma.task_assignment.update({
-      where: { id },
-      data: {
-        status: data.status,
-        comment: data.comment,
-        requester_confirmed: assignment.requester_confirmed,
-        accepted_at:
-          data.status === task_assignment_status_enum.ACCEPTED &&
-          !assignment.accepted_at
-            ? new Date()
-            : undefined,
-        completed_at:
-          data.status === task_assignment_status_enum.COMPLETED &&
-          !assignment.completed_at
-            ? new Date()
-            : undefined,
-      },
+    const shouldAwardPoints =
+      data.status === task_assignment_status_enum.COMPLETED &&
+      assignment.requester_confirmed === true &&
+      assignment.completed_at === null;
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.task_assignment.update({
+        where: { id },
+        data: {
+          status: data.status,
+          comment: data.comment,
+          requester_confirmed: assignment.requester_confirmed,
+          accepted_at:
+            data.status === task_assignment_status_enum.ACCEPTED &&
+            !assignment.accepted_at
+              ? new Date()
+              : undefined,
+          completed_at:
+            data.status === task_assignment_status_enum.COMPLETED &&
+            !assignment.completed_at
+              ? new Date()
+              : undefined,
+        },
+      });
+
+      if (shouldAwardPoints) {
+        const amount = assignment.task.points_reward_base;
+        if (amount > 0) {
+          await this.pointsService.createTransaction(
+            currentUser.id,
+            points_transaction_type_enum.EARN,
+            amount,
+            id,
+            `Task "${assignment.task.title}" completed`,
+            tx,
+          );
+        }
+      }
+
+      return updated;
     });
   }
 
