@@ -1,0 +1,66 @@
+<div class="fundraising-page-detailed">
+  <div class="container-fix">
+
+    <nav class="top-navigation">
+      <button (click)="goBack()" class="back-link">← Назад до списку</button>
+    </nav>
+
+    <div class="split-layout">
+
+      <main class="text-side">
+        <h1 class="campaign-title">{{ campaign?.title }}</h1>
+        <section class="description-area">
+          <h2>Про цей збір</h2>
+          <div class="main-text">
+            {{ campaign?.main_content }}
+          </div>
+        </section>
+      </main>
+
+      <aside class="sticky-side">
+        <div class="solid-campaign-card">
+
+          <div class="card-top-image">
+            <img [src]="campaign?.image_url" [alt]="campaign?.title">
+          </div>
+
+          <div class="card-bottom-info">
+            <div class="organizer-tag">
+              <span class="label">Організатор:</span>
+              <p class="name">{{ campaign?.organization_profile?.name || campaign?.volunteer_profile?.display_name }}</p>
+            </div>
+
+            <div class="progress-section">
+              <div class="amount-row">
+                <span class="current">{{ campaign?.current_amount }} ₴</span>
+                <span class="goal">із {{ campaign?.goal_amount }} ₴</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar-fill" [style.width.%]="campaign ? calculateProgress(campaign) : 0"></div>
+              </div>
+            </div>
+
+            <div class="button-wrapper">
+              <a [href]="campaign?.jar_link" target="_blank" rel="noopener noreferrer" class="btn-donate-now">
+                Підтримати зараз
+              </a>
+            </div>
+
+            <div class="meta-footer">
+              <div class="meta-row">
+                <span>Створено:</span>
+                <strong>{{ campaign?.created_at | date:'dd.MM.yyyy' }}</strong>
+              </div>
+              <div class="meta-row">
+                <span>Статус:</span>
+                <span class="status-badge">{{ campaign?.status }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</div>
