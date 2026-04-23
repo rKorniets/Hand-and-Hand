@@ -47,23 +47,29 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     required: false,
     enum: fundraising_campaign_status_enum,
     description: 'Фільтр за статусом',
+    isArray: true,
   })
   @ApiQuery({
     name: 'categories',
     required: false,
-    description: 'Фільтр за категоріями',
+    type: [String],
+    description: 'Масив slugs категорій',
   })
   async findAll(
     @Query() query: PaginationDto,
-    @Query('status') status?: string,
-    @Query('categories') categories?: string,
+    @Query(
+      'status',
+      new ParseEnumPipe(fundraising_campaign_status_enum, { optional: true }),
+    )
+    status?: fundraising_campaign_status_enum,
+    @Query('categories') categories?: string[],
   ) {
     return this.service.findAll(
       query.limit ?? 5,
       query.skip ?? 0,
-      status ? status.split(',') : [],
+      status,
       query.search,
-      categories ? categories.split(',') : [],
+      categories,
     );
   }
 
@@ -75,7 +81,6 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     user_role_enum.ADMIN,
   )
   @ApiOperation({ summary: 'Створити збір' })
-  //TODO: визначити profile_id автоматично з currentUser замість DTO
   async create(@Body() data: CreateFundraisingCampaignDto) {
     return this.service.create(data);
   }

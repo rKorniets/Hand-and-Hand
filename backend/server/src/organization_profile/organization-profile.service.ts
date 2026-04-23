@@ -39,27 +39,34 @@ export class OrganizationProfileService {
   }
 
   async getOrganizationProfiles(
-    limit?: number,
-    skip?: number,
-    verificationStatus?: verification_status_enum,
+    limit: number,
+    skip: number,
+    verificationStatus?: verification_status_enum | verification_status_enum[],
     search?: string,
     categories?: string[],
   ) {
-    const whereClause: Prisma.organization_profileWhereInput = {
-      ...(verificationStatus && { verification_status: verificationStatus }),
-      ...(search && {
-        name: { contains: search, mode: 'insensitive' },
-      }),
-      ...(categories?.length && {
-        organization_category: {
-          some: {
-            category: {
-              slug: { in: categories },
-            },
+    const whereClause: Prisma.organization_profileWhereInput = {};
+
+    if (search) {
+      whereClause.name = { contains: search, mode: 'insensitive' };
+    }
+
+    if (verificationStatus) {
+      const statusArray = Array.isArray(verificationStatus)
+        ? verificationStatus
+        : [verificationStatus];
+      whereClause.verification_status = { in: statusArray };
+    }
+
+    if (categories && categories.length > 0) {
+      whereClause.organization_category = {
+        some: {
+          category: {
+            slug: { in: categories },
           },
         },
-      }),
-    };
+      };
+    }
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.organization_profile.findMany({

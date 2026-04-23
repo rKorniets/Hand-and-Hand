@@ -16,11 +16,7 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import {
-  user_role_enum,
-  verification_status_enum,
-  organization_profile,
-} from '@prisma/client';
+import { user_role_enum, verification_status_enum } from '@prisma/client';
 import {
   OrganizationProfileService,
   type RequestUser,
@@ -37,43 +33,43 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Organization Profiles')
 @Controller('organization-profiles')
-export class OrganizationProfileController extends AbstractCrudController<
-  organization_profile[]
-> {
+export class OrganizationProfileController extends AbstractCrudController<unknown> {
   constructor(
     private readonly organizationProfileService: OrganizationProfileService,
   ) {
-    super({
-      findAll: (limit?: number, skip?: number, search?: string) =>
-        organizationProfileService.getOrganizationProfiles(
-          limit,
-          skip,
-          verification_status_enum.VERIFIED,
-          search,
-        ),
-    } as unknown as IBaseCrudService<organization_profile[]>);
+    super(organizationProfileService as unknown as IBaseCrudService<unknown>);
   }
 
   @Public()
   @Get()
-  @ApiOperation({ summary: 'Отримати список профілів організацій' })
-  @ApiQuery({ name: 'categories', required: false })
+  @ApiOperation({ summary: 'Отримати список організацій' })
+  @ApiQuery({
+    name: 'verification_status',
+    required: false,
+    enum: verification_status_enum,
+    description: 'Статус верифікації',
+  })
+  @ApiQuery({
+    name: 'categories',
+    required: false,
+    type: [String],
+    description: 'Масив slugs категорій',
+  })
   async getOrganizationProfiles(
     @Query() query: PaginationDto,
     @Query(
-      'verificationStatus',
+      'verification_status',
       new ParseEnumPipe(verification_status_enum, { optional: true }),
     )
-    verificationStatus?: verification_status_enum,
-    @Query('categories') categories?: string,
+    status?: verification_status_enum,
+    @Query('categories') categories?: string[],
   ) {
-    const status = verificationStatus ?? verification_status_enum.VERIFIED;
     return this.organizationProfileService.getOrganizationProfiles(
       query.limit ?? 5,
       query.skip ?? 0,
       status,
       query.search,
-      categories ? categories.split(',') : [],
+      categories,
     );
   }
 
@@ -86,7 +82,7 @@ export class OrganizationProfileController extends AbstractCrudController<
 
   @Post()
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити профіль організації' })
   async create(
     @Body() data: CreateOrganizationProfileDto,
@@ -100,7 +96,7 @@ export class OrganizationProfileController extends AbstractCrudController<
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити профіль організації' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -116,7 +112,7 @@ export class OrganizationProfileController extends AbstractCrudController<
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Видалити профіль організації' })
   async remove(
     @Param('id', ParseIntPipe) id: number,

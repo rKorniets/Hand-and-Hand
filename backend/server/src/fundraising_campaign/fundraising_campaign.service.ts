@@ -38,7 +38,7 @@ export class FundraisingCampaignService {
     });
 
     if (!campaign) {
-      throw new NotFoundException(`Campaign with ${id} was not found`);
+      throw new NotFoundException(`Campaign with ID ${id} was not found`);
     }
 
     const ownerUserId =
@@ -47,16 +47,19 @@ export class FundraisingCampaignService {
 
     if (ownerUserId !== currentUser.id) {
       throw new ForbiddenException(
-        'You do not have permission to do this action',
+        'You do not have permission to perform this action',
       );
     }
 
     return campaign;
   }
+
   async findAll(
     limit: number,
     skip: number,
-    status?: string[],
+    status?:
+      | fundraising_campaign_status_enum
+      | fundraising_campaign_status_enum[],
     search?: string,
     categories?: string[],
   ) {
@@ -66,13 +69,15 @@ export class FundraisingCampaignService {
       whereClause.title = { contains: search, mode: 'insensitive' };
     }
 
-    if (status?.length) {
+    if (status) {
+      // TypeScript автоматично виведе тип як масив Enum, 'as' не потрібен
+      const statusArray = Array.isArray(status) ? status : [status];
       whereClause.status = {
-        in: status as fundraising_campaign_status_enum[],
+        in: statusArray,
       };
     }
 
-    if (categories?.length) {
+    if (categories && categories.length > 0) {
       whereClause.fundraising_category = {
         some: {
           category: {
@@ -92,18 +97,28 @@ export class FundraisingCampaignService {
       this.prisma.fundraising_campaign.count({ where: whereClause }),
     ]);
 
-    return { data: data.map((c) => this.sanitizeCampaign(c)), total };  }
+    return {
+      data: data.map((c) => this.sanitizeCampaign(c)),
+      total,
+    };
+  }
+
   async create(data: CreateFundraisingCampaignDto) {
     let jarId: string | null = null;
 
     try {
-      const jar = await this.monobankService.prepareJarData(
-        data.jar_link,
-        data.mono_token,
-      );
-      jarId = jar.id;
+      if (data.jar_link && data.mono_token) {
+        const jar = await this.monobankService.prepareJarData(
+          data.jar_link,
+          data.mono_token,
+        );
+        jarId = jar.id;
+      }
     } catch (e) {
-      console.warn('Monobank setup failed:', e);
+      console.warn(
+        'Monobank setup failed:',
+        e instanceof Error ? e.message : e,
+      );
     }
 
     const createData: Prisma.fundraising_campaignCreateInput = {
@@ -123,9 +138,7 @@ export class FundraisingCampaignService {
       createData.organization_profile = {
         connect: { id: data.organization_profile_id },
       };
-    }
-
-    if (data.volunteer_profile_id) {
+    } else if (data.volunteer_profile_id) {
       createData.volunteer_profile = {
         connect: { id: data.volunteer_profile_id },
       };
@@ -186,6 +199,7 @@ export class FundraisingCampaignService {
           message: message,
         },
       });
+
       await tx.fundraising_campaign.update({
         where: { id: campaignId },
         data: {
