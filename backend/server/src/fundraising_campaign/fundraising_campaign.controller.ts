@@ -72,9 +72,11 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     user_role_enum.ADMIN,
   )
   @ApiOperation({ summary: 'Створити збір' })
-  //TODO: визначити profile_id автоматично з currentUser замість DTO
-  async create(@Body() data: CreateFundraisingCampaignDto) {
-    return this.service.create(data);
+  async create(
+    @Body() data: CreateFundraisingCampaignDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.create(data, user.id);
   }
 
   @Put(':id')

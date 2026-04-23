@@ -10,16 +10,6 @@ import {
 } from 'class-validator';
 
 export class CreateFundraisingCampaignDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
-  organization_profile_id?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
-  volunteer_profile_id?: number;
-
   @ApiProperty()
   @IsString()
   title: string;

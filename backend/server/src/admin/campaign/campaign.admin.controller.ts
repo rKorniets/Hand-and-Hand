@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { CampaignAdminService } from './campaign.admin.service';
 import { CampaignQueryAdminDto } from './dto/campaign-query.admin.dto';
-import { CreateFundraisingCampaignDto } from '../../fundraising_campaign/dto/create-fundraising_campaign.dto';
+import { CreateCampaignAdminDto } from './dto/create-campaign.admin.dto';
 import { UpdateCampaignStatusAdminDto } from './dto/update-campaign-status.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -38,7 +38,7 @@ export class CampaignAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити збір коштів' })
-  async create(@Body() data: CreateFundraisingCampaignDto) {
+  async create(@Body() data: CreateCampaignAdminDto) {
     return this.service.create(data);
   }
 
@@ -46,7 +46,7 @@ export class CampaignAdminController {
   @ApiOperation({ summary: 'Оновити збір коштів' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: CreateFundraisingCampaignDto,
+    @Body() data: CreateCampaignAdminDto,
   ) {
     return this.service.update(id, data);
   }
