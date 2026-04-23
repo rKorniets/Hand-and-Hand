@@ -39,41 +39,43 @@ export interface PendingProject {
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private readonly API = 'http://localhost:3000';
+  private readonly API = 'http://localhost:3000/admin';
 
   constructor(private http: HttpClient) {}
 
+  private getNoCacheParam() {
+    return `?t=${new Date().getTime()}`;
+  }
+
   getPendingOrganizations() {
-    const nocache = `?t=${new Date().getTime()}`;
     return this.http.get<PendingOrganization[]>(
-      `${this.API}/admin/organization-profiles/pending${nocache}`,
+      `${this.API}/organization-profiles/pending${this.getNoCacheParam()}`,
     );
   }
 
   approveOrganization(approvalRequestId: number) {
     return this.http.patch(
-      `${this.API}/admin/organization-profiles/approvals/${approvalRequestId}/approve`,
+      `${this.API}/organization-profiles/approvals/${approvalRequestId}/approve`,
       {},
     );
   }
 
   rejectOrganization(approvalRequestId: number) {
     return this.http.patch(
-      `${this.API}/admin/organization-profiles/approvals/${approvalRequestId}/reject`,
+      `${this.API}/organization-profiles/approvals/${approvalRequestId}/reject`,
       {},
     );
   }
 
   getPendingProjects() {
-    const nocache = `?t=${new Date().getTime()}`;
-    return this.http.get<PendingProject[]>(`${this.API}/admin/projects/pending${nocache}`);
+    return this.http.get<PendingProject[]>(`${this.API}/projects/pending${this.getNoCacheParam()}`);
   }
 
   approveProject(approvalRequestId: number) {
-    return this.http.patch(`${this.API}/admin/approvals/${approvalRequestId}/approve`, {});
+    return this.http.patch(`${this.API}/approvals/${approvalRequestId}/approve`, {});
   }
 
   rejectProject(approvalRequestId: number) {
-    return this.http.patch(`${this.API}/admin/approvals/${approvalRequestId}/reject`, {});
+    return this.http.patch(`${this.API}/approvals/${approvalRequestId}/reject`, {});
   }
 }

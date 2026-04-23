@@ -12,6 +12,8 @@ import {
 import { AuthService } from '../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
 
+const DEFAULT_LIMIT = 50;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -49,12 +51,12 @@ export class OrganizationProfileService {
     return this.http.get<Report[]>(`${this.apiUrl}/${orgId}/reports`);
   }
 
-  getOrgActivities(orgId: number): Observable<ActivityItem[]> {
+  getOrgActivities(orgId: number, limit: number = DEFAULT_LIMIT): Observable<ActivityItem[]> {
     return this.http
       .get<{
         data: ActivityItem[];
         total: number;
-      }>(`${this.projectsUrl}?organization_profile_id=${orgId}&limit=50`)
+      }>(`${this.projectsUrl}?organization_profile_id=${orgId}&limit=${limit}`)
       .pipe(map((res) => res.data));
   }
 

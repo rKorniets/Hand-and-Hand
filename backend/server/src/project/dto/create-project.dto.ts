@@ -10,31 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-
-export class CreateLocationDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  city: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  region: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  lat?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  lng?: number;
-}
+import { CreateLocationDto } from '../../location/dto/create_location.dto';
 
 export class CreateProjectDto {
   @ApiProperty()
@@ -79,21 +55,25 @@ export class CreateProjectDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   time?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   application_deadline?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   partners?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   image_url?: string;
 
   @ApiPropertyOptional({ enum: project_status_enum })

@@ -28,7 +28,7 @@
 
           @if (event.location) {
             <div class="events-list__location">
-              {{ event.location.city }}{{ event.location.address ? ', ' + event.location.address : '' }}
+              {{ formatLocation(event.location) }}
             </div>
           }
 

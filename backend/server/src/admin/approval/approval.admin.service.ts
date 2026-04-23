@@ -78,42 +78,36 @@ export class ApprovalAdminService {
   }
 
   async approve(id: number, adminUserId: number) {
-    const request = await this.findOne(id);
-
-    await this.prisma.$transaction(async (tx) => {
-      await tx.approval_request.update({
-        where: { id },
-        data: {
-          status: approval_request_status_enum.APPROVED,
-          reviewed_by: adminUserId,
-          reviewed_at: new Date(),
-        },
-      });
-
-      if (request.type === approval_request_type_enum.PROJECT) {
-        await tx.project.update({
-          where: { id: request.entity_id },
-          data: { status: project_status_enum.ACTIVE },
-        });
-      }
-
-      if (request.type === approval_request_type_enum.ORGANIZATION) {
-        await tx.organization_profile.update({
-          where: { id: request.entity_id },
-          data: { verification_status: verification_status_enum.VERIFIED },
-        });
-      }
-    });
+    return this.handleResolution(
+      id,
+      adminUserId,
+      approval_request_status_enum.APPROVED,
+    );
   }
 
   async reject(id: number, adminUserId: number, reason: string) {
+    return this.handleResolution(
+      id,
+      adminUserId,
+      approval_request_status_enum.REJECTED,
+      reason,
+    );
+  }
+
+  private async handleResolution(
+    id: number,
+    adminUserId: number,
+    status: approval_request_status_enum,
+    reason?: string,
+  ) {
     const request = await this.findOne(id);
+    const isApprove = status === approval_request_status_enum.APPROVED;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.approval_request.update({
         where: { id },
         data: {
-          status: approval_request_status_enum.REJECTED,
+          status,
           reviewed_by: adminUserId,
           reviewed_at: new Date(),
           rejection_reason: reason,
@@ -123,14 +117,22 @@ export class ApprovalAdminService {
       if (request.type === approval_request_type_enum.PROJECT) {
         await tx.project.update({
           where: { id: request.entity_id },
-          data: { status: project_status_enum.ARCHIVED },
+          data: {
+            status: isApprove
+              ? project_status_enum.ACTIVE
+              : project_status_enum.ARCHIVED,
+          },
         });
       }
 
       if (request.type === approval_request_type_enum.ORGANIZATION) {
         await tx.organization_profile.update({
           where: { id: request.entity_id },
-          data: { verification_status: verification_status_enum.REJECTED },
+          data: {
+            verification_status: isApprove
+              ? verification_status_enum.VERIFIED
+              : verification_status_enum.REJECTED,
+          },
         });
       }
     });

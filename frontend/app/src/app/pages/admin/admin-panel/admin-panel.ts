@@ -71,11 +71,7 @@ export class AdminPanelComponent implements OnInit {
   approve(id: number) {
     this.actionLoading = id;
     this.adminService.approveOrganization(id).subscribe({
-      next: () => {
-        this.items = this.items.filter((i) => i.id !== id);
-        this.actionLoading = null;
-        this.cdr.detectChanges();
-      },
+      next: () => this.removeFromList(id),
       error: () => {
         this.error = 'Помилка підтвердження';
         this.actionLoading = null;
@@ -87,11 +83,7 @@ export class AdminPanelComponent implements OnInit {
   reject(id: number) {
     this.actionLoading = id;
     this.adminService.rejectOrganization(id).subscribe({
-      next: () => {
-        this.items = this.items.filter((i) => i.id !== id);
-        this.actionLoading = null;
-        this.cdr.detectChanges();
-      },
+      next: () => this.removeFromList(id),
       error: () => {
         this.error = 'Помилка відхилення';
         this.actionLoading = null;
@@ -103,11 +95,7 @@ export class AdminPanelComponent implements OnInit {
   approveProject(id: number) {
     this.projectActionLoading = id;
     this.adminService.approveProject(id).subscribe({
-      next: () => {
-        this.projects = this.projects.filter((p) => p.id !== id);
-        this.projectActionLoading = null;
-        this.cdr.detectChanges();
-      },
+      next: () => this.removeProjectFromList(id),
       error: () => {
         this.projectsError = 'Помилка підтвердження';
         this.projectActionLoading = null;
@@ -119,16 +107,24 @@ export class AdminPanelComponent implements OnInit {
   rejectProject(id: number) {
     this.projectActionLoading = id;
     this.adminService.rejectProject(id).subscribe({
-      next: () => {
-        this.projects = this.projects.filter((p) => p.id !== id);
-        this.projectActionLoading = null;
-        this.cdr.detectChanges();
-      },
+      next: () => this.removeProjectFromList(id),
       error: () => {
         this.projectsError = 'Помилка відхилення';
         this.projectActionLoading = null;
         this.cdr.detectChanges();
       },
     });
+  }
+
+  private removeFromList(id: number) {
+    this.items = this.items.filter((i) => i.id !== id);
+    this.actionLoading = null;
+    this.cdr.detectChanges();
+  }
+
+  private removeProjectFromList(id: number) {
+    this.projects = this.projects.filter((p) => p.id !== id);
+    this.projectActionLoading = null;
+    this.cdr.detectChanges();
   }
 }
