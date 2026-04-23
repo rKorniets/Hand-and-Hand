@@ -2,7 +2,10 @@
   <div class="events__page__wrapper">
 
     <aside class="events__page__sidebar">
-      <app-categories></app-categories>
+      <app-filters
+        [config]="filterConfig"
+        (filtersChanged)="onFiltersChanged($event)">
+      </app-filters>
     </aside>
 
     <section class="events__page__main">

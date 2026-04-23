@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { NewsItem } from './news.model';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -11,13 +11,23 @@ export class NewsService {
 
   constructor(private http: HttpClient) {}
 
-  getNews(limit = 10, skip = 0, isPinned?: boolean): Observable<NewsItem[]> {
-    let params = new HttpParams()
-      .set('limit', limit)
-      .set('skip', skip);
+  getNews(
+    limit = 10,
+    skip = 0,
+    isPinned?: boolean,
+    search?: string,
+    categories?: string[],
+  ): Observable<NewsItem[]> {
+    let params = new HttpParams().set('limit', limit).set('skip', skip);
 
     if (isPinned !== undefined) {
       params = params.set('isPinned', String(isPinned));
+    }
+    if (search) {
+      params = params.set('search', search);
+    }
+    if (categories?.length) {
+      params = params.set('categories', categories.join(','));
     }
 
     return this.http.get<NewsItem[]>(this.apiUrl, { params });

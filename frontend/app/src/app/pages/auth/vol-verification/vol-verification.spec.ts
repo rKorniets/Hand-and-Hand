@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Categories } from './categories';
+import { VolVerification } from './vol-verification';
 
-describe('Categories', () => {
-  let component: Categories;
-  let fixture: ComponentFixture<Categories>;
+describe('VolVerification', () => {
+  let component: VolVerification;
+  let fixture: ComponentFixture<VolVerification>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Categories],
+      imports: [VolVerification],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Categories);
+    fixture = TestBed.createComponent(VolVerification);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

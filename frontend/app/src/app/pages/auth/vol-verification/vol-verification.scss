@@ -1,0 +1,159 @@
+@use '../../../../styles/variables' as *;
+
+.verification {
+  position: relative;
+  min-height: calc(100vh - 160px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 70px 32px 90px;
+  background: $auth-bg;
+  overflow: hidden;
+
+  &__container {
+    width: 100%;
+    max-width: 980px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+  }
+
+  &__title-wrapper {
+    margin-bottom: 32px;
+  }
+
+  &__title {
+    margin: 0;
+    min-width: 190px;
+    padding: 16px 44px;
+    border: 3px solid $color-black;
+    border-radius: $auth-border-radius;
+    background: $auth-bg;
+    text-align: center;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  &__form {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  &__field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__field-inner {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    border: 3px solid $auth-field-border-color;
+    border-radius: $auth-border-radius;
+    overflow: hidden;
+    background: $color-white;
+    transition: border-color 0.15s;
+
+    &--error {
+      border-color: $color-black;
+      box-shadow: 3px 3px 0 $color-black;
+    }
+
+    &--upload {
+      display: flex;
+      flex-direction: column;
+      grid-template-columns: unset;
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: $auth-input-min-height;
+    background: $auth-label-bg;
+    font-size: $auth-input-font-size;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  &__upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: $auth-input-min-height;
+    background: $auth-label-bg;
+    font-size: $auth-input-font-size;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  &__upload-area {
+    width: 100%;
+    min-height: 100px;
+    background: $color-white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  &__upload-icon {
+    font-size: 48px;
+    color: #aaa;
+  }
+
+
+  &__upload-name {
+    font-size: 14px;
+    color: #444;
+    word-break: break-all;
+    padding: 8px;
+  }
+
+  &__input {
+    width: 100%;
+    min-height: $auth-input-min-height;
+    padding: 0 22px;
+    border: none;
+    outline: none;
+    background: $color-white;
+    font-size: $auth-input-font-size;
+    line-height: 1.2;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: $auth-placeholder-color;
+    }
+  }
+
+  &__validation-error {
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-black;
+    letter-spacing: 0.01em;
+
+    &::before {
+      content: '⚠ ';
+    }
+  }
+
+  &__button {
+    margin-top: 2px;
+    border: none;
+    background: transparent;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+}
