@@ -67,7 +67,9 @@ export class ReportService {
   }
 
   async create(data: CreateReportDto) {
-    return this.prisma.report.create({ data });
+    return this.prisma.report.create({
+      data: { ...data, published_at: data.published_at ?? new Date() },
+    });
   }
 
   async update(id: number, data: UpdateReportDto, currentUser: RequestUser) {

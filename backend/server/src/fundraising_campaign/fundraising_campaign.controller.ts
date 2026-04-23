@@ -83,6 +83,11 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   @ApiOperation({ summary: 'Створити збір' })
   async create(@Body() data: CreateFundraisingCampaignDto) {
     return this.service.create(data);
+  async create(
+    @Body() data: CreateFundraisingCampaignDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.create(data, user.id);
   }
 
   @Put(':id')

@@ -1,10 +1,19 @@
-import { IsInt, IsString, IsEnum, IsOptional, MinLength } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { warning_severity_enum } from '@prisma/client';
 
 export class CreateWarningAdminDto {
   @ApiProperty({ description: 'ID of user receiving the warning' })
   @IsInt()
+  @IsPositive()
   user_id: number;
 
   @ApiProperty()
@@ -23,9 +32,12 @@ export class CreateWarningAdminDto {
 
   @ApiPropertyOptional({ description: 'Warning expiration date' })
   @IsOptional()
-  expires_at?: Date;
+  @IsDateString()
+  expires_at?: string;
 
-  @ApiPropertyOptional({ description: 'Related entity type (news, project, etc.)' })
+  @ApiPropertyOptional({
+    description: 'Related entity type (news, project, etc.)',
+  })
   @IsOptional()
   @IsString()
   related_entity_type?: string;
@@ -33,5 +45,6 @@ export class CreateWarningAdminDto {
   @ApiPropertyOptional({ description: 'Related entity ID' })
   @IsOptional()
   @IsInt()
+  @IsPositive()
   related_entity_id?: number;
 }

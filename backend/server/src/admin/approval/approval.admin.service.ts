@@ -7,17 +7,26 @@ import { Prisma, approval_request_status_enum } from '@prisma/client';
 export class ApprovalAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: ApprovalQueryDto) {
-    const where: Prisma.approval_requestWhereInput = {
-      ...(query.type && { type: query.type }),
-      ...(query.status && { status: query.status }),
+  async findAll(
+    params: ApprovalQueryDto & {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+  ) {
+    const whereClause: Prisma.approval_requestWhereInput = {
+      ...(params.type && { type: params.type }),
+      ...(params.status && { status: params.status }),
+      ...(params.search && {
+        rejection_reason: { contains: params.search, mode: 'insensitive' },
+      }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.approval_request.findMany({
-        where,
-        take: query.limit,
-        skip: query.skip,
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
         orderBy: { created_at: 'desc' },
         include: {
           submitter: {
@@ -39,7 +48,7 @@ export class ApprovalAdminService {
           },
         },
       }),
-      this.prisma.approval_request.count({ where }),
+      this.prisma.approval_request.count({ where: whereClause }),
     ]);
 
     return { data, total };

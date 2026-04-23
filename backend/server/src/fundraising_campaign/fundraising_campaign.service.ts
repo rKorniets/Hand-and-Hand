@@ -103,7 +103,25 @@ export class FundraisingCampaignService {
     };
   }
 
-  async create(data: CreateFundraisingCampaignDto) {
+  async create(data: CreateFundraisingCampaignDto, userId: number) {
+    const orgProfile = await this.prisma.organization_profile.findFirst({
+      where: { user_id: userId },
+      select: { id: true },
+    });
+
+    const volProfile = !orgProfile
+      ? await this.prisma.volunteer_profile.findFirst({
+          where: { user_id: userId },
+          select: { id: true },
+        })
+      : null;
+
+    if (!orgProfile && !volProfile) {
+      throw new ForbiddenException(
+        'Не знайдено профіль організації або волонтера для цього користувача',
+      );
+    }
+
     let jarId: string | null = null;
 
     try {
@@ -142,6 +160,10 @@ export class FundraisingCampaignService {
       createData.volunteer_profile = {
         connect: { id: data.volunteer_profile_id },
       };
+    if (orgProfile) {
+      createData.organization_profile = { connect: { id: orgProfile.id } };
+    } else if (volProfile) {
+      createData.volunteer_profile = { connect: { id: volProfile.id } };
     }
 
     const campaign = await this.prisma.fundraising_campaign.create({
