@@ -3,7 +3,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { UserQueryDto } from './dto/user-query.dto';
 import { CreateUserAdminDto } from './dto/create-user.admin.dto';
 import { UpdateAppUserDto } from '../../app_user/dto/update-app-user.dto';
-import { Prisma, user_status_enum, user_role_enum, warning_status_enum } from '@prisma/client';
+import {
+  Prisma,
+  user_status_enum,
+  user_role_enum,
+  warning_status_enum,
+} from '@prisma/client';
 import * as argon2 from 'argon2';
 
 @Injectable()

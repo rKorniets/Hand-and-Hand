@@ -8,29 +8,55 @@ import { Prisma, warning_status_enum } from '@prisma/client';
 export class WarningAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: WarningQueryAdminDto) {
-    const where: Prisma.warningsWhereInput = {
-      ...(query.user_id && { user_id: query.user_id }),
-      ...(query.status && { status: query.status }),
-      ...(query.severity && { severity: query.severity }),
+  async findAll(
+    params: WarningQueryAdminDto & {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+  ) {
+    const whereClause: Prisma.warningsWhereInput = {
+      ...(params.user_id && { user_id: params.user_id }),
+      ...(params.status && { status: params.status }),
+      ...(params.severity && { severity: params.severity }),
+      ...(params.search && {
+        OR: [
+          { reason: { contains: params.search, mode: 'insensitive' } },
+          {
+            app_user_warnings_user_idToapp_user: {
+              email: { contains: params.search, mode: 'insensitive' },
+            },
+          },
+        ],
+      }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.warnings.findMany({
-        where,
-        take: query.limit,
-        skip: query.skip,
+        where: whereClause,
+        take: params.limit,
+        skip: params.skip,
         orderBy: { created_at: 'desc' },
         include: {
           app_user_warnings_user_idToapp_user: {
-            select: { id: true, email: true, first_name: true, last_name: true },
+            select: {
+              id: true,
+              email: true,
+              first_name: true,
+              last_name: true,
+            },
           },
           app_user_warnings_created_byToapp_user: {
-            select: { id: true, email: true, first_name: true, last_name: true },
+            select: {
+              id: true,
+              email: true,
+              first_name: true,
+              last_name: true,
+            },
           },
         },
       }),
-      this.prisma.warnings.count({ where }),
+      this.prisma.warnings.count({ where: whereClause }),
     ]);
 
     return { data, total };

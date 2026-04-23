@@ -9,28 +9,32 @@ export class TaskAssignmentAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(
-    limit: number,
-    skip: number,
+    limit?: number,
+    skip?: number,
     taskId?: number,
     volunteerId?: number,
+    search?: string,
   ) {
-    const where: Prisma.task_assignmentWhereInput = {
+    const whereClause: Prisma.task_assignmentWhereInput = {
       ...(taskId && { task_id: taskId }),
       ...(volunteerId && { volunteer_profile_id: volunteerId }),
+      ...(search && {
+        task: { title: { contains: search, mode: 'insensitive' } },
+      }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.task_assignment.findMany({
-        where,
+        where: whereClause,
         take: limit,
-        skip,
+        skip: skip,
         orderBy: { created_at: 'desc' },
         include: {
           task: { select: { id: true, title: true, status: true } },
           volunteer_profile: { select: { id: true, display_name: true } },
         },
       }),
-      this.prisma.task_assignment.count({ where }),
+      this.prisma.task_assignment.count({ where: whereClause }),
     ]);
 
     return { data, total };

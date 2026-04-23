@@ -15,19 +15,38 @@ import { CreateNewsDto } from '../../news/dto/create-news.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, news } from '@prisma/client';
+import {
+  AbstractCrudController,
+  type IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { AuthAdmin } from '../approval/approval.admin.controller';
 
 @ApiTags('Адмін — Новини')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/news')
-export class NewsAdminController {
-  constructor(private readonly service: NewsAdminService) {}
+export class NewsAdminController extends AbstractCrudController<news[]> {
+  constructor(private readonly service: NewsAdminService) {
+    super({
+      findAll: (limit?: number, skip?: number, search?: string) =>
+        service.findAll({ limit, skip, search } as NewsQueryAdminDto),
+    } as unknown as IBaseCrudService<news[]>);
+  }
 
   @Get()
   @ApiOperation({ summary: 'Всі новини (включаючи неопубліковані)' })
-  async findAll(@Query() query: NewsQueryAdminDto) {
-    return this.service.findAll(query);
+  async getNews(
+    @Query() paginationQuery: PaginationDto,
+    @Query() newsQuery: NewsQueryAdminDto,
+  ) {
+    return this.service.findAll({
+      ...newsQuery,
+      limit: paginationQuery.limit ?? 10,
+      skip: paginationQuery.skip ?? 0,
+      search: paginationQuery.search,
+    });
   }
 
   @Get(':id')
@@ -38,10 +57,7 @@ export class NewsAdminController {
 
   @Post()
   @ApiOperation({ summary: 'Створити новину' })
-  async create(
-    @Body() data: CreateNewsDto,
-    @CurrentUser() user: { id: number },
-  ) {
+  async create(@Body() data: CreateNewsDto, @CurrentUser() user: AuthAdmin) {
     return this.service.create(data, user.id);
   }
 
