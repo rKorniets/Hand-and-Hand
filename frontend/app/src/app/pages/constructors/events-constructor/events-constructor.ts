@@ -227,6 +227,8 @@ export class EventsConstructorComponent implements OnInit {
         city: loc!.city!,
         address: loc!.address!,
         region: loc!.region!,
+        lat: 0,
+        lng: 0,
       },
     };
 

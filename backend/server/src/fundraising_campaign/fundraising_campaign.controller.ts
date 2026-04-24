@@ -72,10 +72,12 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       categories,
     );
   }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(+id);
   }
+
   @Post()
   @ApiBearerAuth()
   @Roles(
@@ -84,8 +86,6 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     user_role_enum.ADMIN,
   )
   @ApiOperation({ summary: 'Створити збір' })
-  async create(@Body() data: CreateFundraisingCampaignDto) {
-    return this.service.create(data);
   async create(
     @Body() data: CreateFundraisingCampaignDto,
     @CurrentUser() user: { id: number },

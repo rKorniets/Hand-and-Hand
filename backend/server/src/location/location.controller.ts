@@ -38,6 +38,13 @@ export class LocationController extends AbstractCrudController<location[]> {
   }
 
   @Public()
+  @Get('cities')
+  @ApiOperation({ summary: 'Отримати список міст' })
+  getCities() {
+    return this.locationService.getCities();
+  }
+
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Отримати список усіх локацій' })
   getLocations(@Query() query: PaginationDto) {

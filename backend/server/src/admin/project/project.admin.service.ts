@@ -91,8 +91,7 @@ export class ProjectAdminService {
     return project;
   }
 
-  // noinspection DuplicatedCode
-  async create(data: CreateProjectDto) {
+  async create(data: CreateProjectAdminDto) {
     return this.prisma.project.create({
       data: {
         organization_profile: {
@@ -107,7 +106,6 @@ export class ProjectAdminService {
     });
   }
 
-  // noinspection DuplicatedCode
   async update(id: number, data: UpdateProjectDto) {
     await this.findOne(id);
 

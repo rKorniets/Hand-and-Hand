@@ -19,6 +19,8 @@ export interface CreateProjectPayload {
     city: string;
     address: string;
     region: string;
+    lat: number;
+    lng: number;
   };
 }
 

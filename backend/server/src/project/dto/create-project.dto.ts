@@ -6,11 +6,13 @@ import {
   IsOptional,
   IsInt,
   IsEnum,
+  IsDateString,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateLocationDto } from '../../location/dto/create_location.dto';
+import { IsAfter } from '../../common/validators/is-after.validator';
 
 export class CreateProjectDto {
   @ApiProperty()
@@ -22,16 +24,6 @@ export class CreateProjectDto {
   @IsInt()
   category_id?: number;
 
-  IsDateString,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-import { IsAfter } from '../../common/validators/is-after.validator';
-
-export class CreateProjectDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -70,8 +62,7 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @IsDateString()
   application_deadline?: string;
 
   @ApiPropertyOptional()
@@ -83,7 +74,6 @@ export class CreateProjectDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MaxLength(500)
   image_url?: string;
 
   @ApiPropertyOptional({ enum: project_status_enum })
@@ -93,13 +83,11 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
   @IsDateString()
   starts_at?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
   @IsDateString()
   @IsAfter('starts_at')
   ends_at?: string;
