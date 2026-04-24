@@ -46,10 +46,9 @@ export class CreateReportDto {
   @IsUrl()
   file_url: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Дата публікації звіту',
   })
-  @IsOptional()
   @IsDateString()
-  published_at?: string;
+  published_at: string;
 }

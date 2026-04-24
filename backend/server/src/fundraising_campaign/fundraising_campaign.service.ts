@@ -70,7 +70,6 @@ export class FundraisingCampaignService {
     }
 
     if (status) {
-      // TypeScript автоматично виведе тип як масив Enum, 'as' не потрібен
       const statusArray = Array.isArray(status) ? status : [status];
       whereClause.status = {
         in: statusArray,
@@ -83,16 +82,6 @@ export class FundraisingCampaignService {
           category: {
             slug: { in: categories },
           },
-    const filterStatus = status
-      ? status
-      : fundraising_campaign_status_enum.ACTIVE;
-
-    const whereClause: Prisma.fundraising_campaignWhereInput = {
-      status: filterStatus,
-      ...(search && {
-        title: {
-          contains: search,
-          mode: 'insensitive',
         },
       };
     }
@@ -138,6 +127,7 @@ export class FundraisingCampaignService {
         e instanceof Error ? e.message : e,
       );
     }
+
     let orgProfileId: number | undefined = undefined;
     let volProfileId: number | undefined = undefined;
 
@@ -160,6 +150,7 @@ export class FundraisingCampaignService {
         );
       }
     }
+
     const createData: Prisma.fundraising_campaignCreateInput = {
       title: data.title,
       description: data.description,
@@ -173,18 +164,6 @@ export class FundraisingCampaignService {
       image_url: data.image_url,
     };
 
-    if (data.organization_profile_id) {
-      createData.organization_profile = {
-        connect: { id: data.organization_profile_id },
-      };
-    } else if (data.volunteer_profile_id) {
-      createData.volunteer_profile = {
-        connect: { id: data.volunteer_profile_id },
-      };
-    if (orgProfile) {
-      createData.organization_profile = { connect: { id: orgProfile.id } };
-    } else if (volProfile) {
-      createData.volunteer_profile = { connect: { id: volProfile.id } };
     if (orgProfileId) {
       createData.organization_profile = {
         connect: { id: orgProfileId },
@@ -302,6 +281,7 @@ export class FundraisingCampaignService {
       },
     });
   }
+
   async findOne(id: number) {
     const campaign = await this.prisma.fundraising_campaign.findUnique({
       where: { id },

@@ -63,4 +63,13 @@ export class LocationService {
     await this.findOne(id);
     return this.prisma.location.delete({ where: { id } });
   }
+
+  async getCities(): Promise<string[]> {
+    const locations = await this.prisma.location.findMany({
+      select: { city: true },
+      distinct: ['city'],
+      orderBy: { city: 'asc' },
+    });
+    return locations.map((l) => l.city);
+  }
 }

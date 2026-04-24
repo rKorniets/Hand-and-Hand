@@ -24,6 +24,7 @@ export class CategoryController extends AbstractCrudController<category[]> {
       query.limit ?? 5,
       query.skip ?? 0,
       query.search,
+      query.for,
     );
   }
 

@@ -19,7 +19,6 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { user_role_enum, verification_status_enum } from '@prisma/client';
 import {
   user_role_enum,
   verification_status_enum,
@@ -253,8 +252,6 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     );
   }
 
-  // Static "me/..." routes MUST be declared BEFORE ":id/..." routes,
-  // otherwise Express matches "me" against ":id" and ParseIntPipe throws 400.
   @Get('me/invitations')
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
@@ -318,8 +315,6 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     );
   }
 
-  // Static ":id/members/me" MUST be declared BEFORE ":id/members/:userId"
-  // so "me" isn't captured as userId and rejected by ParseIntPipe.
   @Delete(':id/members/me')
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)

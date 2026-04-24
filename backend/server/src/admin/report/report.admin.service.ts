@@ -55,8 +55,6 @@ export class ReportAdminService {
   }
 
   async create(data: CreateReportAdminDto) {
-  // noinspection DuplicatedCode
-  async create(data: CreateReportDto) {
     return this.prisma.report.create({
       data: {
         title: data.title,
@@ -75,10 +73,9 @@ export class ReportAdminService {
     });
   }
 
-  // noinspection DuplicatedCode
   async update(id: number, data: UpdateReportDto) {
     await this.findOne(id);
-    // noinspection DuplicatedCode
+
     return this.prisma.report.update({
       where: { id },
       data: {
