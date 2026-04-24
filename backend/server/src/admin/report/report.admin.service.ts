@@ -54,15 +54,14 @@ export class ReportAdminService {
     return report;
   }
 
-  async create(data: CreateReportAdminDto) {
   // noinspection DuplicatedCode
-  async create(data: CreateReportDto) {
+  async create(data: CreateReportAdminDto) {
     return this.prisma.report.create({
       data: {
         title: data.title,
         type: data.type,
         file_url: data.file_url,
-        published_at: data.published_at,
+        published_at: data.published_at ?? new Date(),
         organization_profile: {
           connect: { id: data.organization_profile_id },
         },

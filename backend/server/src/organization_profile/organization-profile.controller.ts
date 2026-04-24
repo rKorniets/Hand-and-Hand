@@ -19,7 +19,6 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { user_role_enum, verification_status_enum } from '@prisma/client';
 import {
   user_role_enum,
   verification_status_enum,

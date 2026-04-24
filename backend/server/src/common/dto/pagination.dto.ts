@@ -38,4 +38,11 @@ export class PaginationDto {
   @IsInt()
   @Min(1)
   organization_profile_id?: number;
+
+  @ApiPropertyOptional({
+    description: 'Фільтр контексту (напр. "news", "fundraising", "projects")',
+  })
+  @IsOptional()
+  @IsString()
+  for?: string;
 }

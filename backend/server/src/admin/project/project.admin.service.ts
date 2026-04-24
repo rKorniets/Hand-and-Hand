@@ -92,7 +92,10 @@ export class ProjectAdminService {
   }
 
   // noinspection DuplicatedCode
-  async create(data: CreateProjectDto) {
+  async create(data: CreateProjectAdminDto) {
+    if (!data.organization_profile_id) {
+      throw new NotFoundException('organization_profile_id is required');
+    }
     return this.prisma.project.create({
       data: {
         organization_profile: {
@@ -101,8 +104,8 @@ export class ProjectAdminService {
         title: data.title,
         description: data.description,
         status: data.status,
-        starts_at: data.starts_at,
-        ends_at: data.ends_at,
+        starts_at: data.starts_at ? new Date(data.starts_at) : null,
+        ends_at: data.ends_at ? new Date(data.ends_at) : null,
       },
     });
   }

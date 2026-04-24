@@ -69,13 +69,12 @@ export class FundraisingCampaignService {
       whereClause.title = { contains: search, mode: 'insensitive' };
     }
 
-    if (status) {
-      // TypeScript автоматично виведе тип як масив Enum, 'as' не потрібен
-      const statusArray = Array.isArray(status) ? status : [status];
-      whereClause.status = {
-        in: statusArray,
-      };
-    }
+    // Якщо статус не передано — за замовчуванням показуємо тільки ACTIVE
+    const filterStatus = status ?? fundraising_campaign_status_enum.ACTIVE;
+    const statusArray = Array.isArray(filterStatus)
+      ? filterStatus
+      : [filterStatus];
+    whereClause.status = { in: statusArray };
 
     if (categories && categories.length > 0) {
       whereClause.fundraising_category = {
@@ -83,16 +82,6 @@ export class FundraisingCampaignService {
           category: {
             slug: { in: categories },
           },
-    const filterStatus = status
-      ? status
-      : fundraising_campaign_status_enum.ACTIVE;
-
-    const whereClause: Prisma.fundraising_campaignWhereInput = {
-      status: filterStatus,
-      ...(search && {
-        title: {
-          contains: search,
-          mode: 'insensitive',
         },
       };
     }
@@ -173,18 +162,6 @@ export class FundraisingCampaignService {
       image_url: data.image_url,
     };
 
-    if (data.organization_profile_id) {
-      createData.organization_profile = {
-        connect: { id: data.organization_profile_id },
-      };
-    } else if (data.volunteer_profile_id) {
-      createData.volunteer_profile = {
-        connect: { id: data.volunteer_profile_id },
-      };
-    if (orgProfile) {
-      createData.organization_profile = { connect: { id: orgProfile.id } };
-    } else if (volProfile) {
-      createData.volunteer_profile = { connect: { id: volProfile.id } };
     if (orgProfileId) {
       createData.organization_profile = {
         connect: { id: orgProfileId },

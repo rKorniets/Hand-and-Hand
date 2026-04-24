@@ -1,10 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
   IsNotEmpty,
-  IsOptional,
-  MaxLength,
   IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateLocationDto {
@@ -13,23 +15,6 @@ export class CreateLocationDto {
   @IsNotEmpty()
   @MaxLength(100)
   city: string;
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
-
-export class CreateLocationDto {
-  @ApiProperty({ example: 49.839683, description: 'Широта (Latitude)' })
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(-90)
-  @Max(90)
-  lat: number;
-
-  @ApiProperty({ example: 24.029717, description: 'Довгота (Longitude)' })
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(-180)
-  @Max(180)
-  lng: number;
 
   @ApiProperty({ example: 'вул. Соборна, 1' })
   @IsString()
@@ -43,13 +28,20 @@ export class CreateLocationDto {
   @MaxLength(100)
   region: string;
 
-  @ApiPropertyOptional({ example: 49.839683 })
+  @ApiPropertyOptional({ example: 49.839683, description: 'Широта (Latitude)' })
   @IsOptional()
   @IsNumber()
+  @Min(-90)
+  @Max(90)
   lat?: number;
 
-  @ApiPropertyOptional({ example: 24.029717 })
+  @ApiPropertyOptional({
+    example: 24.029717,
+    description: 'Довгота (Longitude)',
+  })
   @IsOptional()
   @IsNumber()
+  @Min(-180)
+  @Max(180)
   lng?: number;
 }
