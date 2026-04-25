@@ -21,7 +21,6 @@ import { ProfileUserComponent } from './pages/profile-user/profile-user';
 import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
 import { ResetPassword } from './pages/auth/reset-password/reset-password';
 import { EventsConstructorComponent } from './pages/constructors/events-constructor/events-constructor';
-import { ResetPassword } from './pages/auth/reset-password/reset-password'
 import { VolVerification } from './pages/auth/vol-verification/vol-verification';
 import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';

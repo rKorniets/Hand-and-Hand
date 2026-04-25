@@ -48,6 +48,15 @@ export class LocationController extends AbstractCrudController<location[]> {
     );
   }
 
+  // Static "cities" route MUST be declared BEFORE ":id" route,
+  // otherwise Express matches "cities" against ":id" and ParseIntPipe throws 400.
+  @Public()
+  @Get('cities')
+  @ApiOperation({ summary: 'Отримати список міст' })
+  getCities() {
+    return this.locationService.getCities();
+  }
+
   @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Отримати локацію за ID' })
