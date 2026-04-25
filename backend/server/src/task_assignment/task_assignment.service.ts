@@ -118,8 +118,7 @@ export class TaskAssignmentService {
       currentUser,
     );
 
-    const wantsComplete =
-      data.status === task_assignment_status_enum.COMPLETED;
+    const wantsComplete = data.status === task_assignment_status_enum.COMPLETED;
 
     return this.prisma.$transaction(async (tx) => {
       let completedJustNow = false;
@@ -170,9 +169,8 @@ export class TaskAssignmentService {
             currentUser.id,
             points_transaction_type_enum.EARN,
             fresh.task.points_reward_base,
-            id,
             `Task "${fresh.task.title}" completed`, //meow <3
-            tx,
+            id,
           );
         }
       }

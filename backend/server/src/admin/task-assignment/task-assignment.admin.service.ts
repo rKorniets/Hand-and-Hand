@@ -130,8 +130,6 @@ export class TaskAssignmentAdminService {
           },
         });
       }
-
-      // Чи слід нараховувати: щойно завершили АБО підтвердили уже-COMPLETED + перевірка чи вже давали нагороду
       const shouldAward =
         nextStatus === task_assignment_status_enum.COMPLETED &&
         nextConfirmed === true &&
@@ -157,9 +155,8 @@ export class TaskAssignmentAdminService {
               userId,
               points_transaction_type_enum.EARN,
               amount,
-              id,
               `Task "${assignment.task.title}" completed`,
-              tx,
+              id,
             );
           }
         }
