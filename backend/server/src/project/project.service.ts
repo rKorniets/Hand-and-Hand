@@ -76,6 +76,17 @@ export class ProjectService {
   }
 
   async createProject(data: CreateProjectDto, currentUser: RequestUser) {
+    const orgProfile = await this.prisma.organization_profile.findFirst({
+      where: { id: data.organization_profile_id, user_id: currentUser.id },
+      select: { id: true },
+    });
+
+    if (!orgProfile) {
+      throw new ForbiddenException(
+        'Не знайдено профіль організації для цього користувача',
+      );
+    }
+
     return this.prisma.$transaction(async (tx) => {
       let locationId: number | undefined;
 
