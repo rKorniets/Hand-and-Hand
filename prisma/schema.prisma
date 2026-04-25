@@ -293,8 +293,8 @@ model news_category {
 
 model location {
   id                   Int                    @id @default(autoincrement())
-  lat                  Decimal                @db.Decimal(9, 6)
-  lng                  Decimal                @db.Decimal(9, 6)
+  lat                  Decimal?               @db.Decimal(9, 6)
+  lng                  Decimal?               @db.Decimal(9, 6)
   address              String
   region               String
   city                 String

@@ -96,8 +96,8 @@ export class ProjectService {
             city: data.location.city,
             address: data.location.address,
             region: data.location.region,
-            lat: data.location.lat ?? 0,
-            lng: data.location.lng ?? 0,
+            lat: data.location.lat ?? null,
+            lng: data.location.lng ?? null,
           },
         });
         locationId = loc.id;

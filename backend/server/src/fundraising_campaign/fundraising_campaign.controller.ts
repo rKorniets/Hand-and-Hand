@@ -9,6 +9,7 @@ import {
   Query,
   ParseIntPipe,
   ParseEnumPipe,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -62,7 +63,11 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       new ParseEnumPipe(fundraising_campaign_status_enum, { optional: true }),
     )
     status?: fundraising_campaign_status_enum,
-    @Query('categories') categories?: string[],
+    @Query(
+      'categories',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    categories?: string[],
   ) {
     return this.service.findAll(
       query.limit ?? 8,

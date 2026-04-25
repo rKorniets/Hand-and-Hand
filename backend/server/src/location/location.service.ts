@@ -14,8 +14,8 @@ export class LocationService {
         city: data.city,
         address: data.address,
         region: data.region,
-        lat: data.lat ?? 0,
-        lng: data.lng ?? 0,
+        lat: data.lat ?? null,
+        lng: data.lng ?? null,
       },
     });
   }
