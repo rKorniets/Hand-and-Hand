@@ -15,12 +15,16 @@
       @if (error) {
         <p>Помилка завантаження. Спробуйте пізніше.</p>
       }
-      @if (!loading) {
-        <app-list-fundraising-campaigns
-          [fundraisingCampaignItem]="campaignsList"
-          [totalPages]="totalPages"
-          (pageChanged)="onPageChanged($event)">
-        </app-list-fundraising-campaigns>
+      @if (!loading && !error) {
+        @if (campaignsList.length === 0) {
+          <p>Збори не знайдено.</p>
+        } @else {
+          <app-list-fundraising-campaigns
+            [fundraisingCampaignItem]="campaignsList"
+            [totalPages]="totalPages"
+            (pageChanged)="onPageChanged($event)">
+          </app-list-fundraising-campaigns>
+        }
       }
     </div>
 

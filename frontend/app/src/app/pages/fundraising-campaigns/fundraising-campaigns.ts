@@ -52,6 +52,7 @@ export class FundraisingCampaigns implements OnInit {
   loadCampaigns(page: number) {
     this.currentPage = page;
     this.loading = true;
+    this.error = false;
     const skip = (page - 1) * this.limit;
 
     this.fundraisingService
@@ -66,12 +67,14 @@ export class FundraisingCampaigns implements OnInit {
           this.campaignsList = response.data;
           this.totalPages = Math.ceil(response.total / this.limit) || 1;
           this.loading = false;
+          this.error = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('ПОМИЛКА:', err);
           this.error = true;
           this.loading = false;
+          this.cdr.detectChanges();
         },
       });
   }

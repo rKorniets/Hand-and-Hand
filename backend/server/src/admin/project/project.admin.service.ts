@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ProjectQueryAdminDto } from './dto/project-query.admin.dto';
 import { CreateProjectAdminDto } from './dto/create-project.admin.dto';
@@ -61,7 +65,7 @@ export class ProjectAdminService {
       },
     });
 
-    const result = await Promise.all(
+    return Promise.all(
       requests.map(async (req) => {
         const project = await this.prisma.project.findUnique({
           where: { id: req.entity_id },
@@ -70,8 +74,6 @@ export class ProjectAdminService {
         return { ...req, project };
       }),
     );
-
-    return result;
   }
 
   async findOne(id: number) {
@@ -94,7 +96,7 @@ export class ProjectAdminService {
   // noinspection DuplicatedCode
   async create(data: CreateProjectAdminDto) {
     if (!data.organization_profile_id) {
-      throw new NotFoundException('organization_profile_id is required');
+      throw new BadRequestException('organization_profile_id is required');
     }
     return this.prisma.project.create({
       data: {

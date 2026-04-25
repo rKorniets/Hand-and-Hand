@@ -13,8 +13,8 @@ export interface Category {
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
-  private readonly apiUrl = '/api/categories';
-  private readonly locationsUrl = '/api/locations';
+  private readonly apiUrl = 'http://localhost:3000/categories';
+  private readonly locationsUrl = 'http://localhost:3000/locations';
 
   private cache: Partial<Record<CategoryContext, Observable<Category[]>>> = {};
   private cities$: Observable<string[]> | null = null;

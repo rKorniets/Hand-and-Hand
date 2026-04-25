@@ -24,11 +24,17 @@ export class FundraisingCampaignsService {
     if (search) {
       params = params.set('search', search);
     }
+    // Append each value as its own query param so Nest parses as string[]:
+    // ?categories=a&categories=b (NOT ?categories=a,b)
     if (categories?.length) {
-      params = params.set('categories', categories.join(','));
+      for (const c of categories) {
+        params = params.append('categories', c);
+      }
     }
     if (status?.length) {
-      params = params.set('status', status.join(','));
+      for (const s of status) {
+        params = params.append('status', s);
+      }
     }
 
     return this.http.get<{ data: FundraisingCampaignItem[]; total: number }>(this.apiUrl, {
