@@ -145,17 +145,60 @@ export class ProjectService {
   ) {
     await this.validateOwnership(id, currentUser);
 
-    return this.prisma.project.update({
-      where: { id },
-      data: {
-        title: data.title,
-        description: data.description,
-        main_content: data.main_content,
-        status: data.status,
-        starts_at: data.starts_at ? new Date(data.starts_at) : null,
-        ends_at: data.ends_at ? new Date(data.ends_at) : null,
-        updated_at: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      if (data.location) {
+        const existing = await tx.project.findUnique({
+          where: { id },
+          select: { location_id: true },
+        });
+
+        if (existing?.location_id) {
+          await tx.location.update({
+            where: { id: existing.location_id },
+            data: {
+              city: data.location.city,
+              address: data.location.address,
+              region: data.location.region,
+            },
+          });
+        } else {
+          const loc = await tx.location.create({
+            data: {
+              city: data.location.city,
+              address: data.location.address,
+              region: data.location.region,
+              lat: null,
+              lng: null,
+            },
+          });
+          await tx.project.update({
+            where: { id },
+            data: { location_id: loc.id },
+          });
+        }
+      }
+
+      return tx.project.update({
+        where: { id },
+        data: {
+          title: data.title,
+          description: data.description,
+          main_content: data.main_content,
+          status: data.status,
+          what_volunteers_will_do: data.what_volunteers_will_do,
+          why_its_important: data.why_its_important,
+          time: data.time,
+          application_deadline: data.application_deadline
+            ? new Date(data.application_deadline)
+            : null,
+          partners: data.partners,
+          image_url: data.image_url,
+          starts_at: data.starts_at ? new Date(data.starts_at) : null,
+          ends_at: data.ends_at ? new Date(data.ends_at) : null,
+          ...(data.category_id && { category_id: data.category_id }),
+          updated_at: new Date(),
+        },
+      });
     });
   }
 

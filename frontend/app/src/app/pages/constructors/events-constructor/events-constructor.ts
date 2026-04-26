@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   FormGroup,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EventsConstructorService } from './events-constructor.service';
 import { project_status_enum } from './events-constructor.model';
@@ -67,12 +67,15 @@ export class EventsConstructorComponent implements OnInit {
   private eventService = inject(EventsConstructorService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   isLoading = signal(false);
   serverError = signal<string | null>(null);
   categories: { id: number; name: string }[] = [];
   selectedFileName = signal<string | null>(null);
   selectedFilePreview = signal<string | null>(null);
+  isEditMode = signal(false);
+  editId = signal<number | null>(null);
 
   form = this.fb.group(
     {
@@ -156,6 +159,61 @@ export class EventsConstructorComponent implements OnInit {
       next: (data) => (this.categories = data),
       error: () => {},
     });
+
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      const id = Number(idParam);
+      this.editId.set(id);
+      this.isEditMode.set(true);
+      this.loadEventData(id);
+    }
+  }
+
+  private loadEventData(id: number): void {
+    this.isLoading.set(true);
+    this.eventService.getProjectById(id).subscribe({
+      next: (project) => {
+        const orgId = this.getOrgProfileId();
+        if (project.organization_profile_id !== orgId) {
+          this.serverError.set('Ви не можете редагувати цю подію.');
+          this.isLoading.set(false);
+          return;
+        }
+
+        const toDateStr = (val: string | null) =>
+          val ? new Date(val).toISOString().split('T')[0] : '';
+
+        this.form.patchValue({
+          title: project.title,
+          category: project.category_id ? String(project.category_id) : '',
+          description: project.description,
+          what_volunteers_will_do: project.what_volunteers_will_do ?? '',
+          why_its_important: project.why_its_important ?? '',
+          status: project.status,
+          starts_at: toDateStr(project.starts_at),
+          ends_at: toDateStr(project.ends_at),
+          time: project.time ?? '',
+          application_deadline: toDateStr(project.application_deadline),
+          partners: project.partners ?? '',
+          image_url: project.image_url ?? '',
+          location: {
+            city: project.location?.city ?? '',
+            address: project.location?.address ?? '',
+            region: project.location?.region ?? '',
+          },
+        });
+
+        if (project.image_url) {
+          this.selectedFilePreview.set(project.image_url);
+        }
+
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.serverError.set('Не вдалося завантажити подію.');
+        this.isLoading.set(false);
+      },
+    });
   }
 
   onFileSelected(event: Event): void {
@@ -233,15 +291,28 @@ export class EventsConstructorComponent implements OnInit {
     this.isLoading.set(true);
     this.serverError.set(null);
 
-    this.eventService.createProject(payload).subscribe({
-      next: () => {
-        this.isLoading.set(false);
-        void this.router.navigate(['/events']);
-      },
-      error: (err: { error?: { message?: string } }) => {
-        this.isLoading.set(false);
-        this.serverError.set(err?.error?.message ?? 'Помилка створення події. Спробуйте ще раз.');
-      },
-    });
+    if (this.isEditMode() && this.editId()) {
+      this.eventService.updateProject(this.editId()!, payload).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          void this.router.navigate(['/profile-organization']);
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.isLoading.set(false);
+          this.serverError.set(err?.error?.message ?? 'Помилка оновлення події. Спробуйте ще раз.');
+        },
+      });
+    } else {
+      this.eventService.createProject(payload).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          void this.router.navigate(['/events']);
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.isLoading.set(false);
+          this.serverError.set(err?.error?.message ?? 'Помилка створення події. Спробуйте ще раз.');
+        },
+      });
+    }
   }
 }

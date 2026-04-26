@@ -37,17 +37,21 @@ export const routes: Routes = [
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'vol-verification', component: VolVerification},
-  { path: 'application-submitted', component: ApplicationSubmitted},
+  { path: 'vol-verification', component: VolVerification },
+  { path: 'application-submitted', component: ApplicationSubmitted },
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
-  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard], },
+  {
+    path: 'profile/admin/pending-organizations',
+    component: AdminPanelComponent,
+    canActivate: [authGuard],
+  },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
+  { path: 'activity/edit/:id', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'organizations/:id', component: ProfileOrganization },
-
   {
     path: 'fundraisingCampaign/create',
     loadComponent: () =>
@@ -55,6 +59,5 @@ export const routes: Routes = [
         (m) => m.CreateFundraisingComponent,
       ),
   },
-  {
-    path: 'fundraising/:id', component: FundraisingCampaignsDetail, },
+  { path: 'fundraising/:id', component: FundraisingCampaignsDetail },
 ];
