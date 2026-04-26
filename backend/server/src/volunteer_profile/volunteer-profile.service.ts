@@ -2,8 +2,14 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import {
+  Prisma,
+  approval_request_status_enum,
+  approval_request_type_enum,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
@@ -103,6 +109,7 @@ export class VolunteerProfileService {
         ...(data.skills_text !== undefined && {
           skills_text: data.skills_text,
         }),
+        ...(data.docs_url !== undefined && { docs_url: data.docs_url }),
       },
     });
   }
@@ -111,5 +118,44 @@ export class VolunteerProfileService {
     await this.validateProfileOwnership(id, currentUser);
 
     return this.prisma.volunteer_profile.delete({ where: { id } });
+  }
+
+  async createVerificationRequest(currentUser: RequestUser) {
+    const profile = await this.prisma.volunteer_profile.findUnique({
+      where: { user_id: currentUser.id },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Volunteer profile not found');
+    }
+
+    if (profile.is_verified) {
+      throw new BadRequestException('Already verified');
+    }
+
+    if (!profile.docs_url) {
+      throw new BadRequestException('Upload document first');
+    }
+
+    const existingPending = await this.prisma.approval_request.findFirst({
+      where: {
+        type: approval_request_type_enum.VOLUNTEER,
+        entity_id: profile.id,
+        status: approval_request_status_enum.PENDING,
+      },
+    });
+
+    if (existingPending) {
+      throw new ConflictException('Verification request already pending');
+    }
+
+    return this.prisma.approval_request.create({
+      data: {
+        type: approval_request_type_enum.VOLUNTEER,
+        entity_id: profile.id,
+        submitted_by: currentUser.id,
+        status: approval_request_status_enum.PENDING,
+      },
+    });
   }
 }

@@ -46,6 +46,7 @@ model volunteer_profile {
   rating               Decimal?               @db.Decimal(3, 2)
   is_verified          Boolean                @default(false)
   avatar_url           String?
+  docs_url             String?
   created_at           DateTime               @default(now()) @db.Timestamptz(6)
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
