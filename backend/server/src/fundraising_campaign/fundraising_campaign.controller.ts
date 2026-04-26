@@ -78,6 +78,8 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     );
   }
   @Get(':id')
+  @Public()
+  @ApiOperation({ summary: 'Отримати деталі конкретного збору' })
   findOne(@Param('id') id: string) {
     return this.service.findOne(+id);
   }
