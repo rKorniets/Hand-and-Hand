@@ -88,10 +88,7 @@ export class ApprovalAdminService {
     return { ...request, entity };
   }
 
-  private async loadEntity(
-    type: approval_request_type_enum,
-    entityId: number,
-  ) {
+  private async loadEntity(type: approval_request_type_enum, entityId: number) {
     if (type === approval_request_type_enum.VOLUNTEER) {
       return this.prisma.volunteer_profile.findUnique({
         where: { id: entityId },
