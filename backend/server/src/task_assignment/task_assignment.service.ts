@@ -2,11 +2,14 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import {
   Prisma,
   points_transaction_type_enum,
   task_assignment_status_enum,
+  task_status_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PointsService } from '../points/points.service';
@@ -53,15 +56,41 @@ export class TaskAssignmentService {
     if (!profile) {
       throw new NotFoundException('Volunteer profile not found');
     }
+    return this.prisma.$transaction(async (tx) => {
+      const task = await tx.task.findUnique({
+        where: { id: data.task_id },
+        select: { status: true },
+      });
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      if (task.status !== task_status_enum.OPEN) {
+        throw new BadRequestException('Task is not available');
+      }
+      const existingAssignment = await tx.task_assignment.findFirst({
+        where: {
+          task_id: data.task_id,
+          volunteer_profile_id: profile.id,
+        },
+      });
+      if (existingAssignment) {
+        throw new ConflictException('You have already applied for this task');
+      }
+      const assignment = await tx.task_assignment.create({
+        data: {
+          task_id: data.task_id,
+          volunteer_profile_id: profile.id,
+          status: task_assignment_status_enum.ASSIGNED,
+          comment: data.comment,
+          requester_confirmed: false,
+        },
+      });
+      await tx.task.update({
+        where: { id: data.task_id },
+        data: { status: task_status_enum.ASSIGNED },
+      });
 
-    return this.prisma.task_assignment.create({
-      data: {
-        task_id: data.task_id,
-        volunteer_profile_id: profile.id,
-        status: data.status,
-        comment: data.comment,
-        requester_confirmed: false,
-      },
+      return assignment;
     });
   }
 
@@ -118,8 +147,7 @@ export class TaskAssignmentService {
       currentUser,
     );
 
-    const wantsComplete =
-      data.status === task_assignment_status_enum.COMPLETED;
+    const wantsComplete = data.status === task_assignment_status_enum.COMPLETED;
 
     return this.prisma.$transaction(async (tx) => {
       let completedJustNow = false;
