@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -46,7 +47,7 @@ export class AuthService {
           email: dto.email,
           password_hash: passwordHash,
           role: user_role_enum.VOLUNTEER,
-          status: user_status_enum.ACTIVE,
+          status: user_status_enum.PENDING,
           first_name: dto.firstName,
           last_name: dto.lastName,
           city: dto.city,
@@ -66,8 +67,10 @@ export class AuthService {
       return u;
     });
 
-    const token = await this.signToken(user);
-    return { message: 'Registered successfully', ...token };
+    const token = await this.generateAndSaveVerificationToken(user.id);
+    await this.sendVerificationEmail(user.email, user.id, token);
+
+    return { message: 'Registered successfully. Please verify your email.' };
   }
 
   async registerOrganization(dto: RegisterOrganizationDto) {
@@ -114,7 +117,13 @@ export class AuthService {
       return u;
     });
 
-    return { message: 'Registered successfully', userId: user.id };
+    const token = await this.generateAndSaveVerificationToken(user.id);
+    await this.sendVerificationEmail(dto.email, user.id, token);
+
+    return {
+      message: 'Registered successfully. Please verify your email.',
+      userId: user.id,
+    };
   }
 
   async loginUser(dto: LoginUserDto) {
@@ -128,6 +137,10 @@ export class AuthService {
 
     const isValid = await argon2.verify(user.password_hash, dto.password);
     if (!isValid) throw new UnauthorizedException('Invalid credentials');
+
+    if (user.status === user_status_enum.PENDING) {
+      throw new UnauthorizedException('Please verify your email first');
+    }
 
     if (user.status !== user_status_enum.ACTIVE) {
       throw new ForbiddenException('Account is not active');
@@ -152,10 +165,9 @@ export class AuthService {
     if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
     if (user.status === user_status_enum.PENDING) {
-      throw new ForbiddenException(
-        'Ваш акаунт очікує підтвердження адміністратором',
-      );
+      throw new UnauthorizedException('Please verify your email first');
     }
+
     if (user.status === user_status_enum.INACTIVE) {
       throw new ForbiddenException('Ваш акаунт було відхилено');
     }
@@ -165,6 +177,111 @@ export class AuthService {
     }
 
     return this.signToken(user);
+  }
+
+  async verifyEmail(userId: number, token: string) {
+    const tokenRecord = await this.prisma.email_verification_token.findUnique({
+      where: { token },
+    });
+
+    if (!tokenRecord) {
+      throw new NotFoundException('Token not found');
+    }
+
+    if (tokenRecord.expires_at < new Date()) {
+      throw new BadRequestException('Token expired');
+    }
+
+    if (tokenRecord.user_id !== userId) {
+      throw new ForbiddenException('Invalid token for this user');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.app_user.update({
+        where: { id: userId },
+        data: { status: user_status_enum.ACTIVE },
+      });
+
+      await tx.email_verification_token.delete({
+        where: { id: tokenRecord.id },
+      });
+    });
+
+    return { message: 'Email successfully verified' };
+  }
+
+  async resendVerification(email: string) {
+    const user = await this.prisma.app_user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.status !== user_status_enum.PENDING) {
+      throw new BadRequestException('Email already verified');
+    }
+
+    await this.prisma.email_verification_token.deleteMany({
+      where: {
+        OR: [{ user_id: user.id }, { expires_at: { lt: new Date() } }],
+      },
+    });
+
+    const token = await this.generateAndSaveVerificationToken(user.id);
+    await this.sendVerificationEmail(user.email, user.id, token);
+
+    return { message: 'Verification email resent' };
+  }
+
+  private async generateAndSaveVerificationToken(
+    userId: number,
+  ): Promise<string> {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    await this.prisma.email_verification_token.create({
+      data: {
+        user_id: userId,
+        token,
+        expires_at: expiresAt,
+      },
+    });
+
+    return token;
+  }
+
+  private async sendVerificationEmail(
+    email: string,
+    userId: number,
+    token: string,
+  ) {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.mailUser,
+        pass: this.mailPass,
+      },
+    });
+
+    const verifyLink = `${this.frontendUrl}/verify-email?token=${token}&userId=${userId}`;
+
+    await transporter.sendMail({
+      from: `"Hand-and-Hand" <${this.mailUser}>`,
+      to: email,
+      subject: 'Підтвердження електронної пошти',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+          <h2>Ласкаво просимо!</h2>
+          <p>Дякуємо за реєстрацію. Будь ласка, підтвердіть свою електронну пошту, перейшовши за посиланням нижче:</p>
+          <a href="${verifyLink}" style="display: inline-block; padding: 10px 20px; color: white; background-color: #28a745; text-decoration: none; border-radius: 5px;">Підтвердити Email</a>
+          <p><em>Посилання дійсне протягом 24 годин.</em></p>
+          <p>Якщо ви не реєструвалися на нашому сайті, просто проігноруйте цей лист.</p>
+        </div>
+      `,
+    });
   }
 
   async forgotPassword(email: string) {

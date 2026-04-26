@@ -7,13 +7,13 @@ datasource db {
 }
 
 model app_user {
-  id                                     Int                    @id @default(autoincrement())
-  email                                  String                 @unique
+  id                                     Int                               @id @default(autoincrement())
+  email                                  String                            @unique
   password_hash                          String
   role                                   user_role_enum
-  status                                 user_status_enum       @default(PENDING)
-  created_at                             DateTime               @default(now()) @db.Timestamptz(6)
-  points                                 Int                    @default(0)
+  status                                 user_status_enum                  @default(PENDING)
+  created_at                             DateTime                          @default(now()) @db.Timestamptz(6)
+  points                                 Int                               @default(0)
   first_name                             String?
   last_name                              String?
   city                                   String?
@@ -30,8 +30,9 @@ model app_user {
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
   ticket                                 ticket[]
-  warnings_warnings_created_byToapp_user warnings[]             @relation("warnings_created_byToapp_user")
-  warnings_warnings_user_idToapp_user    warnings[]             @relation("warnings_user_idToapp_user")
+  email_verification_token               email_verification_token[]
+  warnings_warnings_created_byToapp_user warnings[]                        @relation("warnings_created_byToapp_user")
+  warnings_warnings_user_idToapp_user    warnings[]                        @relation("warnings_user_idToapp_user")
   donation                               donation[]
   organization_membership_request        organization_membership_request[]
 }
@@ -55,19 +56,19 @@ model volunteer_profile {
 }
 
 model organization_profile {
-  id                    Int                      @id @default(autoincrement())
-  user_id               Int                      @unique
+  id                    Int                               @id @default(autoincrement())
+  user_id               Int                               @unique
   name                  String
-  edrpou                String                   @unique
+  edrpou                String                            @unique
   description           String?
-  verification_status   verification_status_enum @default(PENDING)
+  verification_status   verification_status_enum          @default(PENDING)
   official_docs_url     String?
   contact_phone         String?
   contact_email         String?
   city                  String?
   logo_url              String?
   location_id           Int?
-  created_at            DateTime                 @default(now()) @db.Timestamptz(6)
+  created_at            DateTime                          @default(now()) @db.Timestamptz(6)
   mission               String
   members               app_user[]               @relation("OrganizationMembers")
   fundraising_campaign  fundraising_campaign[]
@@ -90,8 +91,8 @@ model organization_membership_request {
   status          organization_membership_request_status_enum    @default(PENDING)
   created_at      DateTime                                       @default(now()) @db.Timestamptz(6)
   reviewed_at     DateTime?                                      @db.Timestamptz(6)
-  organization    organization_profile                        @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_org_membership_request_org")
-  user            app_user                                    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_org_membership_request_user")
+  organization    organization_profile                           @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_org_membership_request_org")
+  user            app_user                                       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_org_membership_request_user")
 
   @@unique([organization_id, user_id], map: "uq_org_membership_request")
   @@index([organization_id], map: "idx_org_membership_request_org_id")
@@ -425,6 +426,15 @@ model password_reset_token {
   expires_at DateTime @db.Timestamptz(6)
   created_at DateTime @default(now()) @db.Timestamptz(6)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_token_user")
+}
+
+model email_verification_token {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  token      String   @unique
+  expires_at DateTime @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_email_verification_token_user")
 }
 
 model report {
