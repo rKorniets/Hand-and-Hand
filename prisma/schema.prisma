@@ -148,6 +148,7 @@ model project_registration {
   project    project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@unique([project_id, user_id], map: "uq_project_registration")
   @@index([project_id])
   @@index([user_id])
 }
