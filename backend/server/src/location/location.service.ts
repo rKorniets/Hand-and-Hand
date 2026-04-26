@@ -14,8 +14,8 @@ export class LocationService {
         city: data.city,
         address: data.address,
         region: data.region,
-        lat: data.lat ?? 0,
-        lng: data.lng ?? 0,
+        lat: data.lat ?? null,
+        lng: data.lng ?? null,
       },
     });
   }
@@ -62,5 +62,14 @@ export class LocationService {
   async remove(id: number) {
     await this.findOne(id);
     return this.prisma.location.delete({ where: { id } });
+  }
+
+  async getCities(): Promise<string[]> {
+    const locations = await this.prisma.location.findMany({
+      select: { city: true },
+      distinct: ['city'],
+      orderBy: { city: 'asc' },
+    });
+    return locations.map((l) => l.city);
   }
 }

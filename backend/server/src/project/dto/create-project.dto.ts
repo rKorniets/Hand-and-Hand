@@ -1,16 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { project_status_enum } from '@prisma/client';
 import {
-  IsString,
+  IsDateString,
+  IsEnum,
+  IsInt,
   IsNotEmpty,
   IsOptional,
-  IsInt,
-  IsEnum,
+  IsString,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateLocationDto } from '../../location/dto/create_location.dto';
+import { IsAfter } from '../../common/validators/is-after.validator';
 
 export class CreateProjectDto {
   @ApiProperty()
@@ -22,16 +24,6 @@ export class CreateProjectDto {
   @IsInt()
   category_id?: number;
 
-  IsDateString,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-import { IsAfter } from '../../common/validators/is-after.validator';
-
-export class CreateProjectDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

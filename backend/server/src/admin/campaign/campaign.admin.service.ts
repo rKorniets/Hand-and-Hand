@@ -61,9 +61,8 @@ export class CampaignAdminService {
 
     return campaign;
   }
-  async create(data: CreateFundraisingCampaignDto) {
-    // noinspection DuplicatedCode
 
+  // noinspection DuplicatedCode
   async create(data: CreateCampaignAdminDto) {
     let jarId: string | null = null;
 
