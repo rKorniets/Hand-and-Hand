@@ -93,7 +93,7 @@ export class AuthService {
         },
       });
 
-      await tx.organization_profile.create({
+      const orgProfile = await tx.organization_profile.create({
         data: {
           user_id: u.id,
           name: dto.name,
@@ -106,7 +106,7 @@ export class AuthService {
       await tx.approval_request.create({
         data: {
           submitted_by: u.id,
-          entity_id: u.id,
+          entity_id: orgProfile.id,
           type: 'ORGANIZATION',
           status: 'PENDING',
         },
