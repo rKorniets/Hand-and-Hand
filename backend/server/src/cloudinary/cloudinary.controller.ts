@@ -16,6 +16,9 @@ import { CloudinaryService } from './cloudinary.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { user_role_enum } from '@prisma/client';
 
+const IMAGE_UPLOAD_LIMIT_BYTES = 5 * 1024 * 1024;
+const DOCUMENT_UPLOAD_LIMIT_BYTES = 10 * 1024 * 1024;
+
 @ApiTags('Upload')
 @Controller('upload')
 export class CloudinaryController {
@@ -46,7 +49,11 @@ export class CloudinaryController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: IMAGE_UPLOAD_LIMIT_BYTES },
+    }),
+  )
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     const url = await this.cloudinaryService.uploadImage(file);
     return { url };
@@ -78,7 +85,11 @@ export class CloudinaryController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: DOCUMENT_UPLOAD_LIMIT_BYTES },
+    }),
+  )
   async uploadDocument(@UploadedFile() file: Express.Multer.File) {
     const url = await this.cloudinaryService.uploadDocument(file);
     return { url };

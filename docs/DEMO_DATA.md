@@ -9,7 +9,7 @@
 Скрипт лежить у `prisma/seed.sql`. Виконується через Prisma CLI (бере `DATABASE_URL` з `.env` автоматично):
 
 ```powershell
-cd F:\unik\softneserve
+# з кореня репозиторію
 npx prisma db execute --file prisma/seed.sql
 ```
 
@@ -25,10 +25,10 @@ npx prisma db execute --file prisma/seed.sql
 
 ```powershell
 # через psql напряму (якщо PostgreSQL у PATH):
-psql "postgresql://postgres:170607@localhost:5432/hand_and_hand" -f prisma/seed.sql
+psql "$env:DATABASE_URL" -f prisma/seed.sql
 
 # через повний шлях до psql.exe (якщо не в PATH):
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d hand_and_hand -f prisma/seed.sql
+& "<path-to-postgresql>\bin\psql.exe" "$env:DATABASE_URL" -f prisma/seed.sql
 ```
 
 ---
@@ -76,7 +76,7 @@ psql "postgresql://postgres:170607@localhost:5432/hand_and_hand" -f prisma/seed.
 Якщо хочеш змінити пароль для демо-юзерів — згенеруй новий хеш через ту саму бібліотеку що в `auth.service.ts`:
 
 ```powershell
-cd F:\unik\softneserve\backend\server
+cd backend/server
 node -e "require('argon2').hash('YourNewPassword').then(console.log)"
 ```
 

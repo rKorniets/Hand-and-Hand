@@ -137,25 +137,24 @@ export class VolunteerProfileService {
       throw new BadRequestException('Upload document first');
     }
 
-    const existingPending = await this.prisma.approval_request.findFirst({
-      where: {
-        type: approval_request_type_enum.VOLUNTEER,
-        entity_id: profile.id,
-        status: approval_request_status_enum.PENDING,
-      },
-    });
+    try {
+      return await this.prisma.approval_request.create({
+        data: {
+          type: approval_request_type_enum.VOLUNTEER,
+          entity_id: profile.id,
+          submitted_by: currentUser.id,
+          status: approval_request_status_enum.PENDING,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Verification request already pending');
+      }
 
-    if (existingPending) {
-      throw new ConflictException('Verification request already pending');
+      throw error;
     }
-
-    return this.prisma.approval_request.create({
-      data: {
-        type: approval_request_type_enum.VOLUNTEER,
-        entity_id: profile.id,
-        submitted_by: currentUser.id,
-        status: approval_request_status_enum.PENDING,
-      },
-    });
   }
 }
