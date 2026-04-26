@@ -23,6 +23,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('register/user')
   @ApiOperation({ summary: 'Реєстрація звичайного користувача' })
   registerUser(@Body() dto: RegisterUserDto) {
@@ -30,6 +31,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('register/organization')
   @ApiOperation({ summary: 'Реєстрація організації' })
   registerOrganization(@Body() dto: RegisterOrganizationDto) {
@@ -37,6 +39,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('login/user')
   @ApiOperation({ summary: 'Логін звичайного користувача' })
@@ -45,6 +48,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('login/organization')
   @ApiOperation({ summary: 'Логін організації' })
@@ -70,6 +74,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 300000 } })
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
   @ApiOperation({ summary: 'Запит на відновлення пароля' })
