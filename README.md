@@ -2,6 +2,10 @@
 
 ## Проєкт Fullstack: Angular (Frontend) + NestJS (Backend).
 
+## Документація
+- [Демо-дані та логіни для презентації](docs/DEMO_DATA.md) — як заповнити БД і з якими акаунтами заходити
+- [Ролі та доступи](docs/ROLES_AND_ACCESS.md)
+
 # Структура проєкту
 HandAndHand<br>
 ├─ backend/      ← NestJS (Node.js, TypeScript)<br>

@@ -30,13 +30,9 @@ model app_user {
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
   ticket                                 ticket[]
-  password_reset_token                   password_reset_token[]
   email_verification_token               email_verification_token[]
   warnings_warnings_created_byToapp_user warnings[]                        @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]                        @relation("warnings_user_idToapp_user")
-  submitted_requests                     approval_request[]                @relation("submitted_requests")
-  reviewed_requests                      approval_request[]                @relation("reviewed_requests")
-  project_registration                   project_registration[]
   donation                               donation[]
   organization_membership_request        organization_membership_request[]
 }
@@ -51,6 +47,7 @@ model volunteer_profile {
   rating               Decimal?               @db.Decimal(3, 2)
   is_verified          Boolean                @default(false)
   avatar_url           String?
+  docs_url             String?
   created_at           DateTime               @default(now()) @db.Timestamptz(6)
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
@@ -152,6 +149,7 @@ model project_registration {
   project    project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@unique([project_id, user_id], map: "uq_project_registration")
   @@index([project_id])
   @@index([user_id])
 }
