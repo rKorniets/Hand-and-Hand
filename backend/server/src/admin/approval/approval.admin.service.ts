@@ -105,6 +105,23 @@ export class ApprovalAdminService {
     return null;
   }
 
+  private async findRequestForResolution(id: number) {
+    const request = await this.prisma.approval_request.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        type: true,
+        entity_id: true,
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException(`Approval request with ID ${id} not found`);
+    }
+
+    return request;
+  }
+
   async approve(id: number, adminUserId: number) {
     return this.handleResolution(
       id,
@@ -128,7 +145,7 @@ export class ApprovalAdminService {
     status: approval_request_status_enum,
     reason?: string,
   ) {
-    const request = await this.findOne(id);
+    const request = await this.findRequestForResolution(id);
     const isApprove = status === approval_request_status_enum.APPROVED;
 
     await this.prisma.$transaction(async (tx) => {
