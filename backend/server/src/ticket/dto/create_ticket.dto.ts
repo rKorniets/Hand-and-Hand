@@ -20,4 +20,8 @@ export class CreateTicketDto {
   @IsOptional()
   @IsInt()
   location_id?: number;
+
+  @IsOptional()
+  @IsString()
+  file_url?: string;
 }

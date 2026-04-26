@@ -1,0 +1,145 @@
+<div class="create-request">
+  <div class="create-request__card">
+
+    <div class="create-request__header">
+      <div class="create-request__header-accent"></div>
+      <h2 class="create-request__title">Запит на допомогу</h2>
+      <p class="create-request__subtitle">Поля з зірочками є обов'язковими!</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="create-request__form">
+
+      <div class="create-request__field" [class.create-request__field--error]="isInvalid(title)">
+        <label class="create-request__label create-request__label--required" for="req-title">Заголовок</label>
+        <div class="create-request__input-wrap">
+          <input id="req-title" type="text" class="create-request__input"
+                 formControlName="title" placeholder="Введіть заголовок" />
+        </div>
+        @if (isInvalid(title)) {
+          <div class="create-request__errors">
+            @if (title.hasError('required') || title.hasError('blank')) {
+              <span class="create-request__error">Назва обов'язкова</span>
+            }
+            @if (title.hasError('maxlength')) {
+              <span class="create-request__error">Максимум 200 символів</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="create-request__field" [class.create-request__field--error]="isInvalid(description)">
+        <label class="create-request__label create-request__label--required" for="req-desc">Опис проблеми</label>
+        <div class="create-request__input-wrap">
+          <textarea id="req-desc" class="create-request__input create-request__input--textarea"
+                    formControlName="description" rows="5"
+                    placeholder="Короткий опис"></textarea>
+        </div>
+        @if (isInvalid(description)) {
+          <div class="create-request__errors">
+            @if (description.hasError('required') || description.hasError('blank')) {
+              <span class="create-request__error">Опис обов'язковий</span>
+            }
+            @if (description.hasError('maxlength')) {
+              <span class="create-request__error">Максимум 2000 символів</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="create-request__field">
+        <label class="create-request__label" for="req-category">Додати категорії</label>
+        <div class="create-request__input-wrap create-request__input-wrap--select">
+          <select id="req-category" class="create-request__input create-request__input--select"
+                  formControlName="category">
+            <option value="">Оберіть категорію</option>
+            @for (cat of categories; track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+          <span class="material-symbols-outlined create-request__input-icon create-request__input-icon--arrow">expand_more</span>
+        </div>
+      </div>
+
+      <div class="create-request__field">
+        <label class="create-request__label" for="req-file">Додати файли для ознайомлення</label>
+        <div class="create-request__file-zone" (click)="fileInput.click()">
+          @if (selectedFilePreview()) {
+            <img [src]="selectedFilePreview()" class="create-request__file-preview" alt="preview" />
+            <button type="button" class="create-request__file-remove" (click)="$event.stopPropagation(); removeFile()">✕</button>
+          } @else {
+            <span class="material-symbols-outlined create-request__file-icon">description</span>
+            @if (selectedFileName()) {
+              <span class="create-request__file-name">{{ selectedFileName() }}</span>
+            }
+          }
+        </div>
+        <input #fileInput id="req-file" type="file" accept="image/*" hidden
+               (change)="onFileSelected($event)" />
+      </div>
+
+      <div class="create-request__section" formGroupName="location">
+        <div class="create-request__location-grid">
+
+          <div class="create-request__field" [class.create-request__field--error]="isInvalid(city)">
+            <label class="create-request__label" for="req-city">Населений пункт</label>
+            <div class="create-request__input-wrap">
+              <input id="req-city" type="text" class="create-request__input"
+                     formControlName="city" placeholder="Місто або село" />
+            </div>
+            @if (isInvalid(city)) {
+              <div class="create-request__errors">
+                @if (city.hasError('maxlength')) { <span class="create-request__error">Максимум 100 символів</span> }
+              </div>
+            }
+          </div>
+
+          <div class="create-request__field" [class.create-request__field--error]="isInvalid(address)">
+            <label class="create-request__label" for="req-address">Адреса</label>
+            <div class="create-request__input-wrap">
+              <input id="req-address" type="text" class="create-request__input"
+                     formControlName="address" placeholder="Вулиця, будинок" />
+            </div>
+            @if (isInvalid(address)) {
+              <div class="create-request__errors">
+                @if (address.hasError('maxlength')) { <span class="create-request__error">Максимум 200 символів</span> }
+              </div>
+            }
+          </div>
+
+          <div class="create-request__field" [class.create-request__field--error]="isInvalid(region)">
+            <label class="create-request__label" for="req-region">Область</label>
+            <div class="create-request__input-wrap">
+              <input id="req-region" type="text" class="create-request__input"
+                     formControlName="region" placeholder="Область" />
+            </div>
+            @if (isInvalid(region)) {
+              <div class="create-request__errors">
+                @if (region.hasError('maxlength')) { <span class="create-request__error">Максимум 100 символів</span> }
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>
+
+      @if (serverError()) {
+        <div class="create-request__server-error">
+          {{ serverError() }}
+        </div>
+      }
+
+      <div class="create-request__footer">
+        <button class="create-request__submit" type="submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="create-request__spinner"></span>
+            <span>Створення...</span>
+          } @else {
+            <span class="create-request__submit-text">Надіслати запит</span>
+            <span class="create-request__submit-arrow">→</span>
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

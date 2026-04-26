@@ -1,7 +1,7 @@
 <div class="requests-container" #listTop>
   <h2 class="requests-title">Запити про допомогу</h2>
 
-  <button class="add-button" routerLink="/requests/create">+</button>
+  <button class="add-button" routerLink="/request">+</button>
 
   <div class="tickets-list">
     @for (item of (requests | slice:0:(isExpanded ? requests.length : 2)); track item.id) {
