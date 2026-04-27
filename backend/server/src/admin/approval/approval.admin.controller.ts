@@ -33,7 +33,8 @@ export class ApprovalAdminController extends AbstractCrudController<any> {
   constructor(private readonly service: ApprovalAdminService) {
     super({
       findAll: (limit?: number, skip?: number, search?: string) =>
-        service.findAll({ limit, skip, search } as any),
+        service.findAll({ limit, skip, search } as unknown as ApprovalQueryDto &
+          PaginationDto),
     } as unknown as IBaseCrudService<any>);
   }
 
