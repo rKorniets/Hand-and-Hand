@@ -23,7 +23,6 @@ import {
   user_role_enum,
   verification_status_enum,
   organization_membership_request_status_enum,
-  organization_profile,
 } from '@prisma/client';
 import {
   OrganizationProfileService,
