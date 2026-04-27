@@ -1,4 +1,4 @@
-export type ReportType = 'фінансовий' | 'результати' | 'активності' | 'інше' |string
+export type ReportType = 'фінансовий' | 'результати' | 'активності' | 'інше' | string;
 
 export interface ActivityItem {
   id: number;
@@ -45,7 +45,7 @@ export interface Organization {
   members?: OrgMember[];
 }
 
-export interface OrgLocation  {
+export interface OrgLocation {
   id: number;
   lat?: number;
   lng?: number;

@@ -14,12 +14,12 @@
 
     @if (isLoggedIn) {
       <a type="button" (click)="goToProfile()" class="header__profile">
-        <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
+        <img src="/images/icon-profile.png" alt="" class="header_profile_icon" />
         <span>Профіль</span>
       </a>
     } @else {
       <a routerLink="/login" class="header__profile">
-        <img src="/images/icon-profile.png" alt="" class="header_profile_icon">
+        <img src="/images/icon-profile.png" alt="" class="header_profile_icon" />
         <span>Увійти</span>
       </a>
     }

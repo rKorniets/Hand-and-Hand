@@ -1,11 +1,7 @@
 <main class="fundraising__campaigns">
   <div class="fundraising__campaigns__wrapper">
-
     <aside class="fundraising__campaigns__sidebar">
-      <app-filters
-        [config]="filterConfig"
-        (filtersChanged)="onFiltersChanged($event)"
-      />
+      <app-filters [config]="filterConfig" (filtersChanged)="onFiltersChanged($event)" />
     </aside>
 
     <div class="fundraising__campaigns__main">
@@ -22,11 +18,11 @@
           <app-list-fundraising-campaigns
             [fundraisingCampaignItem]="campaignsList"
             [totalPages]="totalPages"
-            (pageChanged)="onPageChanged($event)">
+            (pageChanged)="onPageChanged($event)"
+          >
           </app-list-fundraising-campaigns>
         }
       }
     </div>
-
   </div>
 </main>

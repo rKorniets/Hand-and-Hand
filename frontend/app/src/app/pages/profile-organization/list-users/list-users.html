@@ -1,7 +1,5 @@
 <div class="members-card">
-  <h2 class="members-card__title">
-    Список учасників ({{ members.length }}) :
-  </h2>
+  <h2 class="members-card__title">Список учасників ({{ members.length }}) :</h2>
 
   <ul class="members-list">
     @for (member of visibleMembers; track member.id) {
@@ -16,11 +14,11 @@
 
         <span class="members-list__name">{{ getFullName(member) }}</span>
 
-
         <button
           class="members-list__delete"
           (click)="onDelete(member)"
-          [attr.aria-label]="'Видалити ' + getFullName(member)">
+          [attr.aria-label]="'Видалити ' + getFullName(member)"
+        >
           <span class="material-symbols-outlined">delete</span>
         </button>
       </li>
@@ -34,8 +32,6 @@
       </button>
     }
 
-    <button class="members-card__add" (click)="onAdd()">
-      Додати учасників
-    </button>
+    <button class="members-card__add" (click)="onAdd()">Додати учасників</button>
   </div>
 </div>

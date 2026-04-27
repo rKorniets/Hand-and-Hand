@@ -38,5 +38,6 @@ export class VolVerification {
 
     this.error = '';
     this.loading = true;
-    this.router.navigate(['/application-submitted']);  }
+    this.router.navigate(['/application-submitted']);
+  }
 }

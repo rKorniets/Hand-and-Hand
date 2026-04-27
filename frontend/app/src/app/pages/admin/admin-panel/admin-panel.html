@@ -14,13 +14,13 @@
     <div class="pending-orgs__table-wrapper">
       <table class="pending-orgs__table">
         <thead>
-        <tr>
-          <th>Назва</th>
-          <th>ЄДРПОУ</th>
-          <th>Email</th>
-          <th>Дата подачі</th>
-          <th>Дії</th>
-        </tr>
+          <tr>
+            <th>Назва</th>
+            <th>ЄДРПОУ</th>
+            <th>Email</th>
+            <th>Дата подачі</th>
+            <th>Дії</th>
+          </tr>
         </thead>
         <tbody>
           @for (item of items; track item.id) {
@@ -69,20 +69,17 @@
     <div class="pending-orgs__table-wrapper">
       <table class="pending-orgs__table">
         <thead>
-        <tr>
-          <th>Назва проєкту</th>
-          <th>Організація</th>
-          <th>Email</th>
-          <th>Дата подачі</th>
-          <th>Дії</th>
-        </tr>
+          <tr>
+            <th>Назва проєкту</th>
+            <th>Організація</th>
+            <th>Email</th>
+            <th>Дата подачі</th>
+            <th>Дії</th>
+          </tr>
         </thead>
         <tbody>
           @for (item of projects; track item.id) {
-            <tr
-              class="pending-orgs__row--clickable"
-              (click)="openProject(item.project.id)"
-            >
+            <tr class="pending-orgs__row--clickable" (click)="openProject(item.project.id)">
               <td>{{ item.project.title }}</td>
               <td>{{ item.submitter.organization_profile.name }}</td>
               <td>{{ item.submitter.email }}</td>

@@ -1,11 +1,7 @@
 <main class="organizations">
   <div class="organizations__wrapper">
-
     <aside class="organizations__sidebar">
-      <app-filters
-        [config]="filterConfig"
-        (filtersChanged)="onFiltersChanged($event)"
-      />
+      <app-filters [config]="filterConfig" (filtersChanged)="onFiltersChanged($event)" />
     </aside>
 
     <div class="organizations__main">
@@ -19,6 +15,5 @@
         <app-list-org [organizations]="organizations" />
       }
     </div>
-
   </div>
 </main>

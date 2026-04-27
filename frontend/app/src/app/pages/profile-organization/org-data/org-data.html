@@ -8,10 +8,7 @@
 
   <div class="org-data__list">
     @if (editing) {
-      <textarea
-        class="org-data__textarea"
-        [(ngModel)]="description"
-      ></textarea>
+      <textarea class="org-data__textarea" [(ngModel)]="description"></textarea>
     } @else {
       <p class="org-data__text">
         {{ description || 'Опис відсутній' }}

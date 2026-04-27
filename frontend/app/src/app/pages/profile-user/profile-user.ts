@@ -22,7 +22,7 @@ import { RouterLink } from '@angular/router';
     Requests,
     UserData,
     Achievement,
-    FundraisingCampaignsUser
+    FundraisingCampaignsUser,
   ],
   templateUrl: './profile-user.html',
   styleUrl: './profile-user.scss',
@@ -33,7 +33,7 @@ export class ProfileUserComponent implements OnInit {
   constructor(
     private profileUserService: UserProfileService,
     private cdr: ChangeDetectorRef,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   get isVolunteer(): boolean {

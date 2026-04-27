@@ -1,10 +1,7 @@
 <div class="org-detail">
-
   @if (org) {
     <main class="main">
-
       <div class="top-grid">
-
         <div class="card org-card">
           <div class="org-card__top">
             <div class="org-card__info">
@@ -12,7 +9,8 @@
               <ul class="org-card__meta">
                 @if (org.location) {
                   <li>
-                    <span class="label">Адреса:</span> {{ org.location.city }}, {{ org.location.address }}
+                    <span class="label">Адреса:</span> {{ org.location.city }},
+                    {{ org.location.address }}
                   </li>
                 }
                 <li><span class="label">Email:</span> {{ org.contact_email }}</li>
@@ -21,16 +19,13 @@
             </div>
           </div>
 
-          <button class="btn btn--dark btn--full">
-            Подати заявку "Потребую допомоги"
-          </button>
+          <button class="btn btn--dark btn--full">Подати заявку "Потребую допомоги"</button>
         </div>
 
         <div class="card desc-card">
           <h3 class="desc-card__title">Опис:</h3>
           <p class="desc-card__text">{{ org.description }}</p>
         </div>
-
       </div>
 
       @if (org.events && org.events.length) {
@@ -77,9 +72,9 @@
                   <p class="fundraising__card__description">{{ item.description }}</p>
 
                   <div class="fundraising__card__footer">
-              <span class="fundraising__card__org-name">
-                Організатор: {{ item.organizer }}
-              </span>
+                    <span class="fundraising__card__org-name">
+                      Організатор: {{ item.organizer }}
+                    </span>
                   </div>
                 </div>
               </a>
@@ -91,37 +86,36 @@
           }
         </section>
       }
-<!--      @if (org.members && org.members.length) {-->
-<!--        <section class="card section-card members-card">-->
-<!--          <h2 class="section-title">-->
-<!--            Список учасників ({{ org.members.length }})-->
-<!--          </h2>-->
+      <!--      @if (org.members && org.members.length) {-->
+      <!--        <section class="card section-card members-card">-->
+      <!--          <h2 class="section-title">-->
+      <!--            Список учасників ({{ org.members.length }})-->
+      <!--          </h2>-->
 
-<!--          <div class="members-list">-->
-<!--            @for (member of org.members.slice(0, 4); track member.id) {-->
-<!--              <div class="member-item">-->
-<!--                <div class="member-item__avatar">-->
-<!--                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">-->
-<!--                    <circle cx="12" cy="8" r="4"/>-->
-<!--                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>-->
-<!--                  </svg>-->
-<!--                </div>-->
-<!--                <div class="member-item__info">-->
-<!--                  <span class="member-item__name">{{ member.name }}</span>-->
-<!--                  @if (member.role) {-->
-<!--                    <span class="member-item__role">{{ member.role }}</span>-->
-<!--                  }-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            }-->
-<!--          </div>-->
+      <!--          <div class="members-list">-->
+      <!--            @for (member of org.members.slice(0, 4); track member.id) {-->
+      <!--              <div class="member-item">-->
+      <!--                <div class="member-item__avatar">-->
+      <!--                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">-->
+      <!--                    <circle cx="12" cy="8" r="4"/>-->
+      <!--                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>-->
+      <!--                  </svg>-->
+      <!--                </div>-->
+      <!--                <div class="member-item__info">-->
+      <!--                  <span class="member-item__name">{{ member.name }}</span>-->
+      <!--                  @if (member.role) {-->
+      <!--                    <span class="member-item__role">{{ member.role }}</span>-->
+      <!--                  }-->
+      <!--                </div>-->
+      <!--              </div>-->
+      <!--            }-->
+      <!--          </div>-->
 
-<!--          @if (org.members.length > 4) {-->
-<!--            <button class="btn&#45;&#45;link">Більше...</button>-->
-<!--          }-->
-<!--        </section>-->
-<!--      }-->
-
+      <!--          @if (org.members.length > 4) {-->
+      <!--            <button class="btn&#45;&#45;link">Більше...</button>-->
+      <!--          }-->
+      <!--        </section>-->
+      <!--      }-->
     </main>
   } @else if (loading) {
     <div class="loader">
@@ -132,5 +126,4 @@
       <p>Ой! Не вдалося завантажити дані. Перевірте правильність посилання.</p>
     </div>
   }
-
 </div>

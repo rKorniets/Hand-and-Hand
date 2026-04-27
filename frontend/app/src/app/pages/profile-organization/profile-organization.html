@@ -1,12 +1,9 @@
 <main class="user__profile__page">
   <div class="user__profile__page__wrapper">
-
     <div class="user__profile__page__content">
       @if (organization) {
         <section>
-          <app-main-info
-            [organization]="organization"
-          />
+          <app-main-info [organization]="organization" />
         </section>
 
         <section>
@@ -14,13 +11,13 @@
         </section>
 
         <section>
-          <app-fundraising-campaigns-org [organization]="organization"></app-fundraising-campaigns-org>
+          <app-fundraising-campaigns-org
+            [organization]="organization"
+          ></app-fundraising-campaigns-org>
         </section>
 
         <section>
-          <app-reports
-            [organization]="organization">
-          </app-reports>
+          <app-reports [organization]="organization"> </app-reports>
         </section>
       }
     </div>
@@ -40,6 +37,5 @@
         </div>
       }
     </aside>
-
   </div>
 </main>

@@ -1,11 +1,7 @@
 <main class="news-page">
   <div class="news-page__wrapper">
-
     <aside class="news-page__sidebar">
-      <app-filters
-        [config]="filterConfig"
-        (filtersChanged)="onFiltersChanged($event)"
-      />
+      <app-filters [config]="filterConfig" (filtersChanged)="onFiltersChanged($event)" />
     </aside>
 
     <section class="news-page__main">
@@ -23,8 +19,16 @@
         <app-news-content [items]="regularNews"></app-news-content>
 
         <div class="news-page__pagination">
-          <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">«</button>
-          <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">‹</button>
+          <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
+            «
+          </button>
+          <button
+            class="news-page__page-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            ‹
+          </button>
 
           @for (page of visiblePages; track page) {
             @if (page === -1) {
@@ -34,15 +38,28 @@
                 class="news-page__page-btn"
                 [class.news-page__page-btn--active]="page === currentPage"
                 (click)="goToPage(page)"
-              >{{ page }}</button>
+              >
+                {{ page }}
+              </button>
             }
           }
 
-          <button class="news-page__page-btn" [disabled]="!hasNextPage" (click)="goToPage(currentPage + 1)">›</button>
-          <button class="news-page__page-btn" [disabled]="!hasNextPage" (click)="goToPage(currentPage + 1)">»</button>
+          <button
+            class="news-page__page-btn"
+            [disabled]="!hasNextPage"
+            (click)="goToPage(currentPage + 1)"
+          >
+            ›
+          </button>
+          <button
+            class="news-page__page-btn"
+            [disabled]="!hasNextPage"
+            (click)="goToPage(currentPage + 1)"
+          >
+            »
+          </button>
         </div>
       }
     </section>
-
   </div>
 </main>

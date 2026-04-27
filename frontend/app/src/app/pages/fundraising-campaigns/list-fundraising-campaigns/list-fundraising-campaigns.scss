@@ -43,7 +43,9 @@
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.08),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   &__image {
@@ -79,9 +81,12 @@
     text-transform: uppercase;
     background: #ffffff;
     color: #0f172a;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-    &.active { color: #059669; background: #ecfdf5; }
+    &.active {
+      color: #059669;
+      background: #ecfdf5;
+    }
   }
 
   &__content {
@@ -110,7 +115,9 @@
       color: #0f172a;
       text-decoration: none;
       transition: color 0.2s ease;
-      &:hover { color: #475569; }
+      &:hover {
+        color: #475569;
+      }
     }
   }
 
@@ -166,7 +173,8 @@
     gap: 12px;
     margin-top: auto;
 
-    .btn-primary, .btn-secondary {
+    .btn-primary,
+    .btn-secondary {
       padding: 12px;
       border-radius: 12px;
       font-weight: 600;
@@ -180,14 +188,19 @@
       background: #0f172a;
       color: #fff;
       border: 1px solid #0f172a;
-      &:hover { background: #1e293b; }
+      &:hover {
+        background: #1e293b;
+      }
     }
 
     .btn-secondary {
       background: #fff;
       color: #0f172a;
       border: 1px solid #e2e8f0;
-      &:hover { background: #f8fafc; border-color: #cbd5e1; }
+      &:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+      }
     }
   }
 }
@@ -259,7 +272,9 @@
     font-size: 1.1rem;
     color: #64748b;
     letter-spacing: -1px;
-    &:hover:not(:disabled) { color: #0f172a; }
+    &:hover:not(:disabled) {
+      color: #0f172a;
+    }
   }
 
   .page-dots {

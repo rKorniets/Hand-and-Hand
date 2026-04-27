@@ -1,7 +1,6 @@
 <main class="user__profile__page">
   @if (user !== null) {
     <div class="user__profile__page__wrapper">
-
       <div class="user__profile__page__content">
         <section>
           <app-main-info [user]="user"></app-main-info>
@@ -40,7 +39,6 @@
           <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
         </div>
       </aside>
-
     </div>
   } @else {
     <div class="loader">Завантаження профілю...</div>

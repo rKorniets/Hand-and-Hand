@@ -1,5 +1,4 @@
 <div class="filters">
-
   @if (config.showSearch !== false) {
     <div class="filters__section">
       <input
@@ -68,11 +67,7 @@
     <div class="filters__section">
       <h3 class="filters__title">Населений пункт</h3>
       <div class="filters__select-wrapper">
-        <select
-          class="filters__select"
-          [(ngModel)]="filters.city"
-          (ngModelChange)="onCityChange()"
-        >
+        <select class="filters__select" [(ngModel)]="filters.city" (ngModelChange)="onCityChange()">
           <option value="">обрати</option>
           @for (city of cities; track city) {
             <option [value]="city">{{ city }}</option>
@@ -81,5 +76,4 @@
       </div>
     </div>
   }
-
 </div>

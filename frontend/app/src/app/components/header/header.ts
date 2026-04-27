@@ -14,10 +14,13 @@ export class Header implements OnInit, OnDestroy {
   isLoggedIn = false;
   private sub: Subscription = new Subscription();
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
-    this.sub = this.authService.isLoggedIn$.subscribe(val => {
+    this.sub = this.authService.isLoggedIn$.subscribe((val) => {
       this.isLoggedIn = val;
     });
   }

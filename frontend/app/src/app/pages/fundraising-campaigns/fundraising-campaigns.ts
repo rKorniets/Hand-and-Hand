@@ -56,12 +56,7 @@ export class FundraisingCampaigns implements OnInit {
     const skip = (page - 1) * this.limit;
 
     this.fundraisingService
-      .getCampaigns(
-        this.limit,
-        skip,
-        this.activeFilters.search,
-        this.activeFilters.categories,
-      )
+      .getCampaigns(this.limit, skip, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
         next: (response) => {
           this.campaignsList = response.data;

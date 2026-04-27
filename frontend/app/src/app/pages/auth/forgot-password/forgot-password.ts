@@ -31,7 +31,7 @@ export class ForgotPassword {
       error: (err: any) => {
         this.error = err.error?.message || 'Помилка';
         this.loading = false;
-      }
+      },
     });
   }
 }

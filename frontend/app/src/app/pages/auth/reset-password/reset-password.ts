@@ -22,7 +22,7 @@ export class ResetPassword implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -50,7 +50,7 @@ export class ResetPassword implements OnInit {
       error: (err: any) => {
         this.loading = false;
         this.error = err.error?.message || 'Не вдалося змінити пароль. Спробуйте ще раз.';
-      }
+      },
     });
   }
   get buttonText(): string {

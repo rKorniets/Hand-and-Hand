@@ -100,7 +100,7 @@ export class RegisterComponent {
         this.loading = false;
         if (this.activeTab === 'org') {
           this.router.navigate(['/login'], {
-            queryParams: { pending: 'org' }
+            queryParams: { pending: 'org' },
           });
         } else {
           this.router.navigate(['/login']);

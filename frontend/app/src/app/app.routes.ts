@@ -37,10 +37,14 @@ export const routes: Routes = [
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'vol-verification', component: VolVerification},
-  { path: 'application-submitted', component: ApplicationSubmitted},
+  { path: 'vol-verification', component: VolVerification },
+  { path: 'application-submitted', component: ApplicationSubmitted },
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
-  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard], },
+  {
+    path: 'profile/admin/pending-organizations',
+    component: AdminPanelComponent,
+    canActivate: [authGuard],
+  },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPassword },
@@ -56,5 +60,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'fundraising/:id', component: FundraisingCampaignsDetail, },
+    path: 'fundraising/:id',
+    component: FundraisingCampaignsDetail,
+  },
 ];

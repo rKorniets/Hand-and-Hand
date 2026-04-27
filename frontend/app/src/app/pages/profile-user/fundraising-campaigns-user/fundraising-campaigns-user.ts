@@ -10,7 +10,7 @@ import { UserProfileService } from '../profile-user.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './fundraising-campaigns-user.html',
-  styleUrl: './fundraising-campaigns-user.scss'
+  styleUrl: './fundraising-campaigns-user.scss',
 })
 export class FundraisingCampaignsUser implements OnInit {
   @Input() user: AppUser | undefined;
@@ -20,7 +20,7 @@ export class FundraisingCampaignsUser implements OnInit {
 
   constructor(
     private uiHelper: UiHelperService,
-    private profileService: UserProfileService
+    private profileService: UserProfileService,
   ) {}
 
   ngOnInit(): void {

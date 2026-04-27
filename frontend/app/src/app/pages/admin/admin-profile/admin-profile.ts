@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth/auth.service';
 import { RouterModule } from '@angular/router';
@@ -19,7 +19,7 @@ export interface AdminProfile {
 @Component({
   selector: 'app-admin-profile',
   standalone: true,
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './admin-profile.html',
 })
 export class AdminProfileComponent implements OnInit {
@@ -29,16 +29,17 @@ export class AdminProfileComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
-    this.authService.getMe()
+    this.authService
+      .getMe()
       .pipe(
         finalize(() => {
           this.loading = false;
           this.cdr.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (data: any) => {
@@ -48,7 +49,7 @@ export class AdminProfileComponent implements OnInit {
         error: (err) => {
           this.error = 'Не вдалося завантажити профіль.';
           this.cdr.detectChanges();
-        }
+        },
       });
   }
 

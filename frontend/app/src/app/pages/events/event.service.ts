@@ -15,9 +15,7 @@ export class EventService {
   constructor(private http: HttpClient) {}
 
   getEvents(limit = 5, skip = 0, status?: string): Observable<PaginatedEvents> {
-    let params = new HttpParams()
-      .set('limit', limit)
-      .set('skip', skip);
+    let params = new HttpParams().set('limit', limit).set('skip', skip);
 
     if (status !== undefined) {
       params = params.set('status', status);

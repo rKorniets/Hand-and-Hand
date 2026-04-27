@@ -1,16 +1,15 @@
+$color-dark: #111827;
+$color-text: #374151;
+$color-muted: #6b7280;
+$color-subtle: #9ca3af;
+$color-border: #e5e7eb;
+$color-bg: #f9fafb;
+$color-white: #ffffff;
+$color-link: #2563eb;
 
-$color-dark:    #111827;
-$color-text:    #374151;
-$color-muted:   #6b7280;
-$color-subtle:  #9ca3af;
-$color-border:  #e5e7eb;
-$color-bg:      #f9fafb;
-$color-white:   #ffffff;
-$color-link:    #2563eb;
-
-$radius-sm:  8px;
-$radius-md:  10px;
-$radius-lg:  14px;
+$radius-sm: 8px;
+$radius-md: 10px;
+$radius-lg: 14px;
 
 $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
 
@@ -39,12 +38,17 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 
   &--dark {
     background: $color-dark;
     color: $color-white;
-    &:hover { background: #1f2937; }
+    &:hover {
+      background: #1f2937;
+    }
   }
 
   &--outline {
@@ -57,7 +61,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
   }
 
-  &--full { width: 100%; }
+  &--full {
+    width: 100%;
+  }
 }
 
 .btn--link {
@@ -69,14 +75,18 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   padding: 0;
   margin-top: 8px;
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .link {
   color: $color-link;
   text-decoration: underline;
   cursor: pointer;
-  &:hover { opacity: 0.8; }
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .social-btn {
@@ -90,7 +100,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   justify-content: center;
   cursor: pointer;
   color: $color-text;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 
   &:hover {
     background: #f3f4f6;
@@ -152,7 +164,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
   }
 
-  &__info { flex: 1; }
+  &__info {
+    flex: 1;
+  }
 
   &__name {
     font-size: 20px;
@@ -176,7 +190,11 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
       gap: 5px;
       color: $color-text;
 
-      svg { color: $color-muted; flex-shrink: 0; margin-top: 1px; }
+      svg {
+        color: $color-muted;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
     }
 
     .label {
@@ -223,7 +241,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   border-bottom: 1px solid #f3f4f6;
   align-items: flex-start;
 
-  &:last-of-type { border-bottom: none; }
+  &:last-of-type {
+    border-bottom: none;
+  }
 
   &__img {
     width: 100px;
@@ -233,7 +253,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
   }
 
-  &__body { flex: 1; }
+  &__body {
+    flex: 1;
+  }
 
   &__name {
     margin: 0 0 8px 0;
@@ -257,7 +279,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
     display: block;
   }
 
-  &__body { padding: 14px 16px; }
+  &__body {
+    padding: 14px 16px;
+  }
 
   &__name {
     margin: 0 0 6px 0;
@@ -287,7 +311,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   border-bottom: 1px solid #f3f4f6;
   align-items: flex-start;
 
-  &:last-of-type { border-bottom: none; }
+  &:last-of-type {
+    border-bottom: none;
+  }
 
   &__img {
     width: 90px;
@@ -297,7 +323,9 @@ $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
   }
 
-  &__body { flex: 1; }
+  &__body {
+    flex: 1;
+  }
 
   &__name {
     margin: 0 0 6px 0;

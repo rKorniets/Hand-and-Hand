@@ -14,9 +14,16 @@
 .top-navigation {
   margin-bottom: 30px;
   .back-link {
-    background: none; border: none; color: #64748b; cursor: pointer;
-    font-size: 16px; font-weight: 500; padding: 0;
-    &:hover { color: #000; }
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 0;
+    &:hover {
+      color: #000;
+    }
   }
 }
 
@@ -46,7 +53,12 @@
   }
 
   .description-area {
-    h2 { font-size: 1.8rem; margin-bottom: 24px; color: #1e293b; font-weight: 700; }
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      color: #1e293b;
+      font-weight: 700;
+    }
     .main-text {
       font-size: 1.25rem;
       line-height: 1.8;
@@ -67,13 +79,18 @@
   border-radius: 28px;
   overflow: hidden;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
 
   .card-top-image {
     width: 100%;
     height: 280px;
     background: #f1f5f9;
-    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   .card-bottom-info {
@@ -82,20 +99,49 @@
 
     .organizer-tag {
       margin-bottom: 25px;
-      .label { font-size: 12px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
-      .name { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin: 0; }
+      .label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 6px;
+      }
+      .name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+      }
     }
 
     .progress-section {
       margin-bottom: 30px;
       .amount-row {
-        display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;
-        .current { font-size: 2rem; font-weight: 900; color: #000; }
-        .goal { font-size: 1rem; color: #64748b; }
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+        .current {
+          font-size: 2rem;
+          font-weight: 900;
+          color: #000;
+        }
+        .goal {
+          font-size: 1rem;
+          color: #64748b;
+        }
       }
       .bar-container {
-        height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;
-        .bar-fill { height: 100%; background: #0f172a; transition: width 0.6s ease; }
+        height: 12px;
+        background: #f1f5f9;
+        border-radius: 6px;
+        overflow: hidden;
+        .bar-fill {
+          height: 100%;
+          background: #0f172a;
+          transition: width 0.6s ease;
+        }
       }
     }
 
@@ -117,19 +163,37 @@
         transition: 0.2s;
         border: none;
 
-        &:hover { background: #1e293b; transform: translateY(-2px); }
+        &:hover {
+          background: #1e293b;
+          transform: translateY(-2px);
+        }
       }
     }
 
     .meta-footer {
-      margin-top: 30px; padding-top: 25px; border-top: 1px solid #f1f5f9;
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid #f1f5f9;
       .meta-row {
-        display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 12px;
-        span { color: #94a3b8; }
-        strong { color: #475569; }
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        margin-bottom: 12px;
+        span {
+          color: #94a3b8;
+        }
+        strong {
+          color: #475569;
+        }
         .status-badge {
-          background: #f1f5f9; padding: 4px 10px; border-radius: 6px;
-          color: #64748b; font-weight: 700; font-size: 12px; text-transform: uppercase;
+          background: #f1f5f9;
+          padding: 4px 10px;
+          border-radius: 6px;
+          color: #64748b;
+          font-weight: 700;
+          font-size: 12px;
+          text-transform: uppercase;
         }
       }
     }
