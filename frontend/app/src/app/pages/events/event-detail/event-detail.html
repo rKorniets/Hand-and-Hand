@@ -85,7 +85,34 @@
         <div class="event-detail__sidebar">
 
           <div class="event-detail__apply">
-            Подати заявку
+
+            @if (!isLoggedIn) {
+              <button routerLink="/login" class="event-detail__apply-btn">
+                Увійдіть щоб подати заявку
+              </button>
+            }
+
+            @if (isLoggedIn && !myRegistration) {
+              <button (click)="register()" class="event-detail__apply-btn">
+                Податися на подію
+              </button>
+            }
+
+            @if (myRegistration?.status === 'PENDING') {
+              <p>Заявку подано — очікуйте розгляду</p>
+              <button (click)="unregister()" class="event-detail__apply-btn--cancel">
+                Скасувати заявку
+              </button>
+            }
+
+            @if (myRegistration?.status === 'APPROVED') {
+              <p>Вашу заявку прийнято!</p>
+            }
+
+            @if (myRegistration?.status === 'REJECTED') {
+              <p>Заявку відхилено</p>
+            }
+
           </div>
 
           @if (event.organization_profile) {

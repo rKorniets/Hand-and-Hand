@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { NewEvent } from './event.model';
+import { NewEvent, ProjectRegistration } from './event.model';
 
 export interface PaginatedEvents {
   data: NewEvent[];
@@ -29,5 +29,22 @@ export class EventService {
   getEventById(id: number): Observable<NewEvent> {
     const params = new HttpParams().set('t', Date.now().toString());
     return this.http.get<NewEvent>(`${this.apiUrl}/${id}`, { params });
+  }
+  register(projectId: number): Observable<ProjectRegistration> {
+    return this.http.post<ProjectRegistration>(
+      `${this.apiUrl}/${projectId}/register`, {}
+    );
+  }
+
+  unregister(projectId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/${projectId}/register`
+    );
+  }
+
+  getMyRegistration(projectId: number): Observable<ProjectRegistration | null> {
+    return this.http.get<ProjectRegistration | null>(
+      `${this.apiUrl}/${projectId}/my-registration`
+    );
   }
 }

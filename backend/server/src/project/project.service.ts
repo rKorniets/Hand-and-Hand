@@ -275,4 +275,9 @@ export class ProjectService {
       orderBy: { created_at: 'desc' },
     });
   }
+  async getMyRegistration(projectId: number, userId: number) {
+    return this.prisma.project_registration.findFirst({
+      where: { project_id: projectId, user_id: userId },
+    });
+  }
 }
