@@ -1,0 +1,38 @@
+name: CI Checks (Lint & Format)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install backend dependencies
+        working-directory: ./backend/server
+        run: npm install
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend/app
+        run: npm install
+
+      - name: Prettier Format Check
+        run: npm run check
+
+      - name: ESLint Check
+        run: npm run lint
