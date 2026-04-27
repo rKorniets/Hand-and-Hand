@@ -153,7 +153,6 @@ export class ProjectService {
         });
 
         if (existing?.location_id) {
-          // ВИПРАВЛЕНО: передаємо lat/lng з даних запиту замість їх ігнорування
           await tx.location.update({
             where: { id: existing.location_id },
             data: {
@@ -165,7 +164,6 @@ export class ProjectService {
             },
           });
         } else {
-          // ВИПРАВЛЕНО: передаємо lat/lng з даних запиту замість хардкоду null
           const loc = await tx.location.create({
             data: {
               city: data.location.city,

@@ -48,8 +48,6 @@ export class Activity implements OnInit, OnChanges {
         this.loadActivities();
         this.checkOwnership();
       } else {
-        // ВИПРАВЛЕНО: скидаємо isOwner коли organization стає null/undefined,
-        // щоб UI редагування не залишався видимим після logout
         this.isOwner = false;
       }
     }
@@ -58,7 +56,6 @@ export class Activity implements OnInit, OnChanges {
   private checkOwnership(): void {
     const token = this.authService.getToken();
     if (!token || !this.organization?.id) {
-      // ВИПРАВЛЕНО: явно скидаємо isOwner при відсутності токена або організації
       this.isOwner = false;
       return;
     }
