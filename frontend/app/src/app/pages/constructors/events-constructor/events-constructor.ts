@@ -163,6 +163,12 @@ export class EventsConstructorComponent implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const id = Number(idParam);
+
+      if (!Number.isFinite(id) || id <= 0) {
+        this.serverError.set('Некоректний ідентифікатор події.');
+        return;
+      }
+
       this.editId.set(id);
       this.isEditMode.set(true);
       this.loadEventData(id);

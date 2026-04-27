@@ -43,15 +43,25 @@ export class Activity implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['organization'] && this.organization?.id) {
-      this.loadActivities();
-      this.checkOwnership();
+    if (changes['organization']) {
+      if (this.organization?.id) {
+        this.loadActivities();
+        this.checkOwnership();
+      } else {
+        // ВИПРАВЛЕНО: скидаємо isOwner коли organization стає null/undefined,
+        // щоб UI редагування не залишався видимим після logout
+        this.isOwner = false;
+      }
     }
   }
 
   private checkOwnership(): void {
     const token = this.authService.getToken();
-    if (!token || !this.organization?.id) return;
+    if (!token || !this.organization?.id) {
+      // ВИПРАВЛЕНО: явно скидаємо isOwner при відсутності токена або організації
+      this.isOwner = false;
+      return;
+    }
     try {
       const payload = jwtDecode<{ organization_profile_id?: number }>(token);
       this.isOwner = payload.organization_profile_id === this.organization.id;

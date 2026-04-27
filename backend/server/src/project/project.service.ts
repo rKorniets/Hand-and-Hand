@@ -153,22 +153,26 @@ export class ProjectService {
         });
 
         if (existing?.location_id) {
+          // ВИПРАВЛЕНО: передаємо lat/lng з даних запиту замість їх ігнорування
           await tx.location.update({
             where: { id: existing.location_id },
             data: {
               city: data.location.city,
               address: data.location.address,
               region: data.location.region,
+              lat: data.location.lat ?? null,
+              lng: data.location.lng ?? null,
             },
           });
         } else {
+          // ВИПРАВЛЕНО: передаємо lat/lng з даних запиту замість хардкоду null
           const loc = await tx.location.create({
             data: {
               city: data.location.city,
               address: data.location.address,
               region: data.location.region,
-              lat: null,
-              lng: null,
+              lat: data.location.lat ?? null,
+              lng: data.location.lng ?? null,
             },
           });
           await tx.project.update({
