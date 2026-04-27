@@ -333,7 +333,9 @@
       transform: translateX(4px);
     }
   }
-
+  &__file-wrap {
+    position: relative;
+  }
   &__spinner {
     display: inline-block;
     width: 18px;

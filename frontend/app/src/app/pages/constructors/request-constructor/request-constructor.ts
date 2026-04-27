@@ -39,8 +39,6 @@ export class RequestConstructorComponent implements OnInit {
   isLoading = signal(false);
   serverError = signal<string | null>(null);
   categories: { id: number; name: string }[] = [];
-  selectedFileName = signal<string | null>(null);
-  selectedFilePreview = signal<string | null>(null);
   profileLocation = signal<{ city: string; address: string; region: string } | null>(null);
   useProfileLocation = signal(false);
 
@@ -49,6 +47,8 @@ export class RequestConstructorComponent implements OnInit {
     description: ['', [Validators.required, notBlank, Validators.maxLength(2000)]],
     category: [''],
     file_url: [''],
+    file_name: [null as string | null],
+    file_preview: [null as string | null],
     location: this.fb.group(
       {
         city: ['', [Validators.maxLength(100)]],
@@ -58,7 +58,12 @@ export class RequestConstructorComponent implements OnInit {
       { validators: locationValidator },
     ),
   });
-
+  get file_name() {
+    return this.form.controls.file_name;
+  }
+  get file_preview() {
+    return this.form.controls.file_preview;
+  }
   get title() {
     return this.form.controls.title;
   }
@@ -109,12 +114,12 @@ export class RequestConstructorComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.selectedFileName.set(file.name);
+    this.file_name.setValue(file.name);
 
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      this.selectedFilePreview.set(base64);
+      this.file_preview.setValue(base64);
       this.file_url.setValue(base64);
       this.file_url.markAsDirty();
       this.file_url.markAsTouched();
@@ -123,8 +128,8 @@ export class RequestConstructorComponent implements OnInit {
   }
 
   removeFile(): void {
-    this.selectedFileName.set(null);
-    this.selectedFilePreview.set(null);
+    this.file_name.setValue(null);
+    this.file_preview.setValue(null);
     this.file_url.setValue('');
     this.file_url.markAsTouched();
   }
@@ -164,5 +169,4 @@ export class RequestConstructorComponent implements OnInit {
       },
     });
   }
-
 }

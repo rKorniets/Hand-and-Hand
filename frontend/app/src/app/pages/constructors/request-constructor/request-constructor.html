@@ -62,21 +62,29 @@
 
       <div class="create-request__field">
         <label class="create-request__label" for="req-file">Додати файли для ознайомлення</label>
-        <div class="create-request__file-zone" (click)="fileInput.click()">
-          @if (selectedFilePreview()) {
-            <img [src]="selectedFilePreview()" class="create-request__file-preview" alt="preview" />
-            <button type="button" class="create-request__file-remove" (click)="$event.stopPropagation(); removeFile()">✕</button>
-          } @else {
-            <span class="material-symbols-outlined create-request__file-icon">description</span>
-            @if (selectedFileName()) {
-              <span class="create-request__file-name">{{ selectedFileName() }}</span>
+
+        <div class="create-request__file-wrap">
+          <div class="create-request__file-zone" (click)="fileInput.click()">
+            @if (file_preview.value) {
+              <img [src]="file_preview.value" class="create-request__file-preview" alt="preview" />
+            } @else {
+              <span class="material-symbols-outlined create-request__file-icon">description</span>
+              @if (file_name.value) {
+                <span class="create-request__file-name">{{ file_name.value }}</span>
+              }
             }
+          </div>
+
+          @if (file_preview.value || file_name.value) {
+            <button type="button" class="create-request__file-remove" (click)="removeFile()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
           }
         </div>
+
         <input #fileInput id="req-file" type="file" accept="image/*" hidden
                (change)="onFileSelected($event)" />
       </div>
-
       <div class="create-request__section" formGroupName="location">
         <div class="create-request__location-grid">
 
