@@ -42,11 +42,12 @@ export class AdminProfileComponent implements OnInit {
         }),
       )
       .subscribe({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         next: (data: any) => {
           this.profile = data;
           this.cdr.detectChanges();
         },
-        error: (err) => {
+        error: () => {
           this.error = 'Не вдалося завантажити профіль.';
           this.cdr.detectChanges();
         },

@@ -14,6 +14,7 @@ export class NewsContentComponent {
   private _items: NewsItem[] = [];
 
   @Input()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set items(value: any) {
     if (Array.isArray(value)) {
       this._items = value;

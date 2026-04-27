@@ -28,6 +28,7 @@ export class ForgotPassword {
         this.loading = false;
         this.successMessage = 'Перевірте пошту';
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error: (err: any) => {
         this.error = err.error?.message || 'Помилка';
         this.loading = false;

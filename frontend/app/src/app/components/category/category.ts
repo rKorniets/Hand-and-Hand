@@ -65,6 +65,7 @@ export class FiltersComponent implements OnInit {
   toggleStatus(value: string): void {
     this.toggleArrayValue(this.filters.status, value);
   }
+
   get today(): string {
     return new Date().toISOString().split('T')[0];
   }
@@ -72,6 +73,7 @@ export class FiltersComponent implements OnInit {
   get minDateTo(): string {
     return this.filters.dateFrom || this.today;
   }
+
   isChecked(arr: string[], value: string): boolean {
     return arr.includes(value);
   }
@@ -94,7 +96,11 @@ export class FiltersComponent implements OnInit {
 
   private toggleArrayValue(arr: string[], value: string): void {
     const idx = arr.indexOf(value);
-    idx === -1 ? arr.push(value) : arr.splice(idx, 1);
+    if (idx === -1) {
+      arr.push(value);
+    } else {
+      arr.splice(idx, 1);
+    }
     this.emit();
   }
 }
