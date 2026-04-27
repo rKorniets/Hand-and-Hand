@@ -29,6 +29,8 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ./frontend/app
         run: npm install
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Prettier Format Check
         run: npm run check
