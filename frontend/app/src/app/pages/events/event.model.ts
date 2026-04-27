@@ -47,3 +47,11 @@ export interface NewEvent {
   category?: EventCategory;
   volunteers?: EventVolunteer[];
 }
+
+export interface ProjectRegistration {
+  id: number;
+  project_id: number;
+  user_id: number;
+  status: string;
+  created_at: string;
+}
