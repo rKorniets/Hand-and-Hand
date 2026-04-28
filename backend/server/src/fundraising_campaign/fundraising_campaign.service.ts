@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
@@ -220,6 +221,24 @@ export class FundraisingCampaignService {
     donorName?: string,
     message?: string,
   ) {
+    const campaign = await this.prisma.fundraising_campaign.findUnique({
+      where: { id: campaignId },
+      select: {
+        status: true,
+        current_amount: true,
+        goal_amount: true,
+      },
+    });
+    if (!campaign) {
+      throw new NotFoundException(`Збір з ID ${campaignId} не знайдено`);
+    }
+    if (campaign.status !== fundraising_campaign_status_enum.ACTIVE) {
+      throw new BadRequestException('Кампанія не є активною');
+    }
+    if (campaign.current_amount >= campaign.goal_amount) {
+      throw new BadRequestException('Ціль збору вже досягнута');
+    }
+
     return await this.prisma.$transaction(async (tx) => {
       const newDonation = await tx.donation.create({
         data: {

@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -232,7 +233,12 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException('Project was not found');
     }
-
+    if (project.status === project_status_enum.DRAFT) {
+      throw new BadRequestException('Project is not published yet');
+    }
+    if (project.status !== project_status_enum.ACTIVE) {
+      throw new BadRequestException('Project is not accepting registrations');
+    }
     try {
       return await this.prisma.project_registration.create({
         data: { project_id: projectId, user_id: userId },
