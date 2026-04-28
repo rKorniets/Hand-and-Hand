@@ -25,6 +25,7 @@ import { TaskAssignmentModule } from './task_assignment/task_assignment.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdminModule } from './admin/admin.module';
 import { MyModule } from './my/my.module';
+import { MyOrgModule } from './my-org/my-org.module';
 import { PointsModule } from './points/points.module';
 
 @Module({
@@ -56,6 +57,7 @@ import { PointsModule } from './points/points.module';
     CloudinaryModule,
     AdminModule,
     MyModule,
+    MyOrgModule,
     PointsModule,
   ],
   controllers: [AppController],
