@@ -54,6 +54,9 @@ import { SuperAdminGuard } from './guards/super-admin.guard';
 import { FundraisingCampaignModule } from '../fundraising_campaign/fundraising_campaign.module';
 import { PointsModule } from '../points/points.module';
 
+import { PointsAdminController } from './points/points.admin.controller';
+import { PointsAdminService } from './points/points.admin.service';
+
 @Module({
   imports: [
     PrismaModule,
@@ -80,6 +83,7 @@ import { PointsModule } from '../points/points.module';
     ReportAdminController,
     TaskAssignmentAdminController,
     VolunteerProfileAdminController,
+    PointsAdminController,
   ],
   providers: [
     ApprovalAdminService,
@@ -98,6 +102,7 @@ import { PointsModule } from '../points/points.module';
     TaskAssignmentAdminService,
     VolunteerProfileAdminService,
     SuperAdminGuard,
+    PointsAdminService,
   ],
 })
 export class AdminModule {}
