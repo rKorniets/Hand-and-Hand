@@ -83,6 +83,42 @@ export class ApprovalAdminService {
       throw new NotFoundException(`Approval request with ID ${id} not found`);
     }
 
+    const entity = await this.loadEntity(request.type, request.entity_id);
+
+    return { ...request, entity };
+  }
+
+  private async loadEntity(type: approval_request_type_enum, entityId: number) {
+    if (type === approval_request_type_enum.VOLUNTEER) {
+      return this.prisma.volunteer_profile.findUnique({
+        where: { id: entityId },
+      });
+    }
+    if (type === approval_request_type_enum.ORGANIZATION) {
+      return this.prisma.organization_profile.findUnique({
+        where: { id: entityId },
+      });
+    }
+    if (type === approval_request_type_enum.PROJECT) {
+      return this.prisma.project.findUnique({ where: { id: entityId } });
+    }
+    return null;
+  }
+
+  private async findRequestForResolution(id: number) {
+    const request = await this.prisma.approval_request.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        type: true,
+        entity_id: true,
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException(`Approval request with ID ${id} not found`);
+    }
+
     return request;
   }
 
@@ -109,7 +145,7 @@ export class ApprovalAdminService {
     status: approval_request_status_enum,
     reason?: string,
   ) {
-    const request = await this.findOne(id);
+    const request = await this.findRequestForResolution(id);
     const isApprove = status === approval_request_status_enum.APPROVED;
 
     await this.prisma.$transaction(async (tx) => {
@@ -142,6 +178,13 @@ export class ApprovalAdminService {
               ? verification_status_enum.VERIFIED
               : verification_status_enum.REJECTED,
           },
+        });
+      }
+
+      if (request.type === approval_request_type_enum.VOLUNTEER && isApprove) {
+        await tx.volunteer_profile.update({
+          where: { id: request.entity_id },
+          data: { is_verified: true },
         });
       }
     });

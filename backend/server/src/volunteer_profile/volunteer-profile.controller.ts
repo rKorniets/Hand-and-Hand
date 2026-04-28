@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Put,
   Query,
   ParseBoolPipe,
@@ -76,6 +77,13 @@ export class VolunteerProfileController extends AbstractCrudController<
   @ApiOperation({ summary: 'Отримати профіль волонтера за ID' })
   async getVolunteerProfileById(@Param('id', ParseIntPipe) id: number) {
     return this.volunteerProfileService.getVolunteerProfileById(id);
+  }
+
+  @Post('verification-request')
+  @Roles(user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Подати заявку на верифікацію волонтера' })
+  async requestVerification(@CurrentUser() user: { id: number }) {
+    return this.volunteerProfileService.createVerificationRequest(user);
   }
 
   @Put(':id')

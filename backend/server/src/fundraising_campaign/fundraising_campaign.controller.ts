@@ -17,6 +17,7 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { CreateDonationDto } from './dto/create-donation.dto';
@@ -121,6 +122,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
 
   @Post(':id/donations')
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
   async donate(
     @Param('id', ParseIntPipe) id: number,

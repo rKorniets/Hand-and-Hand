@@ -126,8 +126,9 @@
 | `/volunteer-profiles/:id` | GET | Public | — |
 | `/volunteer-profiles` | POST | VOLUNTEER | user_id з JWT |
 | `/volunteer-profiles/:id` | PUT | VOLUNTEER | Тільки свій |
-| `/volunteer-profiles/:id` | PATCH | VOLUNTEER | Тільки свій |
+| `/volunteer-profiles/:id` | PATCH | VOLUNTEER | Тільки свій (також приймає `docs_url`) |
 | `/volunteer-profiles/:id` | DELETE | VOLUNTEER | Тільки свій |
+| `/volunteer-profiles/verification-request` | POST | VOLUNTEER | Подати заявку на верифікацію. Перевіряє: `docs_url` заповнений, не верифікований, немає активної PENDING-заявки |
 
 ### Профілі організацій (`/organization-profiles`)
 
@@ -246,6 +247,17 @@
 | `/locations/:id` | GET | Public |
 | `/locations` | POST | ORGANIZATION |
 
+### Завантаження файлів (`/upload`)
+
+Усі файли вантажаться напряму в Cloudinary, бекенд повертає публічний `secure_url`. На диску сервера нічого не зберігається.
+
+| Ендпоїнт | Метод | Доступ | Опис |
+|----------|-------|--------|------|
+| `/upload/image` | POST | ADMIN, ORGANIZATION, VOLUNTEER, APP_USER | JPG/PNG, до 5MB, папка `hand-and-hand` |
+| `/upload/document` | POST | ADMIN, ORGANIZATION, VOLUNTEER, APP_USER | JPG/PNG/PDF, до 10MB, папка `hand-and-hand/documents` |
+
+Тіло — `multipart/form-data` з полем `file`. Відповідь — `{ "url": "..." }`.
+
 ---
 
 ## Адмін-модуль (`/admin/*`)
@@ -257,9 +269,9 @@
 | Ендпоїнт | Метод | Опис |
 |----------|-------|------|
 | `/admin/approvals` | GET | Список заявок (фільтр: type, status) |
-| `/admin/approvals/:id` | GET | Деталі заявки |
-| `/admin/approvals/:id/approve` | PATCH | Підтвердити заявку |
-| `/admin/approvals/:id/reject` | PATCH | Відхилити заявку (з причиною) |
+| `/admin/approvals/:id` | GET | Деталі заявки + поле `entity` (підвантажена сутність за `type`: volunteer_profile / organization_profile / project) |
+| `/admin/approvals/:id/approve` | PATCH | Підтвердити заявку. Для `VOLUNTEER` автоматично виставляє `volunteer_profile.is_verified = true` |
+| `/admin/approvals/:id/reject` | PATCH | Відхилити заявку (з причиною). `is_verified` залишається `false` |
 
 ### Користувачі (`/admin/users`)
 
@@ -403,6 +415,20 @@
 
 Саме членство зберігається у `app_user.organization_id`. На ACCEPTED це поле виставляється, на DELETE `/members/...` — скидається в `null`.
 
+---
+
+## Верифікація волонтера
+
+Повний флоу:
+
+1. Волонтер вантажить документ: `POST /upload/document` (PDF або фото) → отримує `{ url }`.
+2. Записує URL у профіль: `PATCH /volunteer-profiles/:id` з body `{ "docs_url": url }`.
+3. Подає заявку: `POST /volunteer-profiles/verification-request`. Створюється запис у `approval_request` з `type: VOLUNTEER`, `entity_id: volunteer_profile.id`, `status: PENDING`. Перевірки: профіль існує, `is_verified !== true`, `docs_url` не порожній, немає активної PENDING-заявки.
+4. Адмін відкриває `GET /admin/approvals/:id` — у відповіді є `entity.docs_url`, який можна відкрити в браузері.
+5. Адмін викликає `PATCH /admin/approvals/:id/approve` → у транзакції оновлює статус заявки на APPROVED і виставляє `volunteer_profile.is_verified = true`. Або `reject` з `reason` — `is_verified` залишається `false`, причина зберігається в `rejection_reason`.
+
+Після REJECTED волонтер може подати заявку повторно (перевірка на активну PENDING пропустить, бо стара має статус REJECTED). Якщо `is_verified === true` — повторна подача забороняється (`Already verified`).
+
 ### Авто-matching
 
 При створенні зустрічного запису pending-запрошення + заявка одразу конвертуються в членство:
@@ -418,7 +444,7 @@
 
 | Сутність | Поля що ігноруються |
 |----------|---------------------|
-| volunteer_profile | `is_verified`, `rating`, `user_id` (з JWT) |
+| volunteer_profile | `is_verified`, `rating`, `user_id` (з JWT). `docs_url` приймається через PATCH після завантаження в Cloudinary |
 | organization_profile | `verification_status`, `user_id` (з JWT) |
 | app_user (update) | тільки `email`, `first_name`, `last_name`, `city` |
 | ticket | `status`, `priority` (при створенні) |
