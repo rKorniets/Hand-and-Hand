@@ -9,6 +9,7 @@ import {
   IsString,
   MaxLength,
   ValidateNested,
+  IsUrl
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateLocationDto } from '../../location/dto/create_location.dto';
@@ -74,8 +75,7 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  @MaxLength(500)
+  @IsUrl()
   image_url?: string;
 
   @ApiPropertyOptional({ enum: project_status_enum })

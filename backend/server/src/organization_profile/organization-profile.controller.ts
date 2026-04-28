@@ -12,12 +12,16 @@ import {
   Put,
   Query,
   ParseEnumPipe,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiQuery,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import {
   user_role_enum,
@@ -39,6 +43,7 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Organization Profiles')
 @Controller('organization-profiles')
@@ -353,5 +358,24 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     return this.organizationProfileService.getOrganizationProfileByUserId(
       userId,
     );
+  }
+  @Patch(':id/logo')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Завантажити/замінити логотип організації' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLogo(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.organizationProfileService.updateLogo(id, file, currentUser);
   }
 }

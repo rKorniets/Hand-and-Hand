@@ -14,6 +14,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
@@ -21,7 +22,10 @@ export interface RequestUser {
 
 @Injectable()
 export class OrganizationProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   private async validateOrganizationOwnership(
     id: number,
@@ -109,6 +113,7 @@ export class OrganizationProfileService {
         contact_email: data.contact_email,
         location_id: data.location_id,
         mission: data.mission,
+        logo_url: data.logo_url,
       },
     });
   }
@@ -131,12 +136,27 @@ export class OrganizationProfileService {
         contact_email: data.contact_email,
         location_id: data.location_id,
         mission: data.mission,
+        logo_url: data.logo_url,
       },
     });
   }
-
+  async updateLogo(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ logo_url: string }> {
+    const existing = await this.validateOrganizationOwnership(id, currentUser);
+    if (existing.logo_url) await this.cloudinary.deleteImage(existing.logo_url);
+    const logo_url = await this.cloudinary.uploadOrgLogo(file);
+    await this.prisma.organization_profile.update({
+      where: { id },
+      data: { logo_url },
+    });
+    return { logo_url };
+  }
   async deleteOrganizationProfile(id: number, currentUser: RequestUser) {
-    await this.validateOrganizationOwnership(id, currentUser);
+    const existing = await this.validateOrganizationOwnership(id, currentUser);
+    if (existing.logo_url) await this.cloudinary.deleteImage(existing.logo_url);
     return this.prisma.organization_profile.delete({ where: { id } });
   }
 
@@ -284,9 +304,7 @@ export class OrganizationProfileService {
       });
 
       if (userUpdate.count === 0) {
-        throw new ConflictException(
-          'User already belongs to an organization',
-        );
+        throw new ConflictException('User already belongs to an organization');
       }
 
       return tx.organization_membership_request.update({
@@ -334,9 +352,10 @@ export class OrganizationProfileService {
   ) {
     await this.validateOrganizationOwnership(orgId, currentUser);
 
-    const request = await this.prisma.organization_membership_request.findUnique(
-      { where: { id: requestId } },
-    );
+    const request =
+      await this.prisma.organization_membership_request.findUnique({
+        where: { id: requestId },
+      });
 
     if (
       !request ||
@@ -378,7 +397,7 @@ export class OrganizationProfileService {
 
     if (user?.organization_id && user.organization_id !== orgId) {
       throw new ConflictException(
-        'User already belongs to another organization', 
+        'User already belongs to another organization',
       );
     }
 
@@ -430,9 +449,7 @@ export class OrganizationProfileService {
     }
 
     if (target.organization_id) {
-      throw new ConflictException(
-        'User already belongs to an organization',
-      );
+      throw new ConflictException('User already belongs to an organization');
     }
 
     const existing =
@@ -460,9 +477,7 @@ export class OrganizationProfileService {
           );
         }
 
-        throw new ConflictException(
-          'Invitation already sent to this user',
-        );
+        throw new ConflictException('Invitation already sent to this user');
       }
 
       return this.prisma.organization_membership_request.update({
@@ -608,9 +623,7 @@ export class OrganizationProfileService {
     );
 
     if (targetUserId === profile.user_id) {
-      throw new BadRequestException(
-        'Cannot remove the organization owner',
-      );
+      throw new BadRequestException('Cannot remove the organization owner');
     }
 
     const target = await this.prisma.app_user.findUnique({
@@ -619,9 +632,7 @@ export class OrganizationProfileService {
     });
 
     if (!target || target.organization_id !== orgId) {
-      throw new NotFoundException(
-        'User is not a member of this organization',
-      );
+      throw new NotFoundException('User is not a member of this organization');
     }
 
     return this.prisma.app_user.update({

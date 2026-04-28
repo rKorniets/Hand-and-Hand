@@ -7,6 +7,7 @@ import {
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
@@ -14,7 +15,10 @@ export interface RequestUser {
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   private async validateOwnership(id: number, currentUser: RequestUser) {
     const project = await this.prisma.project.findUnique({
@@ -152,15 +156,29 @@ export class ProjectService {
         description: data.description,
         main_content: data.main_content,
         status: data.status,
+        image_url: data.image_url,
         starts_at: data.starts_at ? new Date(data.starts_at) : null,
         ends_at: data.ends_at ? new Date(data.ends_at) : null,
         updated_at: new Date(),
       },
     });
   }
-
+  async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ image_url: string }> {
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url);
+    const image_url = await this.cloudinary.uploadProjectImage(file);
+    await this.prisma.project.update({ where: { id }, data: { image_url } });
+    return { image_url };
+  }
   async deleteProject(id: number, currentUser: RequestUser) {
-    await this.validateOwnership(id, currentUser);
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url);
     return this.prisma.project.delete({ where: { id } });
   }
 

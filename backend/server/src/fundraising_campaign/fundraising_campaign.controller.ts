@@ -10,12 +10,17 @@ import {
   ParseIntPipe,
   ParseEnumPipe,
   ParseArrayPipe,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiQuery,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
@@ -32,6 +37,7 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
@@ -132,5 +138,24 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       dto.donor_name,
       dto.message,
     );
+  }
+  @Patch(':id/image')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Завантажити/замінити зображення збору' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.updateImage(id, file, { id: user.id });
   }
 }

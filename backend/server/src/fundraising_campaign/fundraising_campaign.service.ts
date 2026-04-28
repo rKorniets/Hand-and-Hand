@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { MonobankService } from './monobank.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
@@ -17,6 +18,7 @@ export class FundraisingCampaignService {
   constructor(
     private prisma: PrismaService,
     private monobankService: MonobankService,
+    private cloudinary: CloudinaryService,
   ) {}
 
   private sanitizeCampaign<T extends { mono_token?: string | null }>(
@@ -203,14 +205,28 @@ export class FundraisingCampaignService {
     });
     return this.sanitizeCampaign(campaign);
   }
-
+  async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ image_url: string }> {
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url);
+    const image_url = await this.cloudinary.uploadFundraisingImage(file);
+    await this.prisma.fundraising_campaign.update({
+      where: { id },
+      data: { image_url },
+    });
+    return { image_url };
+  }
   async remove(id: number, currentUser: RequestUser) {
-    await this.validateOwnership(id, currentUser);
-
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url); // ← додати
     const campaign = await this.prisma.fundraising_campaign.delete({
       where: { id },
     });
-
     return this.sanitizeCampaign(campaign);
   }
 

@@ -49,4 +49,9 @@ export class CreateOrganizationProfileDto {
   @IsOptional()
   @IsInt()
   location_id?: number;
+
+  @ApiPropertyOptional({ description: 'URL логотипу організації' })
+  @IsOptional()
+  @IsUrl()
+  logo_url?: string;
 }
