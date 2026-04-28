@@ -37,9 +37,7 @@ export class EventService {
   }
 
   unregister(projectId: number): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiUrl}/${projectId}/register`
-    );
+    return this.http.delete<void>(`${this.apiUrl}/${projectId}/register`);
   }
 
   getMyRegistration(projectId: number): Observable<ProjectRegistration | null> {

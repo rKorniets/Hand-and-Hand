@@ -5,15 +5,12 @@
     <p class="event-detail__error">Подію не знайдено.</p>
   } @else {
     <div class="event-detail__wrapper">
-
       <div class="event-detail__layout">
 
         <div class="event-detail__main">
-
           <h1 class="event-detail__title">{{ event.title }}</h1>
 
           <div class="event-detail__card">
-
             <div class="event-detail__top-row">
               @if (event.image_url) {
                 <img class="event-detail__image" [src]="event.image_url" [alt]="event.title" />
@@ -78,14 +75,12 @@
                 <p>{{ event.partners }}</p>
               </div>
             }
-
           </div>
         </div>
 
         <div class="event-detail__sidebar">
 
           <div class="event-detail__apply">
-
             @if (!isLoggedIn) {
               <button routerLink="/login" class="event-detail__apply-btn">
                 Увійдіть щоб подати заявку
@@ -93,9 +88,13 @@
             }
 
             @if (isLoggedIn && !myRegistration) {
-              <button (click)="register()" class="event-detail__apply-btn">
-                Податися на подію
-              </button>
+              @if (isRegistrationOpen) {
+                <button (click)="register()" class="event-detail__apply-btn">
+                  Податися на подію
+                </button>
+              } @else {
+                <p class="event-detail__full-msg">Набір закрито (місць немає)</p>
+              }
             }
 
             @if (myRegistration?.status === 'PENDING') {
@@ -104,15 +103,12 @@
                 Скасувати заявку
               </button>
             }
-
-            @if (myRegistration?.status === 'APPROVED') {
-              <p>Вашу заявку прийнято!</p>
+            @else if (myRegistration?.status === 'APPROVED' || myRegistration?.status === 'CONFIRMED') {
+              <p class="event-detail__status-success">Вашу заявку прийнято!</p>
             }
-
-            @if (myRegistration?.status === 'REJECTED') {
-              <p>Заявку відхилено</p>
+            @else if (myRegistration?.status === 'REJECTED') {
+              <p class="event-detail__status-error">Заявку відхилено</p>
             }
-
           </div>
 
           @if (event.organization_profile) {
@@ -143,12 +139,37 @@
             </div>
           }
 
+          @if (event.participants) {
+            <div class="event-detail__progress-card">
+              <div class="event-detail__progress-info">
+                <span class="event-detail__progress-label">Набір волонтерів</span>
+                <span class="event-detail__progress-count">
+                {{ joinedCount }} / {{ event.participants }}
+                </span>
+              </div>
+
+              <div class="event-detail__progress-bar-bg">
+                <div class="event-detail__progress-bar-fill"
+                     [style.width.%]="progressWidth">
+                </div>
+              </div>
+
+              @if (!isRegistrationOpen) {
+                <p class="event-detail__progress-full">Набір заповнено!</p>
+              } @else {
+                <p class="event-detail__progress-remaining">
+                  Залишилося {{ remainingSpots }} місць
+                </p>
+              }
+            </div>
+          }
+
           @if (event.volunteers && event.volunteers.length > 0) {
             <div class="event-detail__volunteers-card">
               <h3 class="event-detail__volunteers-title">Волонтери, що приєдналися</h3>
 
               <div class="event-detail__volunteers-list">
-                @for (v of event.volunteers.slice(0, 2); track v.id) {
+                @for (v of event.volunteers.slice(0, 5); track v.id) {
                   <div class="event-detail__volunteer">
                     @if (v.avatar_url) {
                       <img class="event-detail__volunteer-avatar"
@@ -163,15 +184,11 @@
                 }
               </div>
 
-              @if (event.volunteers.length > 2) {
+              @if (event.volunteers.length > 5) {
                 <button class="event-detail__volunteers-more">Дивитися усіх</button>
               }
             </div>
           }
 
-        </div>
-      </div>
-
-    </div>
-  }
+        </div> </div> </div> }
 </div>

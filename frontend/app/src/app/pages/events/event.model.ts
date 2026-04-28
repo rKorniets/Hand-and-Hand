@@ -1,4 +1,5 @@
 export type ProjectStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+export type RegistrationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONFIRMED';
 
 export interface EventLocation {
   city: string;
@@ -42,6 +43,7 @@ export interface NewEvent {
   application_deadline?: string;
   partners?: string;
   image_url?: string;
+  participants: number;
   location?: EventLocation;
   organization_profile?: OrganizationProfile;
   category?: EventCategory;
@@ -52,6 +54,6 @@ export interface ProjectRegistration {
   id: number;
   project_id: number;
   user_id: number;
-  status: string;
+  status: RegistrationStatus;
   created_at: string;
 }

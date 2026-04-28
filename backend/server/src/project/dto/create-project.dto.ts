@@ -68,6 +68,11 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsInt()
+  participants?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @MaxLength(1000)
   partners?: string;
