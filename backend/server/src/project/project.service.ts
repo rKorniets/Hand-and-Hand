@@ -156,7 +156,6 @@ export class ProjectService {
         description: data.description,
         main_content: data.main_content,
         status: data.status,
-        image_url: data.image_url,
         starts_at: data.starts_at ? new Date(data.starts_at) : null,
         ends_at: data.ends_at ? new Date(data.ends_at) : null,
         updated_at: new Date(),

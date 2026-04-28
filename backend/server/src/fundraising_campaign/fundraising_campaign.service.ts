@@ -8,6 +8,7 @@ import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { MonobankService } from './monobank.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.dto';
 
 export interface RequestUser {
   id: number;
@@ -185,7 +186,7 @@ export class FundraisingCampaignService {
 
   async update(
     id: number,
-    data: CreateFundraisingCampaignDto,
+    data: UpdateFundraisingCampaignDto,
     currentUser: RequestUser,
   ) {
     await this.validateOwnership(id, currentUser);
@@ -199,7 +200,6 @@ export class FundraisingCampaignService {
         goal_amount: data.goal_amount,
         start_at: data.start_at ? new Date(data.start_at) : undefined,
         end_at: data.end_at ? new Date(data.end_at) : undefined,
-        image_url: data.image_url,
         updated_at: new Date(),
       },
     });

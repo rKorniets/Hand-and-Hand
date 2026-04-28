@@ -94,7 +94,6 @@ export class NewsService {
         title: data.title,
         description: data.description,
         main_content: data.main_content,
-        image_url: data.image_url,
       },
     });
   }

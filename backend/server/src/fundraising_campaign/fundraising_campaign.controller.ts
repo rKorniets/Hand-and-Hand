@@ -38,6 +38,7 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.dto';
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
@@ -108,7 +109,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   @ApiOperation({ summary: 'Оновити збір' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: CreateFundraisingCampaignDto,
+    @Body() data: UpdateFundraisingCampaignDto,
     @CurrentUser() user: { id: number },
   ) {
     return this.service.update(id, data, { id: user.id });

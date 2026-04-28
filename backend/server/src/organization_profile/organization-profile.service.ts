@@ -136,7 +136,6 @@ export class OrganizationProfileService {
         contact_email: data.contact_email,
         location_id: data.location_id,
         mission: data.mission,
-        logo_url: data.logo_url,
       },
     });
   }
