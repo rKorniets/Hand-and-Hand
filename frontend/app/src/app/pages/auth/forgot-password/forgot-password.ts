@@ -44,6 +44,6 @@ export class ForgotPassword {
   retry() {
     this.isSuccess = false;
     this.error = '';
-    this.cdr.detectChanges();
+    this.onSubmit();
   }
 }
