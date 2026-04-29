@@ -23,9 +23,7 @@ export class NewsService {
     }
 
     if (news.created_by !== currentUser.id) {
-      throw new ForbiddenException(
-        'You can only edit or delete your own news',
-      );
+      throw new ForbiddenException('You can only edit or delete your own news');
     }
 
     return news;
@@ -79,7 +77,11 @@ export class NewsService {
     });
   }
 
-  async updateNewsFull(id: number, data: CreateNewsDto, currentUser: RequestUser) {
+  async updateNewsFull(
+    id: number,
+    data: CreateNewsDto,
+    currentUser: RequestUser,
+  ) {
     await this.validateOwnership(id, currentUser);
 
     return this.prisma.news.update({

@@ -1,12 +1,18 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { QueueServiceClient } from '@azure/storage-queue';
 import { ConfigService } from '@nestjs/config';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 
 @Injectable()
-export class MonoPollingService implements OnModuleInit {
+export class MonoPollingService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MonoPollingService.name);
   private queueClient: ReturnType<QueueServiceClient['getQueueClient']>;
+  private isPolling = false;
 
   constructor(
     private fundraisingService: FundraisingCampaignService,
@@ -37,12 +43,21 @@ export class MonoPollingService implements OnModuleInit {
     }
 
     this.logger.log('Mono polling started');
+    this.isPolling = true;
+
     void this.processMessages();
-    this.startPolling();
+    this.startPolling().catch((error) => {
+      this.logger.error('Polling critical error:', error);
+    });
+  }
+
+  onModuleDestroy() {
+    this.logger.log('Mono polling stopping...');
+    this.isPolling = false;
   }
 
   private async startPolling() {
-    while (true) {
+    while (this.isPolling) {
       await this.processMessages();
       await this.sleep(30000);
     }

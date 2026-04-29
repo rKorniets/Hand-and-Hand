@@ -284,9 +284,7 @@ export class OrganizationProfileService {
       });
 
       if (userUpdate.count === 0) {
-        throw new ConflictException(
-          'User already belongs to an organization',
-        );
+        throw new ConflictException('User already belongs to an organization');
       }
 
       return tx.organization_membership_request.update({
@@ -334,9 +332,10 @@ export class OrganizationProfileService {
   ) {
     await this.validateOrganizationOwnership(orgId, currentUser);
 
-    const request = await this.prisma.organization_membership_request.findUnique(
-      { where: { id: requestId } },
-    );
+    const request =
+      await this.prisma.organization_membership_request.findUnique({
+        where: { id: requestId },
+      });
 
     if (
       !request ||
@@ -378,7 +377,7 @@ export class OrganizationProfileService {
 
     if (user?.organization_id && user.organization_id !== orgId) {
       throw new ConflictException(
-        'User already belongs to another organization', 
+        'User already belongs to another organization',
       );
     }
 
@@ -430,9 +429,7 @@ export class OrganizationProfileService {
     }
 
     if (target.organization_id) {
-      throw new ConflictException(
-        'User already belongs to an organization',
-      );
+      throw new ConflictException('User already belongs to an organization');
     }
 
     const existing =
@@ -460,9 +457,7 @@ export class OrganizationProfileService {
           );
         }
 
-        throw new ConflictException(
-          'Invitation already sent to this user',
-        );
+        throw new ConflictException('Invitation already sent to this user');
       }
 
       return this.prisma.organization_membership_request.update({
@@ -608,9 +603,7 @@ export class OrganizationProfileService {
     );
 
     if (targetUserId === profile.user_id) {
-      throw new BadRequestException(
-        'Cannot remove the organization owner',
-      );
+      throw new BadRequestException('Cannot remove the organization owner');
     }
 
     const target = await this.prisma.app_user.findUnique({
@@ -619,9 +612,7 @@ export class OrganizationProfileService {
     });
 
     if (!target || target.organization_id !== orgId) {
-      throw new NotFoundException(
-        'User is not a member of this organization',
-      );
+      throw new NotFoundException('User is not a member of this organization');
     }
 
     return this.prisma.app_user.update({

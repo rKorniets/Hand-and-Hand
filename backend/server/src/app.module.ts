@@ -34,10 +34,12 @@ import { PointsModule } from './points/points.module';
       isGlobal: true,
       envFilePath: '../../.env',
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     PrismaModule,
     AuthModule,
     NewsModule,

@@ -110,7 +110,6 @@ export class ProjectService {
           title: data.title,
           description: data.description,
           main_content: data.main_content,
-          participants: data.participants,
           what_volunteers_will_do: data.what_volunteers_will_do,
           why_its_important: data.why_its_important,
           time: data.time,

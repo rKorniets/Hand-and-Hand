@@ -70,7 +70,7 @@ export class LoginComponent {
 
     return null;
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getServerError(err: any): string {
     const status = err?.status;
 

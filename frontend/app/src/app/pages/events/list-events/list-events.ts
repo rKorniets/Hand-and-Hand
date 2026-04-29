@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NewEvent, EventLocation } from '../event.model';
-import { RouterLink} from '@angular/router';
-
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-list-events',

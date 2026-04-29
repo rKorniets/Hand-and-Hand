@@ -5,7 +5,6 @@ import { Organization, Report } from '../profile-organization.model';
 import { OrganizationProfileService } from '../profile-organization.service';
 import { UiHelperService } from '../../profile-user/toggleExpansion.service';
 
-
 @Component({
   selector: 'app-reports',
   standalone: true,
@@ -22,7 +21,7 @@ export class Reports implements OnInit {
 
   constructor(
     private uiHelper: UiHelperService,
-    private orgService: OrganizationProfileService
+    private orgService: OrganizationProfileService,
   ) {}
 
   ngOnInit(): void {

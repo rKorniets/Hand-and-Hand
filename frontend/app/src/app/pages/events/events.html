@@ -1,10 +1,7 @@
 <main class="events__page">
   <div class="events__page__wrapper">
-
     <aside class="events__page__sidebar">
-      <app-filters
-        [config]="filterConfig"
-        (filtersChanged)="onFiltersChanged($event)">
+      <app-filters [config]="filterConfig" (filtersChanged)="onFiltersChanged($event)">
       </app-filters>
     </aside>
 
@@ -17,8 +14,16 @@
         <app-list-events [events]="events"></app-list-events>
 
         <div class="list__pagination">
-          <button class="list__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">«</button>
-          <button class="list__page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">‹</button>
+          <button class="list__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
+            «
+          </button>
+          <button
+            class="list__page-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            ‹
+          </button>
 
           @for (page of visiblePages; track page) {
             @if (page === -1) {
@@ -28,15 +33,24 @@
                 class="list__page-btn"
                 [class.list__page-btn--active]="page === currentPage"
                 (click)="goToPage(page)"
-              >{{ page }}</button>
+              >
+                {{ page }}
+              </button>
             }
           }
 
-          <button class="list__page-btn" [disabled]="!hasNextPage" (click)="goToPage(currentPage + 1)">›</button>
-          <button class="list__page-btn" [disabled]="!hasNextPage" (click)="goToPage(totalPages)">»</button>
+          <button
+            class="list__page-btn"
+            [disabled]="!hasNextPage"
+            (click)="goToPage(currentPage + 1)"
+          >
+            ›
+          </button>
+          <button class="list__page-btn" [disabled]="!hasNextPage" (click)="goToPage(totalPages)">
+            »
+          </button>
         </div>
       </div>
     </section>
-
   </div>
 </main>

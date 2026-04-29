@@ -19,7 +19,7 @@ export class Achievement implements OnInit {
 
   constructor(
     private uiHelper: UiHelperService,
-    private profileService: UserProfileService
+    private profileService: UserProfileService,
   ) {}
 
   ngOnInit(): void {

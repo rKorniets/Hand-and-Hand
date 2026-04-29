@@ -8,7 +8,7 @@
       <article class="org-card" (click)="goToOrg(org.id)">
         <div class="org-card__header">
           <div class="org-card__logo-placeholder">
-            <img src="assets/images/default-org.png" [alt]="org.name">
+            <img src="assets/images/default-org.png" [alt]="org.name" />
           </div>
           <h2 class="org-card__name">{{ org.name }}</h2>
         </div>
@@ -16,12 +16,12 @@
         <div class="org-card__body">
           <div class="org-card__contacts">
             <span class="org-card__email">{{ org.contact_email }}</span>
-            <span class="org-card__location">{{ org.location?.city }}, {{ org.location?.address }}</span>
+            <span class="org-card__location"
+              >{{ org.location?.city }}, {{ org.location?.address }}</span
+            >
           </div>
 
-          <p class="org-card__mission">
-            <strong>Місія:</strong> {{ org.mission }}
-          </p>
+          <p class="org-card__mission"><strong>Місія:</strong> {{ org.mission }}</p>
         </div>
       </article>
     } @empty {

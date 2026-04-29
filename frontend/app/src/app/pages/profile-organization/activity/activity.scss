@@ -101,7 +101,10 @@
     justify-content: center;
     cursor: pointer;
     color: rgba($text-color, 0.5);
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
     text-decoration: none;
 
     &:hover {
@@ -122,7 +125,7 @@
     .activity__more {
       width: 100%;
       padding: 12px;
-      background-color: #F3F3F3;
+      background-color: #f3f3f3;
       border: none;
       border-radius: 15px;
       font-size: 26px;

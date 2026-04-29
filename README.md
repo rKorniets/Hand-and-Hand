@@ -3,29 +3,32 @@
 ## Проєкт Fullstack: Angular (Frontend) + NestJS (Backend).
 
 ## Документація
+
 - [Демо-дані та логіни для презентації](docs/DEMO_DATA.md) — як заповнити БД і з якими акаунтами заходити
 - [Ролі та доступи](docs/ROLES_AND_ACCESS.md)
 
 # Структура проєкту
+
 HandAndHand<br>
-├─ backend/      ← NestJS (Node.js, TypeScript)<br>
-├─ frontend/     ← Angular (TypeScript)<br>
+├─ backend/ ← NestJS (Node.js, TypeScript)<br>
+├─ frontend/ ← Angular (TypeScript)<br>
 
 # Встановлення
+
 1. Клонуємо репозиторій:<br>
-  git clone https://github.com/rKorniets/Hand-and-Hand.git<br>
-  cd HandAndHand<br>
+   git clone https://github.com/rKorniets/Hand-and-Hand.git<br>
+   cd HandAndHand<br>
 
 2. Встановлюємо залежності:
-  npm install<br>
-  cd frontend/app<br>
-  npm install<br>
-  cd ../../backend/server<br>
-  npm install<br>
-  cd ../..<br>
-  npm install --save-dev concurrently<br>
+   npm install<br>
+   cd frontend/app<br>
+   npm install<br>
+   cd ../../backend/server<br>
+   npm install<br>
+   cd ../..<br>
+   npm install --save-dev concurrently<br>
 
-4. Додаткові залежності
+3. Додаткові залежності
    Backend<br>
    cd backend/server<br>
    npm install @nestjs/jwt passport passport-jwt bcrypt<br>
@@ -40,6 +43,7 @@ HandAndHand<br>
    Після установки Prisma: npx prisma init<br>
 
 # Скрипти
+
 У package.json (корінь проєкту) вставити:<br>
 
     "scripts": {
@@ -49,23 +53,23 @@ HandAndHand<br>
       },
 
 Запуск проєкту:<br>
-  Dev-режим (одночасно Angular + NestJS):<br>
-	  npm run start:dev<br>
+Dev-режим (одночасно Angular + NestJS):<br>
+npm run start:dev<br>
 
-  Окремо:<br>
-  Backend (NestJS):<br>
-	   npm run start:backend<br>
+Окремо:<br>
+Backend (NestJS):<br>
+npm run start:backend<br>
 
-  Frontend (Angular):<br>
-    npm run start:frontend<br>
+Frontend (Angular):<br>
+npm run start:frontend<br>
 
 # Налаштування CORS
+
 Якщо Angular і NestJS на різних портах, у backend/src/main.ts додай:<br>
- 
 
      import { NestFactory } from '@nestjs/core';
       import { AppModule } from './app.module';
-      
+
       async function bootstrap() {
         const app = await NestFactory.create(AppModule);
         app.enableCors(); // Дозволяє запити з Angular
@@ -73,17 +77,17 @@ HandAndHand<br>
       }
       bootstrap();
 
-
 # Залежності
+
 Backend:<br>
-  @nestjs/jwt, passport, passport-jwt, bcrypt<br>
-  prisma, @prisma/client<br>
-  pg (PostgreSQL драйвер)<br>
-  socket.io<br>
+@nestjs/jwt, passport, passport-jwt, bcrypt<br>
+prisma, @prisma/client<br>
+pg (PostgreSQL драйвер)<br>
+socket.io<br>
 
 Frontend: <br>
-  jwt-decode <br>
-  socket.io-client <br>
+jwt-decode <br>
+socket.io-client <br>
 
 # Naming Conventions
 
@@ -101,10 +105,12 @@ Frontend: <br>
 Усі назви файлів мають використовувати `kebab-case`.<br>
 
 ### Приклади:
+
 - `user-service.ts`<br>
 - `auth-controller.ts`<br>
 
 ### Не можна:
+
 - `UserService.ts`<br>
 - `user_service.ts`<br>
 - `userService.ts`<br>
@@ -112,15 +118,18 @@ Frontend: <br>
 ## 3. Styles — подвійне підкреслення `__`
 
 ### Формат:
+
 - `block`<br>
 - `block__element`<br>
 - `block__element--modifier`<br>
 
 ### Приклади:
+
 - `card`<br>
 - `card__title`<br>
 
 ### Не можна:
+
 - `card_title`<br>
 - `CardTitle`<br>
 
@@ -129,13 +138,16 @@ Frontend: <br>
 Для змінних і методів використовуємо `camelCase`.<br>
 
 ### Змінні:
+
 - `userName`<br>
 - `taskCount`<br>
 
 ### Методи:
+
 - `getUserById()`<br>
 
 ### Не можна:
+
 - `UserName`<br>
 - `user_name`<br>
 - `GET_USER_BY_ID`<br>
@@ -145,20 +157,25 @@ Frontend: <br>
 Для класів, типів, інтерфейсів, enum-ів використовуємо `PascalCase`.
 
 ### Classes:
+
 - `UserService`<br>
 - `AuthController`<br>
 - `VolunteerProfile`<br>
+
 ### Types:
+
 - `UserRole`<br>
 
 ### Interfaces:
+
 - `UserPayload`<br>
 
 ### Enums:
+
 - `TaskAssignmentStatus`<br>
 
-
 ### Не можна:
+
 - `userService`<br>
 - `create_user_dto`<br>
 - `task_status`<br>
@@ -172,10 +189,12 @@ Frontend: <br>
 Назви таблиць мають бути в `snake_case`.<br>
 
 ### Приклади:
+
 - `users`<br>
 - `volunteer_profiles`<br>
 
 ### Не можна:
+
 - `Users`<br>
 - `volunteerProfiles`<br>
 - `volunteer-profiles`<br>
@@ -185,33 +204,35 @@ Frontend: <br>
 Назви колонок теж мають бути в `snake_case`.
 
 ### Приклади:
+
 - `user_id`<br>
 - `display_name`<br>
 
-
 ### Не можна:
+
 - `userId`<br>
 - `DisplayName`<br>
 - `createdAt`<br>
-
-
 
 ## 7. Constants,environment variables — `UPPER_SNAKE_CASE`
 
 Для констант та env keys використовуємо `UPPER_SNAKE_CASE`.<br>
 
 ### Приклади:
+
 - `MAX_RETRY_COUNT`<br>
 - `DEFAULT_PAGE_SIZE`<br>
 - `DATABASE_URL`<br>
 
 ### Не можна:
+
 - `maxRetryCount`<br>
 - `MaxRetryCount`<br>
 - `max_retry_count`<br>
 - `databaseUrl`<br>
 - `jwtSecret`<br>
 - `node-env`<br>
+
 ## 8. Branch & Pull Request Naming Conventions
 
 To keep the repository structured and easy to navigate, we follow a simple GitHub Flow approach:<br>
@@ -234,18 +255,18 @@ Where:<br>
 
 ### Allowed branch types
 
-| Префікс | Опис | Приклад |
-|---------|------|---------|
-| `feat/` | Нова функціональність | `feat/admin-module` |
-| `feature/` | Те саме що feat (повна форма) | `feature/add_news_tags` |
-| `fix/` | Виправлення багів | `fix/login-redirect` |
-| `hotfix/` | Терміновий фікс на продакшн | `hotfix/crash-on-startup` |
-| `refactor/` | Рефакторинг без зміни поведінки | `refactor/simplify-auth` |
-| `docs/` | Оновлення документації | `docs/update-readme` |
-| `style/` | Форматування, стилі (не CSS) | `style/lint-fixes` |
-| `test/` | Додавання/оновлення тестів | `test/auth-unit-tests` |
-| `chore/` | Конфіги, залежності, CI/CD | `chore/update-deps` |
-| `security/` | Зміни пов'язані з безпекою | `security/dto-hardening` |
+| Префікс     | Опис                            | Приклад                   |
+| ----------- | ------------------------------- | ------------------------- |
+| `feat/`     | Нова функціональність           | `feat/admin-module`       |
+| `feature/`  | Те саме що feat (повна форма)   | `feature/add_news_tags`   |
+| `fix/`      | Виправлення багів               | `fix/login-redirect`      |
+| `hotfix/`   | Терміновий фікс на продакшн     | `hotfix/crash-on-startup` |
+| `refactor/` | Рефакторинг без зміни поведінки | `refactor/simplify-auth`  |
+| `docs/`     | Оновлення документації          | `docs/update-readme`      |
+| `style/`    | Форматування, стилі (не CSS)    | `style/lint-fixes`        |
+| `test/`     | Додавання/оновлення тестів      | `test/auth-unit-tests`    |
+| `chore/`    | Конфіги, залежності, CI/CD      | `chore/update-deps`       |
+| `security/` | Зміни пов'язані з безпекою      | `security/dto-hardening`  |
 
 ### Branch naming rules
 

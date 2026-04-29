@@ -22,10 +22,12 @@
         </a>
 
         @if (isOwner) {
-          <a class="activity__edit-btn"
-             [routerLink]="['/activity/edit', item.id]"
-             title="Редагувати подію"
-             aria-label="Редагувати подію">
+          <a
+            class="activity__edit-btn"
+            [routerLink]="['/activity/edit', item.id]"
+            title="Редагувати подію"
+            aria-label="Редагувати подію"
+          >
             <mat-icon>draw</mat-icon>
           </a>
         }

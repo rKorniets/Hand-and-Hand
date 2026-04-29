@@ -17,6 +17,13 @@ import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
+export interface AuthUser {
+  id: number;
+  email: string;
+  role: string;
+  status: string;
+}
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -97,7 +104,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   @ApiOperation({ summary: 'Отримати профіль поточного користувача' })
-  me(@CurrentUser() user: any) {
+  me(@CurrentUser() user: AuthUser) {
     return this.authService.me(user);
   }
 }

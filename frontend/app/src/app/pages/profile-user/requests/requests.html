@@ -4,7 +4,7 @@
   <button class="add-button" routerLink="/request">+</button>
 
   <div class="tickets-list">
-    @for (item of (requests | slice:0:(isExpanded ? requests.length : 2)); track item.id) {
+    @for (item of requests | slice: 0 : (isExpanded ? requests.length : 2); track item.id) {
       <div class="ticket-card" [class.is-closed]="isClosed(item.status)">
         <h2 class="ticket-title">{{ item.title }}</h2>
 
@@ -15,9 +15,7 @@
         <p class="ticket-description">{{ item.description }}</p>
 
         <div class="ticket-footer">
-          <div class="ticket-info">
-            {{ item.city }}, {{ item.created_at | date: 'dd.MM.yyyy' }}
-          </div>
+          <div class="ticket-info">{{ item.city }}, {{ item.created_at | date: 'dd.MM.yyyy' }}</div>
 
           <div class="ticket-meta">
             @if (isClosed(item.status)) {

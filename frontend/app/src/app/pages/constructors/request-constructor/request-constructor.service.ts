@@ -31,6 +31,8 @@ export class RequestConstructorService {
     });
   }
   getMyProfile() {
-    return this.http.get<{ location: { city: string; address: string; region: string } | null }>('/api/users/me');
+    return this.http.get<{ location: { city: string; address: string; region: string } | null }>(
+      '/api/users/me',
+    );
   }
 }

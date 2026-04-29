@@ -5,7 +5,6 @@
   gap: 40px;
   align-items: flex-start;
 
-
   &__avatar {
     width: 250px;
     height: 250px;
@@ -30,17 +29,16 @@
     margin: 0;
   }
 
-
   &__rating {
     color: $user-profile-color-grey;
     font-size: 24px;
 
-    p{
+    p {
       margin: 10px 0 0 0;
     }
   }
 
-  &__editor{
+  &__editor {
     margin: -60px 0;
   }
 

@@ -1,14 +1,16 @@
 <div class="create-event">
   <div class="create-event__card">
-
     <div class="create-event__header">
       <div class="create-event__header-accent"></div>
-      <h2 class="create-event__title">{{ isEditMode() ? 'Редагувати подію' : 'Створити подію' }}</h2>
-      <p class="create-event__subtitle">{{ isEditMode() ? 'Оновіть інформацію та збережіть' : 'Заповніть усі поля для публікації' }}</p>
+      <h2 class="create-event__title">
+        {{ isEditMode() ? 'Редагувати подію' : 'Створити подію' }}
+      </h2>
+      <p class="create-event__subtitle">
+        {{ isEditMode() ? 'Оновіть інформацію та збережіть' : 'Заповніть усі поля для публікації' }}
+      </p>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="create-event__form">
-
       <div class="create-event__section">
         <div class="create-event__section-header">
           <span class="create-event__section-dot"></span>
@@ -16,10 +18,17 @@
         </div>
 
         <div class="create-event__field" [class.create-event__field--error]="isInvalid(title)">
-          <label class="create-event__label create-event__label--required" for="ev-title">Назва</label>
+          <label class="create-event__label create-event__label--required" for="ev-title"
+            >Назва</label
+          >
           <div class="create-event__input-wrap">
-            <input id="ev-title" type="text" class="create-event__input"
-                   formControlName="title" placeholder="Введіть назву події" />
+            <input
+              id="ev-title"
+              type="text"
+              class="create-event__input"
+              formControlName="title"
+              placeholder="Введіть назву події"
+            />
             <span class="create-event__input-icon">✎</span>
           </div>
           @if (isInvalid(title)) {
@@ -33,11 +42,21 @@
             </div>
           }
         </div>
-        <div class="create-event__field" [class.create-event__field--error]="isInvalid(participants)">
-          <label class="create-event__label" for="ev-participants">Кількість потрібних волонтерів</label>
+        <div
+          class="create-event__field"
+          [class.create-event__field--error]="isInvalid(participants)"
+        >
+          <label class="create-event__label" for="ev-participants"
+            >Кількість потрібних волонтерів</label
+          >
           <div class="create-event__input-wrap">
-            <input id="ev-participants" type="number" class="create-event__input"
-                   formControlName="participants" placeholder="Наприклад: 10" />
+            <input
+              id="ev-participants"
+              type="number"
+              class="create-event__input"
+              formControlName="participants"
+              placeholder="Наприклад: 10"
+            />
             <span class="create-event__input-icon">👤</span>
           </div>
           @if (isInvalid(participants)) {
@@ -52,8 +71,11 @@
         <div class="create-event__field">
           <label class="create-event__label" for="ev-category">Категорія</label>
           <div class="create-event__input-wrap create-event__input-wrap--select">
-            <select id="ev-category" class="create-event__input create-event__input--select"
-                    formControlName="category">
+            <select
+              id="ev-category"
+              class="create-event__input create-event__input--select"
+              formControlName="category"
+            >
               <option value="">Оберіть категорію</option>
               @for (cat of categories; track cat.id) {
                 <option [value]="cat.id">{{ cat.name }}</option>
@@ -63,12 +85,21 @@
           </div>
         </div>
 
-        <div class="create-event__field" [class.create-event__field--error]="isInvalid(description)">
-          <label class="create-event__label create-event__label--required" for="ev-desc">Опис</label>
+        <div
+          class="create-event__field"
+          [class.create-event__field--error]="isInvalid(description)"
+        >
+          <label class="create-event__label create-event__label--required" for="ev-desc"
+            >Опис</label
+          >
           <div class="create-event__input-wrap">
-            <textarea id="ev-desc" class="create-event__input create-event__input--textarea"
-                      formControlName="description" rows="3"
-                      placeholder="Короткий опис події"></textarea>
+            <textarea
+              id="ev-desc"
+              class="create-event__input create-event__input--textarea"
+              formControlName="description"
+              rows="3"
+              placeholder="Короткий опис події"
+            ></textarea>
             <span class="create-event__input-icon create-event__input-icon--bottom">✎</span>
           </div>
           @if (isInvalid(description)) {
@@ -84,21 +115,29 @@
         </div>
 
         <div class="create-event__field create-event__field--side-by-side">
-
-          <div class="create-event__field create-event__field--grow"
-               [class.create-event__field--error]="isInvalid(what_volunteers_will_do)">
+          <div
+            class="create-event__field create-event__field--grow"
+            [class.create-event__field--error]="isInvalid(what_volunteers_will_do)"
+          >
             <label class="create-event__label create-event__label--required" for="ev-what">
               Що будуть робити волонтери
             </label>
             <div class="create-event__input-wrap">
-              <textarea id="ev-what" class="create-event__input create-event__input--textarea"
-                        formControlName="what_volunteers_will_do" rows="4"
-                        placeholder="Опишіть діяльність волонтерів"></textarea>
+              <textarea
+                id="ev-what"
+                class="create-event__input create-event__input--textarea"
+                formControlName="what_volunteers_will_do"
+                rows="4"
+                placeholder="Опишіть діяльність волонтерів"
+              ></textarea>
               <span class="create-event__input-icon create-event__input-icon--bottom">✎</span>
             </div>
             @if (isInvalid(what_volunteers_will_do)) {
               <div class="create-event__errors">
-                @if (what_volunteers_will_do.hasError('required') || what_volunteers_will_do.hasError('blank')) {
+                @if (
+                  what_volunteers_will_do.hasError('required') ||
+                  what_volunteers_will_do.hasError('blank')
+                ) {
                   <span class="create-event__error">Поле обов'язкове</span>
                 }
                 @if (what_volunteers_will_do.hasError('maxlength')) {
@@ -108,20 +147,28 @@
             }
           </div>
 
-          <div class="create-event__field create-event__field--grow"
-               [class.create-event__field--error]="isInvalid(why_its_important)">
+          <div
+            class="create-event__field create-event__field--grow"
+            [class.create-event__field--error]="isInvalid(why_its_important)"
+          >
             <label class="create-event__label create-event__label--required" for="ev-why">
               Чому це важливо
             </label>
             <div class="create-event__input-wrap">
-              <textarea id="ev-why" class="create-event__input create-event__input--textarea"
-                        formControlName="why_its_important" rows="4"
-                        placeholder="Поясніть важливість події"></textarea>
+              <textarea
+                id="ev-why"
+                class="create-event__input create-event__input--textarea"
+                formControlName="why_its_important"
+                rows="4"
+                placeholder="Поясніть важливість події"
+              ></textarea>
               <span class="create-event__input-icon create-event__input-icon--bottom">✎</span>
             </div>
             @if (isInvalid(why_its_important)) {
               <div class="create-event__errors">
-                @if (why_its_important.hasError('required') || why_its_important.hasError('blank')) {
+                @if (
+                  why_its_important.hasError('required') || why_its_important.hasError('blank')
+                ) {
                   <span class="create-event__error">Поле обов'язкове</span>
                 }
                 @if (why_its_important.hasError('maxlength')) {
@@ -130,7 +177,6 @@
               </div>
             }
           </div>
-
         </div>
       </div>
 
@@ -141,32 +187,58 @@
         </div>
 
         <div class="create-event__date-grid">
-
-          <div class="create-event__field" [class.create-event__field--error]="isInvalid(starts_at)">
-            <label class="create-event__label create-event__label--required" for="ev-start">Дата початку</label>
+          <div
+            class="create-event__field"
+            [class.create-event__field--error]="isInvalid(starts_at)"
+          >
+            <label class="create-event__label create-event__label--required" for="ev-start"
+              >Дата початку</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-start" type="date" class="create-event__input create-event__input--date"
-                     formControlName="starts_at" />
+              <input
+                id="ev-start"
+                type="date"
+                class="create-event__input create-event__input--date"
+                formControlName="starts_at"
+              />
             </div>
             @if (isInvalid(starts_at)) {
               <div class="create-event__errors">
-                @if (starts_at.hasError('required')) { <span class="create-event__error">Вкажіть дату початку</span> }
-                @if (starts_at.hasError('pastDate')) { <span class="create-event__error">Дата не може бути в минулому</span> }
+                @if (starts_at.hasError('required')) {
+                  <span class="create-event__error">Вкажіть дату початку</span>
+                }
+                @if (starts_at.hasError('pastDate')) {
+                  <span class="create-event__error">Дата не може бути в минулому</span>
+                }
               </div>
             }
           </div>
 
-          <div class="create-event__field"
-               [class.create-event__field--error]="isInvalid(ends_at) || (form.hasError('endBeforeStart') && ends_at.touched)">
-            <label class="create-event__label create-event__label--required" for="ev-end">Дата завершення</label>
+          <div
+            class="create-event__field"
+            [class.create-event__field--error]="
+              isInvalid(ends_at) || (form.hasError('endBeforeStart') && ends_at.touched)
+            "
+          >
+            <label class="create-event__label create-event__label--required" for="ev-end"
+              >Дата завершення</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-end" type="date" class="create-event__input create-event__input--date"
-                     formControlName="ends_at" />
+              <input
+                id="ev-end"
+                type="date"
+                class="create-event__input create-event__input--date"
+                formControlName="ends_at"
+              />
             </div>
             @if (isInvalid(ends_at)) {
               <div class="create-event__errors">
-                @if (ends_at.hasError('required')) { <span class="create-event__error">Вкажіть дату завершення</span> }
-                @if (ends_at.hasError('pastDate')) { <span class="create-event__error">Дата не може бути в минулому</span> }
+                @if (ends_at.hasError('required')) {
+                  <span class="create-event__error">Вкажіть дату завершення</span>
+                }
+                @if (ends_at.hasError('pastDate')) {
+                  <span class="create-event__error">Дата не може бути в минулому</span>
+                }
               </div>
             }
             @if (form.hasError('endBeforeStart') && ends_at.touched) {
@@ -177,30 +249,55 @@
           </div>
 
           <div class="create-event__field" [class.create-event__field--error]="isInvalid(time)">
-            <label class="create-event__label create-event__label--required" for="ev-time">Час початку</label>
+            <label class="create-event__label create-event__label--required" for="ev-time"
+              >Час початку</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-time" type="time" class="create-event__input create-event__input--date"
-                     formControlName="time" />
+              <input
+                id="ev-time"
+                type="time"
+                class="create-event__input create-event__input--date"
+                formControlName="time"
+              />
             </div>
             @if (isInvalid(time)) {
               <div class="create-event__errors">
-                @if (time.hasError('required')) { <span class="create-event__error">Вкажіть час</span> }
-                @if (time.hasError('invalidTime')) { <span class="create-event__error">Формат ГГ:ХХ</span> }
+                @if (time.hasError('required')) {
+                  <span class="create-event__error">Вкажіть час</span>
+                }
+                @if (time.hasError('invalidTime')) {
+                  <span class="create-event__error">Формат ГГ:ХХ</span>
+                }
               </div>
             }
           </div>
 
-          <div class="create-event__field"
-               [class.create-event__field--error]="isInvalid(application_deadline) || (form.hasError('deadlineAfterStart') && application_deadline.touched)">
-            <label class="create-event__label create-event__label--required" for="ev-deadline">Дедлайн заявок</label>
+          <div
+            class="create-event__field"
+            [class.create-event__field--error]="
+              isInvalid(application_deadline) ||
+              (form.hasError('deadlineAfterStart') && application_deadline.touched)
+            "
+          >
+            <label class="create-event__label create-event__label--required" for="ev-deadline"
+              >Дедлайн заявок</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-deadline" type="date" class="create-event__input create-event__input--date"
-                     formControlName="application_deadline" />
+              <input
+                id="ev-deadline"
+                type="date"
+                class="create-event__input create-event__input--date"
+                formControlName="application_deadline"
+              />
             </div>
             @if (isInvalid(application_deadline)) {
               <div class="create-event__errors">
-                @if (application_deadline.hasError('required')) { <span class="create-event__error">Вкажіть дедлайн</span> }
-                @if (application_deadline.hasError('pastDate')) { <span class="create-event__error">Дата не може бути в минулому</span> }
+                @if (application_deadline.hasError('required')) {
+                  <span class="create-event__error">Вкажіть дедлайн</span>
+                }
+                @if (application_deadline.hasError('pastDate')) {
+                  <span class="create-event__error">Дата не може бути в минулому</span>
+                }
               </div>
             }
             @if (form.hasError('deadlineAfterStart') && application_deadline.touched) {
@@ -209,7 +306,6 @@
               </div>
             }
           </div>
-
         </div>
       </div>
 
@@ -219,7 +315,10 @@
           <p class="create-event__section-label">Місце проведення</p>
         </div>
 
-        @if (locationGroup.hasError('locationIncomplete') && (city.touched || address.touched || region.touched)) {
+        @if (
+          locationGroup.hasError('locationIncomplete') &&
+          (city.touched || address.touched || region.touched)
+        ) {
           <div class="create-event__location-warning">
             <span class="create-event__location-warning-icon">⚠</span>
             Заповніть усі три поля або залиште всі порожніми
@@ -227,73 +326,118 @@
         }
 
         <div class="create-event__location-grid">
-
-          <div class="create-event__field create-event__field--span-2"
-               [class.create-event__field--error]="isInvalid(city)">
-            <label class="create-event__label create-event__label--required" for="ev-city">Населений пункт</label>
+          <div
+            class="create-event__field create-event__field--span-2"
+            [class.create-event__field--error]="isInvalid(city)"
+          >
+            <label class="create-event__label create-event__label--required" for="ev-city"
+              >Населений пункт</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-city" type="text" class="create-event__input"
-                     formControlName="city" placeholder="Місто або село" />
+              <input
+                id="ev-city"
+                type="text"
+                class="create-event__input"
+                formControlName="city"
+                placeholder="Місто або село"
+              />
               <span class="create-event__input-icon">✎</span>
             </div>
             @if (isInvalid(city)) {
               <div class="create-event__errors">
-                @if (city.hasError('required')) { <span class="create-event__error">Вкажіть населений пункт</span> }
-                @if (city.hasError('maxlength')) { <span class="create-event__error">Максимум 100 символів</span> }
+                @if (city.hasError('required')) {
+                  <span class="create-event__error">Вкажіть населений пункт</span>
+                }
+                @if (city.hasError('maxlength')) {
+                  <span class="create-event__error">Максимум 100 символів</span>
+                }
               </div>
             }
           </div>
 
-          <div class="create-event__field create-event__field--span-2"
-               [class.create-event__field--error]="isInvalid(address)">
-            <label class="create-event__label create-event__label--required" for="ev-address">Адреса</label>
+          <div
+            class="create-event__field create-event__field--span-2"
+            [class.create-event__field--error]="isInvalid(address)"
+          >
+            <label class="create-event__label create-event__label--required" for="ev-address"
+              >Адреса</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-address" type="text" class="create-event__input"
-                     formControlName="address" placeholder="Вулиця, будинок" />
+              <input
+                id="ev-address"
+                type="text"
+                class="create-event__input"
+                formControlName="address"
+                placeholder="Вулиця, будинок"
+              />
               <span class="create-event__input-icon">✎</span>
             </div>
             @if (isInvalid(address)) {
               <div class="create-event__errors">
-                @if (address.hasError('required')) { <span class="create-event__error">Вкажіть адресу</span> }
-                @if (address.hasError('maxlength')) { <span class="create-event__error">Максимум 200 символів</span> }
+                @if (address.hasError('required')) {
+                  <span class="create-event__error">Вкажіть адресу</span>
+                }
+                @if (address.hasError('maxlength')) {
+                  <span class="create-event__error">Максимум 200 символів</span>
+                }
               </div>
             }
           </div>
 
-          <div class="create-event__field create-event__field--span-full"
-               [class.create-event__field--error]="isInvalid(region)">
-            <label class="create-event__label create-event__label--required" for="ev-region">Область</label>
+          <div
+            class="create-event__field create-event__field--span-full"
+            [class.create-event__field--error]="isInvalid(region)"
+          >
+            <label class="create-event__label create-event__label--required" for="ev-region"
+              >Область</label
+            >
             <div class="create-event__input-wrap">
-              <input id="ev-region" type="text" class="create-event__input"
-                     formControlName="region" placeholder="Область" />
+              <input
+                id="ev-region"
+                type="text"
+                class="create-event__input"
+                formControlName="region"
+                placeholder="Область"
+              />
               <span class="create-event__input-icon">✎</span>
             </div>
             @if (isInvalid(region)) {
               <div class="create-event__errors">
-                @if (region.hasError('required')) { <span class="create-event__error">Вкажіть область</span> }
-                @if (region.hasError('maxlength')) { <span class="create-event__error">Максимум 100 символів</span> }
+                @if (region.hasError('required')) {
+                  <span class="create-event__error">Вкажіть область</span>
+                }
+                @if (region.hasError('maxlength')) {
+                  <span class="create-event__error">Максимум 100 символів</span>
+                }
               </div>
             }
           </div>
-
         </div>
       </div>
 
       <div class="create-event__section">
         <div class="create-event__section-header">
           <span class="create-event__section-dot"></span>
-          <p class="create-event__section-label">Партнери <span class="create-event__section-label-optional">(необов'язково)</span></p>
+          <p class="create-event__section-label">
+            Партнери <span class="create-event__section-label-optional">(необов'язково)</span>
+          </p>
         </div>
 
         <div class="create-event__field" [class.create-event__field--error]="isInvalid(partners)">
           <div class="create-event__input-wrap">
-            <input type="text" class="create-event__input"
-                   formControlName="partners" placeholder="Назви партнерів через кому" />
+            <input
+              type="text"
+              class="create-event__input"
+              formControlName="partners"
+              placeholder="Назви партнерів через кому"
+            />
             <span class="create-event__input-icon">✎</span>
           </div>
           @if (isInvalid(partners)) {
             <div class="create-event__errors">
-              @if (partners.hasError('maxlength')) { <span class="create-event__error">Максимум 500 символів</span> }
+              @if (partners.hasError('maxlength')) {
+                <span class="create-event__error">Максимум 500 символів</span>
+              }
             </div>
           }
         </div>
@@ -306,11 +450,16 @@
         </div>
 
         <div class="create-event__field" [class.create-event__field--error]="isInvalid(image_url)">
-
           @if (selectedFilePreview()) {
             <div class="create-event__preview">
-              <img [src]="selectedFilePreview()" alt="Попередній перегляд" class="create-event__preview-img" />
-              <button type="button" class="create-event__preview-remove" (click)="removeFile()">✕</button>
+              <img
+                [src]="selectedFilePreview()"
+                alt="Попередній перегляд"
+                class="create-event__preview-img"
+              />
+              <button type="button" class="create-event__preview-remove" (click)="removeFile()">
+                ✕
+              </button>
               @if (selectedFileName()) {
                 <div class="create-event__preview-name">{{ selectedFileName() }}</div>
               }
@@ -322,9 +471,13 @@
               </div>
               <span class="create-event__upload-title">Натисніть або перетягніть фото</span>
               <span class="create-event__upload-hint">JPG, PNG, WEBP · до 10 МБ</span>
-              <input id="ev-image" type="file" class="create-event__upload-input"
-                     accept="image/jpeg,image/png,image/webp"
-                     (change)="onFileSelected($event)" />
+              <input
+                id="ev-image"
+                type="file"
+                class="create-event__upload-input"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onFileSelected($event)"
+              />
             </label>
           }
 
@@ -339,9 +492,7 @@
       </div>
 
       @if (serverError()) {
-        <div class="create-event__server-error">
-          <span>⚠</span> {{ serverError() }}
-        </div>
+        <div class="create-event__server-error"><span>⚠</span> {{ serverError() }}</div>
       }
 
       <div class="create-event__footer">
@@ -350,12 +501,13 @@
             <span class="create-event__spinner"></span>
             <span>{{ isEditMode() ? 'Збереження...' : 'Створення...' }}</span>
           } @else {
-            <span class="create-event__submit-text">{{ isEditMode() ? 'Оновити подію' : 'Створити подію' }}</span>
+            <span class="create-event__submit-text">{{
+              isEditMode() ? 'Оновити подію' : 'Створити подію'
+            }}</span>
             <span class="create-event__submit-arrow">→</span>
           }
         </button>
       </div>
-
     </form>
   </div>
 </div>

@@ -6,7 +6,6 @@
   } @else {
     <div class="event-detail__wrapper">
       <div class="event-detail__layout">
-
         <div class="event-detail__main">
           <h1 class="event-detail__title">{{ event.title }}</h1>
 
@@ -22,9 +21,7 @@
                     <strong>Дата проведення:</strong>
                     {{ event.starts_at | date: 'EEEE, dd MMMM yyyy року' : '' : 'uk' }}
                   </p>
-                  <p>
-                    <strong>Час:</strong> початок о {{ event.starts_at | date: 'HH:mm' }}
-                  </p>
+                  <p><strong>Час:</strong> початок о {{ event.starts_at | date: 'HH:mm' }}</p>
                 }
                 @if (event.location) {
                   <p>
@@ -33,9 +30,7 @@
                   </p>
                 }
                 @if (event.organization_profile) {
-                  <p>
-                    <strong>Створено:</strong> {{ event.organization_profile.name }}
-                  </p>
+                  <p><strong>Створено:</strong> {{ event.organization_profile.name }}</p>
                 }
                 @if (event.category) {
                   <p><strong>Категорія:</strong> {{ event.category.name }}</p>
@@ -79,7 +74,6 @@
         </div>
 
         <div class="event-detail__sidebar">
-
           <div class="event-detail__apply">
             @if (!isLoggedIn) {
               <button routerLink="/login" class="event-detail__apply-btn">
@@ -102,11 +96,11 @@
               <button (click)="unregister()" class="event-detail__apply-btn--cancel">
                 Скасувати заявку
               </button>
-            }
-            @else if (myRegistration?.status === 'APPROVED' || myRegistration?.status === 'CONFIRMED') {
+            } @else if (
+              myRegistration?.status === 'APPROVED' || myRegistration?.status === 'CONFIRMED'
+            ) {
               <p class="event-detail__status-success">Вашу заявку прийнято!</p>
-            }
-            @else if (myRegistration?.status === 'REJECTED') {
+            } @else if (myRegistration?.status === 'REJECTED') {
               <p class="event-detail__status-error">Заявку відхилено</p>
             }
           </div>
@@ -114,9 +108,11 @@
           @if (event.organization_profile) {
             <div class="event-detail__org-card">
               @if (event.organization_profile.logo_url) {
-                <img class="event-detail__org-logo"
-                     [src]="event.organization_profile.logo_url"
-                     [alt]="event.organization_profile.name" />
+                <img
+                  class="event-detail__org-logo"
+                  [src]="event.organization_profile.logo_url"
+                  [alt]="event.organization_profile.name"
+                />
               } @else {
                 <div class="event-detail__org-logo-placeholder"></div>
               }
@@ -144,14 +140,12 @@
               <div class="event-detail__progress-info">
                 <span class="event-detail__progress-label">Набір волонтерів</span>
                 <span class="event-detail__progress-count">
-                {{ joinedCount }} / {{ event.participants }}
+                  {{ joinedCount }} / {{ event.participants }}
                 </span>
               </div>
 
               <div class="event-detail__progress-bar-bg">
-                <div class="event-detail__progress-bar-fill"
-                     [style.width.%]="progressWidth">
-                </div>
+                <div class="event-detail__progress-bar-fill" [style.width.%]="progressWidth"></div>
               </div>
 
               @if (!isRegistrationOpen) {
@@ -172,10 +166,15 @@
                 @for (v of event.volunteers.slice(0, 5); track v.id) {
                   <div class="event-detail__volunteer">
                     @if (v.avatar_url) {
-                      <img class="event-detail__volunteer-avatar"
-                           [src]="v.avatar_url" [alt]="v.full_name" />
+                      <img
+                        class="event-detail__volunteer-avatar"
+                        [src]="v.avatar_url"
+                        [alt]="v.full_name"
+                      />
                     } @else {
-                      <div class="event-detail__volunteer-avatar event-detail__volunteer-avatar--placeholder">
+                      <div
+                        class="event-detail__volunteer-avatar event-detail__volunteer-avatar--placeholder"
+                      >
                         {{ v.full_name.charAt(0) }}
                       </div>
                     }
@@ -189,6 +188,8 @@
               }
             </div>
           }
-
-        </div> </div> </div> }
+        </div>
+      </div>
+    </div>
+  }
 </div>

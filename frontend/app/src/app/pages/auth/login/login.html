@@ -1,15 +1,22 @@
 <section class="login">
   <div class="login__container">
-
     <div class="login__title-wrapper">
       <h1 class="login__title">Вхід</h1>
     </div>
 
     <div class="login__tabs">
-      <button class="login__tab" [class.login__tab--active]="activeTab === 'user'" (click)="setTab('user')">
+      <button
+        class="login__tab"
+        [class.login__tab--active]="activeTab === 'user'"
+        (click)="setTab('user')"
+      >
         Користувач
       </button>
-      <button class="login__tab" [class.login__tab--active]="activeTab === 'org'" (click)="setTab('org')">
+      <button
+        class="login__tab"
+        [class.login__tab--active]="activeTab === 'org'"
+        (click)="setTab('org')"
+      >
         Організація
       </button>
     </div>
@@ -20,11 +27,18 @@
 
     @if (activeTab === 'user') {
       <form class="login__form" [formGroup]="userForm" (ngSubmit)="onSubmit()">
-
         <div class="login__field">
-          <div class="login__field-inner" [class.login__field-inner--error]="getError(userForm, 'email')">
+          <div
+            class="login__field-inner"
+            [class.login__field-inner--error]="getError(userForm, 'email')"
+          >
             <span class="login__label">Пошта:</span>
-            <input class="login__input" type="email" placeholder="example@gmail.com" formControlName="email" />
+            <input
+              class="login__input"
+              type="email"
+              placeholder="example@gmail.com"
+              formControlName="email"
+            />
           </div>
           @if (getError(userForm, 'email'); as msg) {
             <span class="login__validation-error">{{ msg }}</span>
@@ -32,9 +46,17 @@
         </div>
 
         <div class="login__field">
-          <div class="login__field-inner" [class.login__field-inner--error]="getError(userForm, 'password')">
+          <div
+            class="login__field-inner"
+            [class.login__field-inner--error]="getError(userForm, 'password')"
+          >
             <span class="login__label">Пароль:</span>
-            <input class="login__input" type="password" placeholder="******" formControlName="password" />
+            <input
+              class="login__input"
+              type="password"
+              placeholder="******"
+              formControlName="password"
+            />
           </div>
           @if (getError(userForm, 'password'); as msg) {
             <span class="login__validation-error">{{ msg }}</span>
@@ -57,11 +79,19 @@
 
     @if (activeTab === 'org') {
       <form class="login__form" [formGroup]="orgForm" (ngSubmit)="onSubmit()">
-
         <div class="login__field">
-          <div class="login__field-inner" [class.login__field-inner--error]="getError(orgForm, 'edrpou')">
+          <div
+            class="login__field-inner"
+            [class.login__field-inner--error]="getError(orgForm, 'edrpou')"
+          >
             <span class="login__label">ЄДРПОУ:</span>
-            <input class="login__input" type="text" placeholder="8 цифр" maxlength="8" formControlName="edrpou" />
+            <input
+              class="login__input"
+              type="text"
+              placeholder="8 цифр"
+              maxlength="8"
+              formControlName="edrpou"
+            />
           </div>
           @if (getError(orgForm, 'edrpou'); as msg) {
             <span class="login__validation-error">{{ msg }}</span>
@@ -69,9 +99,17 @@
         </div>
 
         <div class="login__field">
-          <div class="login__field-inner" [class.login__field-inner--error]="getError(orgForm, 'password')">
+          <div
+            class="login__field-inner"
+            [class.login__field-inner--error]="getError(orgForm, 'password')"
+          >
             <span class="login__label">Пароль:</span>
-            <input class="login__input" type="password" placeholder="******" formControlName="password" />
+            <input
+              class="login__input"
+              type="password"
+              placeholder="******"
+              formControlName="password"
+            />
           </div>
           @if (getError(orgForm, 'password'); as msg) {
             <span class="login__validation-error">{{ msg }}</span>

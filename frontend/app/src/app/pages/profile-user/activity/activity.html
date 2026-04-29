@@ -2,7 +2,7 @@
   <h2 #listTop class="activity__title">Волонтерська діяльність</h2>
 
   <div class="activity__list">
-    @for (item of (activities | slice:0:(isExpanded ? activities.length : 2)); track item.id) {
+    @for (item of activities | slice: 0 : (isExpanded ? activities.length : 2); track item.id) {
       <a class="activity__item" [routerLink]="['/events', item.id]">
         <div class="activity__image"></div>
 

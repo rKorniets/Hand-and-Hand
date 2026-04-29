@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { SlicePipe, CommonModule } from "@angular/common";
+import { SlicePipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Organization, FundraisingCampaign } from '../profile-organization.model';
 import { OrganizationProfileService } from '../profile-organization.service';
-import {UiHelperService} from '../../profile-user/toggleExpansion.service';
+import { UiHelperService } from '../../profile-user/toggleExpansion.service';
 
 @Component({
   selector: 'app-fundraising-campaigns-org',
@@ -20,14 +20,16 @@ export class FundraisingCampaignsOrg implements OnInit {
 
   constructor(
     private uiHelper: UiHelperService,
-    private orgService: OrganizationProfileService
+    private orgService: OrganizationProfileService,
   ) {}
 
   ngOnInit(): void {
     if (this.organization) {
-      this.orgService.getOrgFundraising(this.organization.id).subscribe((data: FundraisingCampaign[]) => {
-        this.fundraisingCampaignItem = data;
-      });
+      this.orgService
+        .getOrgFundraising(this.organization.id)
+        .subscribe((data: FundraisingCampaign[]) => {
+          this.fundraisingCampaignItem = data;
+        });
     }
   }
 

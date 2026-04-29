@@ -20,7 +20,7 @@ export class OrganizationDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private orgService: OrganizationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +38,7 @@ export class OrganizationDetailComponent implements OnInit {
           this.error = true;
           this.loading = false;
           this.cdr.detectChanges();
-        }
+        },
       });
     } else {
       this.error = true;

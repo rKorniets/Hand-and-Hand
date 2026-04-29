@@ -15,9 +15,7 @@ export class EventService {
   constructor(private http: HttpClient) {}
 
   getEvents(limit = 5, skip = 0, status?: string): Observable<PaginatedEvents> {
-    let params = new HttpParams()
-      .set('limit', limit)
-      .set('skip', skip);
+    let params = new HttpParams().set('limit', limit).set('skip', skip);
 
     if (status !== undefined) {
       params = params.set('status', status);
@@ -31,9 +29,7 @@ export class EventService {
     return this.http.get<NewEvent>(`${this.apiUrl}/${id}`, { params });
   }
   register(projectId: number): Observable<ProjectRegistration> {
-    return this.http.post<ProjectRegistration>(
-      `${this.apiUrl}/${projectId}/register`, {}
-    );
+    return this.http.post<ProjectRegistration>(`${this.apiUrl}/${projectId}/register`, {});
   }
 
   unregister(projectId: number): Observable<void> {
@@ -41,8 +37,6 @@ export class EventService {
   }
 
   getMyRegistration(projectId: number): Observable<ProjectRegistration | null> {
-    return this.http.get<ProjectRegistration | null>(
-      `${this.apiUrl}/${projectId}/my-registration`
-    );
+    return this.http.get<ProjectRegistration | null>(`${this.apiUrl}/${projectId}/my-registration`);
   }
 }

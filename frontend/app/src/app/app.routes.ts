@@ -24,7 +24,6 @@ import { EventsConstructorComponent } from './pages/constructors/events-construc
 import { VolVerification } from './pages/auth/vol-verification/vol-verification';
 import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
-import { RequestConstructorComponent } from './pages/constructors/request-constructor/request-constructor';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -53,6 +52,7 @@ export const routes: Routes = [
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'activity/edit/:id', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'organizations/:id', component: ProfileOrganization },
+
   {
     path: 'fundraisingCampaign/create',
     loadComponent: () =>
@@ -60,5 +60,8 @@ export const routes: Routes = [
         (m) => m.CreateFundraisingComponent,
       ),
   },
-  { path: 'fundraising/:id', component: FundraisingCampaignsDetail },
+  {
+    path: 'fundraising/:id',
+    component: FundraisingCampaignsDetail,
+  },
 ];

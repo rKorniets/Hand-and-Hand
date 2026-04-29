@@ -22,7 +22,7 @@ export class ResetPassword implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -47,10 +47,11 @@ export class ResetPassword implements OnInit {
         this.successMessage = 'Пароль успішно оновлено!';
         setTimeout(() => this.router.navigate(['/login']), 2000);
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error: (err: any) => {
         this.loading = false;
         this.error = err.error?.message || 'Не вдалося змінити пароль. Спробуйте ще раз.';
-      }
+      },
     });
   }
   get buttonText(): string {

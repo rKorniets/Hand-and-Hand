@@ -5,13 +5,14 @@
 
   <button class="add-button" routerLink="/fundraisingCampaign/create">+</button>
   <div class="list__component__grid">
-    @for (campaign of fundraisingCampaignItem | slice:0:(isExpanded ? fundraisingCampaignItem.length : 2); track campaign.id) {
-
+    @for (
+      campaign of fundraisingCampaignItem
+        | slice: 0 : (isExpanded ? fundraisingCampaignItem.length : 2);
+      track campaign.id
+    ) {
       <article class="fundraising__card">
         <a class="activity__item" [routerLink]="['/fundraising', campaign.id]">
-
-          <div class="fundraising__card__image">
-          </div>
+          <div class="fundraising__card__image"></div>
 
           <div class="fundraising__card__body">
             <h3 class="fundraising__card__title">{{ campaign.title }}</h3>

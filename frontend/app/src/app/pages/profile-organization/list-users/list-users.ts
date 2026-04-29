@@ -20,7 +20,7 @@ export class ListUsers implements OnChanges {
 
   constructor(
     private uiHelper: UiHelperService,
-    private orgService: OrganizationProfileService
+    private orgService: OrganizationProfileService,
   ) {}
 
   ngOnChanges(): void {
@@ -45,12 +45,11 @@ export class ListUsers implements OnChanges {
   }
 
   onDelete(member: OrgMember): void {
-    this.members = this.members.filter(m => m.id !== member.id);
+    this.members = this.members.filter((m) => m.id !== member.id);
     if (this.members.length <= this.collapseCount) {
       this.expanded = false;
     }
   }
 
-  onAdd(): void {
-  }
+  onAdd(): void {}
 }

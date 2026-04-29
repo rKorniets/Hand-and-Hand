@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import {MainContent} from './main-content/main-content';
-import {HeaderContent} from './header-content/header-content';
-import {FooterContent} from './footer-content/footer-content';
+import { MainContent } from './main-content/main-content';
+import { HeaderContent } from './header-content/header-content';
+import { FooterContent } from './footer-content/footer-content';
 
 @Component({
   selector: 'app-home',
@@ -9,5 +9,4 @@ import {FooterContent} from './footer-content/footer-content';
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home {
-}
+export class Home {}

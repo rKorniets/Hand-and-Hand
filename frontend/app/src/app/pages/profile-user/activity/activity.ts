@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
-import { DatePipe, CommonModule } from "@angular/common";
+import { DatePipe, CommonModule } from '@angular/common';
 import { AppUser, ActivityItem } from '../profile-user.model';
 import { UiHelperService } from '../toggleExpansion.service';
 import { UserProfileService } from '../profile-user.service';
@@ -20,7 +20,7 @@ export class Activity implements OnInit {
 
   constructor(
     private uiHelper: UiHelperService,
-    private profileService: UserProfileService
+    private profileService: UserProfileService,
   ) {}
 
   ngOnInit(): void {

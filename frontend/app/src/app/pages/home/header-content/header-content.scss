@@ -1,14 +1,10 @@
 @use 'variables' as *;
 
-.home{
+.home {
   padding: 40px 250px;
 
-  &__header{
-    background: linear-gradient(
-        180deg,
-        $home-header-bg-start 0%,
-        $home-header-bg-end 100%
-    );
+  &__header {
+    background: linear-gradient(180deg, $home-header-bg-start 0%, $home-header-bg-end 100%);
     border-radius: 20px;
     border: 1px $home-header-border solid;
     text-align: center;
@@ -18,18 +14,18 @@
     padding: 50px 0;
   }
 
-  &__title{
+  &__title {
     font-size: 55px;
     font-weight: 700;
   }
 
-  &__action{
+  &__action {
     display: flex;
     justify-content: center;
     gap: 330px;
   }
 
-  &__button{
+  &__button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,23 +36,22 @@
     border-radius: 10px;
     font-size: 30px;
 
-    &__small{
+    &__small {
       width: 400px;
     }
 
-    &__large{
+    &__large {
       width: 750px;
     }
   }
 
-  &__subtitle{
+  &__subtitle {
     padding-top: 30px;
     font-size: 55px;
   }
 
-  &__organization{
+  &__organization {
     display: flex;
     justify-content: center;
   }
-
 }

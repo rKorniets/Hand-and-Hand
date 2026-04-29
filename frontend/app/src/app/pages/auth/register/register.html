@@ -1,15 +1,22 @@
 <section class="register">
   <div class="register__container">
-
     <div class="register__title-wrapper">
       <h1 class="register__title">Реєстрація</h1>
     </div>
 
     <div class="register__tabs">
-      <button class="register__tab" [class.register__tab--active]="activeTab === 'user'" (click)="setTab('user')">
+      <button
+        class="register__tab"
+        [class.register__tab--active]="activeTab === 'user'"
+        (click)="setTab('user')"
+      >
         Користувач
       </button>
-      <button class="register__tab" [class.register__tab--active]="activeTab === 'org'" (click)="setTab('org')">
+      <button
+        class="register__tab"
+        [class.register__tab--active]="activeTab === 'org'"
+        (click)="setTab('org')"
+      >
         Організація
       </button>
     </div>
@@ -20,10 +27,12 @@
 
     @if (activeTab === 'user') {
       <form class="register__form" [formGroup]="userForm" (ngSubmit)="onSubmit()">
-
         <div class="register__row">
           <div class="register__field">
-            <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'firstName')">
+            <div
+              class="register__field-inner"
+              [class.register__field-inner--error]="getError(userForm, 'firstName')"
+            >
               <span class="register__label">Ім'я:</span>
               <input class="register__input" placeholder="Іван" formControlName="firstName" />
             </div>
@@ -32,7 +41,10 @@
             }
           </div>
           <div class="register__field">
-            <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'lastName')">
+            <div
+              class="register__field-inner"
+              [class.register__field-inner--error]="getError(userForm, 'lastName')"
+            >
               <span class="register__label">Прізвище:</span>
               <input class="register__input" placeholder="Іваненко" formControlName="lastName" />
             </div>
@@ -43,7 +55,10 @@
         </div>
 
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'city')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(userForm, 'city')"
+          >
             <span class="register__label">Місто:</span>
             <select class="register__input" formControlName="city">
               <option disabled value="">Вибрати</option>
@@ -57,9 +72,17 @@
         </div>
 
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'email')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(userForm, 'email')"
+          >
             <span class="register__label">Пошта:</span>
-            <input class="register__input" type="email" placeholder="example@gmail.com" formControlName="email" />
+            <input
+              class="register__input"
+              type="email"
+              placeholder="example@gmail.com"
+              formControlName="email"
+            />
           </div>
           @if (getError(userForm, 'email'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
@@ -67,9 +90,17 @@
         </div>
 
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(userForm, 'password')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(userForm, 'password')"
+          >
             <span class="register__label">Пароль:</span>
-            <input class="register__input" type="password" placeholder="******" formControlName="password" />
+            <input
+              class="register__input"
+              type="password"
+              placeholder="******"
+              formControlName="password"
+            />
           </div>
           @if (getError(userForm, 'password'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
@@ -88,9 +119,11 @@
 
     @if (activeTab === 'org') {
       <form class="register__form" [formGroup]="orgForm" (ngSubmit)="onSubmit()">
-
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'name')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(orgForm, 'name')"
+          >
             <span class="register__label">Назва:</span>
             <input class="register__input" placeholder="Ввести" formControlName="name" />
           </div>
@@ -100,9 +133,17 @@
         </div>
 
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'edrpou')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(orgForm, 'edrpou')"
+          >
             <span class="register__label">ЄДРПОУ:</span>
-            <input class="register__input" placeholder="8 цифр" maxlength="8" formControlName="edrpou" />
+            <input
+              class="register__input"
+              placeholder="8 цифр"
+              maxlength="8"
+              formControlName="edrpou"
+            />
           </div>
           @if (getError(orgForm, 'edrpou'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
@@ -110,9 +151,17 @@
         </div>
 
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'email')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(orgForm, 'email')"
+          >
             <span class="register__label">Пошта:</span>
-            <input class="register__input" type="email" placeholder="example@gmail.com" formControlName="email" />
+            <input
+              class="register__input"
+              type="email"
+              placeholder="example@gmail.com"
+              formControlName="email"
+            />
           </div>
           @if (getError(orgForm, 'email'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
@@ -120,9 +169,17 @@
         </div>
 
         <div class="register__field">
-          <div class="register__field-inner" [class.register__field-inner--error]="getError(orgForm, 'password')">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(orgForm, 'password')"
+          >
             <span class="register__label">Пароль:</span>
-            <input class="register__input" type="password" placeholder="******" formControlName="password" />
+            <input
+              class="register__input"
+              type="password"
+              placeholder="******"
+              formControlName="password"
+            />
           </div>
           @if (getError(orgForm, 'password'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
@@ -138,6 +195,5 @@
         </div>
       </form>
     }
-
   </div>
 </section>

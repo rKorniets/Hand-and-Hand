@@ -3,7 +3,7 @@
 
   <button class="add-button" routerLink="/reports/create">+</button>
   <div class="reports__list">
-    @for (item of reports | slice:0:(isExpanded ? reports.length : 2); track item.id) {
+    @for (item of reports | slice: 0 : (isExpanded ? reports.length : 2); track item.id) {
       <a class="reports__item" [routerLink]="['/reports', item.id]">
         <span class="material-symbols-outlined reports__file-icon">description</span>
         <div class="reports__body">

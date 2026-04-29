@@ -17,9 +17,7 @@ export class FundraisingCampaignsService {
     categories?: string[],
     status?: string[],
   ): Observable<{ data: FundraisingCampaignItem[]; total: number }> {
-    let params = new HttpParams()
-      .set('limit', limit.toString())
-      .set('skip', skip.toString());
+    let params = new HttpParams().set('limit', limit.toString()).set('skip', skip.toString());
 
     if (search) {
       params = params.set('search', search);
