@@ -15,6 +15,7 @@ export interface CreateProjectPayload {
   partners?: string;
   image_url?: string;
   category_id?: number;
+  participants?: number;
   location?: {
     city: string;
     address: string;

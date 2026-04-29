@@ -110,6 +110,7 @@ export class ProjectService {
           title: data.title,
           description: data.description,
           main_content: data.main_content,
+          participants: data.participants,
           what_volunteers_will_do: data.what_volunteers_will_do,
           why_its_important: data.why_its_important,
           time: data.time,
@@ -152,6 +153,7 @@ export class ProjectService {
         title: data.title,
         description: data.description,
         main_content: data.main_content,
+        participants: data.participants,
         status: data.status,
         starts_at: data.starts_at ? new Date(data.starts_at) : null,
         ends_at: data.ends_at ? new Date(data.ends_at) : null,
@@ -279,6 +281,11 @@ export class ProjectService {
         },
       },
       orderBy: { created_at: 'desc' },
+    });
+  }
+  async getMyRegistration(projectId: number, userId: number) {
+    return this.prisma.project_registration.findFirst({
+      where: { project_id: projectId, user_id: userId },
     });
   }
 }

@@ -88,6 +88,7 @@ export class EventsConstructorComponent implements OnInit {
       application_deadline: ['', [Validators.required, notPastDate]],
       partners: ['', Validators.maxLength(500)],
       image_url: ['', Validators.required],
+      participants: [null, [Validators.min(1)]],
       location: this.fb.group(
         {
           city: ['', [Validators.required, Validators.maxLength(100)]],
@@ -145,6 +146,9 @@ export class EventsConstructorComponent implements OnInit {
   }
   get region() {
     return this.locationGroup.controls['region'];
+  }
+  get participants() {
+    return this.form.controls.participants;
   }
 
   isInvalid(ctrl: AbstractControl): boolean {
@@ -223,6 +227,7 @@ export class EventsConstructorComponent implements OnInit {
       image_url: v.image_url || undefined,
       ...(v.starts_at && { starts_at: new Date(v.starts_at).toISOString() }),
       ...(v.ends_at && { ends_at: new Date(v.ends_at).toISOString() }),
+      participants: v.participants ? Number(v.participants) : undefined,
       location: {
         city: loc!.city!,
         address: loc!.address!,
