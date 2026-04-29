@@ -149,4 +149,14 @@ export class ProjectController extends AbstractCrudController<project[]> {
   ) {
     return this.projectService.updateImage(id, file, { id: user.id });
   }
+
+  @Get(':id/my-registration')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Перевірити мою реєстрацію на подію' })
+  async getMyRegistration(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.projectService.getMyRegistration(id, user.id);
+  }
 }
