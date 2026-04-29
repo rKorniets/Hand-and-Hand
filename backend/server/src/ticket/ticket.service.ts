@@ -20,6 +20,7 @@ export class TicketService {
         ...(data.location_id !== undefined && {
           location_id: data.location_id,
         }),
+        ...(data.file_url !== undefined && { file_url: data.file_url }),
         user_id: userId,
       },
     });
@@ -91,6 +92,7 @@ export class TicketService {
         ...(data.location_id !== undefined && {
           location_id: data.location_id,
         }),
+        ...(data.file_url !== undefined && { file_url: data.file_url }),
         updated_at: new Date(),
       },
     });

@@ -15,6 +15,7 @@ export interface CreateProjectPayload {
   partners?: string;
   image_url?: string;
   category_id?: number;
+  participants?: number;
   location?: {
     city: string;
     address: string;
@@ -31,6 +32,18 @@ export interface Project {
   status: project_status_enum;
   starts_at: string | null;
   ends_at: string | null;
+  time: string | null;
+  application_deadline: string | null;
+  what_volunteers_will_do: string | null;
+  why_its_important: string | null;
+  partners: string | null;
+  image_url: string | null;
+  category_id: number | null;
+  location: {
+    city: string;
+    address: string;
+    region: string;
+  } | null;
   created_at: string;
   updated_at: string;
 }

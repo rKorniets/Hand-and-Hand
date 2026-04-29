@@ -2,8 +2,12 @@
   <div class="create-event__card">
     <div class="create-event__header">
       <div class="create-event__header-accent"></div>
-      <h2 class="create-event__title">Створити подію</h2>
-      <p class="create-event__subtitle">Заповніть усі поля для публікації</p>
+      <h2 class="create-event__title">
+        {{ isEditMode() ? 'Редагувати подію' : 'Створити подію' }}
+      </h2>
+      <p class="create-event__subtitle">
+        {{ isEditMode() ? 'Оновіть інформацію та збережіть' : 'Заповніть усі поля для публікації' }}
+      </p>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="create-event__form">
@@ -34,6 +38,31 @@
               }
               @if (title.hasError('maxlength')) {
                 <span class="create-event__error">Максимум 200 символів</span>
+              }
+            </div>
+          }
+        </div>
+        <div
+          class="create-event__field"
+          [class.create-event__field--error]="isInvalid(participants)"
+        >
+          <label class="create-event__label" for="ev-participants"
+            >Кількість потрібних волонтерів</label
+          >
+          <div class="create-event__input-wrap">
+            <input
+              id="ev-participants"
+              type="number"
+              class="create-event__input"
+              formControlName="participants"
+              placeholder="Наприклад: 10"
+            />
+            <span class="create-event__input-icon">👤</span>
+          </div>
+          @if (isInvalid(participants)) {
+            <div class="create-event__errors">
+              @if (participants.hasError('min')) {
+                <span class="create-event__error">Мінімум 1 учасник</span>
               }
             </div>
           }
@@ -470,9 +499,11 @@
         <button class="create-event__submit" type="submit" [disabled]="isLoading()">
           @if (isLoading()) {
             <span class="create-event__spinner"></span>
-            <span>Створення...</span>
+            <span>{{ isEditMode() ? 'Збереження...' : 'Створення...' }}</span>
           } @else {
-            <span class="create-event__submit-text">Створити подію</span>
+            <span class="create-event__submit-text">{{
+              isEditMode() ? 'Оновити подію' : 'Створити подію'
+            }}</span>
             <span class="create-event__submit-arrow">→</span>
           }
         </button>

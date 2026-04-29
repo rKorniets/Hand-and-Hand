@@ -5,20 +5,33 @@
 
   <div class="activity__list">
     @for (item of visibleActivities; track item.id) {
-      <a class="activity__item" [routerLink]="['/events', item.id]">
-        <div class="activity__image"></div>
-        <div class="activity__body">
-          <div class="activity__top">
-            <h3 class="activity__item-title">{{ item.title }}</h3>
-            @if (item.starts_at) {
-              <span class="activity__date">{{ item.starts_at | date: 'dd.MM.yyyy' }}</span>
+      <div class="activity__item-wrapper">
+        <a class="activity__item" [routerLink]="['/events', item.id]">
+          <div class="activity__image"></div>
+          <div class="activity__body">
+            <div class="activity__top">
+              <h3 class="activity__item-title">{{ item.title }}</h3>
+              @if (item.starts_at) {
+                <span class="activity__date">{{ item.starts_at | date: 'dd.MM.yyyy' }}</span>
+              }
+            </div>
+            @if (item.description) {
+              <p class="activity__text">{{ item.description }}</p>
             }
           </div>
-          @if (item.description) {
-            <p class="activity__text">{{ item.description }}</p>
-          }
-        </div>
-      </a>
+        </a>
+
+        @if (isOwner) {
+          <a
+            class="activity__edit-btn"
+            [routerLink]="['/activity/edit', item.id]"
+            title="Редагувати подію"
+            aria-label="Редагувати подію"
+          >
+            <mat-icon>draw</mat-icon>
+          </a>
+        }
+      </div>
     }
   </div>
 

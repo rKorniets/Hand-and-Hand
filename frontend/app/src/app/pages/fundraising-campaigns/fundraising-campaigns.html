@@ -18,8 +18,10 @@
           <app-list-fundraising-campaigns
             [fundraisingCampaignItem]="campaignsList"
             [totalPages]="totalPages"
+            [currentPage]="currentPage"
             (pageChanged)="onPageChanged($event)"
           >
+            (pageChanged)="onPageChanged($event)" >
           </app-list-fundraising-campaigns>
         }
       }

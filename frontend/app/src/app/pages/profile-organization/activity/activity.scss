@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use 'variables' as *;
 
 .activity {
@@ -21,6 +22,10 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
+  }
+
+  &__item-wrapper {
+    position: relative;
   }
 
   &__item {
@@ -80,6 +85,40 @@
     font-size: 24px;
     line-height: 1.55;
     color: rgba($text-color, 0.9);
+  }
+
+  &__edit-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: $bg-color-block;
+    border: 1.5px solid rgba($text-color, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba($text-color, 0.5);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+    text-decoration: none;
+
+    &:hover {
+      background-color: color.adjust($bg-color-block, $lightness: -5%);
+      border-color: rgba($text-color, 0.35);
+      color: $text-color;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
   }
 
   &__button {

@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -145,17 +146,62 @@ export class ProjectService {
   ) {
     await this.validateOwnership(id, currentUser);
 
-    return this.prisma.project.update({
-      where: { id },
-      data: {
-        title: data.title,
-        description: data.description,
-        main_content: data.main_content,
-        status: data.status,
-        starts_at: data.starts_at ? new Date(data.starts_at) : null,
-        ends_at: data.ends_at ? new Date(data.ends_at) : null,
-        updated_at: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      if (data.location) {
+        const existing = await tx.project.findUnique({
+          where: { id },
+          select: { location_id: true },
+        });
+
+        if (existing?.location_id) {
+          await tx.location.update({
+            where: { id: existing.location_id },
+            data: {
+              city: data.location.city,
+              address: data.location.address,
+              region: data.location.region,
+              lat: data.location.lat ?? null,
+              lng: data.location.lng ?? null,
+            },
+          });
+        } else {
+          const loc = await tx.location.create({
+            data: {
+              city: data.location.city,
+              address: data.location.address,
+              region: data.location.region,
+              lat: data.location.lat ?? null,
+              lng: data.location.lng ?? null,
+            },
+          });
+          await tx.project.update({
+            where: { id },
+            data: { location_id: loc.id },
+          });
+        }
+      }
+
+      return tx.project.update({
+        where: { id },
+        data: {
+          title: data.title,
+          description: data.description,
+          main_content: data.main_content,
+          status: data.status,
+          what_volunteers_will_do: data.what_volunteers_will_do,
+          why_its_important: data.why_its_important,
+          time: data.time,
+          application_deadline: data.application_deadline
+            ? new Date(data.application_deadline)
+            : null,
+          partners: data.partners,
+          image_url: data.image_url,
+          starts_at: data.starts_at ? new Date(data.starts_at) : null,
+          ends_at: data.ends_at ? new Date(data.ends_at) : null,
+          ...(data.category_id && { category_id: data.category_id }),
+          updated_at: new Date(),
+        },
+      });
     });
   }
 
@@ -232,7 +278,12 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException('Project was not found');
     }
-
+    if (project.status === project_status_enum.DRAFT) {
+      throw new BadRequestException('Project is not published yet');
+    }
+    if (project.status !== project_status_enum.ACTIVE) {
+      throw new BadRequestException('Project is not accepting registrations');
+    }
     try {
       return await this.prisma.project_registration.create({
         data: { project_id: projectId, user_id: userId },
@@ -273,6 +324,11 @@ export class ProjectService {
         },
       },
       orderBy: { created_at: 'desc' },
+    });
+  }
+  async getMyRegistration(projectId: number, userId: number) {
+    return this.prisma.project_registration.findFirst({
+      where: { project_id: projectId, user_id: userId },
     });
   }
 }

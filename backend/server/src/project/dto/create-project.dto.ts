@@ -62,9 +62,13 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @IsDateString()
   application_deadline?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  participants?: number;
 
   @ApiPropertyOptional()
   @IsOptional()

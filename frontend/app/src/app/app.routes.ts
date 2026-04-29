@@ -50,6 +50,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
+  { path: 'activity/edit/:id', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'organizations/:id', component: ProfileOrganization },
 
   {

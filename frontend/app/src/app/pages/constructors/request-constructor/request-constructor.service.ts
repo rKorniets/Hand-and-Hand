@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
-import { Project, CreateProjectPayload, Category } from './events-constructor.model';
+import { CreateRequestPayload, Request, Category } from './request-constructor.model';
 
 @Injectable({ providedIn: 'root' })
-export class EventsConstructorService {
-  private readonly apiUrl = 'http://localhost:3000/projects';
+export class RequestConstructorService {
+  private readonly apiUrl = 'http://localhost:3000/requests';
   private readonly categoriesUrl = 'http://localhost:3000/categories';
 
   constructor(
@@ -19,20 +19,8 @@ export class EventsConstructorService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-  createProject(payload: CreateProjectPayload): Observable<Project> {
-    return this.http.post<Project>(this.apiUrl, payload, {
-      headers: this.getHeaders(),
-    });
-  }
-
-  getProjectById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`, {
-      headers: this.getHeaders(),
-    });
-  }
-
-  updateProject(id: number, payload: CreateProjectPayload): Observable<Project> {
-    return this.http.put<Project>(`${this.apiUrl}/${id}`, payload, {
+  createRequest(payload: CreateRequestPayload): Observable<Request> {
+    return this.http.post<Request>(this.apiUrl, payload, {
       headers: this.getHeaders(),
     });
   }
@@ -41,5 +29,10 @@ export class EventsConstructorService {
     return this.http.get<Category[]>(this.categoriesUrl, {
       headers: this.getHeaders(),
     });
+  }
+  getMyProfile() {
+    return this.http.get<{ location: { city: string; address: string; region: string } | null }>(
+      '/api/users/me',
+    );
   }
 }
