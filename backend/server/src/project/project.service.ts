@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma, project_status_enum } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -109,6 +110,7 @@ export class ProjectService {
           title: data.title,
           description: data.description,
           main_content: data.main_content,
+          participants: data.participants,
           what_volunteers_will_do: data.what_volunteers_will_do,
           why_its_important: data.why_its_important,
           time: data.time,
@@ -277,7 +279,12 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException('Project was not found');
     }
-
+    if (project.status === project_status_enum.DRAFT) {
+      throw new BadRequestException('Project is not published yet');
+    }
+    if (project.status !== project_status_enum.ACTIVE) {
+      throw new BadRequestException('Project is not accepting registrations');
+    }
     try {
       return await this.prisma.project_registration.create({
         data: { project_id: projectId, user_id: userId },
@@ -318,6 +325,11 @@ export class ProjectService {
         },
       },
       orderBy: { created_at: 'desc' },
+    });
+  }
+  async getMyRegistration(projectId: number, userId: number) {
+    return this.prisma.project_registration.findFirst({
+      where: { project_id: projectId, user_id: userId },
     });
   }
 }

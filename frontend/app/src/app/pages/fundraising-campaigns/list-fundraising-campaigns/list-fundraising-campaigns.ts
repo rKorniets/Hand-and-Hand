@@ -13,14 +13,12 @@ import { RouterModule } from '@angular/router';
 export class ListFundraisingCampaigns {
   @Input() fundraisingCampaignItem: FundraisingCampaignItem[] = [];
   @Input() totalPages: number = 1;
+  @Input() currentPage: number = 1;
   @Output() pageChanged = new EventEmitter<number>();
-
-  currentPage: number = 1;
 
   goToPage(page: number | string) {
     if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.pageChanged.emit(this.currentPage);
+      this.pageChanged.emit(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }

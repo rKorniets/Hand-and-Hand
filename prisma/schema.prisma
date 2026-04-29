@@ -19,24 +19,20 @@ model app_user {
   city                                   String?
   organization_id                        Int?
   admin_profile                          admin_profile?
-  organization                           organization_profile?  @relation("OrganizationMembers", fields: [organization_id], references: [id])
-  reviewed_requests                      approval_request[]     @relation("reviewed_requests")
-  submitted_requests                     approval_request[]     @relation("submitted_requests")
+  organization                           organization_profile?             @relation("OrganizationMembers", fields: [organization_id], references: [id])
+  reviewed_requests                      approval_request[]                @relation("reviewed_requests")
+  submitted_requests                     approval_request[]                @relation("submitted_requests")
   news                                   news[]
-  organization_profile                   organization_profile?  @relation("OrganizationOwner")
+  organization_profile                   organization_profile?             @relation("OrganizationOwner")
   password_reset_token                   password_reset_token[]
   points_transaction                     points_transaction[]
   project_registration                   project_registration[]
   reward_redemption                      reward_redemption[]
   volunteer_profile                      volunteer_profile?
   ticket                                 ticket[]
-  password_reset_token                   password_reset_token[]
   email_verification_token               email_verification_token[]
   warnings_warnings_created_byToapp_user warnings[]                        @relation("warnings_created_byToapp_user")
   warnings_warnings_user_idToapp_user    warnings[]                        @relation("warnings_user_idToapp_user")
-  submitted_requests                     approval_request[]                @relation("submitted_requests")
-  reviewed_requests                      approval_request[]                @relation("reviewed_requests")
-  project_registration                   project_registration[]
   donation                               donation[]
   organization_membership_request        organization_membership_request[]
 }
@@ -51,6 +47,7 @@ model volunteer_profile {
   rating               Decimal?               @db.Decimal(3, 2)
   is_verified          Boolean                @default(false)
   avatar_url           String?
+  docs_url             String?
   created_at           DateTime               @default(now()) @db.Timestamptz(6)
   fundraising_campaign fundraising_campaign[]
   task_assignment      task_assignment[]
@@ -73,12 +70,12 @@ model organization_profile {
   location_id           Int?
   created_at            DateTime                          @default(now()) @db.Timestamptz(6)
   mission               String
-  members               app_user[]               @relation("OrganizationMembers")
+  members               app_user[]                        @relation("OrganizationMembers")
   fundraising_campaign  fundraising_campaign[]
   news                  news[]
   organization_category organization_category[]
-  location              location?                @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
-  app_user              app_user                 @relation("OrganizationOwner", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
+  location              location?                         @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_organization_profile_location")
+  app_user              app_user                          @relation("OrganizationOwner", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_organization_profile_user")
   project               project[]
   report                report[]
   membership_requests   organization_membership_request[]
@@ -130,6 +127,7 @@ model project {
   category_id             Int?
   partners                String?
   image_url               String?
+  participants            Int?
   organization_profile    organization_profile   @relation(fields: [organization_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_organization")
   location                location?              @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_project_location")
   category                category?              @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "fk_project_category")
@@ -152,6 +150,7 @@ model project_registration {
   project    project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@unique([project_id, user_id], map: "uq_project_registration")
   @@index([project_id])
   @@index([user_id])
 }
@@ -203,16 +202,18 @@ model task_category {
 
   @@unique([task_id, category_id], map: "uq_task_category")
 }
+
 model fundraising_category {
-  id          Int                  @id @default(autoincrement())
-  campaign_id Int
-  category_id Int
-  created_at  DateTime             @default(now()) @db.Timestamptz(6)
-  category    category             @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  id                   Int                  @id @default(autoincrement())
+  campaign_id          Int
+  category_id          Int
+  created_at           DateTime             @default(now()) @db.Timestamptz(6)
+  category             category             @relation(fields: [category_id], references: [id], onDelete: Cascade)
   fundraising_campaign fundraising_campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
 
   @@unique([campaign_id, category_id])
 }
+
 model project_category {
   id          Int      @id @default(autoincrement())
   project_id  Int
@@ -387,9 +388,10 @@ model ticket {
   closed_at            DateTime?            @db.Timestamptz(6)
   task                 task[]
   user_id              Int?
+  file_url             String?
   app_user             app_user?            @relation(fields: [user_id], references: [id])
   location             location?            @relation(fields: [location_id], references: [id], onUpdate: NoAction, map: "fk_ticket_location")
-  volunteer_profile    volunteer_profile?    @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
+  volunteer_profile    volunteer_profile?   @relation(fields: [volunteer_profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_volunteer_profile")
 }
 
 model organization_category {

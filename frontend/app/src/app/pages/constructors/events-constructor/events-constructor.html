@@ -33,6 +33,21 @@
             </div>
           }
         </div>
+        <div class="create-event__field" [class.create-event__field--error]="isInvalid(participants)">
+          <label class="create-event__label" for="ev-participants">Кількість потрібних волонтерів</label>
+          <div class="create-event__input-wrap">
+            <input id="ev-participants" type="number" class="create-event__input"
+                   formControlName="participants" placeholder="Наприклад: 10" />
+            <span class="create-event__input-icon">👤</span>
+          </div>
+          @if (isInvalid(participants)) {
+            <div class="create-event__errors">
+              @if (participants.hasError('min')) {
+                <span class="create-event__error">Мінімум 1 учасник</span>
+              }
+            </div>
+          }
+        </div>
 
         <div class="create-event__field">
           <label class="create-event__label" for="ev-category">Категорія</label>

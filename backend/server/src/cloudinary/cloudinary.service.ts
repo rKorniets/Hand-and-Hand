@@ -2,6 +2,13 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_DOCUMENT_MIME_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'application/pdf',
+];
+const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
 @Injectable()
 export class CloudinaryService {
   constructor() {
@@ -29,6 +36,35 @@ export class CloudinaryService {
         {
           folder: 'hand-and-hand',
           transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+        },
+        (error, result: UploadApiResponse) => {
+          if (error) return reject(new Error(error.message));
+          resolve(result.secure_url);
+        },
+      );
+
+      uploadStream.end(file.buffer);
+    });
+  }
+  async uploadDocument(file: Express.Multer.File): Promise<string> {
+    if (!file) {
+      throw new BadRequestException('Файл не було завантажено');
+    }
+    if (!ALLOWED_DOCUMENT_MIME_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Дозволені лише формати: JPEG, PNG, JPG, PDF',
+      );
+    }
+    if (file.size > MAX_DOCUMENT_SIZE) {
+      throw new BadRequestException(
+        'Розмір файлу не повинен перевищувати 10MB',
+      );
+    }
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'hand-and-hand/documents',
+          resource_type: 'auto',
         },
         (error, result: UploadApiResponse) => {
           if (error) return reject(new Error(error.message));

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -24,6 +25,7 @@ import { TaskAssignmentModule } from './task_assignment/task_assignment.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdminModule } from './admin/admin.module';
 import { MyModule } from './my/my.module';
+import { MyOrgModule } from './my-org/my-org.module';
 import { PointsModule } from './points/points.module';
 
 @Module({
@@ -32,6 +34,10 @@ import { PointsModule } from './points/points.module';
       isGlobal: true,
       envFilePath: '../../.env',
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
     PrismaModule,
     AuthModule,
     NewsModule,
@@ -51,11 +57,13 @@ import { PointsModule } from './points/points.module';
     CloudinaryModule,
     AdminModule,
     MyModule,
+    MyOrgModule,
     PointsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

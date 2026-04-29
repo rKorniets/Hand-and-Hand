@@ -24,6 +24,7 @@ import { EventsConstructorComponent } from './pages/constructors/events-construc
 import { VolVerification } from './pages/auth/vol-verification/vol-verification';
 import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
+import { RequestConstructorComponent } from './pages/constructors/request-constructor/request-constructor';
 
 export const routes: Routes = [
   { path: '', component: Home },

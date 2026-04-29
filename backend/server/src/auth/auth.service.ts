@@ -41,16 +41,30 @@ export class AuthService {
 
     const passwordHash = await argon2.hash(dto.password);
 
-    const user = await this.prisma.app_user.create({
-      data: {
-        email: dto.email,
-        password_hash: passwordHash,
-        role: user_role_enum.APP_USER,
-        status: user_status_enum.PENDING,
-        first_name: dto.firstName,
-        last_name: dto.lastName,
-        city: dto.city,
-      },
+    const user = await this.prisma.$transaction(async (tx) => {
+      const u = await tx.app_user.create({
+        data: {
+          email: dto.email,
+          password_hash: passwordHash,
+          role: user_role_enum.VOLUNTEER,
+          status: user_status_enum.PENDING,
+          first_name: dto.firstName,
+          last_name: dto.lastName,
+          city: dto.city,
+        },
+      });
+
+      await tx.volunteer_profile.create({
+        data: {
+          user_id: u.id,
+          display_name: dto.email,
+          phone: '',
+          bio: '',
+          is_verified: false,
+        },
+      });
+
+      return u;
     });
 
     const token = await this.generateAndSaveVerificationToken(user.id);
@@ -82,7 +96,7 @@ export class AuthService {
         },
       });
 
-      await tx.organization_profile.create({
+      const orgProfile = await tx.organization_profile.create({
         data: {
           user_id: u.id,
           name: dto.name,
@@ -95,7 +109,7 @@ export class AuthService {
       await tx.approval_request.create({
         data: {
           submitted_by: u.id,
-          entity_id: u.id,
+          entity_id: orgProfile.id,
           type: 'ORGANIZATION',
           status: 'PENDING',
         },
