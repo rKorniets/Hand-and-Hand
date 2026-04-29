@@ -8,16 +8,17 @@ import {
 } from '@angular/core';
 import { DatePipe, CommonModule } from '@angular/common';
 import { ActivityItem, Organization } from '../profile-organization.model';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { OrganizationProfileService } from '../profile-organization.service';
 import { UiHelperService } from '../../profile-user/toggleExpansion.service';
 import { AuthService } from '../../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [DatePipe, RouterLink, CommonModule],
+  imports: [DatePipe, RouterLink, CommonModule, MatIconModule],
   templateUrl: './activity.html',
   styleUrl: './activity.scss',
 })
@@ -33,7 +34,6 @@ export class Activity implements OnInit, OnChanges {
     private uiHelper: UiHelperService,
     private orgService: OrganizationProfileService,
     private authService: AuthService,
-    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -80,15 +80,13 @@ export class Activity implements OnInit, OnChanges {
     });
   }
 
-  onEditEvent(event: Event, eventId: number): void {
-    event.preventDefault();
-    event.stopPropagation();
-    void this.router.navigate(['/activity/edit', eventId]);
-  }
-
   toggleActivities(target: HTMLElement): void {
     this.isExpanded = this.uiHelper.toggleExpansion(this.isExpanded, target);
-    this.visibleActivities = this.isExpanded ? this.activities : this.activities.slice(0, 5);
+    if (this.isExpanded) {
+      this.visibleActivities = this.activities;
+    } else {
+      this.visibleActivities = this.activities.slice(0, 5);
+    }
     this.cdr.detectChanges();
   }
 }

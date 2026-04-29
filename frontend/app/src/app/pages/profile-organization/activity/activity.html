@@ -22,21 +22,12 @@
         </a>
 
         @if (isOwner) {
-          <button
-            type="button"
-            class="activity__edit-btn"
-            title="Редагувати подію"
-            aria-label="Редагувати подію"
-            (click)="onEditEvent($event, item.id)"
-          >
-            <svg class="activity__edit-icon" viewBox="0 0 16 16" fill="none"
-                 stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round" stroke-linejoin="round"
-                 aria-hidden="true">
-              <path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z"/>
-              <path d="M10 4l2 2"/>
-            </svg>
-          </button>
+          <a class="activity__edit-btn"
+             [routerLink]="['/activity/edit', item.id]"
+             title="Редагувати подію"
+             aria-label="Редагувати подію">
+            <mat-icon>draw</mat-icon>
+          </a>
         }
       </div>
     }
