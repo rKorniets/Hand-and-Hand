@@ -4,6 +4,7 @@ import {
   Query,
   Post,
   Put,
+  Patch,
   Delete,
   Param,
   Body,
@@ -16,7 +17,12 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { project_status_enum, user_role_enum, project } from '@prisma/client';
+import {
+  project_registration_status_enum,
+  project_status_enum,
+  user_role_enum,
+  project,
+} from '@prisma/client';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Public } from '../auth/decorators/public.decorator';
@@ -133,5 +139,64 @@ export class ProjectController extends AbstractCrudController<project[]> {
     @CurrentUser() user: { id: number },
   ) {
     return this.projectService.getMyRegistration(id, user.id);
+  }
+
+  @Get(':id/registrations/manage')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({
+    summary: 'Список заявок на участь у проекті (для власника)',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: project_registration_status_enum,
+  })
+  async listRegistrationsForOwner(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+    @Query(
+      'status',
+      new ParseEnumPipe(project_registration_status_enum, { optional: true }),
+    )
+    status?: project_registration_status_enum,
+  ) {
+    return this.projectService.listProjectRegistrationsForOwner(
+      id,
+      user,
+      status,
+    );
+  }
+
+  @Patch(':id/registrations/:registrationId/accept')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Прийняти заявку на участь у проекті' })
+  async acceptRegistration(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('registrationId', ParseIntPipe) registrationId: number,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.projectService.acceptProjectRegistration(
+      id,
+      registrationId,
+      user,
+    );
+  }
+
+  @Patch(':id/registrations/:registrationId/reject')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Відхилити заявку на участь у проекті' })
+  async rejectRegistration(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('registrationId', ParseIntPipe) registrationId: number,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.projectService.rejectProjectRegistration(
+      id,
+      registrationId,
+      user,
+    );
   }
 }

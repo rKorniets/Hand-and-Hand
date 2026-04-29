@@ -1,5 +1,11 @@
 export type ProjectStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
-export type RegistrationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONFIRMED';
+
+export enum ProjectRegistrationStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  CANCELLED = 'CANCELLED',
+}
 
 export interface EventLocation {
   city: string;
@@ -54,6 +60,16 @@ export interface ProjectRegistration {
   id: number;
   project_id: number;
   user_id: number;
-  status: RegistrationStatus;
+  status: ProjectRegistrationStatus;
   created_at: string;
+  reviewed_at?: string | null;
+  reviewed_by?: number | null;
+  app_user?: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    city?: string;
+    volunteer_profile?: { avatar_url?: string };
+  };
 }
