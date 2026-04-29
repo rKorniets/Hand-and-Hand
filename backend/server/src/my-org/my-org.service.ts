@@ -100,6 +100,7 @@ export class MyOrgService {
       }),
       this.prisma.fundraising_campaign.count({ where }),
     ]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const safeData = data.map(({ mono_token, ...rest }) => rest);
 
     return { data: safeData, total };
