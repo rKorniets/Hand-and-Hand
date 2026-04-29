@@ -51,9 +51,8 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
+  { path: 'activity/edit/:id', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'organizations/:id', component: ProfileOrganization },
-  { path: 'request', component: RequestConstructorComponent },
-
   {
     path: 'fundraisingCampaign/create',
     loadComponent: () =>
@@ -61,8 +60,5 @@ export const routes: Routes = [
         (m) => m.CreateFundraisingComponent,
       ),
   },
-  {
-    path: 'fundraising/:id',
-    component: FundraisingCampaignsDetail,
-  },
+  { path: 'fundraising/:id', component: FundraisingCampaignsDetail },
 ];

@@ -25,6 +25,18 @@ export class EventsConstructorService {
     });
   }
 
+  getProjectById(id: number): Observable<Project> {
+    return this.http.get<Project>(`${this.apiUrl}/${id}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  updateProject(id: number, payload: CreateProjectPayload): Observable<Project> {
+    return this.http.put<Project>(`${this.apiUrl}/${id}`, payload, {
+      headers: this.getHeaders(),
+    });
+  }
+
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.categoriesUrl, {
       headers: this.getHeaders(),
