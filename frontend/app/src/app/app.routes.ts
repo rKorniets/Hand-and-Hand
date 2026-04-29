@@ -24,6 +24,7 @@ import { EventsConstructorComponent } from './pages/constructors/events-construc
 import { VolVerification } from './pages/auth/vol-verification/vol-verification';
 import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
+import { RequestConstructorComponent } from './pages/constructors/request-constructor/request-constructor';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -37,16 +38,21 @@ export const routes: Routes = [
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'vol-verification', component: VolVerification},
-  { path: 'application-submitted', component: ApplicationSubmitted},
+  { path: 'vol-verification', component: VolVerification },
+  { path: 'application-submitted', component: ApplicationSubmitted },
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
-  { path: 'profile/admin/pending-organizations', component: AdminPanelComponent, canActivate: [authGuard], },
+  {
+    path: 'profile/admin/pending-organizations',
+    component: AdminPanelComponent,
+    canActivate: [authGuard],
+  },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'organizations/:id', component: ProfileOrganization },
+  { path: 'request', component: RequestConstructorComponent },
 
   {
     path: 'fundraisingCampaign/create',
@@ -56,5 +62,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'fundraising/:id', component: FundraisingCampaignsDetail, },
+    path: 'fundraising/:id',
+    component: FundraisingCampaignsDetail,
+  },
 ];
