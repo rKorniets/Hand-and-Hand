@@ -12,10 +12,7 @@
       </div>
     </div>
 
-    <button
-      class="main-info__avatar-menu-btn"
-      (click)="$event.stopPropagation(); toggleMenu()"
-    >
+    <button class="main-info__avatar-menu-btn" (click)="$event.stopPropagation(); toggleMenu()">
       <span class="material-symbols-outlined">more_horiz</span>
     </button>
 
@@ -32,13 +29,7 @@
       </div>
     }
 
-    <input
-      #fileInput
-      type="file"
-      accept="image/*"
-      hidden
-      (change)="onAvatarSelected($event)"
-    />
+    <input #fileInput type="file" accept="image/*" hidden (change)="onAvatarSelected($event)" />
   </div>
 
   <div class="main-info__details">
