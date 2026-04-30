@@ -9,12 +9,17 @@ import {
   Body,
   ParseIntPipe,
   ParseEnumPipe,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiQuery,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { project_status_enum, user_role_enum, project } from '@prisma/client';
 import { ProjectService } from './project.service';
@@ -27,6 +32,7 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -133,5 +139,24 @@ export class ProjectController extends AbstractCrudController<project[]> {
     @CurrentUser() user: { id: number },
   ) {
     return this.projectService.getMyRegistration(id, user.id);
+  }
+  @Patch(':id/image')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Завантажити/замінити зображення проєкту' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.projectService.updateImage(id, file, { id: user.id });
   }
 }

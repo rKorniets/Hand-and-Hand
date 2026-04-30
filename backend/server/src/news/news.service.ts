@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { Prisma } from '@prisma/client';
+import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
@@ -13,7 +14,10 @@ export interface RequestUser {
 
 @Injectable()
 export class NewsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   private async validateOwnership(id: number, currentUser: RequestUser) {
     const news = await this.prisma.news.findUnique({ where: { id } });
@@ -90,16 +94,27 @@ export class NewsService {
         title: data.title,
         description: data.description,
         main_content: data.main_content,
-        image_url: data.image_url,
       },
     });
   }
-
+  async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ image_url: string }> {
+    const existing = await this.validateOwnership(id, currentUser);
+    const image_url = await this.cloudinary.replaceImage(
+      file,
+      ImageType.NEWS,
+      existing.image_url,
+    );
+    await this.prisma.news.update({ where: { id }, data: { image_url } });
+    return { image_url };
+  }
   async deleteNews(id: number, currentUser: RequestUser) {
-    await this.validateOwnership(id, currentUser);
-
-    return this.prisma.news.delete({
-      where: { id },
-    });
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url);
+    return this.prisma.news.delete({ where: { id } });
   }
 }

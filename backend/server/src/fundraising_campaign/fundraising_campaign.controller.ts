@@ -10,12 +10,17 @@ import {
   ParseIntPipe,
   ParseEnumPipe,
   ParseArrayPipe,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiQuery,
   ApiTags,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
@@ -33,6 +38,8 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.dto';
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
@@ -86,11 +93,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   }
   @Post()
   @ApiBearerAuth()
-  @Roles(
-    user_role_enum.ORGANIZATION,
-    user_role_enum.VOLUNTEER,
-    user_role_enum.ADMIN,
-  )
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити збір' })
   async create(
     @Body() data: CreateFundraisingCampaignDto,
@@ -105,7 +108,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   @ApiOperation({ summary: 'Оновити збір' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: CreateFundraisingCampaignDto,
+    @Body() data: UpdateFundraisingCampaignDto,
     @CurrentUser() user: { id: number },
   ) {
     return this.service.update(id, data, { id: user.id });
@@ -136,5 +139,24 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       dto.donor_name,
       dto.message,
     );
+  }
+  @Patch(':id/image')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Завантажити/замінити зображення збору' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.updateImage(id, file, { id: user.id });
   }
 }

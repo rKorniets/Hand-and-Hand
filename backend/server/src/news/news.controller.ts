@@ -9,12 +9,17 @@ import {
   Body,
   ParseIntPipe,
   ParseBoolPipe,
+  UseInterceptors,
+  Patch,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiQuery,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
@@ -27,6 +32,7 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('News')
 @Controller('news')
@@ -95,5 +101,24 @@ export class NewsController extends AbstractCrudController<unknown> {
     @CurrentUser() user: { id: number },
   ) {
     return this.newsService.deleteNews(id, { id: user.id });
+  }
+  @Patch(':id/image')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Завантажити/замінити зображення новини' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.newsService.updateImage(id, file, { id: user.id });
   }
 }

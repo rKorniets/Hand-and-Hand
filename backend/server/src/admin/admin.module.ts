@@ -39,6 +39,7 @@ import { CategoryAdminService } from './category/category.admin.service';
 
 import { OrgProfileAdminController } from './org-profile/org-profile.admin.controller';
 import { OrgProfileAdminService } from './org-profile/org-profile.admin.service';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 import { ReportAdminController } from './report/report.admin.controller';
 import { ReportAdminService } from './report/report.admin.service';
@@ -64,6 +65,7 @@ import { PointsAdminService } from './points/points.admin.service';
     LocationModule,
     FundraisingCampaignModule,
     PointsModule,
+    CloudinaryModule,
   ],
   controllers: [
     ApprovalAdminController,

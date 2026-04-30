@@ -7,10 +7,17 @@ import {
   approval_request_status_enum,
   user_status_enum,
 } from '@prisma/client';
+import {
+  CloudinaryService,
+  ImageType,
+} from '../../cloudinary/cloudinary.service';
 
 @Injectable()
 export class OrgProfileAdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinary: CloudinaryService,
+  ) {}
 
   async findAll(limit?: number, skip?: number, search?: string) {
     const whereClause: Prisma.organization_profileWhereInput = search
@@ -177,10 +184,25 @@ export class OrgProfileAdminService {
       },
     });
   }
-
+  async updateLogo(
+    id: number,
+    file: Express.Multer.File,
+  ): Promise<{ logo_url: string }> {
+    const existing = await this.findOne(id);
+    const logo_url = await this.cloudinary.replaceImage(
+      file,
+      ImageType.ORG_LOGO,
+      existing.logo_url,
+    );
+    await this.prisma.organization_profile.update({
+      where: { id },
+      data: { logo_url },
+    });
+    return { logo_url };
+  }
   async remove(id: number) {
-    await this.findOne(id);
-
+    const existing = await this.findOne(id);
+    if (existing.logo_url) await this.cloudinary.deleteImage(existing.logo_url);
     return this.prisma.organization_profile.delete({ where: { id } });
   }
 }
