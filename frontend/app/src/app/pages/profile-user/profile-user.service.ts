@@ -3,9 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ITicket, ActivityItem, FundraisingCampaign, Reward, AppUser } from './profile-user.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UserProfileService {
   private readonly apiUrl = 'http://localhost:3000';
 
@@ -13,6 +11,24 @@ export class UserProfileService {
 
   getUser(): Observable<AppUser> {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/me`);
+  }
+
+  getCloudinarySignature(): Observable<{
+    signature: string;
+    timestamp: number;
+    apiKey: string;
+    cloudName: string;
+  }> {
+    return this.http.post<{
+      signature: string;
+      timestamp: number;
+      apiKey: string;
+      cloudName: string;
+    }>(`${this.apiUrl}/cloudinary/sign`, {});
+  }
+
+  updateAvatar(avatarUrl: string): Observable<AppUser> {
+    return this.http.patch<AppUser>(`${this.apiUrl}/app-users/me`, { avatar_url: avatarUrl });
   }
 
   getRewards(): Observable<Reward[]> {
@@ -29,5 +45,9 @@ export class UserProfileService {
 
   getFundraisingCampaigns(): Observable<FundraisingCampaign[]> {
     return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising_campaigns`);
+  }
+
+  deleteAvatar(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/app-users/me/avatar`);
   }
 }

@@ -26,7 +26,7 @@ export class Activity implements OnInit {
   ngOnInit(): void {
     this.profileService.getUserActivities().subscribe({
       next: (data) => (this.activities = data),
-      error: (err) => console.error(err),
+      error: () => (this.activities = []),
     });
   }
 

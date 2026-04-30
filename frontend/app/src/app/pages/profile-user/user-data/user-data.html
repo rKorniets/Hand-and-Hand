@@ -2,10 +2,6 @@
   <h3 class="user-data__title">Інформація про волонтера</h3>
 
   <ul class="user-data__list">
-    <li class="user-data__item">
-      <span class="material-symbols-outlined user-data__icon">mail</span>
-      {{ user?.email }}
-    </li>
 
     @if (user?.city) {
       <li class="user-data__item">
@@ -18,6 +14,11 @@
       <li class="user-data__item">
         <span class="material-symbols-outlined user-data__icon">group</span>
         Учасник: {{ user?.joined_organization?.name }}
+      </li>
+    } @else {
+      <li class="user-data__item">
+        <span class="material-symbols-outlined user-data__icon">group</span>
+        Без організації
       </li>
     }
   </ul>

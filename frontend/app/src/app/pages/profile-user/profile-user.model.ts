@@ -19,11 +19,12 @@ export interface AppUser {
   first_name: string;
   last_name: string;
   city?: string;
-  avatar_url?: string;
+  avatar_url?: string | null;
   joined_organization?: {
     id: number;
     name: string;
   };
+  notifications?: Notification[];
 }
 
 export interface Reward {
@@ -60,4 +61,12 @@ export interface ITicket {
   status: string;
   city?: string;
   created_at: string;
+}
+
+export interface Notification {
+  id: number;
+  message: string;
+  is_read: boolean;
+  type: 'GENERAL' | 'PROJECT' | 'TASK' | 'TICKET' | 'REWARD' | 'WARNING';
+  created_at: Date;
 }

@@ -11,6 +11,7 @@ const ALLOWED_DOCUMENT_MIME_TYPES = [
   'application/pdf',
 ];
 const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
+
 export enum ImageType {
   NEWS = 'news',
   FUNDRAISING = 'fundraising',
@@ -18,6 +19,7 @@ export enum ImageType {
   ORG_LOGO = 'org_logo',
   AVATAR = 'avatar',
 }
+
 @Injectable()
 export class CloudinaryService {
   constructor() {
@@ -43,10 +45,16 @@ export class CloudinaryService {
   private upload(
     file: Express.Multer.File,
     transformation: Record<string, string | number>[],
+    context?: Record<string, string>,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'hand-and-hand', transformation, moderation: 'webpurify' },
+        {
+          folder: 'hand-and-hand',
+          transformation,
+          moderation: 'webpurify',
+          context,
+        },
         (error, result: UploadApiResponse) => {
           if (error) return reject(new Error(error.message));
           resolve(result.secure_url);
@@ -55,10 +63,9 @@ export class CloudinaryService {
       stream.end(file.buffer);
     });
   }
+
   async uploadDocument(file: Express.Multer.File): Promise<string> {
-    if (!file) {
-      throw new BadRequestException('Файл не було завантажено');
-    }
+    if (!file) throw new BadRequestException('Файл не було завантажено');
     if (!ALLOWED_DOCUMENT_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
         'Дозволені лише формати: JPEG, PNG, JPG, PDF',
@@ -71,26 +78,31 @@ export class CloudinaryService {
     }
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'hand-and-hand/documents',
-          resource_type: 'auto',
-        },
+        { folder: 'hand-and-hand/documents', resource_type: 'auto' },
         (error, result: UploadApiResponse) => {
           if (error) return reject(new Error(error.message));
           resolve(result.secure_url);
         },
       );
-
       uploadStream.end(file.buffer);
     });
   }
-  async uploadAvatar(file: Express.Multer.File): Promise<string> {
+
+  async uploadAvatar(
+    file: Express.Multer.File,
+    userId?: number,
+  ): Promise<string> {
     this.validate(file);
-    return this.upload(file, [
-      { width: 300, height: 300, crop: 'fill', gravity: 'face' },
-      { quality: 'auto', fetch_format: 'auto' },
-    ]);
+    return this.upload(
+      file,
+      [
+        { width: 300, height: 300, crop: 'fill', gravity: 'face' },
+        { quality: 'auto', fetch_format: 'auto' },
+      ],
+      userId ? { user_id: String(userId) } : undefined,
+    );
   }
+
   async uploadOrgLogo(file: Express.Multer.File): Promise<string> {
     this.validate(file);
     return this.upload(file, [
@@ -98,6 +110,7 @@ export class CloudinaryService {
       { quality: 'auto', fetch_format: 'auto' },
     ]);
   }
+
   async uploadNewsImage(file: Express.Multer.File): Promise<string> {
     this.validate(file);
     return this.upload(file, [
@@ -105,6 +118,7 @@ export class CloudinaryService {
       { quality: 'auto', fetch_format: 'auto' },
     ]);
   }
+
   async uploadFundraisingImage(file: Express.Multer.File): Promise<string> {
     this.validate(file);
     return this.upload(file, [
@@ -112,6 +126,7 @@ export class CloudinaryService {
       { quality: 'auto', fetch_format: 'auto' },
     ]);
   }
+
   async uploadProjectImage(file: Express.Multer.File): Promise<string> {
     this.validate(file);
     return this.upload(file, [
@@ -119,10 +134,12 @@ export class CloudinaryService {
       { quality: 'auto', fetch_format: 'auto' },
     ]);
   }
+
   async replaceImage(
     file: Express.Multer.File,
     type: ImageType,
     oldUrl?: string | null,
+    userId?: number,
   ): Promise<string> {
     let image_url: string;
 
@@ -140,7 +157,7 @@ export class CloudinaryService {
         image_url = await this.uploadOrgLogo(file);
         break;
       case ImageType.AVATAR:
-        image_url = await this.uploadAvatar(file);
+        image_url = await this.uploadAvatar(file, userId);
         break;
     }
 
@@ -148,11 +165,22 @@ export class CloudinaryService {
 
     return image_url;
   }
+
   async deleteImage(url: string): Promise<void> {
     if (!url) return;
+
+    const match =
+      url.match(/\/upload\/(?:[^/]+\/)*v\d+\/(.+)\.[^.]+$/) ||
+      url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
+
+    if (!match?.[1]) {
+      console.error(
+        'Cloudinary Deletion Error: Не вдалося витягнути public_id з URL',
+      );
+      return;
+    }
+
     try {
-      const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
-      if (!match?.[1]) throw new Error('Не вдалося витягнути public_id з URL');
       await cloudinary.uploader.destroy(match[1]);
     } catch (error) {
       console.error(
