@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ITicket, ActivityItem, FundraisingCampaign, Reward, AppUser } from './profile-user.model';
+import { API_BASE_URL } from '../../tokens';
 
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
-  private readonly apiUrl = 'http://localhost:3000';
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(API_BASE_URL) private apiUrl: string,
+  ) {}
 
   getUser(): Observable<AppUser> {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/me`);
@@ -31,9 +33,5 @@ export class UserProfileService {
 
   getFundraisingCampaigns(): Observable<FundraisingCampaign[]> {
     return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising_campaigns`);
-  }
-
-  deleteAvatar(): Observable<AppUser> {
-    return this.http.delete<AppUser>(`${this.apiUrl}/app-users/me/avatar`);
   }
 }

@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppUser } from '../profile-user.model';
-import { UserProfileService } from '../profile-user.service';
-import { HttpClient } from '@angular/common/http';
+import { MainInfoService } from './main-info.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -21,8 +20,7 @@ export class MainInfo {
   menuOpen = false;
 
   constructor(
-    private profileService: UserProfileService,
-    private http: HttpClient,
+    private mainInfoService: MainInfoService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -48,17 +46,12 @@ export class MainInfo {
     this.uploadError = null;
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const updatedUser = await firstValueFrom(
-        this.http.post<AppUser>('http://localhost:3000/app-users/me/avatar', formData),
-      );
+      const avatarUrl = await firstValueFrom(this.mainInfoService.uploadAvatar(file));
 
       if (this.user) {
-        this.user.avatar_url = updatedUser.avatar_url;
+        this.user.avatar_url = avatarUrl;
       }
-      this.avatarUpdated.emit(updatedUser.avatar_url ?? '');
+      this.avatarUpdated.emit(avatarUrl);
     } catch (err) {
       this.uploadError = 'Помилка завантаження. Спробуй ще раз.';
       console.error(err);
@@ -70,7 +63,7 @@ export class MainInfo {
 
   async onAvatarDelete(): Promise<void> {
     try {
-      await firstValueFrom(this.profileService.deleteAvatar());
+      await firstValueFrom(this.mainInfoService.deleteAvatar());
 
       if (this.user) {
         this.user.avatar_url = null;

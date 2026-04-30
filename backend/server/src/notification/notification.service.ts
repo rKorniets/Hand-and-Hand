@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { notification_type_enum } from '@prisma/client';
 
 export interface RequestUser {
   id: number;
@@ -68,7 +69,7 @@ export class NotificationService {
       data: {
         user_id: data.user_id,
         message: data.message,
-        type: data.type ?? 'GENERAL',
+        type: data.type ?? notification_type_enum.GENERAL,
       },
     });
   }

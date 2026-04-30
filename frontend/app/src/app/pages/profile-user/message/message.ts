@@ -2,15 +2,13 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { interval, Subscription, switchMap, take } from 'rxjs';
+import { take } from 'rxjs';
 import { AppUser, UserNotification } from '../profile-user.model';
 import { NotificationService, NotificationResponse } from './message.service';
-import { UserProfileService } from '../profile-user.service';
 
 @Component({
   selector: 'app-message',
@@ -20,7 +18,7 @@ import { UserProfileService } from '../profile-user.service';
   styleUrl: './message.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Message implements OnInit, OnDestroy {
+export class Message implements OnInit {
   @Input() user?: AppUser;
 
   isPanelOpen = false;
@@ -28,51 +26,13 @@ export class Message implements OnInit, OnDestroy {
   notifications: UserNotification[] = [];
   total = 0;
 
-  private pollingSub?: Subscription;
-
   constructor(
     private notificationService: NotificationService,
-    private profileService: UserProfileService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
     this.loadNotifications();
-    this.startPolling();
-  }
-
-  ngOnDestroy() {
-    this.pollingSub?.unsubscribe();
-  }
-
-  private startPolling() {
-    this.pollingSub = interval(10000)
-      .pipe(switchMap(() => this.notificationService.getMyNotifications()))
-      .subscribe((res: NotificationResponse) => {
-        const hasNewWarning = res.data.some(
-          (n: UserNotification) =>
-            n.type === 'WARNING' &&
-            !n.is_read &&
-            !this.notifications.find((old: UserNotification) => old.id === n.id),
-        );
-
-        this.notifications = res.data;
-        this.total = res.total;
-
-        if (hasNewWarning) {
-          this.profileService
-            .getUser()
-            .pipe(take(1))
-            .subscribe((updatedUser: AppUser) => {
-              if (this.user) {
-                this.user.avatar_url = updatedUser.avatar_url;
-              }
-              this.cdr.markForCheck();
-            });
-        }
-
-        this.cdr.markForCheck();
-      });
   }
 
   loadNotifications() {
