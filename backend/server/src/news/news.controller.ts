@@ -32,7 +32,7 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import {FileInterceptor} from "@nestjs/platform-express";
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('News')
 @Controller('news')
