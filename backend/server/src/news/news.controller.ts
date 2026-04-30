@@ -47,6 +47,7 @@ export class NewsController extends AbstractCrudController<unknown> {
       query.limit ?? 5,
       query.skip ?? 0,
       query.isPinned,
+      query.search,
     );
   }
 
