@@ -14,6 +14,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
+import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
@@ -21,7 +22,10 @@ export interface RequestUser {
 
 @Injectable()
 export class OrganizationProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   private async validateOrganizationOwnership(
     id: number,
@@ -109,6 +113,7 @@ export class OrganizationProfileService {
         contact_email: data.contact_email,
         location_id: data.location_id,
         mission: data.mission,
+        logo_url: data.logo_url,
       },
     });
   }
@@ -134,9 +139,26 @@ export class OrganizationProfileService {
       },
     });
   }
-
+  async updateLogo(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ logo_url: string }> {
+    const existing = await this.validateOrganizationOwnership(id, currentUser);
+    const logo_url = await this.cloudinary.replaceImage(
+      file,
+      ImageType.ORG_LOGO,
+      existing.logo_url,
+    );
+    await this.prisma.organization_profile.update({
+      where: { id },
+      data: { logo_url },
+    });
+    return { logo_url };
+  }
   async deleteOrganizationProfile(id: number, currentUser: RequestUser) {
-    await this.validateOrganizationOwnership(id, currentUser);
+    const existing = await this.validateOrganizationOwnership(id, currentUser);
+    if (existing.logo_url) await this.cloudinary.deleteImage(existing.logo_url);
     return this.prisma.organization_profile.delete({ where: { id } });
   }
 
