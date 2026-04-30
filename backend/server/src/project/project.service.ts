@@ -120,6 +120,7 @@ export class ProjectService {
           application_deadline: data.application_deadline
             ? new Date(data.application_deadline)
             : null,
+          participants: data.participants ?? null,
           partners: data.partners,
           image_url: data.image_url,
           status: 'DRAFT',
@@ -214,6 +215,9 @@ export class ProjectService {
           partners: data.partners,
           starts_at: data.starts_at ? new Date(data.starts_at) : null,
           ends_at: data.ends_at ? new Date(data.ends_at) : null,
+          ...(data.participants !== undefined && {
+            participants: data.participants,
+          }),
           ...(data.category_id && { category_id: data.category_id }),
           updated_at: new Date(),
         },
