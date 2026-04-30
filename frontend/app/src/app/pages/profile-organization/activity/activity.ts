@@ -13,11 +13,12 @@ import { OrganizationProfileService } from '../profile-organization.service';
 import { UiHelperService } from '../../profile-user/toggleExpansion.service';
 import { AuthService } from '../../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-activity',
   standalone: true,
-  imports: [DatePipe, RouterLink, CommonModule],
+  imports: [DatePipe, RouterLink, CommonModule, MatIconModule],
   templateUrl: './activity.html',
   styleUrl: './activity.scss',
 })
