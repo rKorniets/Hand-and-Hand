@@ -6,7 +6,21 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 export class GetNewsDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Фільтр за закріпленими новинами' })
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === 'true') {
+      return true;
+    }
+
+    if (value === 'false') {
+      return false;
+    }
+
+    return value;
+  })
   @IsBoolean()
   isPinned?: boolean;
 }
