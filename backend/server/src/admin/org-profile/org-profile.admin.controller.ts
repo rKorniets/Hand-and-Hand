@@ -9,8 +9,16 @@ import {
   Query,
   ParseIntPipe,
   Header,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { OrgProfileAdminService } from './org-profile.admin.service';
 import { CreateOrgProfileAdminDto } from './dto/create-org-profile.admin.dto';
 import { CreateOrganizationProfileDto } from '../../organization_profile/dto/create-organization-profile.dto';
@@ -23,6 +31,7 @@ import {
 } from '../../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import type { AuthAdmin } from '../approval/approval.admin.controller';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Адмін — Профілі організацій')
 @ApiBearerAuth()
@@ -98,5 +107,21 @@ export class OrgProfileAdminController extends AbstractCrudController<
   @ApiOperation({ summary: 'Видалити профіль організації' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
+  }
+  @Patch(':id/logo')
+  @ApiOperation({ summary: 'Завантажити/замінити логотип організації' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLogo(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.service.updateLogo(id, file);
   }
 }

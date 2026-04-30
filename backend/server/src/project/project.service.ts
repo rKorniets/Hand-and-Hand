@@ -12,6 +12,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
@@ -19,7 +20,10 @@ export interface RequestUser {
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   private async validateOwnership(id: number, currentUser: RequestUser) {
     const project = await this.prisma.project.findUnique({
@@ -120,6 +124,7 @@ export class ProjectService {
           application_deadline: data.application_deadline
             ? new Date(data.application_deadline)
             : null,
+          participants: data.participants ?? null,
           partners: data.partners,
           image_url: data.image_url,
           status: 'DRAFT',
@@ -142,7 +147,20 @@ export class ProjectService {
       return project;
     });
   }
-
+  async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ image_url: string }> {
+    const existing = await this.validateOwnership(id, currentUser);
+    const image_url = await this.cloudinary.replaceImage(
+      file,
+      ImageType.PROJECT,
+      existing.image_url,
+    );
+    await this.prisma.project.update({ where: { id }, data: { image_url } });
+    return { image_url };
+  }
   async updateProject(
     id: number,
     data: CreateProjectDto,
@@ -199,9 +217,11 @@ export class ProjectService {
             ? new Date(data.application_deadline)
             : null,
           partners: data.partners,
-          image_url: data.image_url,
           starts_at: data.starts_at ? new Date(data.starts_at) : null,
           ends_at: data.ends_at ? new Date(data.ends_at) : null,
+          ...(data.participants !== undefined && {
+            participants: data.participants,
+          }),
           ...(data.category_id && { category_id: data.category_id }),
           updated_at: new Date(),
         },
@@ -210,7 +230,9 @@ export class ProjectService {
   }
 
   async deleteProject(id: number, currentUser: RequestUser) {
-    await this.validateOwnership(id, currentUser);
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url);
     return this.prisma.project.delete({ where: { id } });
   }
 

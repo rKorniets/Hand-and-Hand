@@ -8,6 +8,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, fundraising_campaign_status_enum } from '@prisma/client';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { MonobankService } from './monobank.service';
+import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
+import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.dto';
 
 export interface RequestUser {
   id: number;
@@ -18,6 +20,7 @@ export class FundraisingCampaignService {
   constructor(
     private prisma: PrismaService,
     private monobankService: MonobankService,
+    private cloudinary: CloudinaryService,
   ) {}
 
   private sanitizeCampaign<T extends { mono_token?: string | null }>(
@@ -184,7 +187,7 @@ export class FundraisingCampaignService {
 
   async update(
     id: number,
-    data: CreateFundraisingCampaignDto,
+    data: UpdateFundraisingCampaignDto,
     currentUser: RequestUser,
   ) {
     await this.validateOwnership(id, currentUser);
@@ -198,20 +201,35 @@ export class FundraisingCampaignService {
         goal_amount: data.goal_amount,
         start_at: data.start_at ? new Date(data.start_at) : undefined,
         end_at: data.end_at ? new Date(data.end_at) : undefined,
-        image_url: data.image_url,
         updated_at: new Date(),
       },
     });
     return this.sanitizeCampaign(campaign);
   }
-
+  async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ): Promise<{ image_url: string }> {
+    const existing = await this.validateOwnership(id, currentUser);
+    const image_url = await this.cloudinary.replaceImage(
+      file,
+      ImageType.FUNDRAISING,
+      existing.image_url,
+    );
+    await this.prisma.fundraising_campaign.update({
+      where: { id },
+      data: { image_url },
+    });
+    return { image_url };
+  }
   async remove(id: number, currentUser: RequestUser) {
-    await this.validateOwnership(id, currentUser);
-
+    const existing = await this.validateOwnership(id, currentUser);
+    if (existing.image_url)
+      await this.cloudinary.deleteImage(existing.image_url);
     const campaign = await this.prisma.fundraising_campaign.delete({
       where: { id },
     });
-
     return this.sanitizeCampaign(campaign);
   }
 
