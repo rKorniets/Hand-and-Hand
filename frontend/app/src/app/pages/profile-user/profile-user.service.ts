@@ -13,20 +13,6 @@ export class UserProfileService {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/me`);
   }
 
-  getCloudinarySignature(): Observable<{
-    signature: string;
-    timestamp: number;
-    apiKey: string;
-    cloudName: string;
-  }> {
-    return this.http.post<{
-      signature: string;
-      timestamp: number;
-      apiKey: string;
-      cloudName: string;
-    }>(`${this.apiUrl}/cloudinary/sign`, {});
-  }
-
   updateAvatar(avatarUrl: string): Observable<AppUser> {
     return this.http.patch<AppUser>(`${this.apiUrl}/app-users/me`, { avatar_url: avatarUrl });
   }
@@ -47,7 +33,7 @@ export class UserProfileService {
     return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising_campaigns`);
   }
 
-  deleteAvatar(): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/app-users/me/avatar`);
+  deleteAvatar(): Observable<AppUser> {
+    return this.http.delete<AppUser>(`${this.apiUrl}/app-users/me/avatar`);
   }
 }

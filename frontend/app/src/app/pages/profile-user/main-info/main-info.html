@@ -2,7 +2,7 @@
   <div class="main-info__avatar-wrapper">
     <div class="main-info__avatar" (click)="triggerFileInput(fileInput)">
       <img
-        [src]="user?.avatar_url || 'images/default-avatar.jpg'"
+        [src]="user?.avatar_url || 'images/default-avatar.png' + ''"
         [alt]="user?.first_name"
         [class.main-info__avatar-img--loading]="uploading"
         (error)="onAvatarError($event)"

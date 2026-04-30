@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Notification } from '../profile-user.model';
+import { UserNotification } from '../profile-user.model';
 
 export interface NotificationResponse {
-  data: Notification[];
+  data: UserNotification[];
   total: number;
+}
+
+export interface BatchPayload {
+  count: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,15 +22,15 @@ export class NotificationService {
     return this.http.get<NotificationResponse>(`${this.apiUrl}/notifications`);
   }
 
-  markAsRead(id: number): Observable<Notification> {
-    return this.http.patch<Notification>(`${this.apiUrl}/notifications/${id}/read`, {});
+  markAsRead(id: number): Observable<UserNotification> {
+    return this.http.patch<UserNotification>(`${this.apiUrl}/notifications/${id}/read`, {});
   }
 
-  markAllAsRead(): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/notifications/read-all`, {});
+  markAllAsRead(): Observable<BatchPayload> {
+    return this.http.patch<BatchPayload>(`${this.apiUrl}/notifications/read-all`, {});
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/notifications/${id}`);
+  delete(id: number): Observable<UserNotification> {
+    return this.http.delete<UserNotification>(`${this.apiUrl}/notifications/${id}`);
   }
 }

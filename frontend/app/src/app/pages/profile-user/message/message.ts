@@ -7,8 +7,8 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { interval, Subscription, switchMap } from 'rxjs';
-import { AppUser, Notification } from '../profile-user.model';
+import { interval, Subscription, switchMap, take } from 'rxjs';
+import { AppUser, UserNotification } from '../profile-user.model';
 import { NotificationService, NotificationResponse } from './message.service';
 import { UserProfileService } from '../profile-user.service';
 
@@ -25,7 +25,7 @@ export class Message implements OnInit, OnDestroy {
 
   isPanelOpen = false;
   isHovered = false;
-  notifications: Notification[] = [];
+  notifications: UserNotification[] = [];
   total = 0;
 
   private pollingSub?: Subscription;
@@ -50,22 +50,25 @@ export class Message implements OnInit, OnDestroy {
       .pipe(switchMap(() => this.notificationService.getMyNotifications()))
       .subscribe((res: NotificationResponse) => {
         const hasNewWarning = res.data.some(
-          (n: Notification) =>
+          (n: UserNotification) =>
             n.type === 'WARNING' &&
             !n.is_read &&
-            !this.notifications.find((old: Notification) => old.id === n.id),
+            !this.notifications.find((old: UserNotification) => old.id === n.id),
         );
 
         this.notifications = res.data;
         this.total = res.total;
 
         if (hasNewWarning) {
-          this.profileService.getUser().subscribe((updatedUser: AppUser) => {
-            if (this.user) {
-              this.user.avatar_url = updatedUser.avatar_url;
-            }
-            this.cdr.markForCheck();
-          });
+          this.profileService
+            .getUser()
+            .pipe(take(1))
+            .subscribe((updatedUser: AppUser) => {
+              if (this.user) {
+                this.user.avatar_url = updatedUser.avatar_url;
+              }
+              this.cdr.markForCheck();
+            });
         }
 
         this.cdr.markForCheck();
@@ -73,11 +76,14 @@ export class Message implements OnInit, OnDestroy {
   }
 
   loadNotifications() {
-    this.notificationService.getMyNotifications().subscribe((res: NotificationResponse) => {
-      this.notifications = res.data;
-      this.total = res.total;
-      this.cdr.markForCheck();
-    });
+    this.notificationService
+      .getMyNotifications()
+      .pipe(take(1))
+      .subscribe((res: NotificationResponse) => {
+        this.notifications = res.data;
+        this.total = res.total;
+        this.cdr.markForCheck();
+      });
   }
 
   togglePanel() {
@@ -86,38 +92,47 @@ export class Message implements OnInit, OnDestroy {
   }
 
   markAsRead(id: number) {
-    this.notificationService.markAsRead(id).subscribe(() => {
-      this.notifications = this.notifications.map((n: Notification) =>
-        n.id === id ? { ...n, is_read: true } : n,
-      );
-      this.cdr.markForCheck();
-    });
+    this.notificationService
+      .markAsRead(id)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.notifications = this.notifications.map((n: UserNotification) =>
+          n.id === id ? { ...n, is_read: true } : n,
+        );
+        this.cdr.markForCheck();
+      });
   }
 
   markAllAsRead() {
-    this.notificationService.markAllAsRead().subscribe(() => {
-      this.notifications = this.notifications.map((n: Notification) => ({
-        ...n,
-        is_read: true,
-      }));
-      this.cdr.markForCheck();
-    });
+    this.notificationService
+      .markAllAsRead()
+      .pipe(take(1))
+      .subscribe(() => {
+        this.notifications = this.notifications.map((n: UserNotification) => ({
+          ...n,
+          is_read: true,
+        }));
+        this.cdr.markForCheck();
+      });
   }
 
   deleteNotification(id: number) {
-    this.notificationService.delete(id).subscribe(() => {
-      this.notifications = this.notifications.filter((n: Notification) => n.id !== id);
-      this.total--;
-      this.cdr.markForCheck();
-    });
+    this.notificationService
+      .delete(id)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.notifications = this.notifications.filter((n: UserNotification) => n.id !== id);
+        this.total--;
+        this.cdr.markForCheck();
+      });
   }
 
   getUnreadCount(): string {
-    const count = this.notifications.filter((n: Notification) => !n.is_read).length;
+    const count = this.notifications.filter((n: UserNotification) => !n.is_read).length;
     return count > 99 ? '99+' : String(count);
   }
 
   hasUnread(): boolean {
-    return this.notifications.some((n: Notification) => !n.is_read);
+    return this.notifications.some((n: UserNotification) => !n.is_read);
   }
 }

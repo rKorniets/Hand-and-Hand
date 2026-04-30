@@ -7,11 +7,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import type { AuthUser } from './app-user.controller';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
-import {
-  notification_type_enum,
-  warning_severity_enum,
-  warning_status_enum,
-} from '@prisma/client';
 
 const USER_SELECT = {
   id: true,
@@ -116,44 +111,6 @@ export class AppUserService {
       data: { avatar_url: null },
       select: USER_SELECT,
     });
-  }
-
-  async handleAvatarModerated(userId: number): Promise<void> {
-    const systemAdmin = await this.prisma.app_user.findFirst({
-      where: { role: 'ADMIN' },
-      select: { id: true },
-    });
-
-    const adminId = systemAdmin?.id ?? userId;
-
-    await this.prisma.$transaction([
-      this.prisma.app_user.update({
-        where: { id: userId },
-        data: { avatar_url: null },
-      }),
-
-      this.prisma.warnings.create({
-        data: {
-          user_id: userId,
-          created_by: adminId,
-          reason: 'Завантаження неприйнятного контенту',
-          description:
-            'Фото профілю було автоматично видалено системою модерації Cloudinary через порушення правил допустимого контенту.',
-          severity: warning_severity_enum.MEDIUM,
-          status: warning_status_enum.ACTIVE,
-          related_entity_type: 'avatar',
-        },
-      }),
-
-      this.prisma.notification.create({
-        data: {
-          user_id: userId,
-          message:
-            'Ваше фото профілю було видалено, оскільки воно порушує правила контенту платформи. Будь ласка, завантажте інше фото.',
-          type: notification_type_enum.WARNING,
-        },
-      }),
-    ]);
   }
 
   async deleteUser(id: number, currentUser: AuthUser) {

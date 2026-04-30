@@ -36,7 +36,7 @@ export class MainInfo {
 
   onAvatarError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'images/default-avatar.jpg';
+    img.src = 'images/default-avatar.png';
   }
 
   async onAvatarSelected(event: Event): Promise<void> {
