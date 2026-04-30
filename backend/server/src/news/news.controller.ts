@@ -8,14 +8,12 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  ParseBoolPipe,
   UseInterceptors,
   Patch,
   UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOperation,
-  ApiQuery,
   ApiTags,
   ApiBearerAuth,
   ApiConsumes,
@@ -31,7 +29,7 @@ import {
   AbstractCrudController,
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { GetNewsDto } from './dto/get-news.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('News')
@@ -44,21 +42,11 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Get()
   @Public()
   @ApiOperation({ summary: 'Отримати список новин' })
-  @ApiQuery({
-    name: 'isPinned',
-    required: false,
-    description: 'Фільтр за закріпленими новинами',
-    type: Boolean,
-  })
-  async findAll(
-    @Query() query: PaginationDto,
-    @Query('isPinned', new ParseBoolPipe({ optional: true }))
-    isPinned?: boolean,
-  ) {
+  async findAll(@Query() query: GetNewsDto) {
     return this.newsService.getNews(
       query.limit ?? 5,
       query.skip ?? 0,
-      isPinned,
+      query.isPinned,
     );
   }
 
