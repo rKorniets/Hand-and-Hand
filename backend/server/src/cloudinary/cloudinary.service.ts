@@ -46,7 +46,7 @@ export class CloudinaryService {
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'hand-and-hand', transformation },
+        { folder: 'hand-and-hand', transformation, moderation: 'webpurify' },
         (error, result: UploadApiResponse) => {
           if (error) return reject(new Error(error.message));
           resolve(result.secure_url);
