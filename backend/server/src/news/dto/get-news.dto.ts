@@ -19,7 +19,7 @@ export class GetNewsDto extends PaginationDto {
       return false;
     }
 
-    return value;
+    return value as unknown;
   })
   @IsBoolean()
   isPinned?: boolean;
