@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EventService } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
-import { NewEvent, ProjectRegistration } from '../event.model';
+import { NewEvent, ProjectRegistration, ProjectRegistrationStatus } from '../event.model';
 
 @Component({
   selector: 'app-event-detail',
@@ -13,6 +13,8 @@ import { NewEvent, ProjectRegistration } from '../event.model';
   styleUrls: ['./event-detail.scss'],
 })
 export class EventDetailComponent implements OnInit {
+  protected readonly Status = ProjectRegistrationStatus;
+
   event: NewEvent | null = null;
   loading = true;
   error = false;

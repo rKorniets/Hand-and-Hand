@@ -5,7 +5,11 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { Prisma, project_status_enum } from '@prisma/client';
+import {
+  Prisma,
+  project_registration_status_enum,
+  project_status_enum,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
@@ -254,6 +258,7 @@ export class ProjectService {
           },
         },
         project_registration: {
+          where: { status: project_registration_status_enum.ACCEPTED },
           take: 10,
           orderBy: { created_at: 'desc' },
           include: {
@@ -332,6 +337,12 @@ export class ProjectService {
       throw new NotFoundException('Registration was not found');
     }
 
+    if (registration.status !== project_registration_status_enum.PENDING) {
+      throw new BadRequestException(
+        'Cannot cancel a registration that has already been reviewed',
+      );
+    }
+
     return this.prisma.project_registration.delete({
       where: { id: registration.id },
     });
@@ -339,7 +350,10 @@ export class ProjectService {
 
   async getProjectRegistrations(projectId: number) {
     return this.prisma.project_registration.findMany({
-      where: { project_id: projectId },
+      where: {
+        project_id: projectId,
+        status: project_registration_status_enum.ACCEPTED,
+      },
       include: {
         app_user: {
           select: { id: true, first_name: true, last_name: true },
@@ -351,6 +365,100 @@ export class ProjectService {
   async getMyRegistration(projectId: number, userId: number) {
     return this.prisma.project_registration.findFirst({
       where: { project_id: projectId, user_id: userId },
+    });
+  }
+
+  private async loadPendingRegistrationForOwner(
+    projectId: number,
+    registrationId: number,
+    currentUser: RequestUser,
+  ) {
+    await this.validateOwnership(projectId, currentUser);
+
+    const registration = await this.prisma.project_registration.findUnique({
+      where: { id: registrationId },
+    });
+
+    if (!registration || registration.project_id !== projectId) {
+      throw new NotFoundException(
+        `Registration with ID ${registrationId} not found`,
+      );
+    }
+
+    if (registration.status !== project_registration_status_enum.PENDING) {
+      throw new BadRequestException('Registration has already been reviewed');
+    }
+
+    return registration;
+  }
+
+  async listProjectRegistrationsForOwner(
+    projectId: number,
+    currentUser: RequestUser,
+    status?: project_registration_status_enum,
+  ) {
+    await this.validateOwnership(projectId, currentUser);
+
+    return this.prisma.project_registration.findMany({
+      where: {
+        project_id: projectId,
+        ...(status && { status }),
+      },
+      include: {
+        app_user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+            city: true,
+            volunteer_profile: { select: { avatar_url: true } },
+          },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async acceptProjectRegistration(
+    projectId: number,
+    registrationId: number,
+    currentUser: RequestUser,
+  ) {
+    const registration = await this.loadPendingRegistrationForOwner(
+      projectId,
+      registrationId,
+      currentUser,
+    );
+
+    return this.prisma.project_registration.update({
+      where: { id: registration.id },
+      data: {
+        status: project_registration_status_enum.ACCEPTED,
+        reviewed_at: new Date(),
+        reviewed_by: currentUser.id,
+      },
+    });
+  }
+
+  async rejectProjectRegistration(
+    projectId: number,
+    registrationId: number,
+    currentUser: RequestUser,
+  ) {
+    const registration = await this.loadPendingRegistrationForOwner(
+      projectId,
+      registrationId,
+      currentUser,
+    );
+
+    return this.prisma.project_registration.update({
+      where: { id: registration.id },
+      data: {
+        status: project_registration_status_enum.REJECTED,
+        reviewed_at: new Date(),
+        reviewed_by: currentUser.id,
+      },
     });
   }
 }

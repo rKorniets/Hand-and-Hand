@@ -91,16 +91,14 @@
               }
             }
 
-            @if (myRegistration?.status === 'PENDING') {
+            @if (myRegistration?.status === Status.PENDING) {
               <p>Заявку подано — очікуйте розгляду</p>
               <button (click)="unregister()" class="event-detail__apply-btn--cancel">
                 Скасувати заявку
               </button>
-            } @else if (
-              myRegistration?.status === 'APPROVED' || myRegistration?.status === 'CONFIRMED'
-            ) {
+            } @else if (myRegistration?.status === Status.ACCEPTED) {
               <p class="event-detail__status-success">Вашу заявку прийнято!</p>
-            } @else if (myRegistration?.status === 'REJECTED') {
+            } @else if (myRegistration?.status === Status.REJECTED) {
               <p class="event-detail__status-error">Заявку відхилено</p>
             }
           </div>
