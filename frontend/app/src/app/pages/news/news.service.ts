@@ -45,13 +45,12 @@ export class NewsService {
     description: string;
     main_content: string;
   }): Observable<NewsItem> {
-    return this.http.post<NewsItem>(this.apiUrl, newsData);
+    return this.http.post<NewsItem>(`${this.apiUrl}/news`, newsData);
   }
 
-  uploadNewsImage(newsId: number, file: File): Observable<NewsItem> {
+  uploadNewsImage(newsId: number, file: File): Observable<{ image_url: string }> {
     const formData = new FormData();
     formData.append('file', file);
-
-    return this.http.patch<NewsItem>(`${this.apiUrl}/${newsId}/image`, formData);
+    return this.http.patch<{ image_url: string }>(`${this.apiUrl}/news/${newsId}/image`, formData);
   }
 }

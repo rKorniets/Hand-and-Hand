@@ -243,7 +243,7 @@ export class ProjectService {
         _count: {
           select: {
             project_registration: {
-              where: { status: 'ACCEPTED' },
+              where: { status: project_registration_status_enum.ACCEPTED },
             },
           },
         },

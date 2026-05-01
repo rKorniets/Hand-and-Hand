@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NewsService } from '../../news/news.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-news-create',
@@ -21,6 +22,7 @@ export class NewsCreateComponent implements OnInit {
     private fb: FormBuilder,
     private newsService: NewsService,
     private router: Router,
+    private authService: AuthService,
   ) {
     this.newsForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -32,6 +34,9 @@ export class NewsCreateComponent implements OnInit {
 
   ngOnInit(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (this.authService.getRole() !== 'ORGANIZATION') {
+      this.router.navigate(['/news']);
+    }
   }
 
   onFileSelected(event: Event): void {
