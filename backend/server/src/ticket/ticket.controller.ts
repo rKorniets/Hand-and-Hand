@@ -24,7 +24,7 @@ import {
 
 type RequestWithUser = {
   user: {
-    sub: number;
+    id: number;
     role: string;
   };
 };
@@ -48,7 +48,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новий тікет' })
   async create(@Body() data: CreateTicketDto, @Req() req: RequestWithUser) {
-    return this.service.create(data, req.user.sub);
+    return this.service.create(data, req.user.id);
   }
 
   @Patch(':id')
@@ -60,7 +60,7 @@ export class TicketController extends AbstractCrudController<ticket> {
     @Body() data: UpdateTicketDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     const ticket = await this.service.findOne(id);
 
     if (!ticket || ticket.user_id !== userId) {
@@ -82,7 +82,7 @@ export class TicketController extends AbstractCrudController<ticket> {
     @Param('id', ParseIntPipe) id: number,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     const userRole = req.user.role;
     const ticket = await this.service.findOne(id);
 

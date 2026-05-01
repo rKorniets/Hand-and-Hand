@@ -55,7 +55,7 @@ export class RequestConstructor implements OnInit, OnDestroy {
   form = this.fb.group({
     title: ['', [Validators.required, notBlank, Validators.maxLength(200)]],
     description: ['', [Validators.required, notBlank, Validators.maxLength(2000)]],
-    category_id: [null as number | null, [Validators.required]],
+    category_id: [null as number | null, [Validators.required]], // залишаємо для UI (один вибір)
     priority: [''],
     file_url: [''],
     file_name: [null as string | null],
@@ -211,7 +211,7 @@ export class RequestConstructor implements OnInit, OnDestroy {
     const payload = {
       title: v.title!,
       description: v.description!,
-      category_id: Number(v.category_id!),
+      ...(v.category_id ? { category_ids: [Number(v.category_id)] } : {}),
       ...(v.priority ? { priority: v.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' } : {}),
       ...(v.file_url ? { file_url: v.file_url } : {}),
       ...(hasLocation && {
