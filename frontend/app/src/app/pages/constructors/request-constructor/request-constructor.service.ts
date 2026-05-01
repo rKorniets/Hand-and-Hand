@@ -1,17 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { CreateRequestPayload, Request, Category } from './request-constructor.model';
+import { API_BASE_URL } from '../../../tokens';
 
 @Injectable({ providedIn: 'root' })
 export class RequestConstructorService {
-  private readonly apiUrl = 'http://localhost:3000/requests';
-  private readonly categoriesUrl = 'http://localhost:3000/categories';
-
   constructor(
     private http: HttpClient,
     private authService: AuthService,
+    @Inject(API_BASE_URL) private apiUrl: string,
   ) {}
 
   private getHeaders(): HttpHeaders {
@@ -20,19 +19,20 @@ export class RequestConstructorService {
   }
 
   createRequest(payload: CreateRequestPayload): Observable<Request> {
-    return this.http.post<Request>(this.apiUrl, payload, {
+    return this.http.post<Request>(`${this.apiUrl}/requests`, payload, {
       headers: this.getHeaders(),
     });
   }
 
   getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(this.categoriesUrl, {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories`, {
       headers: this.getHeaders(),
     });
   }
+
   getMyProfile() {
     return this.http.get<{ location: { city: string; address: string; region: string } | null }>(
-      '/api/users/me',
+      `${this.apiUrl}/users/me`,
     );
   }
 }

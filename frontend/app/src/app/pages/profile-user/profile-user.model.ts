@@ -9,21 +9,29 @@ export enum TicketStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export interface UserNotification {
+  id: number;
+  message: string;
+  is_read: boolean;
+  type: 'GENERAL' | 'PROJECT' | 'TASK' | 'TICKET' | 'REWARD' | 'WARNING';
+  created_at: string;
+}
 export interface AppUser {
   id: number;
   email: string;
   role: UserRole;
   status: UserStatus;
-  created_at: Date;
+  created_at: string;
   points: number;
   first_name: string;
   last_name: string;
   city?: string;
-  avatar_url?: string;
+  avatar_url?: string | null;
   joined_organization?: {
     id: number;
     name: string;
   };
+  notifications?: UserNotification[];
 }
 
 export interface Reward {
@@ -33,13 +41,13 @@ export interface Reward {
   cost_points: number;
   stock: number;
   is_active: boolean;
-  created_at: Date;
+  created_at: string;
 }
 
 export interface ActivityItem {
   id: number;
   title: string;
-  starts_at: string | Date;
+  starts_at: string;
   description: string;
 }
 

@@ -17,6 +17,7 @@ model app_user {
   first_name                             String?
   last_name                              String?
   city                                   String?
+  avatar_url                             String?
   organization_id                        Int?
   admin_profile                          admin_profile?
   organization                           organization_profile?             @relation("OrganizationMembers", fields: [organization_id], references: [id])
@@ -36,6 +37,19 @@ model app_user {
   warnings_warnings_user_idToapp_user    warnings[]                        @relation("warnings_user_idToapp_user")
   donation                               donation[]
   organization_membership_request        organization_membership_request[]
+  notification                           notification[]
+}
+
+model notification {
+  id         Int                    @id @default(autoincrement())
+  user_id    Int
+  message    String
+  is_read    Boolean                @default(false)
+  type       notification_type_enum @default(GENERAL)
+  created_at DateTime               @default(now()) @db.Timestamptz(6)
+  app_user   app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "idx_notification_user_id")
 }
 
 model volunteer_profile {
@@ -589,4 +603,13 @@ enum report_type_enum {
   RESULT
   ACTIVITY
   OTHER
+}
+
+enum notification_type_enum {
+  GENERAL
+  PROJECT
+  TASK
+  TICKET
+  REWARD
+  WARNING
 }

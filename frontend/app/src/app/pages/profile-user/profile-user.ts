@@ -10,6 +10,7 @@ import { UserProfileService } from './profile-user.service';
 import { AppUser } from './profile-user.model';
 import { AuthService } from '../auth/auth.service';
 import { RouterLink } from '@angular/router';
+import { Message } from './message/message';
 
 @Component({
   selector: 'app-profile-user',
@@ -23,6 +24,7 @@ import { RouterLink } from '@angular/router';
     UserData,
     Achievement,
     FundraisingCampaignsUser,
+    Message,
   ],
   templateUrl: './profile-user.html',
   styleUrl: './profile-user.scss',

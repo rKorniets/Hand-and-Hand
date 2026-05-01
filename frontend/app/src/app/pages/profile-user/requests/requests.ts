@@ -26,7 +26,7 @@ export class Requests implements OnInit {
   ngOnInit(): void {
     this.profileService.getUserRequests().subscribe({
       next: (data) => (this.requests = data),
-      error: (err) => console.error(err),
+      error: () => (this.requests = []),
     });
   }
 

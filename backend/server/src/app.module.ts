@@ -27,6 +27,7 @@ import { AdminModule } from './admin/admin.module';
 import { MyModule } from './my/my.module';
 import { MyOrgModule } from './my-org/my-org.module';
 import { PointsModule } from './points/points.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { PointsModule } from './points/points.module';
     MyModule,
     MyOrgModule,
     PointsModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

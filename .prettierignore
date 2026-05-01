@@ -1,0 +1,5 @@
+node_modules
+backend/server/dist
+frontend/app/dist
+frontend/app/.angular
+package-lock.json

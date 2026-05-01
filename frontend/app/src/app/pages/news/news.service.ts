@@ -1,15 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { NewsItem } from './news.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { API_BASE_URL } from '../../tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NewsService {
-  private readonly apiUrl = 'http://localhost:3000/news';
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(API_BASE_URL) private apiUrl: string,
+  ) {}
 
   getNews(
     limit = 10,
@@ -30,11 +32,11 @@ export class NewsService {
       params = params.set('categories', categories.join(','));
     }
 
-    return this.http.get<NewsItem[]>(this.apiUrl, { params });
+    return this.http.get<NewsItem[]>(`${this.apiUrl}/news`, { params });
   }
 
   getNewsById(id: number): Observable<NewsItem> {
     const params = new HttpParams().set('t', Date.now().toString());
-    return this.http.get<NewsItem>(`${this.apiUrl}/${id}`, { params });
+    return this.http.get<NewsItem>(`${this.apiUrl}/news/${id}`, { params });
   }
 }

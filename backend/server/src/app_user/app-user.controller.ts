@@ -5,11 +5,22 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
+  Post,
   Put,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { user_role_enum } from '@prisma/client';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AppUserService } from './app-user.service';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -32,6 +43,48 @@ export class AppUserController {
   @ApiOperation({ summary: 'Отримати профіль поточного користувача' })
   async getMe(@CurrentUser() currentUser: AuthUser) {
     return this.appUserService.getUserById(currentUser.id, currentUser);
+  }
+
+  @Patch('me')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Оновити свій профіль (включно з аватаром)' })
+  async updateMe(
+    @Body() data: UpdateAppUserDto,
+    @CurrentUser() currentUser: AuthUser,
+  ) {
+    return this.appUserService.updateUserFull(
+      currentUser.id,
+      data,
+      currentUser,
+    );
+  }
+
+  @Post('me/avatar')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Завантажити/замінити аватар' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() currentUser: AuthUser,
+  ) {
+    return this.appUserService.uploadAvatar(file, currentUser);
+  }
+
+  @Delete('me/avatar')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Видалити аватар поточного користувача' })
+  async deleteMyAvatar(@CurrentUser() currentUser: AuthUser) {
+    return this.appUserService.deleteAvatar(currentUser.id, currentUser);
   }
 
   @Get(':id')

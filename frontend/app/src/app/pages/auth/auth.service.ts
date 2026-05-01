@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from '../../tokens';
 
 export interface AuthResponse {
   accessToken: string;
@@ -11,7 +12,6 @@ export interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:3000/auth';
   private loggedIn$ = new BehaviorSubject<boolean>(!!localStorage.getItem('access_token'));
 
   get isLoggedIn$() {
@@ -21,6 +21,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    @Inject(API_BASE_URL) private apiUrl: string,
   ) {}
 
   registerUser(data: {
@@ -30,36 +31,31 @@ export class AuthService {
     email: string;
     password: string;
   }) {
-    return this.http.post(`${this.API}/register/user`, data);
+    return this.http.post(`${this.apiUrl}/auth/register/user`, data);
   }
 
-  registerOrganization(data: {
-    name: string;
-    code: string; // edrpou
-    email: string;
-    password: string;
-  }) {
-    return this.http.post(`${this.API}/register/organization`, data);
+  registerOrganization(data: { name: string; code: string; email: string; password: string }) {
+    return this.http.post(`${this.apiUrl}/auth/register/organization`, data);
   }
 
   loginUser(data: { email: string; password: string }) {
     return this.http
-      .post<AuthResponse>(`${this.API}/login/user`, data)
+      .post<AuthResponse>(`${this.apiUrl}/auth/login/user`, data)
       .pipe(tap((res) => this.saveToken(res.accessToken)));
   }
 
   loginOrganization(data: { code: string; password: string }) {
     return this.http
-      .post<AuthResponse>(`${this.API}/login/organization`, data)
+      .post<AuthResponse>(`${this.apiUrl}/auth/login/organization`, data)
       .pipe(tap((res) => this.saveToken(res.accessToken)));
   }
 
   forgotPassword(email: string) {
-    return this.http.post(`${this.API}/forgot-password`, { email });
+    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
   }
 
   resetPassword(userId: string, token: string, newPassword: string) {
-    return this.http.post(`${this.API}/reset-password`, {
+    return this.http.post(`${this.apiUrl}/auth/reset-password`, {
       userId: Number(userId),
       token,
       newPassword,
@@ -81,7 +77,7 @@ export class AuthService {
   }
 
   getMe() {
-    return this.http.get(`${this.API}/me`);
+    return this.http.get(`${this.apiUrl}/auth/me`);
   }
 
   getRole(): string | null {

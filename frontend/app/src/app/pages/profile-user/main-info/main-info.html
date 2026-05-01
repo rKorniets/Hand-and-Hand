@@ -1,23 +1,47 @@
 <div class="main-info">
-  <div class="main-info__avatar">
-    <img [src]="user?.avatar_url || 'assets/default-avatar.png'" [alt]="user?.first_name" />
+  <div class="main-info__avatar-wrapper">
+    <div class="main-info__avatar" (click)="triggerFileInput(fileInput)">
+      <img
+        [src]="user?.avatar_url || 'images/default-avatar.png'"
+        [alt]="user?.first_name"
+        [class.main-info__avatar-img--loading]="uploading"
+        (error)="onAvatarError($event)"
+      />
+      <div class="main-info__avatar-overlay">
+        <span class="material-symbols-outlined">photo_camera</span>
+      </div>
+    </div>
+
+    <button class="main-info__avatar-menu-btn" (click)="$event.stopPropagation(); toggleMenu()">
+      <span class="material-symbols-outlined">more_horiz</span>
+    </button>
+
+    @if (menuOpen) {
+      <div class="main-info__avatar-menu">
+        <button (click)="triggerFileInput(fileInput); menuOpen = false">
+          <span class="material-symbols-outlined">photo_camera</span>
+          Змінити фото
+        </button>
+        <button class="danger" (click)="onAvatarDelete(); menuOpen = false">
+          <span class="material-symbols-outlined">delete</span>
+          Видалити фото
+        </button>
+      </div>
+    }
+
+    <input #fileInput type="file" accept="image/*" hidden (change)="onAvatarSelected($event)" />
   </div>
 
   <div class="main-info__details">
     <div class="main-info__header">
       <h1 class="main-info__name">
         {{ user?.first_name }} {{ user?.last_name }}
-
         @if (user?.role === 'VOLUNTEER') {
           <span class="main-info__verified-badge" title="Верифікований волонтер">
             <span class="material-symbols-outlined">check_circle</span>
           </span>
         }
       </h1>
-
-      <button class="main-info__notif-btn" aria-label="Сповіщення">
-        <span class="material-symbols-outlined">notifications</span>
-      </button>
     </div>
 
     <p class="main-info__role">
@@ -29,6 +53,8 @@
       <span class="main-info__points">{{ user?.points || 0 }}</span>
     </div>
 
-    <button class="main-info__edit-btn">Редагувати профіль</button>
+    @if (uploadError) {
+      <p class="main-info__upload-error">{{ uploadError }}</p>
+    }
   </div>
 </div>
