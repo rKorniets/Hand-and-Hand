@@ -26,7 +26,34 @@ export class TicketAdminService {
     });
   }
 
-  async findAll(params: TicketQueryAdminDto) {
+  async findAll(limit?: number, skip?: number, search?: string) {
+    return this.prisma.ticket.findMany({
+      where: search
+        ? {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {},
+      take: limit,
+      skip,
+      orderBy: { created_at: 'desc' },
+      include: {
+        app_user: {
+          select: {
+            id: true,
+            email: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+        location: true,
+      },
+    });
+  }
+
+  async findAllAdvanced(params: TicketQueryAdminDto) {
     const { limit, skip, status, priority, search } = params;
 
     const where: Prisma.ticketWhereInput = {
@@ -44,7 +71,7 @@ export class TicketAdminService {
       this.prisma.ticket.findMany({
         where,
         take: limit,
-        skip: skip,
+        skip,
         include: {
           app_user: {
             select: {

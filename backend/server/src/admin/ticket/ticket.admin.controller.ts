@@ -1,9 +1,7 @@
 import {
   Controller,
   Get,
-  Post,
   Patch,
-  Delete,
   Param,
   Query,
   Body,
@@ -11,17 +9,23 @@ import {
 } from '@nestjs/common';
 import { TicketAdminService } from './ticket.admin.service';
 import { TicketQueryAdminDto } from './dto/ticket-query.admin.dto';
-import { CreateTicketDto } from '../../ticket/dto/create_ticket.dto';
+import { UpdateTicketStatusAdminDto } from './dto/update-ticket-status.admin.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { user_role_enum, ticket_status_enum } from '@prisma/client';
+import { user_role_enum, ticket_status_enum, ticket } from '@prisma/client';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../../common/controllers/abstract-crud.controller';
 
 @ApiTags('Адмін — Тікети')
 @ApiBearerAuth()
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/tickets')
-export class TicketAdminController {
-  constructor(private readonly service: TicketAdminService) {}
+export class TicketAdminController extends AbstractCrudController<ticket> {
+  constructor(private readonly service: TicketAdminService) {
+    super(service as unknown as IBaseCrudService<ticket>);
+  }
 
   @Get('pending')
   @ApiOperation({ summary: 'Тікети на модерації' })
@@ -41,21 +45,18 @@ export class TicketAdminController {
     return this.service.updateStatus(id, ticket_status_enum.CANCELLED);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Всі тікети' })
-  async findAll(@Query() query: TicketQueryAdminDto) {
-    return this.service.findAll(query);
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Змінити статус тікета' })
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTicketStatusAdminDto,
+  ) {
+    return this.service.updateStatus(id, dto.status);
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Створити тікет' })
-  async create(@Body() data: CreateTicketDto, @Body('userId') userId: number) {
-    return this.service.create(data, userId);
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Видалити тікет' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  @Get('all')
+  @ApiOperation({ summary: 'Отримати всі тікети (адмін)' })
+  async getAll(@Query() query: TicketQueryAdminDto) {
+    return this.service.findAll(query.limit, query.skip, query.search);
   }
 }
