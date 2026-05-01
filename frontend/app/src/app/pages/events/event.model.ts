@@ -50,6 +50,7 @@ export interface NewEvent {
   partners?: string;
   image_url?: string;
   participants: number;
+  registered_count: number;
   location?: EventLocation;
   organization_profile?: OrganizationProfile;
   category?: EventCategory;

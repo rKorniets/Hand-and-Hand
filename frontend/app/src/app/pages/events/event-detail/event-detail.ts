@@ -71,7 +71,7 @@ export class EventDetailComponent implements OnInit {
   }
 
   get joinedCount(): number {
-    return this.event?.volunteers?.length || 0;
+    return this.event?.registered_count ?? 0;
   }
 
   get progressWidth(): number {

@@ -240,11 +240,15 @@ export class ProjectService {
     const project = await this.prisma.project.findUnique({
       where: { id },
       include: {
-        _count: { select: { project_registration: true } },
-        location: true,
-        category: {
-          select: { id: true, name: true },
+        _count: {
+          select: {
+            project_registration: {
+              where: { status: 'APPROVED' },
+            },
+          },
         },
+        location: true,
+        category: { select: { id: true, name: true } },
         organization_profile: {
           select: {
             id: true,
@@ -261,15 +265,14 @@ export class ProjectService {
           where: { status: project_registration_status_enum.ACCEPTED },
           take: 10,
           orderBy: { created_at: 'desc' },
+          where: { status: 'APPROVED' },
           include: {
             app_user: {
               select: {
                 id: true,
                 first_name: true,
                 last_name: true,
-                volunteer_profile: {
-                  select: { avatar_url: true },
-                },
+                volunteer_profile: { select: { avatar_url: true } },
               },
             },
           },
@@ -283,6 +286,7 @@ export class ProjectService {
 
     return {
       ...project,
+      registered_count: project._count.project_registration,
       organization_profile: project.organization_profile
         ? {
             ...project.organization_profile,
@@ -291,8 +295,9 @@ export class ProjectService {
         : null,
       volunteers: project.project_registration.map((r) => ({
         id: r.app_user.id,
-        full_name:
-          `${r.app_user.first_name ?? ''} ${r.app_user.last_name ?? ''}`.trim(),
+        full_name: `${r.app_user.first_name ?? ''} ${
+          r.app_user.last_name ?? ''
+        }`.trim(),
         avatar_url: r.app_user.volunteer_profile?.avatar_url ?? null,
       })),
     };
@@ -301,19 +306,31 @@ export class ProjectService {
   async registerForProject(projectId: number, userId: number) {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
+      include: {
+        _count: { select: { project_registration: true } },
+      },
     });
-    if (!project) {
-      throw new NotFoundException('Project was not found');
-    }
+
+    if (!project) throw new NotFoundException('Project was not found');
     if (project.status === project_status_enum.DRAFT) {
       throw new BadRequestException('Project is not published yet');
     }
     if (project.status !== project_status_enum.ACTIVE) {
       throw new BadRequestException('Project is not accepting registrations');
     }
+    if (
+      project.participants &&
+      project._count.project_registration >= project.participants
+    ) {
+      throw new BadRequestException('Project has reached maximum participants');
+    }
+
     try {
       return await this.prisma.project_registration.create({
-        data: { project_id: projectId, user_id: userId },
+        data: {
+          project_id: projectId,
+          user_id: userId,
+        },
       });
     } catch (error) {
       if (
@@ -334,7 +351,7 @@ export class ProjectService {
     });
 
     if (!registration) {
-      throw new NotFoundException('Registration was not found');
+      throw new NotFoundException('Реєстрація не знайдена');
     }
 
     if (registration.status !== project_registration_status_enum.PENDING) {
@@ -362,6 +379,7 @@ export class ProjectService {
       orderBy: { created_at: 'desc' },
     });
   }
+
   async getMyRegistration(projectId: number, userId: number) {
     return this.prisma.project_registration.findFirst({
       where: { project_id: projectId, user_id: userId },
