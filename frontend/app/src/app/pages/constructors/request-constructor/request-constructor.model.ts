@@ -10,7 +10,7 @@ export interface Category {
 export interface CreateTicketPayload {
   title: string;
   description: string;
-  category_id: number;
+  category_ids?: number[]; // масив замість одного category_id
   priority?: ticket_priority_enum;
   file_url?: string;
   location?: {
@@ -24,7 +24,7 @@ export interface CreateTicketPayload {
 
 export interface Ticket {
   id: number;
-  user_id: number | null;
+  user_id: number; // прибрали | null
   volunteer_profile_id: number | null;
   title: string;
   description: string;

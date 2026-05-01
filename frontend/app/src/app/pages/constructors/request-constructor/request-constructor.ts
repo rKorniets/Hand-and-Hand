@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -9,7 +9,15 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  catchError,
+  takeUntil,
+} from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
 import { RequestConstructorService } from './request-constructor.service';
 import { Category } from './request-constructor.model';
 
@@ -33,10 +41,12 @@ function locationValidator(group: AbstractControl): ValidationErrors | null {
   templateUrl: './request-constructor.html',
   styleUrl: './request-constructor.scss',
 })
-export class RequestConstructor implements OnInit {
+export class RequestConstructor implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private ticketService = inject(RequestConstructorService);
   private router = inject(Router);
+  private http = inject(HttpClient);
+  private destroy$ = new Subject<void>();
 
   isLoading = signal(false);
   serverError = signal<string | null>(null);
@@ -107,40 +117,45 @@ export class RequestConstructor implements OnInit {
   }
 
   ngOnInit(): void {
-    this.ticketService.getCategories().subscribe({
-      next: (cats) => this.categories.set(cats),
-      error: () => {},
-    });
+    this.ticketService
+      .getCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cats) => this.categories.set(cats),
+        error: () => {},
+      });
 
-    this.ticketService.getMyProfile().subscribe({
-      next: (profile) => {
-        if (profile?.location) {
-          this.locationGroup.patchValue(profile.location);
-        }
-      },
-      error: () => {},
-    });
+    this.ticketService
+      .getMyProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (profile) => {
+          if (profile?.location) {
+            this.locationGroup.patchValue(profile.location);
+          }
+        },
+        error: () => {},
+      });
 
     this.locationGroup.valueChanges
       .pipe(
+        takeUntil(this.destroy$),
         debounceTime(800),
         distinctUntilChanged(
           (a, b) => a.city === b.city && a.address === b.address && a.region === b.region,
         ),
+        switchMap((loc) => {
+          const query = [loc.address, loc.city, loc.region].filter(Boolean).join(', ');
+          if (!query.trim()) return of(null);
+
+          return this.http
+            .get<
+              { lat: string; lon: string }[]
+            >(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+            .pipe(catchError(() => of(null)));
+        }),
       )
-      .subscribe(() => this.geocode());
-  }
-
-  geocode(): void {
-    const loc = this.locationGroup.getRawValue();
-    const query = [loc.address, loc.city, loc.region].filter(Boolean).join(', ');
-    if (!query.trim()) return;
-
-    fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-    )
-      .then((r) => r.json())
-      .then((results: { lat: string; lon: string }[]) => {
+      .subscribe((results) => {
         if (results?.[0]) {
           this.locationGroup.patchValue(
             {
@@ -150,8 +165,12 @@ export class RequestConstructor implements OnInit {
             { emitEvent: false },
           );
         }
-      })
-      .catch(() => {});
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onFileSelected(event: Event): void {
@@ -201,10 +220,7 @@ export class RequestConstructor implements OnInit {
           address: loc.address!,
           region: loc.region!,
           ...(loc.lat !== null && loc.lng !== null
-            ? {
-                lat: Number(loc.lat),
-                lng: Number(loc.lng),
-              }
+            ? { lat: Number(loc.lat), lng: Number(loc.lng) }
             : {}),
         },
       }),

@@ -15,6 +15,7 @@ import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { user_role_enum, ticket } from '@prisma/client';
 import {
   AbstractCrudController,
@@ -36,6 +37,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Отримати деталі тікету за ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);

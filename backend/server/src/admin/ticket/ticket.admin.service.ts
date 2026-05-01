@@ -113,6 +113,7 @@ export class TicketAdminService {
         description: data.description,
         status: ticket_status_enum.IN_REVIEW,
         priority: data.priority || 'MEDIUM',
+        file_url: data.file_url,
         app_user: { connect: { id: userId } },
         ...(data.location && {
           location: {
@@ -133,7 +134,14 @@ export class TicketAdminService {
     await this.findOne(id);
     return this.prisma.ticket.update({
       where: { id },
-      data: { status, updated_at: new Date() },
+      data: {
+        status,
+        updated_at: new Date(),
+        ...((status === ticket_status_enum.CLOSED ||
+          status === ticket_status_enum.CANCELLED) && {
+          closed_at: new Date(),
+        }),
+      },
     });
   }
 

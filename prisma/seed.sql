@@ -7,8 +7,8 @@
 --
 -- Логіни:
 --   admin@demo.local         (ADMIN)
---   12345678    (ORGANIZATION, верифікована)
---   87654321       (ORGANIZATION, верифікована)
+--   org-rescue@demo.local   (ORGANIZATION, верифікована)
+--   org-eco@demo.local      (ORGANIZATION, верифікована)
 --   vol-anna@demo.local      (VOLUNTEER, верифікована)
 --   vol-petro@demo.local     (VOLUNTEER, верифікована)
 --   user@demo.local          (APP_USER)

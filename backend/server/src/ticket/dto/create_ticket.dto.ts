@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsEnum,
   IsNumber,
+  IsArray,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -46,11 +47,15 @@ export class CreateTicketDto {
   @IsString()
   description: string;
 
-  @ApiProperty({
-    example: 1,
+  @ApiPropertyOptional({
+    example: [1, 2],
+    description: 'Масив ID категорій',
+    type: [Number],
   })
-  @IsNumber()
-  category_id: number;
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  category_ids?: number[];
 
   @ApiPropertyOptional({
     enum: ticket_priority_enum,
