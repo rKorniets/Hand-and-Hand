@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserNotification } from '../profile-user.model';
+import { API_BASE_URL } from '../../../tokens';
 
 export interface NotificationResponse {
   data: UserNotification[];
@@ -14,9 +15,10 @@ export interface BatchPayload {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private readonly apiUrl = 'http://localhost:3000';
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(API_BASE_URL) private apiUrl: string,
+  ) {}
 
   getMyNotifications(): Observable<NotificationResponse> {
     return this.http.get<NotificationResponse>(`${this.apiUrl}/notifications`);

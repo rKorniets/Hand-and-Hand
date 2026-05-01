@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import {
 } from './profile-organization.model';
 import { AuthService } from '../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from '../../tokens';
 
 const DEFAULT_LIMIT = 50;
 
@@ -18,12 +19,10 @@ const DEFAULT_LIMIT = 50;
   providedIn: 'root',
 })
 export class OrganizationProfileService {
-  private readonly apiUrl = 'http://localhost:3000/organization-profiles';
-  private readonly projectsUrl = 'http://localhost:3000/projects';
-
   constructor(
     private http: HttpClient,
     private authService: AuthService,
+    @Inject(API_BASE_URL) private apiUrl: string,
   ) {}
 
   getOrganization(): Observable<Organization> {
@@ -33,22 +32,22 @@ export class OrganizationProfileService {
     try {
       const payload = jwtDecode<{ sub: number }>(token);
       const userId = payload.sub;
-      return this.http.get<Organization>(`${this.apiUrl}/by-user/${userId}`);
+      return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/by-user/${userId}`);
     } catch {
       return throwError(() => new Error('Невалідний токен'));
     }
   }
 
   getOrganizationById(id: number): Observable<Organization> {
-    return this.http.get<Organization>(`${this.apiUrl}/${id}`);
+    return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
   }
 
   getOrgMembers(orgId: number): Observable<OrgMember[]> {
-    return this.http.get<OrgMember[]>(`${this.apiUrl}/${orgId}/members`);
+    return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
   }
 
   getOrgReports(orgId: number): Observable<Report[]> {
-    return this.http.get<Report[]>(`${this.apiUrl}/${orgId}/reports`);
+    return this.http.get<Report[]>(`${this.apiUrl}/organization-profiles/${orgId}/reports`);
   }
 
   getOrgActivities(orgId: number, limit: number = DEFAULT_LIMIT): Observable<ActivityItem[]> {
@@ -56,11 +55,13 @@ export class OrganizationProfileService {
       .get<{
         data: ActivityItem[];
         total: number;
-      }>(`${this.projectsUrl}?organization_profile_id=${orgId}&limit=${limit}`)
+      }>(`${this.apiUrl}/projects?organization_profile_id=${orgId}&limit=${limit}`)
       .pipe(map((res) => res.data));
   }
 
   getOrgFundraising(orgId: number): Observable<FundraisingCampaign[]> {
-    return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/${orgId}/fundraising`);
+    return this.http.get<FundraisingCampaign[]>(
+      `${this.apiUrl}/organization-profiles/${orgId}/fundraising`,
+    );
   }
 }
