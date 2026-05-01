@@ -1,10 +1,5 @@
-<<<<<<< feat/profil-user
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-=======
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
->>>>>>> main
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -80,7 +75,7 @@ export class OrganizationProfileService {
       params = params.set('status', status);
     }
     return this.http.get<ProjectRegistration[]>(
-      `${this.projectsUrl}/${projectId}/registrations/manage`,
+      `${this.apiUrl}/projects/${projectId}/registrations/manage`,
       { params },
     );
   }
@@ -90,7 +85,7 @@ export class OrganizationProfileService {
     registrationId: number,
   ): Observable<ProjectRegistration> {
     return this.http.patch<ProjectRegistration>(
-      `${this.projectsUrl}/${projectId}/registrations/${registrationId}/accept`,
+      `${this.apiUrl}/projects/${projectId}/registrations/${registrationId}/accept`,
       {},
     );
   }
@@ -100,7 +95,7 @@ export class OrganizationProfileService {
     registrationId: number,
   ): Observable<ProjectRegistration> {
     return this.http.patch<ProjectRegistration>(
-      `${this.projectsUrl}/${projectId}/registrations/${registrationId}/reject`,
+      `${this.apiUrl}/projects/${projectId}/registrations/${registrationId}/reject`,
       {},
     );
   }
