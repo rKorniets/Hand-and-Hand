@@ -110,13 +110,19 @@
 
 ### Проєкти (`/projects`)
 
-| Ендпоїнт        | Метод  | Доступ       | Ownership                          |
-| --------------- | ------ | ------------ | ---------------------------------- |
-| `/projects`     | GET    | Public       | —                                  |
-| `/projects/:id` | GET    | Public       | —                                  |
-| `/projects`     | POST   | ORGANIZATION | Через organization_profile.user_id |
-| `/projects/:id` | PUT    | ORGANIZATION | Тільки свій                        |
-| `/projects/:id` | DELETE | ORGANIZATION | Тільки свій                        |
+| Ендпоїнт                                             | Метод  | Доступ        | Ownership                                                                                            |
+| ---------------------------------------------------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------- |
+| `/projects`                                          | GET    | Public        | —                                                                                                    |
+| `/projects/:id`                                      | GET    | Public        | —                                                                                                    |
+| `/projects`                                          | POST   | ORGANIZATION  | Через organization_profile.user_id                                                                   |
+| `/projects/:id`                                      | PUT    | ORGANIZATION  | Тільки свій                                                                                          |
+| `/projects/:id`                                      | DELETE | ORGANIZATION  | Тільки свій                                                                                          |
+| `/projects/:id/register`                             | POST   | Authenticated | Волонтер записується на проект (статус ACTIVE). Створює `project_registration` зі `status: PENDING`. |
+| `/projects/:id/register`                             | DELETE | Authenticated | Скасувати свою заявку. Дозволено лише поки `status = PENDING`.                                       |
+| `/projects/:id/registrations`                        | GET    | Public        | Публічний список — лише `ACCEPTED` волонтери.                                                        |
+| `/projects/:id/registrations/manage`                 | GET    | ORGANIZATION  | Власник проекту бачить усі заявки (`?status=PENDING\|ACCEPTED\|REJECTED\|CANCELLED`).                |
+| `/projects/:id/registrations/:registrationId/accept` | PATCH  | ORGANIZATION  | Прийняти заявку волонтера. Дозволено лише з `PENDING`.                                               |
+| `/projects/:id/registrations/:registrationId/reject` | PATCH  | ORGANIZATION  | Відхилити заявку волонтера. Дозволено лише з `PENDING`.                                              |
 
 ### Профілі волонтерів (`/volunteer-profiles`)
 
@@ -414,6 +420,32 @@
 Унікальний індекс на `(organization_id, user_id)`: між однією парою юзер–організація одночасно існує максимум один запис (повторна заявка після REJECTED перезаписує наявний запис).
 
 Саме членство зберігається у `app_user.organization_id`. На ACCEPTED це поле виставляється, на DELETE `/members/...` — скидається в `null`.
+
+---
+
+## Project Registration (заявки на участь у проекті)
+
+Модель `project_registration` — заявки волонтерів на участь у конкретному проекті. Власник проекту (через `organization_profile.user_id`) приймає або відхиляє заявку.
+
+| Поле        | Тип                                | Опис                                                         |
+| ----------- | ---------------------------------- | ------------------------------------------------------------ |
+| id          | Int                                | PK                                                           |
+| project_id  | Int                                | FK -> project                                                |
+| user_id     | Int                                | FK -> app_user (волонтер)                                    |
+| status      | `project_registration_status_enum` | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`               |
+| reviewed_at | DateTime?                          | Дата прийняття/відхилення                                    |
+| reviewed_by | Int?                               | FK -> app_user (хто розглянув; зазвичай — owner організації) |
+| created_at  | DateTime                           | Дата створення                                               |
+
+Унікальний індекс на `(project_id, user_id)` — одна заявка на пару юзер–проект.
+
+### Флоу
+
+1. Волонтер натискає «Подати заявку» на проект → `POST /projects/:id/register`. Перевіряється: проект існує, не `DRAFT`, статус `ACTIVE`. Створюється `project_registration` зі `status: PENDING`. Дубль через unique constraint → `409 Conflict`.
+2. Поки `PENDING`, волонтер може скасувати: `DELETE /projects/:id/register` (рядок видаляється). Після перегляду власником — скасування заборонено (`400 BadRequest`).
+3. Власник проекту бачить заявки: `GET /projects/:id/registrations/manage?status=PENDING`. Перевірка ownership через `validateOwnership` (порівняння `currentUser.id` з `project.organization_profile.user_id`).
+4. Власник приймає/відхиляє: `PATCH /projects/:id/registrations/:registrationId/accept` або `.../reject`. Допустимий тільки перехід з `PENDING` (інакше `400 BadRequest "Registration has already been reviewed"`). Виставляються `status`, `reviewed_at`, `reviewed_by`.
+5. Публічний `GET /projects/:id/registrations` і вкладений `volunteers` у `GET /projects/:id` повертають лише `ACCEPTED`.
 
 ---
 
