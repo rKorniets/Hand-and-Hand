@@ -4,106 +4,72 @@ import {
   Post,
   Patch,
   Delete,
-  Body,
   Param,
-  ParseIntPipe,
-  Req,
-  ForbiddenException,
   Query,
+  Body,
+  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
-import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Public } from '../auth/decorators/public.decorator';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { user_role_enum, ticket } from '@prisma/client';
-import {
-  AbstractCrudController,
-  IBaseCrudService,
-} from '../common/controllers/abstract-crud.controller';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
-type RequestWithUser = {
-  user: {
-    sub: number;
-    role: string;
-  };
-};
+interface AuthenticatedUser {
+  id: number;
+  email: string;
+}
 
-@ApiTags('Tickets')
+@ApiTags('Тікети')
 @Controller('tickets')
-export class TicketController extends AbstractCrudController<ticket[]> {
-  constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<ticket[]>);
+export class TicketController {
+  constructor(private readonly service: TicketService) {}
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Створити новий тікет' })
+  async create(
+    @Body() data: CreateTicketDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.service.create(data, user.id);
   }
 
   @Get()
-  @Public()
-  @ApiOperation({ summary: 'Отримати список усіх тікетів' })
-  async findAll(@Query() query: PaginationDto) {
-    return this.service.findAll(
-      query.limit ?? 5,
-      query.skip ?? 0,
-      query.search,
-    );
+  @ApiOperation({ summary: 'Отримати всі відкриті тікети' })
+  async findAll(
+    @Query('limit') limit?: number,
+    @Query('skip') skip?: number,
+    @Query('search') search?: string,
+  ) {
+    return this.service.findAll(limit, skip, search);
   }
 
   @Get(':id')
-  @Public()
-  @ApiOperation({ summary: 'Отримати деталі тікету за ID' })
+  @ApiOperation({ summary: 'Отримати тікет за ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
   }
 
-  @Post()
-  @ApiBearerAuth()
-  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
-  @ApiOperation({ summary: 'Створити новий тікет від волонтера' })
-  async create(@Body() data: CreateTicketDto, @Req() req: RequestWithUser) {
-    return this.service.create(data, req.user.sub);
-  }
-
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
-  @ApiOperation({ summary: 'Оновити існуючий тікет' })
+  @ApiOperation({ summary: 'Оновити тікет' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateTicketDto,
-    @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
-    const ticket = await this.service.findOne(id);
-    if (!ticket || ticket.user_id !== userId) {
-      throw new ForbiddenException('Ви можете редагувати тільки власні запити');
-    }
     return this.service.update(id, data);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Roles(
-    user_role_enum.APP_USER,
-    user_role_enum.VOLUNTEER,
-    user_role_enum.ADMIN,
-  )
   @ApiOperation({ summary: 'Видалити тікет' })
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: RequestWithUser,
-  ) {
-    const userId = req.user.sub;
-    const userRole = req.user.role;
-    const ticket = await this.service.findOne(id);
-    if (!ticket) {
-      throw new ForbiddenException('Тікет не знайдено');
-    }
-    if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {
-      throw new ForbiddenException(
-        'У вас немає прав на видалення цього запиту',
-      );
-    }
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
 }

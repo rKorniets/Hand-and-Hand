@@ -1,6 +1,6 @@
 @use 'variables' as *;
 
-.create-request {
+.create-ticket {
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -61,27 +61,6 @@
       border-top: 1.5px solid #ebebeb;
       margin-top: 4px;
     }
-
-    &-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    &-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: $color-black;
-      flex-shrink: 0;
-    }
-
-    &-label {
-      margin: 0;
-      font-size: 15px;
-    }
   }
 
   &__field {
@@ -95,12 +74,11 @@
     }
 
     &--error {
-      .create-request__input,
-      .create-request__input--textarea,
-      .create-request__input--select {
+      .create-ticket__input,
+      .create-ticket__input--textarea,
+      .create-ticket__input--select {
         border-color: $ce-error;
         background: $ce-error-bg;
-
         &:focus {
           box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
         }
@@ -121,9 +99,8 @@
   &__input-wrap {
     position: relative;
 
-    &--select .create-request__input-icon--arrow {
+    &--select .create-ticket__input-icon--arrow {
       pointer-events: none;
-      font-style: normal;
     }
   }
 
@@ -182,16 +159,6 @@
     &--select {
       cursor: pointer;
     }
-
-    &--date {
-      padding-right: 16px;
-      cursor: pointer;
-
-      &::-webkit-calendar-picker-indicator {
-        opacity: 0.4;
-        cursor: pointer;
-      }
-    }
   }
 
   &__errors {
@@ -211,22 +178,11 @@
     gap: 0 24px;
   }
 
-  &__location-warning {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: $ce-warn-bg;
-    border: 1.5px solid $ce-warn-border;
-    border-radius: $r-field;
-    padding: 14px 18px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #7a5c00;
-    margin-bottom: 20px;
+  &__file-wrap {
+    position: relative;
   }
 
   &__file-zone {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -332,12 +288,10 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
-
     &:active:not(:disabled) {
       transform: translateY(0);
       box-shadow: none;
     }
-
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -357,9 +311,7 @@
       transform: translateX(4px);
     }
   }
-  &__file-wrap {
-    position: relative;
-  }
+
   &__spinner {
     display: inline-block;
     width: 18px;
@@ -367,6 +319,48 @@
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: $color-white;
     border-radius: 50%;
-    animation: ce-spin 0.65s linear infinite;
+    animation: tc-spin 0.65s linear infinite;
+  }
+}
+
+@keyframes tc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 680px) {
+  .create-ticket {
+    padding: 0 0 60px;
+
+    &__card {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      box-shadow: none;
+      width: 100%;
+    }
+
+    &__header,
+    &__form {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    &__title {
+      font-size: 32px;
+    }
+    &__location-grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__footer {
+      justify-content: stretch;
+    }
+
+    &__submit {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }

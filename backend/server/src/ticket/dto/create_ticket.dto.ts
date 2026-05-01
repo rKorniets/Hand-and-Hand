@@ -1,26 +1,77 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsString, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ticket_priority_enum } from '@prisma/client';
+
+export class CreateTicketLocationDto {
+  @ApiProperty({ example: 'Київ' })
+  @IsString()
+  city: string;
+
+  @ApiProperty({ example: 'вул. Хрещатик, 1' })
+  @IsString()
+  address: string;
+
+  @ApiProperty({ example: 'Київська область' })
+  @IsString()
+  region: string;
+
+  @ApiPropertyOptional({ example: 50.4501 })
+  @IsOptional()
+  @IsNumber()
+  lat?: number;
+
+  @ApiPropertyOptional({ example: 30.5234 })
+  @IsOptional()
+  @IsNumber()
+  lng?: number;
+}
 
 export class CreateTicketDto {
   @ApiProperty({
-    description: 'Короткий заголовок тікету',
-    example: 'Потрібна машина для доставки',
+    example: 'Потрібна машина для доставки гуманітарної допомоги',
   })
   @IsString()
   title: string;
 
-  @ApiProperty({ description: 'Детальний опис проблеми' })
+  @ApiProperty({
+    example: 'Необхідно перевезти 50 коробок з продуктами з Львова до Херсона',
+  })
   @IsString()
   description: string;
 
+  @ApiProperty({
+    example: 1,
+  })
+  @IsNumber()
+  category_id: number;
+
   @ApiPropertyOptional({
-    description: "ID локації (якщо тікет прив'язаний до місця)",
-    example: 5,
+    enum: ticket_priority_enum,
+    example: ticket_priority_enum.MEDIUM,
+    default: ticket_priority_enum.MEDIUM,
   })
   @IsOptional()
-  @IsInt()
-  location_id?: number;
+  @IsEnum(ticket_priority_enum)
+  priority?: ticket_priority_enum;
 
+  @ApiPropertyOptional({
+    type: () => CreateTicketLocationDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateTicketLocationDto)
+  location?: CreateTicketLocationDto;
+
+  @ApiPropertyOptional({
+    example: 'https://res.cloudinary.com/example/image/upload/file.jpg',
+  })
   @IsOptional()
   @IsString()
   file_url?: string;

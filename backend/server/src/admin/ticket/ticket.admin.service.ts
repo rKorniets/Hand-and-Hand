@@ -2,41 +2,63 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TicketQueryAdminDto } from './dto/ticket-query.admin.dto';
 import { CreateTicketDto } from '../../ticket/dto/create_ticket.dto';
-import { UpdateTicketDto } from '../../ticket/dto/update_ticket.dto';
 import { Prisma, ticket_status_enum } from '@prisma/client';
 
 @Injectable()
 export class TicketAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(
-    params: TicketQueryAdminDto & {
-      limit?: number;
-      skip?: number;
-      search?: string;
-    },
-  ) {
-    const whereClause: Prisma.ticketWhereInput = {
-      ...(params.status && { status: params.status }),
-      ...(params.priority && { priority: params.priority }),
-      ...(params.search && {
-        title: { contains: params.search, mode: 'insensitive' },
+  async findPending() {
+    return this.prisma.ticket.findMany({
+      where: { status: ticket_status_enum.IN_REVIEW },
+      include: {
+        app_user: {
+          select: {
+            id: true,
+            email: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+        location: true,
+      },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async findAll(params: TicketQueryAdminDto) {
+    const { limit, skip, status, priority, search } = params;
+
+    const where: Prisma.ticketWhereInput = {
+      ...(status && { status }),
+      ...(priority && { priority }),
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ],
       }),
     };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.ticket.findMany({
-        where: whereClause,
-        take: params.limit,
-        skip: params.skip,
-        orderBy: { created_at: 'desc' },
+        where,
+        take: limit,
+        skip: skip,
         include: {
-          volunteer_profile: {
-            select: { id: true, display_name: true },
+          app_user: {
+            select: {
+              id: true,
+              email: true,
+              first_name: true,
+              last_name: true,
+            },
           },
+          location: true,
         },
+        orderBy: { created_at: 'desc' },
       }),
-      this.prisma.ticket.count({ where: whereClause }),
+      this.prisma.ticket.count({ where }),
     ]);
 
     return { data, total };
@@ -46,60 +68,45 @@ export class TicketAdminService {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id },
       include: {
-        volunteer_profile: { select: { id: true, display_name: true } },
+        app_user: {
+          select: { id: true, email: true, first_name: true, last_name: true },
+        },
         location: true,
-        task: true,
       },
     });
 
-    if (!ticket) {
-      throw new NotFoundException(`Ticket with ID ${id} not found`);
-    }
-
+    if (!ticket) throw new NotFoundException(`Ticket ${id} not found`);
     return ticket;
   }
 
-  // noinspection DuplicatedCode
-  async create(data: CreateTicketDto) {
+  async create(data: CreateTicketDto, userId: number) {
     return this.prisma.ticket.create({
       data: {
         title: data.title,
         description: data.description,
-        ...(data.location_id !== undefined && {
-          location_id: data.location_id,
+        status: ticket_status_enum.IN_REVIEW,
+        priority: data.priority || 'MEDIUM',
+        app_user: { connect: { id: userId } },
+        ...(data.location && {
+          location: {
+            create: {
+              city: data.location.city,
+              address: data.location.address,
+              region: data.location.region,
+              lat: data.location.lat,
+              lng: data.location.lng,
+            },
+          },
         }),
-      } as Prisma.ticketUncheckedCreateInput,
-    });
-  }
-
-  // noinspection DuplicatedCode
-  async update(id: number, data: UpdateTicketDto) {
-    await this.findOne(id);
-
-    return this.prisma.ticket.update({
-      where: { id },
-      data: {
-        ...(data.title !== undefined && { title: data.title }),
-        ...(data.description !== undefined && {
-          description: data.description,
-        }),
-        ...(data.location_id !== undefined && {
-          location_id: data.location_id,
-        }),
-        updated_at: new Date(),
       },
     });
   }
 
   async updateStatus(id: number, status: ticket_status_enum) {
     await this.findOne(id);
-
     return this.prisma.ticket.update({
       where: { id },
-      data: {
-        status,
-        ...(status === ticket_status_enum.CLOSED && { closed_at: new Date() }),
-      },
+      data: { status, updated_at: new Date() },
     });
   }
 

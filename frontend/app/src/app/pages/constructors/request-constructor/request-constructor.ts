@@ -9,7 +9,9 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { RequestConstructorService } from './request-constructor.service';
+import { Category } from './request-constructor.model';
 
 function notBlank(control: AbstractControl): ValidationErrors | null {
   return control.value?.trim().length ? null : { blank: true };
@@ -31,21 +33,20 @@ function locationValidator(group: AbstractControl): ValidationErrors | null {
   templateUrl: './request-constructor.html',
   styleUrl: './request-constructor.scss',
 })
-export class RequestConstructorComponent implements OnInit {
+export class RequestConstructor implements OnInit {
   private fb = inject(FormBuilder);
-  private requestService = inject(RequestConstructorService);
+  private ticketService = inject(RequestConstructorService);
   private router = inject(Router);
 
   isLoading = signal(false);
   serverError = signal<string | null>(null);
-  categories: { id: number; name: string }[] = [];
-  profileLocation = signal<{ city: string; address: string; region: string } | null>(null);
-  useProfileLocation = signal(false);
+  categories = signal<Category[]>([]);
 
   form = this.fb.group({
     title: ['', [Validators.required, notBlank, Validators.maxLength(200)]],
     description: ['', [Validators.required, notBlank, Validators.maxLength(2000)]],
-    category: [''],
+    category_id: [null as number | null, [Validators.required]],
+    priority: [''],
     file_url: [''],
     file_name: [null as string | null],
     file_preview: [null as string | null],
@@ -54,27 +55,33 @@ export class RequestConstructorComponent implements OnInit {
         city: ['', [Validators.maxLength(100)]],
         address: ['', [Validators.maxLength(200)]],
         region: ['', [Validators.maxLength(100)]],
+        lat: [null as number | null],
+        lng: [null as number | null],
       },
       { validators: locationValidator },
     ),
   });
-  get file_name() {
-    return this.form.controls.file_name;
-  }
-  get file_preview() {
-    return this.form.controls.file_preview;
-  }
+
   get title() {
     return this.form.controls.title;
   }
   get description() {
     return this.form.controls.description;
   }
-  get category() {
-    return this.form.controls.category;
+  get category_id() {
+    return this.form.controls.category_id;
+  }
+  get priority() {
+    return this.form.controls.priority;
   }
   get file_url() {
     return this.form.controls.file_url;
+  }
+  get file_name() {
+    return this.form.controls.file_name;
+  }
+  get file_preview() {
+    return this.form.controls.file_preview;
   }
   get locationGroup() {
     return this.form.controls.location as FormGroup;
@@ -88,25 +95,63 @@ export class RequestConstructorComponent implements OnInit {
   get region() {
     return this.locationGroup.controls['region'];
   }
+  get lat() {
+    return this.locationGroup.controls['lat'];
+  }
+  get lng() {
+    return this.locationGroup.controls['lng'];
+  }
 
   isInvalid(ctrl: AbstractControl): boolean {
     return ctrl.invalid && (ctrl.dirty || ctrl.touched);
   }
 
   ngOnInit(): void {
-    this.requestService.getCategories().subscribe({
-      next: (data) => (this.categories = data),
+    this.ticketService.getCategories().subscribe({
+      next: (cats) => this.categories.set(cats),
       error: () => {},
     });
 
-    this.requestService.getMyProfile().subscribe({
+    this.ticketService.getMyProfile().subscribe({
       next: (profile) => {
         if (profile?.location) {
-          this.profileLocation.set(profile.location);
+          this.locationGroup.patchValue(profile.location);
         }
       },
       error: () => {},
     });
+
+    this.locationGroup.valueChanges
+      .pipe(
+        debounceTime(800),
+        distinctUntilChanged(
+          (a, b) => a.city === b.city && a.address === b.address && a.region === b.region,
+        ),
+      )
+      .subscribe(() => this.geocode());
+  }
+
+  geocode(): void {
+    const loc = this.locationGroup.getRawValue();
+    const query = [loc.address, loc.city, loc.region].filter(Boolean).join(', ');
+    if (!query.trim()) return;
+
+    fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+    )
+      .then((r) => r.json())
+      .then((results: { lat: string; lon: string }[]) => {
+        if (results?.[0]) {
+          this.locationGroup.patchValue(
+            {
+              lat: parseFloat(results[0].lat),
+              lng: parseFloat(results[0].lon),
+            },
+            { emitEvent: false },
+          );
+        }
+      })
+      .catch(() => {});
   }
 
   onFileSelected(event: Event): void {
@@ -142,26 +187,36 @@ export class RequestConstructorComponent implements OnInit {
 
     const v = this.form.value;
     const loc = this.locationGroup.getRawValue();
+    const hasLocation = !!(loc.city?.trim() && loc.address?.trim() && loc.region?.trim());
 
     const payload = {
       title: v.title!,
       description: v.description!,
-      ...(v.category ? { category_id: Number(v.category) } : {}),
+      category_id: Number(v.category_id!),
+      ...(v.priority ? { priority: v.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' } : {}),
       ...(v.file_url ? { file_url: v.file_url } : {}),
-      location: {
-        city: loc.city!,
-        address: loc.address!,
-        region: loc.region!,
-      },
+      ...(hasLocation && {
+        location: {
+          city: loc.city!,
+          address: loc.address!,
+          region: loc.region!,
+          ...(loc.lat !== null && loc.lng !== null
+            ? {
+                lat: Number(loc.lat),
+                lng: Number(loc.lng),
+              }
+            : {}),
+        },
+      }),
     };
 
     this.isLoading.set(true);
     this.serverError.set(null);
 
-    this.requestService.createRequest(payload).subscribe({
+    this.ticketService.createTicket(payload).subscribe({
       next: () => {
         this.isLoading.set(false);
-        void this.router.navigate(['/request']);
+        void this.router.navigate(['/profile-user']);
       },
       error: (err: { error?: { message?: string } }) => {
         this.isLoading.set(false);
