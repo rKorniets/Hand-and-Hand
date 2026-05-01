@@ -32,7 +32,7 @@ export const routes: Routes = [
   { path: 'policy-and-rules', component: PolicyAndRules },
   { path: 'events', component: Events, resolve: { data: EventsResolver } },
   { path: 'events/:id', component: EventDetailComponent },
-  { path: 'news/create', component: NewsCreateComponent, canActivate: [authGuard], },
+  { path: 'news/create', component: NewsCreateComponent, canActivate: [authGuard] },
   { path: 'news', component: NewsComponent, resolve: { data: NewsResolver } },
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },

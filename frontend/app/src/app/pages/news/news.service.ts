@@ -40,7 +40,11 @@ export class NewsService {
     return this.http.get<NewsItem>(`${this.apiUrl}/news/${id}`, { params });
   }
 
-  createNews(newsData: { title: string; description: string; main_content: string }): Observable<NewsItem> {
+  createNews(newsData: {
+    title: string;
+    description: string;
+    main_content: string;
+  }): Observable<NewsItem> {
     return this.http.post<NewsItem>(this.apiUrl, newsData);
   }
 
