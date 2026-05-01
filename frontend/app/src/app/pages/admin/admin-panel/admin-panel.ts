@@ -1,7 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AdminService, PendingOrganization, PendingProject } from '../admin.service';
+import { AdminService } from '../admin.service';
+import { PendingOrganization, PendingProject } from '../admin.model';
 
 @Component({
   selector: 'app-admin-panel',
