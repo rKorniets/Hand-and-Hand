@@ -43,6 +43,10 @@ export class OrganizationProfileService {
     return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
   }
 
+  updateOrganization(id: number, data: Partial<Organization>): Observable<Organization> {
+    return this.http.patch<Organization>(`${this.apiUrl}/organization-profiles/${id}`, data);
+  }
+
   getOrgMembers(orgId: number): Observable<OrgMember[]> {
     return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
   }

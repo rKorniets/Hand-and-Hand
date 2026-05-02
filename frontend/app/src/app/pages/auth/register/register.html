@@ -60,11 +60,24 @@
             [class.register__field-inner--error]="getError(userForm, 'city')"
           >
             <span class="register__label">Місто:</span>
-            <select class="register__input" formControlName="city">
-              <option disabled value="">Вибрати</option>
+            <input
+              class="register__input"
+              list="user-city-options"
+              placeholder="Введіть або оберіть"
+              formControlName="city"
+            />
+            <datalist id="user-city-options">
               <option>Львів</option>
               <option>Київ</option>
-            </select>
+              <option>Харків</option>
+              <option>Одеса</option>
+              <option>Дніпро</option>
+              <option>Запоріжжя</option>
+              <option>Вінниця</option>
+              <option>Полтава</option>
+              <option>Івано-Франківськ</option>
+              <option>Тернопіль</option>
+            </datalist>
           </div>
           @if (getError(userForm, 'city'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
@@ -146,6 +159,53 @@
             />
           </div>
           @if (getError(orgForm, 'edrpou'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
+        </div>
+
+        <div class="register__field">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(orgForm, 'city')"
+          >
+            <span class="register__label">Місто:</span>
+            <input
+              class="register__input"
+              list="org-city-options"
+              placeholder="Введіть або оберіть"
+              formControlName="city"
+            />
+            <datalist id="org-city-options">
+              <option>Львів</option>
+              <option>Київ</option>
+              <option>Харків</option>
+              <option>Одеса</option>
+              <option>Дніпро</option>
+              <option>Запоріжжя</option>
+              <option>Вінниця</option>
+              <option>Полтава</option>
+              <option>Івано-Франківськ</option>
+              <option>Тернопіль</option>
+            </datalist>
+          </div>
+          @if (getError(orgForm, 'city'); as msg) {
+            <span class="register__validation-error">{{ msg }}</span>
+          }
+        </div>
+
+        <div class="register__field">
+          <div
+            class="register__field-inner"
+            [class.register__field-inner--error]="getError(orgForm, 'address')"
+          >
+            <span class="register__label">Адреса:</span>
+            <input
+              class="register__input"
+              placeholder="вул. Шевченка, 1"
+              formControlName="address"
+            />
+          </div>
+          @if (getError(orgForm, 'address'); as msg) {
             <span class="register__validation-error">{{ msg }}</span>
           }
         </div>

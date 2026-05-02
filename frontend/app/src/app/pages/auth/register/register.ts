@@ -43,6 +43,8 @@ export class RegisterComponent {
     this.orgForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       edrpou: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+      city: ['', [Validators.required]],
+      address: ['', [Validators.required, Validators.minLength(5)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
     });
