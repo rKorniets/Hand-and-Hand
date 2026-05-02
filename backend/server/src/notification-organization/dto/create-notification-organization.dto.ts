@@ -1,7 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  notification_organization_type_enum,
-} from '@prisma/client';
+import { notification_organization_type_enum } from '@prisma/client';
 import {
   IsEnum,
   IsInt,
