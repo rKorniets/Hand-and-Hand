@@ -32,6 +32,7 @@ export class ProfileOrganization implements OnInit {
   organization: Organization | null = null;
   location: OrgLocation | undefined;
   reports: Report[] = [];
+  currentUser: { id: number } | null = null;
 
   constructor(
     private orgService: OrganizationProfileService,
@@ -41,7 +42,8 @@ export class ProfileOrganization implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
+    const userId = this.authService.getUserId();
+    this.currentUser = userId ? { id: userId } : null;    const idParam = this.route.snapshot.paramMap.get('id');
 
     const request$ = idParam
       ? this.orgService.getOrganizationById(+idParam)

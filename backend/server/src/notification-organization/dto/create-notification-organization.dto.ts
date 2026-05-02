@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { notification_type_enum } from '@prisma/client';
+import {
+  notification_organization_type_enum,
+} from '@prisma/client';
 import {
   IsEnum,
   IsInt,
@@ -18,8 +20,8 @@ export class CreateOrgNotificationDto {
   @IsNotEmpty()
   message: string;
 
-  @ApiPropertyOptional({ enum: notification_type_enum })
+  @ApiPropertyOptional({ enum: notification_organization_type_enum })
   @IsOptional()
-  @IsEnum(notification_type_enum)
-  type?: notification_type_enum;
+  @IsEnum(notification_organization_type_enum)
+  type?: notification_organization_type_enum;
 }

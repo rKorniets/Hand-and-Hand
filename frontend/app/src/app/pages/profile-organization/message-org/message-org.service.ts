@@ -29,7 +29,7 @@ export class NotificationService {
   }
 
   markAllAsRead(): Observable<BatchPayload> {
-    return this.http.patch<BatchPayload>(`${this.apiUrl}/notifications/read-all`, {});
+    return this.http.patch<BatchPayload>(`${this.apiUrl}/notifications/org/read-all`, {});
   }
 
   delete(id: number): Observable<OrgNotification> {

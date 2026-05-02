@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @Controller('notifications/org')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
+@Roles(user_role_enum.ORGANIZATION)
 export class NotificationOrganizationController {
   constructor(
     private readonly notificationService: NotificationOrganizationService,

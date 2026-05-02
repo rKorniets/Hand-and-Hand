@@ -28,6 +28,14 @@ const USER_SELECT = {
     },
   },
 } as const;
+const PUBLIC_USER_SELECT = {
+  id: true,
+  first_name: true,
+  last_name: true,
+  city: true,
+  points: true,
+  avatar_url: true,
+} as const;
 
 @Injectable()
 export class AppUserService {
@@ -47,13 +55,15 @@ export class AppUserService {
     return user;
   }
 
-  async getUserById(id: number) {
+  async getUserById(id: number, currentUser: AuthUser) {
     const user = await this.prisma.app_user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
+    const isOwner = id === currentUser.id;
+
     return this.prisma.app_user.findUnique({
       where: { id },
-      select: USER_SELECT,
+      select: isOwner ? USER_SELECT : PUBLIC_USER_SELECT,
     });
   }
 

@@ -43,8 +43,8 @@ export class OrganizationProfileService {
     return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
   }
 
-  getOrgMembers(orgId: number): Observable<OrgMember[]> {
-    return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
+  getOrgMembers(id: string): Observable<{ members: OrgMember[] }> {
+    return this.http.get<{ members: OrgMember[] }>(`/organization-profiles/${id}/members`);
   }
 
   getOrgReports(orgId: number): Observable<Report[]> {
