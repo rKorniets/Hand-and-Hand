@@ -86,7 +86,14 @@
       </div>
       <div class="ap-card-list">
         @for (item of projects; track item.id) {
-          <div class="ap-card ap-card--clickable" (click)="openProject(item.project.id)">
+          <div
+            class="ap-card ap-card--clickable"
+            role="button"
+            tabindex="0"
+            (click)="openProject(item.project.id)"
+            (keydown.enter)="openProject(item.project.id)"
+            (keydown.space)="$event.preventDefault(); openProject(item.project.id)"
+          >
             <div>
               <div class="ap-card__name">{{ item.project.title }}</div>
               <div class="ap-card__hint">Проєкт на розгляді</div>
