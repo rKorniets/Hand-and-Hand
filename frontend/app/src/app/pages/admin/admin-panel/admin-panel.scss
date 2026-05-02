@@ -1,91 +1,191 @@
-.pending-orgs {
-  padding: 24px;
+@use 'variables' as *;
 
-  &__title {
-    font-size: 22px;
-    font-weight: 600;
+$ap-col-layout: 2fr 1.2fr 1.8fr 1fr auto;
+$ap-card-gap: 16px;
+$ap-card-pad: 18px 22px;
+$ap-radius: 14px;
+
+$ap-approve-bg: #eaf3de;
+$ap-approve-text: #27500a;
+$ap-approve-hover: #d4eabb;
+$ap-reject-bg: #fdecea;
+$ap-reject-text: #791f1f;
+$ap-reject-hover: #f9d4d4;
+
+@mixin ap-section {
+  margin-bottom: 48px;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
     margin-bottom: 20px;
   }
 
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  &__pill {
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 12px;
+    font-weight: 600;
+
+    &--empty {
+      background: #f3f3f3;
+      color: #999;
+    }
+  }
+
   &__status {
-    color: #666;
+    font-size: 15px;
+    color: #aaa;
+    padding: 12px 0;
   }
 
   &__error {
-    color: #e53935;
-    margin-bottom: 12px;
+    font-size: 15px;
+    color: $ce-error;
+    margin-bottom: 16px;
   }
 
-  &__table-wrapper {
-    overflow-x: auto;
+  &__empty {
+    background: #fafafa;
+    border: 1px dashed #e0e0e0;
+    border-radius: $ap-radius;
+    padding: 32px;
+    text-align: center;
+    color: #bbb;
+    font-size: 15px;
+  }
+}
+
+.admin-panel {
+  padding: 36px 48px;
+}
+
+.ap-section {
+  @include ap-section;
+}
+
+.ap-col-labels {
+  display: grid;
+  grid-template-columns: $ap-col-layout;
+  gap: $ap-card-gap;
+  padding: 0 22px;
+  margin-bottom: 8px;
+
+  span {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ccc;
+  }
+}
+
+.ap-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ap-card {
+  display: grid;
+  grid-template-columns: $ap-col-layout;
+  align-items: center;
+  gap: $ap-card-gap;
+  background: #fff;
+  border: 1px solid #ebebeb;
+  border-radius: $ap-radius;
+  padding: $ap-card-pad;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #d0d0d0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   }
 
-  &__table {
-    width: 100%;
-    border-collapse: collapse;
+  &--clickable {
+    cursor: pointer;
+  }
+
+  &__name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: #bbb;
+    margin-top: 3px;
+  }
+
+  &__secondary {
     font-size: 14px;
+    font-weight: 500;
+    color: #444;
+  }
 
-    th,
-    td {
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid #e0e0e0;
-    }
+  &__email {
+    font-size: 13px;
+    color: #aaa;
+    word-break: break-all;
+  }
 
-    th {
-      background: #f5f5f5;
-      font-weight: 600;
-      color: #333;
-    }
-
-    tr:hover td {
-      background: #fafafa;
-    }
+  &__date {
+    font-size: 13px;
+    color: #bbb;
+    white-space: nowrap;
   }
 
   &__actions {
     display: flex;
     gap: 8px;
   }
+}
 
-  &__btn {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: opacity 0.2s;
+.ap-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 
-    &--approve {
-      background: #4caf50;
-      color: white;
+  &--approve {
+    background: $ap-approve-bg;
+    color: $ap-approve-text;
 
-      &:hover:not(:disabled) {
-        background: #388e3c;
-      }
-    }
-
-    &--reject {
-      background: #f44336;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background: #c62828;
-      }
+    &:hover:not(:disabled) {
+      background: $ap-approve-hover;
     }
   }
 
-  &__row--clickable {
-    cursor: pointer;
+  &--reject {
+    background: $ap-reject-bg;
+    color: $ap-reject-text;
 
-    &:hover td {
-      background: #f0f4ff;
+    &:hover:not(:disabled) {
+      background: $ap-reject-hover;
     }
   }
 }

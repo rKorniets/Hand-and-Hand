@@ -41,7 +41,7 @@ export const routes: Routes = [
   { path: 'application-submitted', component: ApplicationSubmitted },
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
   {
-    path: 'profile/admin/pending-organizations',
+    path: 'admin/panel',
     component: AdminPanelComponent,
     canActivate: [authGuard],
   },

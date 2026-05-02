@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../auth/auth.service';
 import { RouterModule } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -19,8 +19,9 @@ export interface AdminProfile {
 @Component({
   selector: 'app-admin-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, DatePipe],
   templateUrl: './admin-profile.html',
+  styleUrl: './admin-profile.scss',
 })
 export class AdminProfileComponent implements OnInit {
   profile: AdminProfile | null = null;
