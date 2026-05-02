@@ -42,7 +42,7 @@ export class AppUserController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Отримати профіль поточного користувача' })
   async getMe(@CurrentUser() currentUser: AuthUser) {
-    return this.appUserService.getUserById(currentUser.id, currentUser);
+    return this.appUserService.getUserById(currentUser.id);
   }
 
   @Patch('me')
@@ -89,13 +89,10 @@ export class AppUserController {
 
   @Get(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Отримати користувача за ID' })
-  async getUserById(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() currentUser: AuthUser,
-  ) {
-    return this.appUserService.getUserById(id, currentUser);
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.appUserService.getUserById(id);
   }
 
   @Put(':id')

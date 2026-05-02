@@ -26,22 +26,26 @@
           <app-user-data [user]="user"></app-user-data>
         </section>
 
-        <section>
-          <app-message [user]="user"></app-message>
-        </section>
+        @if (isOwnProfile) {
+          <section>
+            <app-message [user]="user"></app-message>
+          </section>
+        }
 
         <section>
           <app-achievement [user]="user"></app-achievement>
         </section>
 
-        <div class="user__profile__page__actions">
-          @if (user.role !== 'VOLUNTEER') {
-            <a class="verify-button" routerLink="/vol-verification">Верифікуватись</a>
-          }
-        </div>
-        <div>
-          <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
-        </div>
+        @if (isOwnProfile) {
+          <div class="user__profile__page__actions">
+            @if (user.role !== 'VOLUNTEER') {
+              <a class="verify-button" routerLink="/vol-verification">Верифікуватись</a>
+            }
+          </div>
+          <div>
+            <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
+          </div>
+        }
       </aside>
     </div>
   } @else {

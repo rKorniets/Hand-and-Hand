@@ -87,4 +87,8 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
       this.routeSub.unsubscribe();
     }
   }
+  get isOwnProfile(): boolean {
+    const paramId = this.route.snapshot.paramMap.get('id');
+    return !paramId || +paramId === this.authService.getUserId();
+  }
 }

@@ -23,14 +23,14 @@ export class NotificationController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Отримати мої сповіщення' })
-  getMyNotifications(@CurrentUser() user: { id: number }) {
+  async getMyNotifications(@CurrentUser() user: { id: number }) {
     return this.notificationService.getMyNotifications(user);
   }
 
   @Get('unread-count')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Кількість непрочитаних сповіщень' })
-  getUnreadCount(@CurrentUser() user: { id: number }) {
+  async getUnreadCount(@CurrentUser() user: { id: number }) {
     return this.notificationService.getUnreadCount(user);
   }
 
@@ -38,14 +38,14 @@ export class NotificationController {
   @ApiBearerAuth()
   @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити сповіщення (тільки адмін)' })
-  create(@Body() data: CreateNotificationDto) {
+  async create(@Body() data: CreateNotificationDto) {
     return this.notificationService.create(data);
   }
 
   @Patch(':id/read')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Позначити сповіщення як прочитане' })
-  markAsRead(
+  async markAsRead(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number },
   ) {
@@ -55,54 +55,17 @@ export class NotificationController {
   @Patch('read-all')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Позначити всі сповіщення як прочитані' })
-  markAllAsRead(@CurrentUser() user: { id: number }) {
+  async markAllAsRead(@CurrentUser() user: { id: number }) {
     return this.notificationService.markAllAsRead(user);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Видалити сповіщення' })
-  delete(
+  async delete(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number },
   ) {
     return this.notificationService.delete(id, user);
-  }
-
-  @Get('org')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Отримати сповіщення моєї організації' })
-  getOrgNotifications(@CurrentUser() user: { organizationId: number }) {
-    return this.notificationService.getOrgNotifications(user.organizationId);
-  }
-
-  @Patch('org/:id/read')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Прочитати сповіщення організації' })
-  markOrgAsRead(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { organizationId: number },
-  ) {
-    return this.notificationService.markOrgAsRead(id, user.organizationId);
-  }
-
-  @Patch('org/read-all')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Прочитати всі сповіщення організації' })
-  markAllOrgAsRead(@CurrentUser() user: { organizationId: number }) {
-    return this.notificationService.markAllOrgAsRead(user.organizationId);
-  }
-
-  @Delete('org/:id')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Видалити сповіщення організації' })
-  deleteOrg(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { organizationId: number },
-  ) {
-    return this.notificationService.deleteOrgNotification(
-      id,
-      user.organizationId,
-    );
   }
 }

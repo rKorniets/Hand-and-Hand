@@ -47,8 +47,10 @@ export class AppUserService {
     return user;
   }
 
-  async getUserById(id: number, currentUser: AuthUser) {
-    await this.validateUserOwnership(id, currentUser);
+  async getUserById(id: number) {
+    const user = await this.prisma.app_user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+
     return this.prisma.app_user.findUnique({
       where: { id },
       select: USER_SELECT,

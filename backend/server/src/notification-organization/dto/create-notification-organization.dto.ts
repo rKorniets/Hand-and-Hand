@@ -6,18 +6,16 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  MaxLength,
 } from 'class-validator';
 
-export class CreateNotificationDto {
+export class CreateOrgNotificationDto {
   @ApiProperty()
   @IsInt()
-  user_id: number;
+  organization_id: number;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500)
   message: string;
 
   @ApiPropertyOptional({ enum: notification_type_enum })
