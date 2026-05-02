@@ -29,12 +29,15 @@ export class OrgData implements OnChanges {
   }
 
   toggleEdit(): void {
-    this.editing = true;
+    this.editing = !this.editing;
+    if (!this.editing) {
+      this.description = this.organization?.description ?? '';
+    }
     this.cdr.detectChanges();
   }
 
   onSave(): void {
-    if (!this.organization) return;
+    if (!this.organization || this.saving) return;
 
     this.saving = true;
     this.orgService

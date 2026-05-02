@@ -18,6 +18,7 @@ import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
+  role: user_role_enum;
 }
 
 @Injectable()
@@ -41,7 +42,10 @@ export class OrganizationProfileService {
       );
     }
 
-    if (profile.user_id !== currentUser.id) {
+    if (
+      currentUser.role !== user_role_enum.ADMIN &&
+      profile.user_id !== currentUser.id
+    ) {
       throw new ForbiddenException(
         "You do not have permission to edit or delete another user's profile",
       );

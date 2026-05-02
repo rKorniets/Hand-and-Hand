@@ -2,9 +2,18 @@
   <div class="org-data__header">
     <h3 class="org-data__title">Опис:</h3>
     @if (isOwner) {
-      <button class="org-data__edit-btn" (click)="editing ? onSave() : toggleEdit()">
+      <button
+        class="org-data__edit-btn"
+        (click)="editing ? onSave() : toggleEdit()"
+        [disabled]="saving"
+      >
         <span class="material-symbols-outlined">{{ editing ? 'check' : 'edit' }}</span>
       </button>
+      @if (editing) {
+        <button class="org-data__cancel-btn" (click)="toggleEdit()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      }
     }
   </div>
 

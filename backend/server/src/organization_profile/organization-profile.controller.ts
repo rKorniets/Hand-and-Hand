@@ -43,35 +43,7 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IsOptional, IsString } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-
-class UpdateOrganizationPartialDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  city?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  contact_phone?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  contact_email?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  mission?: string;
-}
+import { UpdateOrganizationProfileDto } from './dto/update-organization-profile.dto';
 
 @ApiTags('Organization Profiles')
 @Controller('organization-profiles')
@@ -89,8 +61,14 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     name: 'verification_status',
     required: false,
     enum: verification_status_enum,
+    description: 'Filter organizations by verification status',
   })
-  @ApiQuery({ name: 'categories', required: false, type: [String] })
+  @ApiQuery({
+    name: 'categories',
+    required: false,
+    type: [String],
+    description: 'Filter organizations by one or more categories',
+  })
   async getOrganizationProfiles(
     @Query() query: PaginationDto,
     @Query(
@@ -152,7 +130,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   @ApiOperation({ summary: 'Оновити профіль організації (частково)' })
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateOrganizationPartialDto,
+    @Body() data: UpdateOrganizationProfileDto,
     @CurrentUser() currentUser: RequestUser,
   ) {
     return this.organizationProfileService.updateOrganizationProfilePartial(
