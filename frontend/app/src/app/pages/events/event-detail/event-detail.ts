@@ -118,4 +118,7 @@ export class EventDetailComponent implements OnInit {
       },
     });
   }
+  get isOrganization(): boolean {
+    return this.authService.getRole() === 'ORGANIZATION';
+  }
 }
