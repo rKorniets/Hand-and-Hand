@@ -44,23 +44,18 @@
 
         @if (n.type === 'REGISTRATION' && n.registration_data) {
           <div class="message-org__notification-logic" (click)="$event.stopPropagation()">
-
             @if (n.registration_data.status === RegistrationStatus.PENDING) {
               <div class="message-org__notification-actions">
                 <button class="btn-accept" (click)="onAccept(n)">Прийняти</button>
                 <button class="btn-reject" (click)="onReject(n)">Відхилити</button>
               </div>
-            }
-            @else if (n.registration_data.status === RegistrationStatus.ACCEPTED) {
+            } @else if (n.registration_data.status === RegistrationStatus.ACCEPTED) {
               <div class="status-badge status-badge--accepted">Прийнято</div>
-            }
-            @else if (n.registration_data.status === RegistrationStatus.REJECTED) {
+            } @else if (n.registration_data.status === RegistrationStatus.REJECTED) {
               <div class="status-badge status-badge--rejected">Відхилено</div>
-            }
-            @else if (n.registration_data.status === RegistrationStatus.CANCELLED) {
+            } @else if (n.registration_data.status === RegistrationStatus.CANCELLED) {
               <div class="status-badge status-badge--cancelled">Скасовано волонтером</div>
             }
-
           </div>
         }
 
