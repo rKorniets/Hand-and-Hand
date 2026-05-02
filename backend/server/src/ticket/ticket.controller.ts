@@ -23,6 +23,7 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 type RequestWithUser = {
   user: {
@@ -33,6 +34,7 @@ type RequestWithUser = {
 
 @ApiTags('Tickets')
 @Controller('tickets')
+@SkipThrottle()
 export class TicketController extends AbstractCrudController<ticket[]> {
   constructor(private readonly service: TicketService) {
     super(service as unknown as IBaseCrudService<ticket[]>);
@@ -57,6 +59,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новий тікет від волонтера' })
@@ -65,6 +68,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити існуючий тікет' })
@@ -82,6 +86,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(
     user_role_enum.APP_USER,
