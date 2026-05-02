@@ -29,9 +29,7 @@
       <div class="ap-card-list">
         @for (item of items; track item.id) {
           <div class="ap-card">
-            <div>
-              <div class="ap-card__name">{{ item.submitter.organization_profile.name }}</div>
-            </div>
+            <div class="ap-card__name">{{ item.submitter.organization_profile.name }}</div>
             <div class="ap-card__secondary">{{ item.submitter.organization_profile.edrpou }}</div>
             <div class="ap-card__email">{{ item.submitter.email }}</div>
             <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
@@ -115,6 +113,66 @@
                 [disabled]="projectActionLoading === item.id"
               >
                 {{ projectActionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Запити на розгляді</h2>
+      @if (!ticketsLoading && tickets.length > 0) {
+        <span class="ap-section__pill">{{ tickets.length }} очікують</span>
+      } @else if (!ticketsLoading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (ticketsLoading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (ticketsError) {
+      <p class="ap-section__error">{{ ticketsError }}</p>
+    }
+    @if (!ticketsLoading && tickets.length === 0) {
+      <div class="ap-section__empty">Немає запитів що очікують підтвердження</div>
+    }
+    @if (!ticketsLoading && tickets.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва запиту</span>
+        <span>Автор</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of tickets; track item.id) {
+          <div class="ap-card">
+            <div class="ap-card__name">{{ item.title }}</div>
+            <div class="ap-card__secondary">
+              @if (item.app_user.first_name || item.app_user.last_name) {
+                {{ item.app_user.first_name }} {{ item.app_user.last_name }}
+              } @else {
+                {{ item.app_user.email }}
+              }
+            </div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveTicketAction(item.id)"
+                [disabled]="ticketActionLoading === item.id"
+              >
+                {{ ticketActionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectTicketAction(item.id)"
+                [disabled]="ticketActionLoading === item.id"
+              >
+                {{ ticketActionLoading === item.id ? '...' : 'Відхилити' }}
               </button>
             </div>
           </div>
