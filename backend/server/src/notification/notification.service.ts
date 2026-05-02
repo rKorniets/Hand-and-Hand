@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { notification_type_enum } from '@prisma/client';
 
 export interface RequestUser {
   id: number;
@@ -46,9 +45,7 @@ export class NotificationService {
     }
 
     if (notification.user_id !== currentUser.id) {
-      throw new ForbiddenException(
-        'You do not have permission to access this notification',
-      );
+      throw new ForbiddenException('Немає доступу до цього сповіщення');
     }
 
     return this.prisma.notification.update({
@@ -64,16 +61,6 @@ export class NotificationService {
     });
   }
 
-  async create(data: CreateNotificationDto) {
-    return this.prisma.notification.create({
-      data: {
-        user_id: data.user_id,
-        message: data.message,
-        type: data.type ?? notification_type_enum.GENERAL,
-      },
-    });
-  }
-
   async delete(id: number, currentUser: RequestUser) {
     const notification = await this.prisma.notification.findUnique({
       where: { id },
@@ -84,11 +71,90 @@ export class NotificationService {
     }
 
     if (notification.user_id !== currentUser.id) {
-      throw new ForbiddenException(
-        'You do not have permission to delete this notification',
-      );
+      throw new ForbiddenException('Немає прав на видалення');
     }
 
     return this.prisma.notification.delete({ where: { id } });
+  }
+
+  async getOrgNotifications(orgId: number) {
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.notification_organization.findMany({
+        where: { organization_id: orgId },
+        orderBy: { created_at: 'desc' },
+        include: {
+          project_registration: {
+            include: {
+              app_user: {
+                select: {
+                  first_name: true,
+                  last_name: true,
+                  avatar_url: true,
+                },
+              },
+            },
+          },
+          project: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      }),
+      this.prisma.notification_organization.count({
+        where: { organization_id: orgId },
+      }),
+    ]);
+
+    const mappedData = data.map((n) => ({
+      ...n,
+      registration_data: n.project_registration,
+    }));
+
+    return { data: mappedData, total };
+  }
+
+  async markOrgAsRead(id: number, orgId: number) {
+    const notification = await this.prisma.notification_organization.findFirst({
+      where: { id, organization_id: orgId },
+    });
+
+    if (!notification) {
+      throw new NotFoundException(`Сповіщення не знайдено`);
+    }
+
+    return this.prisma.notification_organization.update({
+      where: { id },
+      data: { is_read: true },
+    });
+  }
+
+  async markAllOrgAsRead(orgId: number) {
+    return this.prisma.notification_organization.updateMany({
+      where: { organization_id: orgId, is_read: false },
+      data: { is_read: true },
+    });
+  }
+
+  async deleteOrgNotification(id: number, orgId: number) {
+    const notification = await this.prisma.notification_organization.findFirst({
+      where: { id, organization_id: orgId },
+    });
+
+    if (!notification) {
+      throw new NotFoundException(`Сповіщення не знайдено`);
+    }
+
+    return this.prisma.notification_organization.delete({ where: { id } });
+  }
+
+  async create(data: CreateNotificationDto) {
+    return this.prisma.notification.create({
+      data: {
+        user_id: data.user_id,
+        message: data.message,
+        type: data.type || 'GENERAL',
+      },
+    });
   }
 }

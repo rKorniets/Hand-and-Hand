@@ -47,6 +47,7 @@ export const routes: Routes = [
   },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
+  { path: 'profile-user/:id', component: ProfileUserComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },

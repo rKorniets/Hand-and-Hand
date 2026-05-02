@@ -14,6 +14,9 @@ export class UserProfileService {
   getUser(): Observable<AppUser> {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/me`);
   }
+  getUserById(id: number): Observable<AppUser> {
+    return this.http.get<AppUser>(`${this.apiUrl}/app-users/${id}`);
+  }
 
   updateAvatar(avatarUrl: string): Observable<AppUser> {
     return this.http.patch<AppUser>(`${this.apiUrl}/app-users/me`, { avatar_url: avatarUrl });

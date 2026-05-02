@@ -38,6 +38,7 @@ model app_user {
   donation                               donation[]
   organization_membership_request        organization_membership_request[]
   notification                           notification[]
+  notification_organization  notification_organization[]
 }
 
 model notification {
@@ -50,6 +51,23 @@ model notification {
   app_user   app_user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id], map: "idx_notification_user_id")
+}
+model notification_organization {
+  id                      Int                                  @id @default(autoincrement())
+  organization_id         Int
+  message                 String
+  is_read                 Boolean                              @default(false)
+  type                    notification_organization_type_enum  @default(GENERAL)
+  entity_id               Int?
+  actor_id                Int?
+  project_id              Int?
+  created_at              DateTime                             @default(now()) @db.Timestamptz(6)
+  project_registration    project_registration? @relation(fields: [entity_id], references: [id], map: "fk_notification_registration")
+  organization            organization_profile                 @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  actor                   app_user?                            @relation(fields: [actor_id], references: [id], onDelete: SetNull)
+  project                 project?                             @relation(fields: [project_id], references: [id], onDelete: SetNull)
+
+  @@index([organization_id], map: "idx_org_notification_org_id")
 }
 
 model volunteer_profile {
@@ -94,6 +112,8 @@ model organization_profile {
   project               project[]
   report                report[]
   membership_requests   organization_membership_request[]
+  notification_organization  notification_organization[]
+
 
   @@index([location_id], map: "idx_organization_profile_location_id")
 }
@@ -150,6 +170,8 @@ model project {
   report                  report[]
   task                    task[]
   project_category        project_category[]
+  notification_organization  notification_organization[]
+
 
   @@index([organization_profile_id], map: "idx_project_organization_profile_id")
   @@index([location_id], map: "idx_project_location_id")
@@ -157,16 +179,17 @@ model project {
 }
 
 model project_registration {
-  id          Int                              @id @default(autoincrement())
-  project_id  Int
-  user_id     Int
-  status      project_registration_status_enum @default(PENDING)
-  reviewed_at DateTime?                        @db.Timestamptz(6)
-  reviewed_by Int?
-  created_at  DateTime                         @default(now()) @db.Timestamptz(6)
-  project     project                          @relation(fields: [project_id], references: [id], onDelete: Cascade)
-  app_user    app_user                         @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  reviewer    app_user?                        @relation("project_registration_reviewer", fields: [reviewed_by], references: [id], onUpdate: NoAction, map: "fk_project_registration_reviewer")
+  id                        Int                              @id @default(autoincrement())
+  project_id                Int
+  user_id                   Int
+  status                    project_registration_status_enum @default(PENDING)
+  reviewed_at               DateTime?                        @db.Timestamptz(6)
+  reviewed_by               Int?
+  created_at                DateTime                         @default(now()) @db.Timestamptz(6)
+  project                   project                          @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  app_user                  app_user                         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  reviewer                  app_user?                        @relation("project_registration_reviewer", fields: [reviewed_by], references: [id], onUpdate: NoAction, map: "fk_project_registration_reviewer")
+  notification_organization notification_organization[]
 
   @@unique([project_id, user_id], map: "uq_project_registration")
   @@index([project_id])
@@ -612,4 +635,14 @@ enum notification_type_enum {
   TICKET
   REWARD
   WARNING
+}
+
+enum notification_organization_type_enum {
+  GENERAL
+  PROJECT
+  TASK
+  TICKET
+  REWARD
+  WARNING
+  REGISTRATION
 }

@@ -10,11 +10,21 @@ import { Activity } from './activity/activity';
 import { Organization, OrgLocation, Report } from './profile-organization.model';
 import { OrganizationProfileService } from './profile-organization.service';
 import { AuthService } from '../auth/auth.service';
+import { MessageOrg } from './message-org/message-org';
 
 @Component({
   selector: 'app-profile-organization',
   standalone: true,
-  imports: [CommonModule, Reports, FundraisingCampaignsOrg, OrgData, ListUsers, MainInfo, Activity],
+  imports: [
+    CommonModule,
+    Reports,
+    FundraisingCampaignsOrg,
+    OrgData,
+    ListUsers,
+    MainInfo,
+    Activity,
+    MessageOrg,
+  ],
   templateUrl: './profile-organization.html',
   styleUrl: './profile-organization.scss',
 })

@@ -243,7 +243,7 @@ export class ProjectService {
         _count: {
           select: {
             project_registration: {
-              where: { status: 'APPROVED' },
+              where: { status: project_registration_status_enum.ACCEPTED },
             },
           },
         },
@@ -265,7 +265,6 @@ export class ProjectService {
           where: { status: project_registration_status_enum.ACCEPTED },
           take: 10,
           orderBy: { created_at: 'desc' },
-          where: { status: 'APPROVED' },
           include: {
             app_user: {
               select: {
@@ -324,13 +323,34 @@ export class ProjectService {
     ) {
       throw new BadRequestException('Project has reached maximum participants');
     }
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: userId },
+      select: { first_name: true, last_name: true },
+    });
+
+    const fullName =
+      `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim();
 
     try {
-      return await this.prisma.project_registration.create({
-        data: {
-          project_id: projectId,
-          user_id: userId,
-        },
+      return await this.prisma.$transaction(async (tx) => {
+        const registration = await tx.project_registration.create({
+          data: {
+            project_id: projectId,
+            user_id: userId,
+          },
+        });
+        await tx.notification_organization.create({
+          data: {
+            organization_id: project.organization_profile_id,
+            message: `${fullName} подав(ла) заявку на проєкт "${project.title}"`,
+            type: 'REGISTRATION',
+            project_id: projectId,
+            actor_id: userId,
+            entity_id: registration.id,
+          },
+        });
+
+        return registration;
       });
     } catch (error) {
       if (

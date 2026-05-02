@@ -25,8 +25,8 @@ export class ListUsers implements OnChanges {
 
   ngOnChanges(): void {
     if (this.organization) {
-      this.orgService.getOrgMembers(this.organization.id).subscribe((data: OrgMember[]) => {
-        this.members = data;
+      this.orgService.getOrgMembers(this.organization.id).subscribe((data) => {
+        this.members = Array.isArray(data) ? data : [];
       });
     }
     this.expanded = false;

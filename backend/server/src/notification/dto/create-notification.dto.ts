@@ -25,3 +25,19 @@ export class CreateNotificationDto {
   @IsEnum(notification_type_enum)
   type?: notification_type_enum;
 }
+
+export class CreateOrgNotificationDto {
+  @ApiProperty()
+  @IsInt()
+  organization_id: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @ApiPropertyOptional({ enum: notification_type_enum })
+  @IsOptional()
+  @IsEnum(notification_type_enum)
+  type?: notification_type_enum;
+}
