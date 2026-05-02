@@ -15,8 +15,7 @@ import {
   ProjectRegistrationStatus,
 } from '../profile-organization.model';
 import { NotificationService, NotificationResponse } from './message-org.service';
-import {OrganizationProfileService} from '../profile-organization.service';
-
+import { OrganizationProfileService } from '../profile-organization.service';
 
 @Component({
   selector: 'app-message-org',
@@ -115,7 +114,6 @@ export class MessageOrg implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       });
   }
-
 
   deleteNotification(id: number) {
     this.notificationService

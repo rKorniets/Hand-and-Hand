@@ -1,9 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {
-  OrgNotification,
-} from '../profile-organization.model';
+import { OrgNotification } from '../profile-organization.model';
 import { API_BASE_URL } from '../../../tokens';
 
 export interface NotificationResponse {
