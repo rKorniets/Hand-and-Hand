@@ -41,14 +41,16 @@ psql "$env:DATABASE_URL" -f prisma/seed.sql
 
 ⚠️ Зверни увагу на регістр і знак оклику в кінці — пароль чутливий до регістру.
 
-| Email                   | Роль           | Профіль                                                                                |
-| ----------------------- | -------------- | -------------------------------------------------------------------------------------- |
-| `admin@demo.local`      | `ADMIN`        | Super-admin. Доступ до `/profile/admin` і модерації заявок.                            |
-| `org-rescue@demo.local` | `ORGANIZATION` | Власник «Rescue Львів» — зоозахисна організація. Може створювати події, збори, новини. |
-| `org-eco@demo.local`    | `ORGANIZATION` | Власник «EcoKyiv» — екологічна організація.                                            |
-| `vol-anna@demo.local`   | `VOLUNTEER`    | AnnaHelper. Верифікована, 120 балів, рейтинг 4.80.                                     |
-| `vol-petro@demo.local`  | `VOLUNTEER`    | PetroDoer. Верифікований, 80 балів, член EcoKyiv.                                      |
-| `user@demo.local`       | `APP_USER`     | Марія Бойко. Звичайний юзер без волонтерського/орг. профілю.                           |
+| Email                   | Роль           | Профіль                                                                                                 |
+| ----------------------- | -------------- |---------------------------------------------------------------------------------------------------------|
+| `admin@demo.local`      | `ADMIN`        | Super-admin. Доступ до `/profile/admin` і модерації заявок.                                             |
+| `org-rescue@demo.local` | `ORGANIZATION` | edrpou: 12345678 Власник «Rescue Львів» — зоозахисна організація. Може створювати події, збори, новини. |
+| `org-eco@demo.local`    | `ORGANIZATION` | edrpou: 87654321 Власник «EcoKyiv» — екологічна організація.                                            |
+| `vol-anna@demo.local`   | `VOLUNTEER`    | AnnaHelper. Верифікована, 120 балів, рейтинг 4.80.                                                      |
+| `vol-petro@demo.local`  | `VOLUNTEER`    | PetroDoer. Верифікований, 80 балів, член EcoKyiv.                                                       |
+| `user@demo.local`       | `APP_USER`     | Марія Бойко. Звичайний юзер без волонтерського/орг. профілю.                                            |
+
+> Після `POST /auth/login/*` відповідь містить **дві** токени: `accessToken` (15 хв, JWT) і `refreshToken` (7 днів, opaque hex). Фронт зберігає обидва в `localStorage` і автоматично оновлює access через `/auth/refresh` при 401. Re-seed чистить таблицю `refresh_token` теж — наявні логіни перестають працювати, треба перелогінитись.
 
 ---
 

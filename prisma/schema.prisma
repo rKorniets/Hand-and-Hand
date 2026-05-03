@@ -38,6 +38,7 @@ model app_user {
   donation                               donation[]
   organization_membership_request        organization_membership_request[]
   notification                           notification[]
+  refresh_token                          refresh_token[]
 }
 
 model notification {
@@ -474,6 +475,22 @@ model email_verification_token {
   expires_at DateTime @db.Timestamptz(6)
   created_at DateTime @default(now()) @db.Timestamptz(6)
   app_user   app_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_email_verification_token_user")
+}
+
+model refresh_token {
+  id             Int             @id @default(autoincrement())
+  user_id        Int
+  token_hash     String          @unique @db.VarChar(64)
+  expires_at     DateTime        @db.Timestamptz(6)
+  created_at     DateTime        @default(now()) @db.Timestamptz(6)
+  revoked_at     DateTime?       @db.Timestamptz(6)
+  replaced_by_id Int?
+  app_user       app_user        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_refresh_token_user")
+  replaced_by    refresh_token?  @relation("refresh_token_rotation", fields: [replaced_by_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_refresh_token_replaced_by")
+  replaces       refresh_token[] @relation("refresh_token_rotation")
+
+  @@index([user_id], map: "idx_refresh_token_user_id")
+  @@index([expires_at], map: "idx_refresh_token_expires_at")
 }
 
 model report {
