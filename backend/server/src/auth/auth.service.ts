@@ -15,6 +15,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
 import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
 import { user_role_enum, user_status_enum } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,70 @@ export class AuthService {
     this.mailPass = this.config.getOrThrow<string>('MAIL_PASSWORD');
     this.frontendUrl =
       this.config.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+  }
+
+  private async resolveLocation(
+    city: string,
+    address: string,
+    region: string | undefined,
+    tx: Prisma.TransactionClient,
+  ) {
+    const normalizedCity = city.trim().toLowerCase();
+    const normalizedAddress = address.trim().toLowerCase();
+
+    const existing = await tx.location.findFirst({
+      where: {
+        city: { equals: normalizedCity, mode: 'insensitive' },
+        address: { equals: normalizedAddress, mode: 'insensitive' },
+      },
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    const query = encodeURIComponent(`${address}, ${city}, Ukraine`);
+    const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`;
+
+    let lat: number | null = null;
+    let lng: number | null = null;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'hand-and-hand-app/1.0' },
+        signal: controller.signal,
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as { lat: string; lon: string }[];
+        if (data.length > 0) {
+          const parsedLat = parseFloat(data[0].lat);
+          const parsedLng = parseFloat(data[0].lon);
+
+          if (Number.isFinite(parsedLat) && Number.isFinite(parsedLng)) {
+            lat = parsedLat;
+            lng = parsedLng;
+          }
+        }
+      }
+    } catch {
+      // Nominatim недоступний — зберігаємо без координат
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    return tx.location.create({
+      data: {
+        city: city.trim(),
+        address: address.trim(),
+        region: region?.trim() ?? '',
+        lat: lat ?? undefined,
+        lng: lng ?? undefined,
+      },
+    });
   }
 
   async registerUser(dto: RegisterUserDto) {
@@ -87,6 +152,13 @@ export class AuthService {
     const passwordHash = await argon2.hash(dto.password);
 
     const user = await this.prisma.$transaction(async (tx) => {
+      const location = await this.resolveLocation(
+        dto.city,
+        dto.address,
+        dto.region,
+        tx,
+      );
+
       const u = await tx.app_user.create({
         data: {
           email: dto.email,
@@ -102,6 +174,8 @@ export class AuthService {
           name: dto.name,
           edrpou: dto.edrpou,
           contact_email: dto.email,
+          city: dto.city,
+          location_id: location.id,
           mission: '',
         },
       });
@@ -114,6 +188,7 @@ export class AuthService {
           status: 'PENDING',
         },
       });
+
       return u;
     });
 

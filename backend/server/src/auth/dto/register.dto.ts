@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   Matches,
@@ -43,6 +44,19 @@ export class RegisterOrganizationDto {
   @Length(8, 8)
   @Matches(/^\d{8}$/, { message: 'ЄДРПОУ must be exactly 8 digits' })
   edrpou: string;
+
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  address: string;
+
+  @IsOptional()
+  @IsString()
+  region?: string;
 
   @IsEmail()
   email: string;

@@ -30,6 +30,7 @@ export interface Organization {
   id: number;
   user_id: number;
   name: string;
+  city?: string;
   description: string;
   verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
   official_docs_url?: string;
