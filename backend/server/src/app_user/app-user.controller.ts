@@ -93,7 +93,6 @@ export class AppUserController {
   }
 
   @Get(':id')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Отримати користувача за ID' })
