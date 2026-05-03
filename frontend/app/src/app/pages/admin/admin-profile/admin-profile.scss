@@ -1,0 +1,272 @@
+@use 'variables' as *;
+
+.admin__profile__page {
+  display: block;
+  padding: 40px 80px 300px 80px;
+
+  &__wrapper {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__actions {
+    width: 100%;
+  }
+}
+
+.admin__hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+
+  &__avatar {
+    width: 200px;
+    height: 200px;
+    min-width: 200px;
+    border-radius: 16px;
+    background: #b0b8c4;
+    color: #fff;
+    font-size: 56px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 8px;
+  }
+
+  &__name-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__name {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.admin__detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 18px;
+
+  &__label {
+    color: #333;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__value {
+    color: #444;
+    font-weight: 400;
+    word-break: break-word;
+  }
+}
+
+.admin__badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 600;
+
+  &--role {
+    background: #1a1a1a;
+    color: #fff;
+  }
+
+  &--active {
+    background: #e2f5e9;
+    color: #1e7e40;
+  }
+
+  &--inactive {
+    background: #fde8e8;
+    color: #c0392b;
+  }
+}
+
+.admin__card {
+  background: #f8f8f8;
+  border: 1px solid #e4e4e4;
+  border-radius: 20px;
+  padding: 26px 28px;
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 20px 0;
+  }
+}
+
+.admin__panel-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin__panel-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid #e4e4e4;
+  border-radius: 14px;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background: #f0f0f0;
+    border-color: #cacaca;
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+
+    &--warn {
+      background: #fff3e0;
+      border: 1.5px solid #f5a623;
+    }
+
+    &--blue {
+      background: #e3f0ff;
+      border: 1.5px solid #4a90e2;
+    }
+
+    &--green {
+      background: #e6f8ee;
+      border: 1.5px solid #3cb96a;
+    }
+  }
+
+  &__name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 2px 0;
+  }
+
+  &__desc {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+  }
+}
+
+.logout__button {
+  width: 100%;
+  padding: 14px;
+  background-color: #f3f3f3;
+  border: none;
+  border-radius: 15px;
+  font-size: 22px;
+  font-weight: 700;
+  color: $ce-error;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #fadbd8;
+  }
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 0;
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #1a1a1a;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  p {
+    font-size: 16px;
+    color: #888;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #fdecea;
+  border: 1px solid #f5c6c2;
+  border-radius: 14px;
+  margin: 32px 0;
+
+  &__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $ce-error;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  p {
+    font-size: 15px;
+    color: $ce-error;
+    margin: 0;
+    font-weight: 500;
+  }
+}

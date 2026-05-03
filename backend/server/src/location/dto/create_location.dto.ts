@@ -28,17 +28,14 @@ export class CreateLocationDto {
   @MaxLength(100)
   region: string;
 
-  @ApiPropertyOptional({ example: 49.839683, description: 'Широта (Latitude)' })
+  @ApiPropertyOptional({ example: 49.839683 })
   @IsOptional()
   @IsNumber()
   @Min(-90)
   @Max(90)
   lat?: number;
 
-  @ApiPropertyOptional({
-    example: 24.029717,
-    description: 'Довгота (Longitude)',
-  })
+  @ApiPropertyOptional({ example: 24.029717 })
   @IsOptional()
   @IsNumber()
   @Min(-180)

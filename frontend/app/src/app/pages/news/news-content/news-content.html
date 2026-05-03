@@ -1,6 +1,9 @@
 <section class="news-content">
   <div class="news-content__header">
     <h2 class="news-content__title">Новини</h2>
+    @if (showCreateButton) {
+      <button class="news-content__create-btn" routerLink="/news/create">+ Створити новину</button>
+    }
   </div>
 
   <div class="news-content__list">

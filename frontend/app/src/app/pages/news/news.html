@@ -16,7 +16,10 @@
       @if (!loading) {
         <app-news-pinned [items]="pinnedNews"></app-news-pinned>
 
-        <app-news-content [items]="regularNews"></app-news-content>
+        <app-news-content
+          [items]="regularNews"
+          [showCreateButton]="isOrganization"
+        ></app-news-content>
 
         <div class="news-page__pagination">
           <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">

@@ -1,21 +1,30 @@
 export type ticket_status_enum = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'CLOSED' | 'CANCELLED';
 export type ticket_priority_enum = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
-export interface CreateRequestPayload {
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface CreateTicketPayload {
   title: string;
   description: string;
-  category_ids?: number[];
+  category_ids?: number[]; // масив замість одного category_id
+  priority?: ticket_priority_enum;
   file_url?: string;
   location?: {
     city: string;
     address: string;
     region: string;
+    lat?: number;
+    lng?: number;
   };
 }
 
-export interface Request {
+export interface Ticket {
   id: number;
-  user_id: number | null;
+  user_id: number; // прибрали | null
   volunteer_profile_id: number | null;
   title: string;
   description: string;
@@ -26,9 +35,4 @@ export interface Request {
   created_at: string;
   updated_at: string;
   closed_at: string | null;
-}
-
-export interface Category {
-  id: number;
-  name: string;
 }

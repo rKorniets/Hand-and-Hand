@@ -1,0 +1,103 @@
+<main class="constructor-page">
+  <div class="constructor-container">
+    <div class="constructor-header">
+      <h1 class="constructor-title">Створити новину</h1>
+      <p class="constructor-subtitle">
+        Поділіться останніми подіями та досягненнями вашої організації.
+      </p>
+    </div>
+
+    <form [formGroup]="newsForm" (ngSubmit)="onSubmit()" class="constructor-form">
+      <h2 class="section-title">Основна інформація</h2>
+
+      <div class="form-group">
+        <label>Заголовок новини <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Наприклад: Висадили 200 дерев у Києві"
+          />
+          <p class="field-hint">Коротка і зрозуміла назва (максимум 200 символів).</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Короткий опис (прев'ю) <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <textarea
+            formControlName="description"
+            rows="2"
+            placeholder="Опишіть новину в 1-2 реченнях..."
+          ></textarea>
+          <p class="field-hint">Цей текст буде видно на картці новини в загальному списку.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Основний текст <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <textarea
+            formControlName="main_content"
+            rows="6"
+            placeholder="Повний текст вашої новини: хто брав участь, які результати..."
+          ></textarea>
+          <p class="field-hint">Тут можна розписати все максимально детально.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title mt-40">Медіа</h2>
+
+      <div class="form-group">
+        <label>Обкладинка новини <span class="required">*</span></label>
+
+        <div class="input-wrapper" [class.has-error]="isInvalid('image')">
+          <input
+            type="file"
+            id="file-upload"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            class="hidden-file-input"
+          />
+
+          <label
+            for="file-upload"
+            class="custom-file-dropzone"
+            [class.has-image]="!!imagePreview"
+            [style.border-color]="isInvalid('image') ? '#ef4444' : ''"
+          >
+            @if (imagePreview) {
+              <img [src]="imagePreview" alt="Preview" class="preview-img" />
+              <div class="preview-overlay">
+                <span>🔄 Змінити фото</span>
+              </div>
+            } @else {
+              <div class="dropzone-content">
+                <span class="icon-camera">📸</span>
+                <span class="upload-title">Натисніть, щоб обрати фото</span>
+                <span class="upload-subtitle">або перетягніть файл сюди (JPG, PNG до 5MB)</span>
+              </div>
+            }
+          </label>
+
+          @if (selectedFile && !imagePreview) {
+            <p class="file-success-msg">✅ Вибрано файл: {{ selectedFile.name }}</p>
+          }
+
+          @if (isInvalid('image')) {
+            <p class="field-hint" style="color: #ef4444; margin-top: 8px">
+              Завантажте фотографію для новини (це обов'язково).
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" routerLink="/news">Скасувати</button>
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting || newsForm.invalid">
+          {{ isSubmitting ? 'Публікація...' : 'ОПУБЛІКУВАТИ НОВИНУ' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
