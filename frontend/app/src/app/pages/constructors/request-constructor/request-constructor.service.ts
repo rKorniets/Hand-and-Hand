@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
-import { CreateRequestPayload, Request, Category } from './request-constructor.model';
+import { Category, CreateTicketPayload, Ticket } from './request-constructor.model';
 import { API_BASE_URL } from '../../../tokens';
 
 @Injectable({ providedIn: 'root' })
@@ -18,21 +18,20 @@ export class RequestConstructorService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-  createRequest(payload: CreateRequestPayload): Observable<Request> {
-    return this.http.post<Request>(`${this.apiUrl}/requests`, payload, {
-      headers: this.getHeaders(),
-    });
-  }
-
-  getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/categories`, {
+  createTicket(payload: CreateTicketPayload): Observable<Ticket> {
+    return this.http.post<Ticket>(`${this.apiUrl}/tickets`, payload, {
       headers: this.getHeaders(),
     });
   }
 
   getMyProfile() {
     return this.http.get<{ location: { city: string; address: string; region: string } | null }>(
-      `${this.apiUrl}/users/me`,
+      `${this.apiUrl}/app-users/me`,
+      { headers: this.getHeaders() },
     );
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories?for=tickets`);
   }
 }

@@ -31,3 +31,18 @@ export interface PendingProject {
     status: string;
   };
 }
+
+export interface PendingTicket {
+  id: number;
+  title: string;
+  description: string;
+  created_at: string;
+  status: string;
+  priority: string;
+  app_user: {
+    id: number;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+  };
+}

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
-import { PendingOrganization, PendingProject } from '../admin.model';
+import { PendingOrganization, PendingProject, PendingTicket } from '../admin.model';
 
 @Component({
   selector: 'app-admin-panel',
@@ -22,6 +22,11 @@ export class AdminPanelComponent implements OnInit {
   projectsError = '';
   projectActionLoading: number | null = null;
 
+  tickets: PendingTicket[] = [];
+  ticketsLoading = true;
+  ticketsError = '';
+  ticketActionLoading: number | null = null;
+
   constructor(
     private adminService: AdminService,
     private cdr: ChangeDetectorRef,
@@ -31,6 +36,7 @@ export class AdminPanelComponent implements OnInit {
   ngOnInit() {
     this.loadOrganizations();
     this.loadProjects();
+    this.loadTickets();
   }
 
   loadOrganizations() {
@@ -60,6 +66,22 @@ export class AdminPanelComponent implements OnInit {
       error: () => {
         this.projectsError = 'Помилка завантаження';
         this.projectsLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadTickets() {
+    this.ticketsLoading = true;
+    this.adminService.getPendingTickets().subscribe({
+      next: (data) => {
+        this.tickets = data;
+        this.ticketsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.ticketsError = 'Помилка завантаження';
+        this.ticketsLoading = false;
         this.cdr.detectChanges();
       },
     });
@@ -117,6 +139,30 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
+  approveTicketAction(id: number) {
+    this.ticketActionLoading = id;
+    this.adminService.approveTicket(id).subscribe({
+      next: () => this.removeTicketFromList(id),
+      error: () => {
+        this.ticketsError = 'Помилка підтвердження';
+        this.ticketActionLoading = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  rejectTicketAction(id: number) {
+    this.ticketActionLoading = id;
+    this.adminService.rejectTicket(id).subscribe({
+      next: () => this.removeTicketFromList(id),
+      error: () => {
+        this.ticketsError = 'Помилка відхилення';
+        this.ticketActionLoading = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   private removeFromList(id: number) {
     this.items = this.items.filter((i) => i.id !== id);
     this.actionLoading = null;
@@ -126,6 +172,12 @@ export class AdminPanelComponent implements OnInit {
   private removeProjectFromList(id: number) {
     this.projects = this.projects.filter((p) => p.id !== id);
     this.projectActionLoading = null;
+    this.cdr.detectChanges();
+  }
+
+  private removeTicketFromList(id: number) {
+    this.tickets = this.tickets.filter((t) => t.id !== id);
+    this.ticketActionLoading = null;
     this.cdr.detectChanges();
   }
 }
