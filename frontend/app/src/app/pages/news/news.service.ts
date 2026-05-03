@@ -39,4 +39,18 @@ export class NewsService {
     const params = new HttpParams().set('t', Date.now().toString());
     return this.http.get<NewsItem>(`${this.apiUrl}/news/${id}`, { params });
   }
+
+  createNews(newsData: {
+    title: string;
+    description: string;
+    main_content: string;
+  }): Observable<NewsItem> {
+    return this.http.post<NewsItem>(`${this.apiUrl}/news`, newsData);
+  }
+
+  uploadNewsImage(newsId: number, file: File): Observable<{ image_url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.patch<{ image_url: string }>(`${this.apiUrl}/news/${newsId}/image`, formData);
+  }
 }

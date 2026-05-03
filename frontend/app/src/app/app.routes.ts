@@ -25,6 +25,7 @@ import { VolVerification } from './pages/auth/vol-verification/vol-verification'
 import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
 import { RequestConstructor } from './pages/constructors/request-constructor/request-constructor';
+import { NewsCreateComponent } from './pages/constructors/news-create/news-create';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -32,6 +33,7 @@ export const routes: Routes = [
   { path: 'policy-and-rules', component: PolicyAndRules },
   { path: 'events', component: Events, resolve: { data: EventsResolver } },
   { path: 'events/:id', component: EventDetailComponent },
+  { path: 'news/create', component: NewsCreateComponent, canActivate: [authGuard] },
   { path: 'news', component: NewsComponent, resolve: { data: NewsResolver } },
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
