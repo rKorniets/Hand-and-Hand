@@ -49,6 +49,12 @@ export class NewsAdminController extends AbstractCrudController<news[]> {
     });
   }
 
+  @Get('pending')
+  @ApiOperation({ summary: 'Новини на модерації' })
+  async getPending() {
+    return this.service.findPending();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Деталі новини' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
@@ -68,6 +74,18 @@ export class NewsAdminController extends AbstractCrudController<news[]> {
     @Body() data: CreateNewsDto,
   ) {
     return this.service.update(id, data);
+  }
+
+  @Patch(':id/approve')
+  @ApiOperation({ summary: 'Підтвердити новину' })
+  async approve(@Param('id', ParseIntPipe) id: number) {
+    return this.service.approve(id);
+  }
+
+  @Patch(':id/reject')
+  @ApiOperation({ summary: 'Відхилити новину' })
+  async reject(@Param('id', ParseIntPipe) id: number) {
+    return this.service.reject(id);
   }
 
   @Patch(':id/pin')
