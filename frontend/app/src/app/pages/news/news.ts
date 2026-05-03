@@ -7,6 +7,7 @@ import { NewsItem } from './news.model';
 import { NewsService } from './news.service';
 import { FiltersComponent } from '../../components/category/category';
 import { FilterConfig, FilterState } from '../../components/category/category.model';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-news',
@@ -18,6 +19,7 @@ import { FilterConfig, FilterState } from '../../components/category/category.mo
 export class NewsComponent implements OnInit {
   pinnedNews: NewsItem[] = [];
   regularNews: NewsItem[] = [];
+  isOrganization = false;
   loading = false;
   error = false;
 
@@ -42,6 +44,7 @@ export class NewsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private newsService: NewsService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -50,7 +53,9 @@ export class NewsComponent implements OnInit {
     this.pinnedNews = data.pinned;
     this.regularNews = data.regular;
     this.hasNextPage = data.regular.length === this.limit;
+    this.isOrganization = this.authService.getRole() === 'ORGANIZATION';
     this.cdr.detectChanges();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   onFiltersChanged(filters: FilterState): void {

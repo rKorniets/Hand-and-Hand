@@ -6,6 +6,9 @@
   gap: 30px;
 
   &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: $news-section-bg;
     padding: 15px 40px;
     border-radius: 40px;
@@ -87,5 +90,30 @@
     font-size: 24px;
     line-height: 1.55;
     color: rgba($text-color, 0.9);
+  }
+  &__create-btn {
+    border: 2px solid $text-color;
+    background-color: transparent;
+    outline: none;
+    padding: 12px 32px;
+    border-radius: 40px;
+    font-family: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    color: $text-color;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+
+    &:hover {
+      background-color: $text-color;
+      color: $news-section-bg;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
   }
 }
