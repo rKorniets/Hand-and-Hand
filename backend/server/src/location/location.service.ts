@@ -9,6 +9,19 @@ export class LocationService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: CreateLocationDto) {
+    if (data.lat !== undefined && data.lng !== undefined) {
+      const existingLocation = await this.prisma.location.findFirst({
+        where: {
+          lat: data.lat,
+          lng: data.lng,
+        },
+      });
+
+      if (existingLocation) {
+        return existingLocation;
+      }
+    }
+
     return this.prisma.location.create({
       data: {
         city: data.city,

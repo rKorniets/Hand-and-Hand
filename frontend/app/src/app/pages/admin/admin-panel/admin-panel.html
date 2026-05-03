@@ -107,3 +107,62 @@
     </div>
   }
 </section>
+
+<section class="pending-orgs">
+  <h2 class="pending-orgs__title">Запити на розгляді</h2>
+
+  @if (ticketsLoading) {
+    <p class="pending-orgs__status">Завантаження...</p>
+  }
+  @if (ticketsError) {
+    <p class="pending-orgs__error">{{ ticketsError }}</p>
+  }
+  @if (!ticketsLoading && tickets.length === 0) {
+    <p class="pending-orgs__status">Немає запитів що очікують підтвердження</p>
+  }
+  @if (!ticketsLoading && tickets.length > 0) {
+    <div class="pending-orgs__table-wrapper">
+      <table class="pending-orgs__table">
+        <thead>
+          <tr>
+            <th>Назва запиту</th>
+            <th>Автор</th>
+            <th>Дата подачі</th>
+            <th>Дії</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of tickets; track item.id) {
+            <tr>
+              <td>{{ item.title }}</td>
+              <td>
+                @if (item.app_user.first_name || item.app_user.last_name) {
+                  {{ item.app_user.first_name }} {{ item.app_user.last_name }}
+                } @else {
+                  {{ item.app_user.email }}
+                }
+              </td>
+              <td>{{ item.created_at | date: 'dd.MM.yyyy' }}</td>
+              <td class="pending-orgs__actions">
+                <button
+                  class="pending-orgs__btn pending-orgs__btn--approve"
+                  (click)="approveTicketAction(item.id)"
+                  [disabled]="ticketActionLoading === item.id"
+                >
+                  {{ ticketActionLoading === item.id ? '...' : 'Прийняти' }}
+                </button>
+                <button
+                  class="pending-orgs__btn pending-orgs__btn--reject"
+                  (click)="rejectTicketAction(item.id)"
+                  [disabled]="ticketActionLoading === item.id"
+                >
+                  {{ ticketActionLoading === item.id ? '...' : 'Відхилити' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

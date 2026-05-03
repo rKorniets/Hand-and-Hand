@@ -24,6 +24,7 @@ import { EventsConstructorComponent } from './pages/constructors/events-construc
 import { VolVerification } from './pages/auth/vol-verification/vol-verification';
 import { ApplicationSubmitted } from './pages/auth/application-submitted/application-submitted';
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
+import { RequestConstructor } from './pages/constructors/request-constructor/request-constructor';
 import { NewsCreateComponent } from './pages/constructors/news-create/news-create';
 
 export const routes: Routes = [
@@ -41,6 +42,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'vol-verification', component: VolVerification },
   { path: 'application-submitted', component: ApplicationSubmitted },
+  { path: 'request', component: RequestConstructor },
   { path: 'profile/admin', component: AdminProfileComponent, canActivate: [authGuard] },
   {
     path: 'profile/admin/pending-organizations',
