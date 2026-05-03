@@ -1,22 +1,91 @@
-@if (loading) {
-  <div class="loader">
-    <p>⏳ Завантаження даних адміністратора...</p>
-  </div>
-}
+<main class="admin__profile__page">
+  @if (loading) {
+    <div class="loader">
+      <div class="loader__spinner"></div>
+      <p>Завантаження профілю адміністратора...</p>
+    </div>
+  }
 
-@if (error) {
-  <div class="error-message">
-    <p>❌ {{ error }}</p>
-  </div>
-}
+  @if (error) {
+    <div class="error-message">
+      <span class="error-message__icon">!</span>
+      <p>{{ error }}</p>
+    </div>
+  }
 
-@if (profile && !loading) {
-  <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
-  <p>Email: {{ profile.email }}</p>
-  <p>Місто: {{ profile.city }}</p>
-  <p>Роль: {{ profile.role }}</p>
-  <p>Статус: {{ profile.status }}</p>
-  <a routerLink="/profile/admin/pending-organizations"> Організації на розгляді </a>
+  @if (profile && !loading) {
+    <div class="admin__profile__page__wrapper">
+      <div class="admin__profile__page__content">
+        <section class="admin__hero">
+          <div class="admin__hero__avatar">
+            {{ profile.first_name[0] }}{{ profile.last_name[0] }}
+          </div>
+          <div class="admin__hero__info">
+            <div class="admin__hero__name-row">
+              <h2 class="admin__hero__name">{{ profile.first_name }} {{ profile.last_name }}</h2>
+              <span class="admin__badge admin__badge--role">{{ profile.role }}</span>
+              <span
+                class="admin__badge"
+                [ngClass]="
+                  profile.status === 'ACTIVE' ? 'admin__badge--active' : 'admin__badge--inactive'
+                "
+              >
+                {{ profile.status }}
+              </span>
+            </div>
 
-  <button (click)="logout()">Вийти з акаунту</button>
-}
+            <div class="admin__hero__details">
+              <div class="admin__detail-row">
+                <span class="admin__detail-row__label">Дата реєстрації:</span>
+                <span class="admin__detail-row__value">{{
+                  profile.created_at | date: 'dd.MM.yyyy'
+                }}</span>
+              </div>
+              <div class="admin__detail-row">
+                <span class="admin__detail-row__label">Email:</span>
+                <span class="admin__detail-row__value">{{ profile.email }}</span>
+              </div>
+              <div class="admin__detail-row">
+                <span class="admin__detail-row__label">Місто:</span>
+                <span class="admin__detail-row__value">{{ profile.city }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="admin__profile__page__sidebar">
+        <section class="admin__card">
+          <h3 class="admin__card__title">Адмін-панель</h3>
+          <div class="admin__panel-links">
+            <a routerLink="/admin/panel" class="admin__panel-link">
+              <div class="admin__panel-link__icon admin__panel-link__icon--warn"></div>
+              <div>
+                <p class="admin__panel-link__name">Адмін-панель</p>
+                <p class="admin__panel-link__desc">Головна панель керування</p>
+              </div>
+            </a>
+            <a routerLink="/admin/panel" class="admin__panel-link">
+              <div class="admin__panel-link__icon admin__panel-link__icon--blue"></div>
+              <div>
+                <p class="admin__panel-link__name">Користувачі</p>
+                <p class="admin__panel-link__desc">Перегляд та редагування</p>
+              </div>
+            </a>
+            <a routerLink="/admin/panel" class="admin__panel-link">
+              <div class="admin__panel-link__icon admin__panel-link__icon--green"></div>
+              <div>
+                <p class="admin__panel-link__name">Звіти</p>
+                <p class="admin__panel-link__desc">Статистика платформи</p>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <div class="admin__profile__page__actions">
+          <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
+        </div>
+      </aside>
+    </div>
+  }
+</main>

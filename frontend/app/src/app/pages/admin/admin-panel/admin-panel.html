@@ -1,168 +1,183 @@
-<section class="pending-orgs">
-  <h2 class="pending-orgs__title">Організації на розгляді</h2>
-
-  @if (loading) {
-    <p class="pending-orgs__status">Завантаження...</p>
-  }
-  @if (error) {
-    <p class="pending-orgs__error">{{ error }}</p>
-  }
-  @if (!loading && items.length === 0) {
-    <p class="pending-orgs__status">Немає організацій що очікують підтвердження</p>
-  }
-  @if (!loading && items.length > 0) {
-    <div class="pending-orgs__table-wrapper">
-      <table class="pending-orgs__table">
-        <thead>
-          <tr>
-            <th>Назва</th>
-            <th>ЄДРПОУ</th>
-            <th>Email</th>
-            <th>Дата подачі</th>
-            <th>Дії</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of items; track item.id) {
-            <tr>
-              <td>{{ item.submitter.organization_profile.name }}</td>
-              <td>{{ item.submitter.organization_profile.edrpou }}</td>
-              <td>{{ item.submitter.email }}</td>
-              <td>{{ item.created_at | date: 'dd.MM.yyyy' }}</td>
-              <td class="pending-orgs__actions">
-                <button
-                  class="pending-orgs__btn pending-orgs__btn--approve"
-                  (click)="approve(item.id)"
-                  [disabled]="actionLoading === item.id"
-                >
-                  {{ actionLoading === item.id ? '...' : 'Прийняти' }}
-                </button>
-                <button
-                  class="pending-orgs__btn pending-orgs__btn--reject"
-                  (click)="reject(item.id)"
-                  [disabled]="actionLoading === item.id"
-                >
-                  {{ actionLoading === item.id ? '...' : 'Відхилити' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+<div class="admin-panel">
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Організації на розгляді</h2>
+      @if (!loading && items.length > 0) {
+        <span class="ap-section__pill">{{ items.length }} очікують</span>
+      } @else if (!loading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
     </div>
-  }
-</section>
 
-<section class="pending-orgs">
-  <h2 class="pending-orgs__title">Проєкти на розгляді</h2>
+    @if (loading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (error) {
+      <p class="ap-section__error">{{ error }}</p>
+    }
+    @if (!loading && items.length === 0) {
+      <div class="ap-section__empty">Немає організацій що очікують підтвердження</div>
+    }
+    @if (!loading && items.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва</span>
+        <span>ЄДРПОУ</span>
+        <span>Email</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of items; track item.id) {
+          <div class="ap-card">
+            <div class="ap-card__name">{{ item.submitter.organization_profile.name }}</div>
+            <div class="ap-card__secondary">{{ item.submitter.organization_profile.edrpou }}</div>
+            <div class="ap-card__email">{{ item.submitter.email }}</div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approve(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="reject(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
 
-  @if (projectsLoading) {
-    <p class="pending-orgs__status">Завантаження...</p>
-  }
-  @if (projectsError) {
-    <p class="pending-orgs__error">{{ projectsError }}</p>
-  }
-  @if (!projectsLoading && projects.length === 0) {
-    <p class="pending-orgs__status">Немає проєктів що очікують підтвердження</p>
-  }
-  @if (!projectsLoading && projects.length > 0) {
-    <div class="pending-orgs__table-wrapper">
-      <table class="pending-orgs__table">
-        <thead>
-          <tr>
-            <th>Назва проєкту</th>
-            <th>Організація</th>
-            <th>Email</th>
-            <th>Дата подачі</th>
-            <th>Дії</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of projects; track item.id) {
-            <tr class="pending-orgs__row--clickable" (click)="openProject(item.project.id)">
-              <td>{{ item.project.title }}</td>
-              <td>{{ item.submitter.organization_profile.name }}</td>
-              <td>{{ item.submitter.email }}</td>
-              <td>{{ item.created_at | date: 'dd.MM.yyyy' }}</td>
-              <td class="pending-orgs__actions" (click)="$event.stopPropagation()">
-                <button
-                  class="pending-orgs__btn pending-orgs__btn--approve"
-                  (click)="approveProject(item.id)"
-                  [disabled]="projectActionLoading === item.id"
-                >
-                  {{ projectActionLoading === item.id ? '...' : 'Прийняти' }}
-                </button>
-                <button
-                  class="pending-orgs__btn pending-orgs__btn--reject"
-                  (click)="rejectProject(item.id)"
-                  [disabled]="projectActionLoading === item.id"
-                >
-                  {{ projectActionLoading === item.id ? '...' : 'Відхилити' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Проєкти на розгляді</h2>
+      @if (!projectsLoading && projects.length > 0) {
+        <span class="ap-section__pill">{{ projects.length }} очікують</span>
+      } @else if (!projectsLoading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
     </div>
-  }
-</section>
 
-<section class="pending-orgs">
-  <h2 class="pending-orgs__title">Запити на розгляді</h2>
+    @if (projectsLoading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (projectsError) {
+      <p class="ap-section__error">{{ projectsError }}</p>
+    }
+    @if (!projectsLoading && projects.length === 0) {
+      <div class="ap-section__empty">Немає проєктів що очікують підтвердження</div>
+    }
+    @if (!projectsLoading && projects.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва проєкту</span>
+        <span>Організація</span>
+        <span>Email</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of projects; track item.id) {
+          <div
+            class="ap-card ap-card--clickable"
+            role="button"
+            tabindex="0"
+            (click)="openProject(item.project.id)"
+            (keydown.enter)="openProject(item.project.id)"
+            (keydown.space)="$event.preventDefault(); openProject(item.project.id)"
+          >
+            <div>
+              <div class="ap-card__name">{{ item.project.title }}</div>
+              <div class="ap-card__hint">Проєкт на розгляді</div>
+            </div>
+            <div class="ap-card__secondary">{{ item.submitter.organization_profile.name }}</div>
+            <div class="ap-card__email">{{ item.submitter.email }}</div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions" (click)="$event.stopPropagation()">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveProject(item.id)"
+                [disabled]="projectActionLoading === item.id"
+              >
+                {{ projectActionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectProject(item.id)"
+                [disabled]="projectActionLoading === item.id"
+              >
+                {{ projectActionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
 
-  @if (ticketsLoading) {
-    <p class="pending-orgs__status">Завантаження...</p>
-  }
-  @if (ticketsError) {
-    <p class="pending-orgs__error">{{ ticketsError }}</p>
-  }
-  @if (!ticketsLoading && tickets.length === 0) {
-    <p class="pending-orgs__status">Немає запитів що очікують підтвердження</p>
-  }
-  @if (!ticketsLoading && tickets.length > 0) {
-    <div class="pending-orgs__table-wrapper">
-      <table class="pending-orgs__table">
-        <thead>
-          <tr>
-            <th>Назва запиту</th>
-            <th>Автор</th>
-            <th>Дата подачі</th>
-            <th>Дії</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of tickets; track item.id) {
-            <tr>
-              <td>{{ item.title }}</td>
-              <td>
-                @if (item.app_user.first_name || item.app_user.last_name) {
-                  {{ item.app_user.first_name }} {{ item.app_user.last_name }}
-                } @else {
-                  {{ item.app_user.email }}
-                }
-              </td>
-              <td>{{ item.created_at | date: 'dd.MM.yyyy' }}</td>
-              <td class="pending-orgs__actions">
-                <button
-                  class="pending-orgs__btn pending-orgs__btn--approve"
-                  (click)="approveTicketAction(item.id)"
-                  [disabled]="ticketActionLoading === item.id"
-                >
-                  {{ ticketActionLoading === item.id ? '...' : 'Прийняти' }}
-                </button>
-                <button
-                  class="pending-orgs__btn pending-orgs__btn--reject"
-                  (click)="rejectTicketAction(item.id)"
-                  [disabled]="ticketActionLoading === item.id"
-                >
-                  {{ ticketActionLoading === item.id ? '...' : 'Відхилити' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Запити на розгляді</h2>
+      @if (!ticketsLoading && tickets.length > 0) {
+        <span class="ap-section__pill">{{ tickets.length }} очікують</span>
+      } @else if (!ticketsLoading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
     </div>
-  }
-</section>
+
+    @if (ticketsLoading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (ticketsError) {
+      <p class="ap-section__error">{{ ticketsError }}</p>
+    }
+    @if (!ticketsLoading && tickets.length === 0) {
+      <div class="ap-section__empty">Немає запитів що очікують підтвердження</div>
+    }
+    @if (!ticketsLoading && tickets.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва запиту</span>
+        <span>Автор</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of tickets; track item.id) {
+          <div class="ap-card">
+            <div class="ap-card__name">{{ item.title }}</div>
+            <div class="ap-card__secondary">
+              @if (item.app_user.first_name || item.app_user.last_name) {
+                {{ item.app_user.first_name }} {{ item.app_user.last_name }}
+              } @else {
+                {{ item.app_user.email }}
+              }
+            </div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveTicketAction(item.id)"
+                [disabled]="ticketActionLoading === item.id"
+              >
+                {{ ticketActionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectTicketAction(item.id)"
+                [disabled]="ticketActionLoading === item.id"
+              >
+                {{ ticketActionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>
