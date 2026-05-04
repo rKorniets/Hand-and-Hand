@@ -461,12 +461,22 @@ export class AuthService {
     role: user_role_enum;
     status: user_status_enum;
   }): Promise<string> {
-    const payload = {
+    const payload: Record<string, unknown> = {
       sub: user.id,
       email: user.email,
       role: user.role,
       status: user.status,
     };
+
+    if (user.role === user_role_enum.ORGANIZATION) {
+      const orgProfile = await this.prisma.organization_profile.findUnique({
+        where: { user_id: user.id },
+        select: { id: true },
+      });
+      if (orgProfile) {
+        payload.organization_profile_id = orgProfile.id;
+      }
+    }
 
     const secret = this.config.getOrThrow<string>('JWT_ACCESS_SECRET');
     const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
@@ -531,17 +541,6 @@ export class AuthService {
   }
 
   private async cleanupStaleRefreshTokens(userId: number) {
-    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-    const recent = await this.prisma.refresh_token.findFirst({
-      where: {
-        user_id: userId,
-        created_at: { gt: new Date(Date.now() - SEVEN_DAYS_MS) },
-      },
-      select: { id: true },
-    });
-
-    if (recent) return;
-
     await this.prisma.refresh_token.deleteMany({
       where: { user_id: userId, expires_at: { lt: new Date() } },
     });

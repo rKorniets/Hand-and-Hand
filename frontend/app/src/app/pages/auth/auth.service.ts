@@ -78,9 +78,12 @@ export class AuthService {
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
     }
-    return this.http
-      .post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken })
-      .pipe(tap((res) => this.saveTokens(res.accessToken, res.refreshToken)));
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken }).pipe(
+      tap((res) => {
+        if (this.getRefreshToken() !== refreshToken) return;
+        this.saveTokens(res.accessToken, res.refreshToken);
+      }),
+    );
   }
 
   logout() {
