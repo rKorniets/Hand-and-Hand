@@ -530,9 +530,6 @@ export class AuthService {
     return raw;
   }
 
-  // Викликається тільки з login-методів. Чистить expired-записи
-  // лише якщо у юзера немає жодного RT за останні 7 днів — тобто це перший
-  // логін після паузи. Для часто-логіненого юзера skip (свіжий RT існує).
   private async cleanupStaleRefreshTokens(userId: number) {
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
     const recent = await this.prisma.refresh_token.findFirst({
@@ -578,7 +575,6 @@ export class AuthService {
         );
       }
 
-      // Real reuse — відкликаємо всі активні RT юзера
       await this.prisma.refresh_token.updateMany({
         where: { user_id: record.user_id, revoked_at: null },
         data: { revoked_at: new Date() },
