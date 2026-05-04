@@ -50,7 +50,7 @@ psql "$env:DATABASE_URL" -f prisma/seed.sql
 | `vol-petro@demo.local`  | `VOLUNTEER`    | PetroDoer. Верифікований, 80 балів, член EcoKyiv.                                                       |
 | `user@demo.local`       | `APP_USER`     | Марія Бойко. Звичайний юзер без волонтерського/орг. профілю.                                            |
 
-> Після `POST /auth/login/*` відповідь містить **дві** токени: `accessToken` (15 хв, JWT) і `refreshToken` (7 днів, opaque hex). Фронт зберігає обидва в `localStorage` і автоматично оновлює access через `/auth/refresh` при 401. Re-seed чистить таблицю `refresh_token` теж — наявні логіни перестають працювати, треба перелогінитись.
+> Після `POST /auth/login/*` відповідь містить **два** токени: `accessToken` (15 хв, JWT) і `refreshToken` (7 днів, opaque hex). Фронт зберігає обидва в `localStorage` і автоматично оновлює access через `/auth/refresh` при 401. Re-seed чистить таблицю `refresh_token` теж — наявні логіни перестають працювати, треба перелогінитись.
 
 ---
 
