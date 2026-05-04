@@ -2,11 +2,12 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
-import { Prisma, ticket_status_enum } from '@prisma/client';
+import { Prisma, ticket_status_enum, user_role_enum } from '@prisma/client';
 
 interface LocationData {
   city: string;
@@ -135,39 +136,35 @@ export class TicketService {
     return ticket;
   }
 
-  async update(id: number, data: UpdateTicketDto) {
-    await this.findOne(id);
+  async update(id: number, data: UpdateTicketDto, userId: number) {
+    const ticket = await this.findOne(id);
 
-    return this.prisma.$transaction(async (tx) => {
-      let locationId: number | undefined;
+    if (ticket.user_id !== userId) {
+      throw new ForbiddenException('Ви можете редагувати тільки власні тікети');
+    }
 
-      if (data.location) {
-        locationId = await this.findOrCreateLocation(
-          tx,
-          data.location as LocationData,
-        );
-      }
-
-      return tx.ticket.update({
-        where: { id },
-        data: {
-          ...(data.title !== undefined && { title: data.title }),
-          ...(data.description !== undefined && {
-            description: data.description,
-          }),
-          ...(data.priority !== undefined && { priority: data.priority }),
-          ...(locationId !== undefined && {
-            location: { connect: { id: locationId } },
-          }),
-          ...(data.file_url !== undefined && { file_url: data.file_url }),
-          updated_at: new Date(),
-        },
-      });
+    return this.prisma.ticket.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
+        ...(data.priority !== undefined && { priority: data.priority }),
+        updated_at: new Date(),
+      },
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(id: number, userId: number, userRole: string) {
+    const ticket = await this.findOne(id);
+
+    if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {
+      throw new ForbiddenException(
+        'У вас немає прав на видалення цього тікету',
+      );
+    }
+
     return this.prisma.ticket.delete({ where: { id } });
   }
 }

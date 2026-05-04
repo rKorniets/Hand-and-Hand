@@ -8,7 +8,6 @@ import {
   Param,
   ParseIntPipe,
   Req,
-  ForbiddenException,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
@@ -21,6 +20,7 @@ import {
   AbstractCrudController,
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 type RequestWithUser = {
   user: {
@@ -31,6 +31,7 @@ type RequestWithUser = {
 
 @ApiTags('Tickets')
 @Controller('tickets')
+@SkipThrottle()
 export class TicketController extends AbstractCrudController<ticket> {
   constructor(private readonly service: TicketService) {
     super(service as unknown as IBaseCrudService<ticket>);
@@ -44,6 +45,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новий тікет' })
@@ -52,6 +54,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити тікет' })
@@ -60,17 +63,11 @@ export class TicketController extends AbstractCrudController<ticket> {
     @Body() data: UpdateTicketDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.id;
-    const ticket = await this.service.findOne(id);
-
-    if (!ticket || ticket.user_id !== userId) {
-      throw new ForbiddenException('Ви можете редагувати тільки власні запити');
-    }
-
-    return this.service.update(id, data);
+    return this.service.update(id, data, req.user.id);
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(
     user_role_enum.APP_USER,
@@ -82,20 +79,6 @@ export class TicketController extends AbstractCrudController<ticket> {
     @Param('id', ParseIntPipe) id: number,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.id;
-    const userRole = req.user.role;
-    const ticket = await this.service.findOne(id);
-
-    if (!ticket) {
-      throw new ForbiddenException('Тікет не знайдено');
-    }
-
-    if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {
-      throw new ForbiddenException(
-        'У вас немає прав на видалення цього запиту',
-      );
-    }
-
-    return this.service.remove(id);
+    return this.service.remove(id, req.user.id, req.user.role);
   }
 }
