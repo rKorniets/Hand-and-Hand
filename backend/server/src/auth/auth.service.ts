@@ -459,22 +459,12 @@ export class AuthService {
     role: user_role_enum;
     status: user_status_enum;
   }): Promise<string> {
-    const payload: Record<string, any> = {
+    const payload = {
       sub: user.id,
       email: user.email,
-      role: String(user.role),
-      status: String(user.status),
+      role: user.role,
+      status: user.status,
     };
-
-    if (user.role === user_role_enum.ORGANIZATION) {
-      const orgProfile = await this.prisma.organization_profile.findUnique({
-        where: { user_id: user.id },
-        select: { id: true },
-      });
-      if (orgProfile) {
-        payload.organization_profile_id = orgProfile.id;
-      }
-    }
 
     const secret = this.config.getOrThrow<string>('JWT_ACCESS_SECRET');
     const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
@@ -538,6 +528,26 @@ export class AuthService {
     return raw;
   }
 
+  // Викликається тільки з login-методів (не з refresh). Чистить expired-записи
+  // лише якщо у юзера немає жодного RT за останні 7 днів — тобто це перший
+  // логін після паузи. Для часто-логіненого юзера skip (свіжий RT існує).
+  private async cleanupStaleRefreshTokens(userId: number) {
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+    const recent = await this.prisma.refresh_token.findFirst({
+      where: {
+        user_id: userId,
+        created_at: { gt: new Date(Date.now() - SEVEN_DAYS_MS) },
+      },
+      select: { id: true },
+    });
+
+    if (recent) return;
+
+    await this.prisma.refresh_token.deleteMany({
+      where: { user_id: userId, expires_at: { lt: new Date() } },
+    });
+  }
+
   async refresh(refreshToken: string) {
     const tokenHash = this.hashRefreshToken(refreshToken);
     const record = await this.prisma.refresh_token.findUnique({
@@ -549,15 +559,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    if (record.revoked_at !== null) {
-      // Reuse detection — відкликаємо всі активні RT юзера
-      await this.prisma.refresh_token.updateMany({
-        where: { user_id: record.user_id, revoked_at: null },
-        data: { revoked_at: new Date() },
-      });
-      throw new UnauthorizedException('Refresh token has been revoked');
-    }
-
     if (record.expires_at < new Date()) {
       throw new UnauthorizedException('Refresh token expired');
     }
@@ -566,13 +567,49 @@ export class AuthService {
       throw new UnauthorizedException('User account is not active');
     }
 
+    if (record.revoked_at !== null) {
+      // B4: grace-вікно — щойно ротований токен (наприклад SPA reload під час
+      // refresh) трактуємо як retry, без reuse detection.
+      const REFRESH_GRACE_MS = 5_000;
+      const justRevokedMs = Date.now() - record.revoked_at.getTime();
+      if (justRevokedMs < REFRESH_GRACE_MS && record.replaced_by_id !== null) {
+        throw new UnauthorizedException(
+          'Refresh token recently rotated, please re-login',
+        );
+      }
+
+      // Real reuse — відкликаємо всі активні RT юзера
+      await this.prisma.refresh_token.updateMany({
+        where: { user_id: record.user_id, revoked_at: null },
+        data: { revoked_at: new Date() },
+      });
+      throw new UnauthorizedException('Refresh token has been revoked');
+    }
+
     const newRaw = crypto.randomBytes(64).toString('hex');
     const newHash = this.hashRefreshToken(newRaw);
     const newExpiresAt = new Date(Date.now() + this.getRefreshTtlMs());
-
     const accessToken = await this.signAccessToken(record.app_user);
 
+    // B2: атомарний claim старого токена. updateMany повертає count;
+    // якщо 0 — паралельний запит уже ротував цей токен (race-loss),
+    // не трактуємо як reuse, не відкликаємо інші сесії.
     await this.prisma.$transaction(async (tx) => {
+      const claim = await tx.refresh_token.updateMany({
+        where: {
+          token_hash: tokenHash,
+          revoked_at: null,
+          expires_at: { gt: new Date() },
+        },
+        data: { revoked_at: new Date() },
+      });
+
+      if (claim.count === 0) {
+        throw new UnauthorizedException(
+          'Refresh token already used, please retry',
+        );
+      }
+
       const created = await tx.refresh_token.create({
         data: {
           user_id: record.user_id,
@@ -580,9 +617,10 @@ export class AuthService {
           expires_at: newExpiresAt,
         },
       });
+
       await tx.refresh_token.update({
         where: { id: record.id },
-        data: { revoked_at: new Date(), replaced_by_id: created.id },
+        data: { replaced_by_id: created.id },
       });
     });
 

@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { catchError, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { API_BASE_URL } from '../../tokens';
@@ -78,13 +78,9 @@ export class AuthService {
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
     }
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken }).pipe(
-      tap((res) => this.saveTokens(res.accessToken, res.refreshToken)),
-      catchError((err) => {
-        this.clearTokens();
-        return throwError(() => err);
-      }),
-    );
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken })
+      .pipe(tap((res) => this.saveTokens(res.accessToken, res.refreshToken)));
   }
 
   logout() {
@@ -94,6 +90,10 @@ export class AuthService {
         .post(`${this.apiUrl}/auth/logout`, { refreshToken })
         .subscribe({ next: () => {}, error: () => {} });
     }
+    this.handleAuthFailure();
+  }
+
+  handleAuthFailure() {
     this.clearTokens();
     void this.router.navigate(['/login']);
   }

@@ -6,11 +6,10 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, filter, switchMap, take, throwError } from 'rxjs';
+import { Observable, catchError, map, shareReplay, switchMap, take, tap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
-let isRefreshing = false;
-const refreshSubject = new BehaviorSubject<string | null>(null);
+let refresh$: Observable<string> | null = null;
 
 const PUBLIC_AUTH_PATHS = [
   '/auth/login',
@@ -50,30 +49,24 @@ function handle401(
   next: HttpHandlerFn,
   auth: AuthService,
 ): Observable<HttpEvent<unknown>> {
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshSubject.next(null);
-
-    return auth.refresh().pipe(
-      switchMap((res) => {
-        isRefreshing = false;
-        refreshSubject.next(res.accessToken);
-        const retryReq = req.clone({
-          setHeaders: { Authorization: `Bearer ${res.accessToken}` },
-        });
-        return next(retryReq);
+  if (!refresh$) {
+    refresh$ = auth.refresh().pipe(
+      map((res) => res.accessToken),
+      tap({
+        complete: () => {
+          refresh$ = null;
+        },
       }),
       catchError((refreshErr) => {
-        isRefreshing = false;
-        refreshSubject.next(null);
-        auth.logout();
+        refresh$ = null;
+        auth.handleAuthFailure();
         return throwError(() => refreshErr);
       }),
+      shareReplay(1),
     );
   }
 
-  return refreshSubject.pipe(
-    filter((t): t is string => t !== null),
+  return refresh$.pipe(
     take(1),
     switchMap((newToken) => {
       const retryReq = req.clone({

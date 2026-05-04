@@ -66,22 +66,21 @@
   "sub": "<user_id>",
   "email": "<email>",
   "role": "<user_role_enum>",
-  "status": "<user_status_enum>",
-  "organization_profile_id": "<id>"  // тільки для ORGANIZATION
+  "status": "<user_status_enum>"
 }
 ```
 
 ### Ендпоїнти
 
-| Метод | Шлях                          | Опис                                                       |
-| ----- | ----------------------------- | ---------------------------------------------------------- |
-| POST  | `/auth/register/user`         | Реєстрація користувача (статус PENDING до verify-email)    |
-| POST  | `/auth/register/organization` | Реєстрація організації (статус PENDING)                    |
+| Метод | Шлях                          | Опис                                                               |
+| ----- | ----------------------------- | ------------------------------------------------------------------ |
+| POST  | `/auth/register/user`         | Реєстрація користувача (статус PENDING до verify-email)            |
+| POST  | `/auth/register/organization` | Реєстрація організації (статус PENDING)                            |
 | POST  | `/auth/login/user`            | Логін користувача/волонтера/адміна → `{accessToken, refreshToken}` |
-| POST  | `/auth/login/organization`    | Логін організації (ЄДРПОУ + password) → пара токенів       |
+| POST  | `/auth/login/organization`    | Логін організації (ЄДРПОУ + password) → пара токенів               |
 | POST  | `/auth/refresh`               | Public. Body `{refreshToken}` → нова пара токенів. Throttle 10/хв. |
-| POST  | `/auth/logout`                | Public. Body `{refreshToken}` → 204. Idempotent revoke.    |
-| GET   | `/auth/me`                    | Профіль поточного користувача                              |
+| POST  | `/auth/logout`                | Public. Body `{refreshToken}` → 204. Idempotent revoke.            |
+| GET   | `/auth/me`                    | Профіль поточного користувача                                      |
 
 ---
 
