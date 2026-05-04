@@ -21,7 +21,6 @@ import {
   AbstractCrudController,
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
-import { PaginationDto } from '../common/dto/pagination.dto';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 type RequestWithUser = {
@@ -36,7 +35,7 @@ type RequestWithUser = {
 @SkipThrottle()
 export class TicketController extends AbstractCrudController<ticket[]> {
   constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<ticket>);
+    super(service as unknown as IBaseCrudService<ticket[]>);
   }
 
   @Get(':id')
