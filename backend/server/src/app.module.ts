@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -41,6 +42,11 @@ import { NotificationModule } from './notification/notification.module';
         limit: 100,
       },
     ]),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 60000, // Кеш живе 1 хвилину
+      max: 100,
+    }),
     PrismaModule,
     AuthModule,
     NewsModule,
