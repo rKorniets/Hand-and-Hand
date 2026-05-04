@@ -226,6 +226,7 @@ export class AuthService {
       throw new ForbiddenException('Account is not active');
     }
 
+    await this.cleanupStaleRefreshTokens(user.id);
     return this.issueTokens(user);
   }
 
@@ -256,6 +257,7 @@ export class AuthService {
       throw new ForbiddenException('Акаунт організації не активний');
     }
 
+    await this.cleanupStaleRefreshTokens(user.id);
     return this.issueTokens(user);
   }
 
@@ -528,7 +530,7 @@ export class AuthService {
     return raw;
   }
 
-  // Викликається тільки з login-методів (не з refresh). Чистить expired-записи
+  // Викликається тільки з login-методів. Чистить expired-записи
   // лише якщо у юзера немає жодного RT за останні 7 днів — тобто це перший
   // логін після паузи. Для часто-логіненого юзера skip (свіжий RT існує).
   private async cleanupStaleRefreshTokens(userId: number) {
@@ -568,8 +570,6 @@ export class AuthService {
     }
 
     if (record.revoked_at !== null) {
-      // B4: grace-вікно — щойно ротований токен (наприклад SPA reload під час
-      // refresh) трактуємо як retry, без reuse detection.
       const REFRESH_GRACE_MS = 5_000;
       const justRevokedMs = Date.now() - record.revoked_at.getTime();
       if (justRevokedMs < REFRESH_GRACE_MS && record.replaced_by_id !== null) {
@@ -590,10 +590,6 @@ export class AuthService {
     const newHash = this.hashRefreshToken(newRaw);
     const newExpiresAt = new Date(Date.now() + this.getRefreshTtlMs());
     const accessToken = await this.signAccessToken(record.app_user);
-
-    // B2: атомарний claim старого токена. updateMany повертає count;
-    // якщо 0 — паралельний запит уже ротував цей токен (race-loss),
-    // не трактуємо як reuse, не відкликаємо інші сесії.
     await this.prisma.$transaction(async (tx) => {
       const claim = await tx.refresh_token.updateMany({
         where: {
