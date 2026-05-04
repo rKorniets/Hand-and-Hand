@@ -24,6 +24,7 @@ TRUNCATE TABLE
   task_category,
   task_assignment,
   task,
+  ticket_category,
   ticket,
   project_category,
   project_registration,
@@ -31,6 +32,7 @@ TRUNCATE TABLE
   report,
   news_category,
   news,
+  notification,
   organization_category,
   organization_membership_request,
   organization_profile,
@@ -38,6 +40,7 @@ TRUNCATE TABLE
   admin_profile,
   approval_request,
   password_reset_token,
+  email_verification_token,
   refresh_token,
   reward_redemption,
   reward,
@@ -122,15 +125,17 @@ SELECT setval('admin_profile_id_seq', (SELECT MAX(id) FROM admin_profile));
 -- ============================================================================
 -- 5. VOLUNTEER_PROFILE
 -- ============================================================================
-INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_text, rating, is_verified, avatar_url) VALUES
+INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_text, rating, is_verified, avatar_url, docs_url) VALUES
   (1, 4, 'AnnaHelper',  '+380671234567',
       'Допомагаю з логістикою гумдопомоги. 3 роки досвіду в волонтерстві.',
       'Логістика, водіння, психологія', 4.80, TRUE,
-      'https://i.pravatar.cc/150?img=47'),
+      'https://i.pravatar.cc/150?img=47',
+      'https://example.com/docs/anna-volunteer.pdf'),
   (2, 5, 'PetroDoer',   '+380677654321',
       'IT-волонтер, допомагаю з сайтами та автоматизацією.',
       'Розробка, дизайн, копірайтинг', 4.50, TRUE,
-      'https://i.pravatar.cc/150?img=12');
+      'https://i.pravatar.cc/150?img=12',
+      'https://example.com/docs/petro-volunteer.pdf');
 
 SELECT setval('volunteer_profile_id_seq', (SELECT MAX(id) FROM volunteer_profile));
 
@@ -166,7 +171,7 @@ INSERT INTO organization_category (organization_id, category_id) VALUES
 -- ============================================================================
 -- 8. PROJECT (події)
 -- ============================================================================
-INSERT INTO project (id, organization_profile_id, title, description, status, starts_at, ends_at, main_content, what_volunteers_will_do, why_its_important, time, application_deadline, location_id, category_id, partners, image_url) VALUES
+INSERT INTO project (id, organization_profile_id, title, description, status, starts_at, ends_at, main_content, what_volunteers_will_do, why_its_important, time, application_deadline, location_id, category_id, partners, image_url, participants) VALUES
   (1, 1, 'Прогулянка з собаками з притулку',
       'Допоможи вигуляти собак з притулку «Друг» — 2 години у суботу.',
       'ACTIVE', NOW() + INTERVAL '7 days', NOW() + INTERVAL '7 days 2 hours',
@@ -174,7 +179,7 @@ INSERT INTO project (id, organization_profile_id, title, description, status, st
       'Вигуляти 1-2 собак протягом години, погратися, дати воду.',
       'Соціалізація — критично важлива для собак що довго в притулку.',
       'Субота, 10:00 - 12:00', NOW() + INTERVAL '5 days', 1, 2,
-      'Притулок «Друг», ZooLviv', 'https://placehold.co/600x400/ffa94d/ffffff/png?text=Dogs+Walk'),
+      'Притулок «Друг», ZooLviv', 'https://placehold.co/600x400/ffa94d/ffffff/png?text=Dogs+Walk', 10),
 
   (2, 1, 'Стерилізація вуличних котів',
       'Збір волонтерів-водіїв для перевезення вуличних котів до клініки.',
@@ -183,7 +188,7 @@ INSERT INTO project (id, organization_profile_id, title, description, status, st
       'Допомогти ловити котів пастками, перевезти до клініки, повернути на місце.',
       'Контроль популяції без жорстокості.',
       'Неділя, 8:00 - 14:00', NOW() + INTERVAL '12 days', 1, 2,
-      'Ветклініка «Лапа»', 'https://placehold.co/600x400/74c0fc/ffffff/png?text=TNR'),
+      'Ветклініка «Лапа»', 'https://placehold.co/600x400/74c0fc/ffffff/png?text=TNR', 8),
 
   (3, 2, 'Прибирання Голосіївського парку',
       'Великий екосуботник — збираємо сміття в парку, отримуємо мерч.',
@@ -192,7 +197,7 @@ INSERT INTO project (id, organization_profile_id, title, description, status, st
       'Збирати сміття у мішки (інвентар надаємо), сортувати на пластик/скло/папір.',
       'Прибрана природа = більше людей хочуть проводити час на свіжому повітрі.',
       'Субота, 9:00 - 13:00', NOW() + INTERVAL '8 days', 2, 1,
-      'КП «Київзеленбуд», Plastic Free Ukraine', 'https://placehold.co/600x400/8ce99a/ffffff/png?text=Park+Cleanup'),
+      'КП «Київзеленбуд», Plastic Free Ukraine', 'https://placehold.co/600x400/8ce99a/ffffff/png?text=Park+Cleanup', 50),
 
   (4, 2, 'Висадка дерев у школі №125',
       'Висаджуємо 50 саджанців у дворі школи разом з учнями.',
@@ -201,7 +206,7 @@ INSERT INTO project (id, organization_profile_id, title, description, status, st
       'Копати ями, висаджувати дерева, поливати, проводити мініекскурсію для учнів.',
       'Діти що висадили дерево — берегтимуть його.',
       'П''ятниця, 10:00 - 15:00', NOW() + INTERVAL '19 days', 2, 3,
-      'Школа №125', 'https://placehold.co/600x400/63e6be/ffffff/png?text=Trees');
+      'Школа №125', 'https://placehold.co/600x400/63e6be/ffffff/png?text=Trees', 30);
 
 SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
 
@@ -214,12 +219,12 @@ INSERT INTO project_category (project_id, category_id) VALUES
 -- ============================================================================
 -- 9. PROJECT_REGISTRATION (записи на події)
 -- ============================================================================
-INSERT INTO project_registration (project_id, user_id, status) VALUES
-  (1, 4, 'ACCEPTED'),  -- Анна → Прогулянка
-  (1, 5, 'PENDING'),   -- Петро → Прогулянка
-  (1, 6, 'PENDING'),   -- Марія → Прогулянка
-  (3, 4, 'ACCEPTED'),  -- Анна → Прибирання парку
-  (3, 5, 'ACCEPTED');  -- Петро → Прибирання парку
+INSERT INTO project_registration (project_id, user_id, status, reviewed_at, reviewed_by) VALUES
+  (1, 4, 'ACCEPTED', NOW() - INTERVAL '2 days', 2),  -- Анна → Прогулянка (Rescue owner)
+  (1, 5, 'PENDING',  NULL,                      NULL), -- Петро → Прогулянка
+  (1, 6, 'PENDING',  NULL,                      NULL), -- Марія → Прогулянка
+  (3, 4, 'ACCEPTED', NOW() - INTERVAL '1 day',  3),  -- Анна → Прибирання парку (EcoKyiv owner)
+  (3, 5, 'ACCEPTED', NOW() - INTERVAL '1 day',  3);  -- Петро → Прибирання парку
 
 -- ============================================================================
 -- 10. NEWS (новини)
@@ -353,6 +358,30 @@ INSERT INTO points_transaction (user_id, amount, type, reason) VALUES
 INSERT INTO organization_membership_request (organization_id, user_id, direction, status) VALUES
   (1, 6, 'REQUEST', 'PENDING'),  -- Марія хоче приєднатись до Rescue
   (2, 4, 'INVITE',  'PENDING');  -- EcoKyiv запросив Анну
+
+-- ============================================================================
+-- 18. TICKET (звернення від звичайних юзерів)
+-- ============================================================================
+INSERT INTO ticket (id, user_id, title, description, status, priority, location_id) VALUES
+  (1, 6, 'Безпритульний кіт біля магазину',
+      'Біля АТБ на Дерибасівській вже тиждень живе виснажений кіт. Потрібна ветеринарна допомога.',
+      'IN_REVIEW', 'HIGH', 4);
+
+SELECT setval('ticket_id_seq', (SELECT MAX(id) FROM ticket));
+
+INSERT INTO ticket_category (ticket_id, category_id) VALUES
+  (1, 2),  -- Тварини
+  (1, 6);  -- Соціальна допомога
+
+-- ============================================================================
+-- 19. NOTIFICATION (сповіщення в інтерфейсі)
+-- ============================================================================
+INSERT INTO notification (user_id, message, is_read, type) VALUES
+  (4, 'Ваш запит на проект «Прогулянка з собаками з притулку» прийнято.', FALSE, 'PROJECT'),
+  (4, 'EcoKyiv запросив вас до організації.', FALSE, 'GENERAL'),
+  (5, 'Ваш запит на проект «Прогулянка з собаками з притулку» очікує розгляду.', TRUE, 'PROJECT'),
+  (6, 'Дякуємо за реєстрацію в Hand&Hand!', TRUE, 'GENERAL'),
+  (6, 'Ваше звернення №1 прийняте на розгляд.', FALSE, 'TICKET');
 
 COMMIT;
 
