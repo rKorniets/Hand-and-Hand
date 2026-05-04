@@ -43,7 +43,8 @@ export class ProfileOrganization implements OnInit {
 
   ngOnInit(): void {
     const userId = this.authService.getUserId();
-    this.currentUser = userId ? { id: userId } : null;    const idParam = this.route.snapshot.paramMap.get('id');
+    this.currentUser = userId ? { id: userId } : null;
+    const idParam = this.route.snapshot.paramMap.get('id');
 
     const request$ = idParam
       ? this.orgService.getOrganizationById(+idParam)
