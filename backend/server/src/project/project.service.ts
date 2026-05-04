@@ -147,6 +147,7 @@ export class ProjectService {
       return project;
     });
   }
+
   async updateImage(
     id: number,
     file: Express.Multer.File,
@@ -161,6 +162,7 @@ export class ProjectService {
     await this.prisma.project.update({ where: { id }, data: { image_url } });
     return { image_url };
   }
+
   async updateProject(
     id: number,
     data: CreateProjectDto,
@@ -282,7 +284,6 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
-
     return {
       ...project,
       registered_count: project._count.project_registration,

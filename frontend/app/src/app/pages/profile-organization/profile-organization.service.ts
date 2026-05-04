@@ -16,6 +16,14 @@ import { API_BASE_URL } from '../../tokens';
 
 const DEFAULT_LIMIT = 50;
 
+export interface UpdateOrganizationProfileDto {
+  description?: string;
+  city?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  mission?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -43,8 +51,12 @@ export class OrganizationProfileService {
     return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
   }
 
-  getOrgMembers(id: string): Observable<{ members: OrgMember[] }> {
-    return this.http.get<{ members: OrgMember[] }>(`/organization-profiles/${id}/members`);
+  updateOrganization(id: number, data: UpdateOrganizationProfileDto): Observable<Organization> {
+    return this.http.patch<Organization>(`${this.apiUrl}/organization-profiles/${id}`, data);
+  }
+
+  getOrgMembers(orgId: number): Observable<OrgMember[]> {
+    return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
   }
 
   getOrgReports(orgId: number): Observable<Report[]> {

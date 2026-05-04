@@ -9,44 +9,31 @@ import {
   ParseIntPipe,
   Req,
   ForbiddenException,
-  Query,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
 import { UpdateTicketDto } from './dto/update_ticket.dto';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { user_role_enum, ticket } from '@prisma/client';
 import {
   AbstractCrudController,
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
-import { PaginationDto } from '../common/dto/pagination.dto';
 
 type RequestWithUser = {
   user: {
-    sub: number;
+    id: number;
     role: string;
   };
 };
 
 @ApiTags('Tickets')
 @Controller('tickets')
-export class TicketController extends AbstractCrudController<ticket[]> {
+export class TicketController extends AbstractCrudController<ticket> {
   constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<ticket[]>);
-  }
-
-  @Get()
-  @Public()
-  @ApiOperation({ summary: 'Отримати список усіх тікетів' })
-  async findAll(@Query() query: PaginationDto) {
-    return this.service.findAll(
-      query.limit ?? 5,
-      query.skip ?? 0,
-      query.search,
-    );
+    super(service as unknown as IBaseCrudService<ticket>);
   }
 
   @Get(':id')
@@ -59,25 +46,27 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   @Post()
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
-  @ApiOperation({ summary: 'Створити новий тікет від волонтера' })
+  @ApiOperation({ summary: 'Створити новий тікет' })
   async create(@Body() data: CreateTicketDto, @Req() req: RequestWithUser) {
-    return this.service.create(data, req.user.sub);
+    return this.service.create(data, req.user.id);
   }
 
   @Patch(':id')
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
-  @ApiOperation({ summary: 'Оновити існуючий тікет' })
+  @ApiOperation({ summary: 'Оновити тікет' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateTicketDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     const ticket = await this.service.findOne(id);
+
     if (!ticket || ticket.user_id !== userId) {
       throw new ForbiddenException('Ви можете редагувати тільки власні запити');
     }
+
     return this.service.update(id, data);
   }
 
@@ -93,17 +82,20 @@ export class TicketController extends AbstractCrudController<ticket[]> {
     @Param('id', ParseIntPipe) id: number,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     const userRole = req.user.role;
     const ticket = await this.service.findOne(id);
+
     if (!ticket) {
       throw new ForbiddenException('Тікет не знайдено');
     }
+
     if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {
       throw new ForbiddenException(
         'У вас немає прав на видалення цього запиту',
       );
     }
+
     return this.service.remove(id);
   }
 }

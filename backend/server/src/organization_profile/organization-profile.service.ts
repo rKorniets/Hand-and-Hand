@@ -18,6 +18,7 @@ import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
   id: number;
+  role: user_role_enum;
 }
 
 @Injectable()
@@ -41,7 +42,10 @@ export class OrganizationProfileService {
       );
     }
 
-    if (profile.user_id !== currentUser.id) {
+    if (
+      currentUser.role !== user_role_enum.ADMIN &&
+      profile.user_id !== currentUser.id
+    ) {
       throw new ForbiddenException(
         "You do not have permission to edit or delete another user's profile",
       );
@@ -72,11 +76,7 @@ export class OrganizationProfileService {
 
     if (categories && categories.length > 0) {
       whereClause.organization_category = {
-        some: {
-          category: {
-            slug: { in: categories },
-          },
-        },
+        some: { category: { slug: { in: categories } } },
       };
     }
 
@@ -86,6 +86,7 @@ export class OrganizationProfileService {
         take: limit,
         skip,
         orderBy: { created_at: 'desc' },
+        include: { location: true },
       }),
       this.prisma.organization_profile.count({ where: whereClause }),
     ]);
@@ -94,7 +95,17 @@ export class OrganizationProfileService {
   }
 
   async getOrganizationProfileById(id: number) {
-    return this.prisma.organization_profile.findUnique({ where: { id } });
+    return this.prisma.organization_profile.findUnique({
+      where: { id },
+      include: { location: true },
+    });
+  }
+
+  async getOrganizationProfileByUserId(userId: number) {
+    return this.prisma.organization_profile.findUnique({
+      where: { user_id: userId },
+      include: { location: true },
+    });
   }
 
   async createOrganizationProfile(
@@ -115,6 +126,7 @@ export class OrganizationProfileService {
         mission: data.mission,
         logo_url: data.logo_url,
       },
+      include: { location: true },
     });
   }
 
@@ -137,8 +149,30 @@ export class OrganizationProfileService {
         location_id: data.location_id,
         mission: data.mission,
       },
+      include: { location: true },
     });
   }
+
+  async updateOrganizationProfilePartial(
+    id: number,
+    data: {
+      description?: string;
+      city?: string;
+      contact_phone?: string;
+      contact_email?: string;
+      mission?: string;
+    },
+    currentUser: RequestUser,
+  ) {
+    await this.validateOrganizationOwnership(id, currentUser);
+
+    return this.prisma.organization_profile.update({
+      where: { id },
+      data,
+      include: { location: true },
+    });
+  }
+
   async updateLogo(
     id: number,
     file: Express.Multer.File,
@@ -156,6 +190,7 @@ export class OrganizationProfileService {
     });
     return { logo_url };
   }
+
   async deleteOrganizationProfile(id: number, currentUser: RequestUser) {
     const existing = await this.validateOrganizationOwnership(id, currentUser);
     if (existing.logo_url) await this.cloudinary.deleteImage(existing.logo_url);
@@ -200,12 +235,6 @@ export class OrganizationProfileService {
     });
   }
 
-  async getOrganizationProfileByUserId(userId: number) {
-    return this.prisma.organization_profile.findUnique({
-      where: { user_id: userId },
-    });
-  }
-
   async createMembershipRequest(orgId: number, currentUser: RequestUser) {
     const organization = await this.prisma.organization_profile.findUnique({
       where: { id: orgId },
@@ -238,7 +267,7 @@ export class OrganizationProfileService {
 
     if (user?.organization_id) {
       throw new ConflictException(
-        'You already belong to an organization. Leave it before joining another.', // meow <3
+        'You already belong to an organization. Leave it before joining another.',
       );
     }
 
@@ -266,7 +295,6 @@ export class OrganizationProfileService {
             orgId,
           );
         }
-
         throw new ConflictException(
           'You already have a pending request for this organization',
         );
@@ -298,8 +326,6 @@ export class OrganizationProfileService {
     orgId: number,
   ) {
     return this.prisma.$transaction(async (tx) => {
-      // Conditional update — захист від гонки: якщо між попередніми перевірками
-      // і цією транзакцією юзер встиг приєднатись до іншої орг, updateMany поверне 0.
       const userUpdate = await tx.app_user.updateMany({
         where: { id: userId, organization_id: null },
         data: { organization_id: orgId },
@@ -442,17 +468,12 @@ export class OrganizationProfileService {
       select: { id: true, role: true, organization_id: true },
     });
 
-    if (!target) {
+    if (!target)
       throw new NotFoundException(`User with ID ${targetUserId} not found`);
-    }
-
-    if (target.role !== user_role_enum.VOLUNTEER) {
+    if (target.role !== user_role_enum.VOLUNTEER)
       throw new BadRequestException('Only volunteers can be invited');
-    }
-
-    if (target.organization_id) {
+    if (target.organization_id)
       throw new ConflictException('User already belongs to an organization');
-    }
 
     const existing =
       await this.prisma.organization_membership_request.findUnique({
@@ -478,7 +499,6 @@ export class OrganizationProfileService {
             orgId,
           );
         }
-
         throw new ConflictException('Invitation already sent to this user');
       }
 
@@ -538,9 +558,7 @@ export class OrganizationProfileService {
         status: organization_membership_request_status_enum.PENDING,
       },
       include: {
-        organization: {
-          select: { id: true, name: true, description: true },
-        },
+        organization: { select: { id: true, name: true, description: true } },
       },
       orderBy: { created_at: 'desc' },
     });

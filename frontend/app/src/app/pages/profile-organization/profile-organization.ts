@@ -32,7 +32,7 @@ export class ProfileOrganization implements OnInit {
   organization: Organization | null = null;
   location: OrgLocation | undefined;
   reports: Report[] = [];
-  currentUser: { id: number } | null = null;
+  isOwner = false;
 
   constructor(
     private orgService: OrganizationProfileService,
@@ -45,6 +45,7 @@ export class ProfileOrganization implements OnInit {
     const userId = this.authService.getUserId();
     this.currentUser = userId ? { id: userId } : null;
     const idParam = this.route.snapshot.paramMap.get('id');
+    this.isOwner = !idParam;
 
     const request$ = idParam
       ? this.orgService.getOrganizationById(+idParam)

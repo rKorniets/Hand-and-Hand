@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 })
 export class NewsContentComponent {
   private _items: NewsItem[] = [];
+  @Input() showCreateButton = false;
 
   @Input()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -43,6 +43,7 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateOrganizationProfileDto } from './dto/update-organization-profile.dto';
 
 @ApiTags('Organization Profiles')
 @Controller('organization-profiles')
@@ -60,13 +61,13 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     name: 'verification_status',
     required: false,
     enum: verification_status_enum,
-    description: 'Статус верифікації',
+    description: 'Filter organizations by verification status',
   })
   @ApiQuery({
     name: 'categories',
     required: false,
     type: [String],
-    description: 'Масив slugs категорій',
+    description: 'Filter organizations by one or more categories',
   })
   async getOrganizationProfiles(
     @Query() query: PaginationDto,
@@ -110,13 +111,29 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   @Put(':id')
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Оновити профіль організації' })
+  @ApiOperation({ summary: 'Оновити профіль організації (повністю)' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateOrganizationProfileDto,
     @CurrentUser() currentUser: RequestUser,
   ) {
     return this.organizationProfileService.updateOrganizationProfileFull(
+      id,
+      data,
+      currentUser,
+    );
+  }
+
+  @Patch(':id')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
+  @ApiOperation({ summary: 'Оновити профіль організації (частково)' })
+  async updatePartial(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateOrganizationProfileDto,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.organizationProfileService.updateOrganizationProfilePartial(
       id,
       data,
       currentUser,
@@ -256,8 +273,6 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     );
   }
 
-  // Static "me/..." routes MUST be declared BEFORE ":id/..." routes,
-  // otherwise Express matches "me" against ":id" and ParseIntPipe throws 400.
   @Get('me/invitations')
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
@@ -321,8 +336,6 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     );
   }
 
-  // Static ":id/members/me" MUST be declared BEFORE ":id/members/:userId"
-  // so "me" isn't captured as userId and rejected by ParseIntPipe.
   @Delete(':id/members/me')
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
@@ -358,6 +371,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
       userId,
     );
   }
+
   @Patch(':id/logo')
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)

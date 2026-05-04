@@ -3,7 +3,7 @@
     <div class="user__profile__page__content">
       @if (organization) {
         <section>
-          <app-main-info [organization]="organization" />
+          <app-main-info [organization]="organization" [location]="location ?? null" />
         </section>
 
         <section>
@@ -25,7 +25,7 @@
     <aside class="user__profile__page__sidebar">
       @if (organization) {
         <section>
-          <app-org-data [organization]="organization"></app-org-data>
+          <app-org-data [organization]="organization" [isOwner]="isOwner"></app-org-data>
         </section>
 
         @if (currentUser && currentUser.id === organization.user_id) {

@@ -34,7 +34,14 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/register/user`, data);
   }
 
-  registerOrganization(data: { name: string; code: string; email: string; password: string }) {
+  registerOrganization(data: {
+    name: string;
+    edrpou: string;
+    city: string;
+    address: string;
+    email: string;
+    password: string;
+  }) {
     return this.http.post(`${this.apiUrl}/auth/register/organization`, data);
   }
 
