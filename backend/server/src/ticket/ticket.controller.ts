@@ -21,6 +21,7 @@ import {
   AbstractCrudController,
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 type RequestWithUser = {
   user: {
@@ -31,9 +32,10 @@ type RequestWithUser = {
 
 @ApiTags('Tickets')
 @Controller('tickets')
-export class TicketController extends AbstractCrudController<ticket> {
+@SkipThrottle()
+export class TicketController extends AbstractCrudController<ticket[]> {
   constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<ticket>);
+    super(service as unknown as IBaseCrudService<ticket[]>);
   }
 
   @Get(':id')
@@ -44,6 +46,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новий тікет' })
@@ -52,6 +55,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити тікет' })
@@ -71,6 +75,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(
     user_role_enum.APP_USER,

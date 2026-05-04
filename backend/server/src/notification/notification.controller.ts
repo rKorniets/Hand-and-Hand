@@ -14,9 +14,11 @@ import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Notifications')
 @Controller('notifications')
+@SkipThrottle()
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
@@ -35,6 +37,7 @@ export class NotificationController {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити сповіщення (тільки адмін)' })
@@ -43,6 +46,7 @@ export class NotificationController {
   }
 
   @Patch(':id/read')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Позначити сповіщення як прочитане' })
   async markAsRead(
@@ -53,6 +57,7 @@ export class NotificationController {
   }
 
   @Patch('read-all')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Позначити всі сповіщення як прочитані' })
   async markAllAsRead(@CurrentUser() user: { id: number }) {
@@ -60,6 +65,7 @@ export class NotificationController {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Видалити сповіщення' })
   async delete(
