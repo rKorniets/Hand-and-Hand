@@ -22,7 +22,7 @@ import {
   ApiBody,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';

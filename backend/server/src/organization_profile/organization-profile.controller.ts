@@ -23,7 +23,6 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   user_role_enum,
