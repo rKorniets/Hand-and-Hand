@@ -156,7 +156,7 @@ export class TicketService {
     });
   }
 
-  async remove(id: number, userId: number, userRole: string) {
+  async remove(id: number, userId: number, userRole: user_role_enum) {
     const ticket = await this.findOne(id);
 
     if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {

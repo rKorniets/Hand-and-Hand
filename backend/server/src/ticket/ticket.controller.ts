@@ -25,19 +25,19 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 type RequestWithUser = {
   user: {
     id: number;
-    role: string;
+    role: user_role_enum;
   };
 };
 
 @ApiTags('Tickets')
 @Controller('tickets')
-@SkipThrottle()
 export class TicketController extends AbstractCrudController<ticket> {
   constructor(private readonly service: TicketService) {
     super(service as unknown as IBaseCrudService<ticket>);
   }
 
   @Get(':id')
+  @SkipThrottle()
   @Public()
   @ApiOperation({ summary: 'Отримати деталі тікету за ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
