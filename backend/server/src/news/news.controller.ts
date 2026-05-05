@@ -33,9 +33,11 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { GetNewsDto } from './dto/get-news.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('News')
 @Controller('news')
+@SkipThrottle()
 export class NewsController extends AbstractCrudController<unknown> {
   constructor(private readonly newsService: NewsService) {
     super(newsService as unknown as IBaseCrudService<unknown>);
@@ -67,6 +69,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новину' })
@@ -78,6 +81,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити новину (тільки автор)' })
@@ -90,6 +94,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити новину (тільки автор)' })
@@ -101,6 +106,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   }
 
   @Patch(':id/image')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Завантажити/замінити зображення новини' })
