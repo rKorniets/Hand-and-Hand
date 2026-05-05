@@ -67,7 +67,9 @@ export class AdminService {
   }
 
   getPendingNews() {
-    return this.http.get<PendingNews[]>(`${this.apiUrl}/admin/news/pending${this.getNoCacheParam()}`);
+    return this.http.get<PendingNews[]>(
+      `${this.apiUrl}/admin/news/pending${this.getNoCacheParam()}`,
+    );
   }
 
   approveNews(newsId: number) {
