@@ -25,9 +25,11 @@ import {
   type IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Tasks')
 @Controller('tasks')
+@SkipThrottle()
 export class TaskController extends AbstractCrudController<task[]> {
   constructor(private readonly service: TaskService) {
     super({
@@ -61,6 +63,7 @@ export class TaskController extends AbstractCrudController<task[]> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити нову задачу' })
@@ -72,6 +75,7 @@ export class TaskController extends AbstractCrudController<task[]> {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити існуючу задачу' })
@@ -84,6 +88,7 @@ export class TaskController extends AbstractCrudController<task[]> {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити задачу' })

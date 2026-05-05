@@ -45,10 +45,12 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { UpdateOrganizationProfileDto } from './dto/update-organization-profile.dto';
 
 @ApiTags('Organization Profiles')
 @Controller('organization-profiles')
+@SkipThrottle()
 export class OrganizationProfileController extends AbstractCrudController<unknown> {
   constructor(
     private readonly organizationProfileService: OrganizationProfileService,
@@ -103,6 +105,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити профіль організації' })
@@ -117,6 +120,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити профіль організації (повністю)' })
@@ -149,6 +153,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Видалити профіль організації' })
@@ -203,6 +208,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Post(':id/membership-requests')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
@@ -245,6 +251,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Patch(':id/membership-requests/:requestId/accept')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Прийняти заявку на вступ' })
@@ -261,6 +268,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Patch(':id/membership-requests/:requestId/reject')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Відхилити заявку на вступ' })
@@ -277,6 +285,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Post(':id/invitations')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
@@ -302,6 +311,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Patch('me/invitations/:invitationId/accept')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Прийняти запрошення' })
@@ -316,6 +326,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Patch('me/invitations/:invitationId/reject')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Відхилити запрошення' })
@@ -357,6 +368,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Delete(':id/members/me')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Вийти з організації' })
@@ -368,6 +380,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Delete(':id/members/:userId')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити учасника з організації' })
@@ -396,6 +409,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   }
 
   @Patch(':id/logo')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Завантажити/замінити логотип організації' })

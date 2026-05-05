@@ -40,9 +40,11 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Projects')
 @Controller('projects')
+@SkipThrottle()
 export class ProjectController extends AbstractCrudController<project[]> {
   constructor(private readonly projectService: ProjectService) {
     super({
@@ -74,6 +76,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити подію' })
@@ -85,6 +88,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити подію' })
@@ -97,6 +101,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити подію' })
@@ -118,6 +123,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Post(':id/register')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Записатися на подію' })
   async register(
@@ -128,6 +134,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Delete(':id/register')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
   async unregister(
@@ -185,6 +192,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Patch(':id/registrations/:registrationId/accept')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Прийняти заявку на участь у проекті' })
@@ -201,6 +209,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Patch(':id/registrations/:registrationId/reject')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Відхилити заявку на участь у проекті' })
@@ -217,6 +226,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   }
 
   @Patch(':id/image')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Завантажити/замінити зображення проєкту' })

@@ -44,6 +44,7 @@ import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.
 
 @ApiTags('Fundraising Campaigns')
 @Controller('fundraising_campaigns')
+@SkipThrottle()
 export class FundraisingCampaignController extends AbstractCrudController<unknown> {
   constructor(private readonly service: FundraisingCampaignService) {
     super(service as unknown as IBaseCrudService<unknown>);
@@ -101,6 +102,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити збір' })
@@ -112,6 +114,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити збір' })
@@ -124,6 +127,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити збір' })
@@ -135,6 +139,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   }
 
   @Post(':id/donations')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Зробити донат на конкретний збір' })
@@ -151,6 +156,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
   }
 
   @Patch(':id/image')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Завантажити/замінити зображення збору' })

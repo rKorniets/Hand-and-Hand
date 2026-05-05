@@ -32,9 +32,11 @@ import {
   type IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Reports')
 @Controller('reports')
+@SkipThrottle()
 export class ReportController extends AbstractCrudController<report[]> {
   constructor(private readonly service: ReportService) {
     super({
@@ -74,6 +76,7 @@ export class ReportController extends AbstractCrudController<report[]> {
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Створити новий звіт' })
@@ -85,6 +88,7 @@ export class ReportController extends AbstractCrudController<report[]> {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Оновити існуючий звіт' })
@@ -97,6 +101,7 @@ export class ReportController extends AbstractCrudController<report[]> {
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Замінити звіт повністю' })
@@ -109,6 +114,7 @@ export class ReportController extends AbstractCrudController<report[]> {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Видалити звіт' })

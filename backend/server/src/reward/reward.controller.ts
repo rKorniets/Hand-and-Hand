@@ -8,9 +8,11 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { reward } from '@prisma/client';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Нагороди (Rewards)')
 @Controller('rewards')
+@SkipThrottle()
 export class RewardController extends AbstractCrudController<reward[]> {
   constructor(private readonly service: RewardService) {
     super({
