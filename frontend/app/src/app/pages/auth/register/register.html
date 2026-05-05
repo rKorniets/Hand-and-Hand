@@ -4,28 +4,42 @@
       <h1 class="register__title">Реєстрація</h1>
     </div>
 
-    <div class="register__tabs">
-      <button
-        class="register__tab"
-        [class.register__tab--active]="activeTab === 'user'"
-        (click)="setTab('user')"
-      >
-        Користувач
-      </button>
-      <button
-        class="register__tab"
-        [class.register__tab--active]="activeTab === 'org'"
-        (click)="setTab('org')"
-      >
-        Організація
-      </button>
-    </div>
+    @if (!success) {
+      <div class="register__tabs">
+        <button
+          class="register__tab"
+          [class.register__tab--active]="activeTab === 'user'"
+          (click)="setTab('user')"
+        >
+          Користувач
+        </button>
+        <button
+          class="register__tab"
+          [class.register__tab--active]="activeTab === 'org'"
+          (click)="setTab('org')"
+        >
+          Організація
+        </button>
+      </div>
+    }
 
     @if (error) {
       <p class="register__error">{{ error }}</p>
     }
 
-    @if (activeTab === 'user') {
+    @if (success) {
+      <div class="register__success">
+        <h2 class="register__success-title">✉️ Підтвердіть пошту</h2>
+        <p class="register__success-text">
+          Ми надіслали листа на <strong>{{ successEmail }}</strong
+          >.<br />
+          Перейдіть за посиланням у листі щоб активувати акаунт.
+        </p>
+        <a class="register__success-link" routerLink="/login">Перейти на вхід</a>
+      </div>
+    }
+
+    @if (!success && activeTab === 'user') {
       <form class="register__form" [formGroup]="userForm" (ngSubmit)="onSubmit()">
         <div class="register__row">
           <div class="register__field">
@@ -130,7 +144,7 @@
       </form>
     }
 
-    @if (activeTab === 'org') {
+    @if (!success && activeTab === 'org') {
       <form class="register__form" [formGroup]="orgForm" (ngSubmit)="onSubmit()">
         <div class="register__field">
           <div
