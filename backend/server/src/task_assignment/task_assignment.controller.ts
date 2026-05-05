@@ -27,10 +27,12 @@ import {
   type IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Task Assignments')
 @ApiBearerAuth()
 @Controller('task-assignments')
+@SkipThrottle()
 export class TaskAssignmentController extends AbstractCrudController<
   task_assignment[]
 > {
@@ -48,6 +50,7 @@ export class TaskAssignmentController extends AbstractCrudController<
   }
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({
     summary: 'Створити призначення на завдання (Взяти в роботу)',
@@ -100,6 +103,7 @@ export class TaskAssignmentController extends AbstractCrudController<
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити статус або додати коментар' })
   update(
@@ -115,6 +119,7 @@ export class TaskAssignmentController extends AbstractCrudController<
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Roles(user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити призначення (Відмовитись від завдання)' })
   remove(

@@ -26,6 +26,7 @@ import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 export interface AuthUser {
   id: number;
@@ -34,6 +35,7 @@ export interface AuthUser {
 
 @ApiTags('App Users')
 @Controller('app-users')
+@SkipThrottle()
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
@@ -46,6 +48,7 @@ export class AppUserController {
   }
 
   @Patch('me')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Оновити свій профіль (включно з аватаром)' })
@@ -61,6 +64,7 @@ export class AppUserController {
   }
 
   @Post('me/avatar')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Завантажити/замінити аватар' })
@@ -80,6 +84,7 @@ export class AppUserController {
   }
 
   @Delete('me/avatar')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Видалити аватар поточного користувача' })
@@ -93,6 +98,7 @@ export class AppUserController {
   }
 
   @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Оновити дані користувача' })
@@ -105,6 +111,7 @@ export class AppUserController {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Видалити користувача' })
