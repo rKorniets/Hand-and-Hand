@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Req,
+  Put,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
@@ -66,7 +67,18 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   ) {
     return this.service.update(id, data, req.user.id);
   }
-
+  @Put(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
+  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Повне оновлення тікету' })
+  async updateFull(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: CreateTicketDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.service.updateFull(id, data, req.user.id);
+  }
   @Delete(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
