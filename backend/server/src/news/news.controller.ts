@@ -19,6 +19,7 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { Public } from '../auth/decorators/public.decorator';
@@ -43,6 +44,9 @@ export class NewsController extends AbstractCrudController<unknown> {
 
   @Get()
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список новин' })
   async findAll(@Query() query: GetNewsDto) {
     return this.newsService.getNews(
@@ -55,6 +59,9 @@ export class NewsController extends AbstractCrudController<unknown> {
 
   @Get(':id')
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати новину за ID' })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.newsService.getNewsById(id);
@@ -96,6 +103,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   ) {
     return this.newsService.deleteNews(id, { id: user.id });
   }
+
   @Patch(':id/image')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()

@@ -22,7 +22,8 @@ import {
   ApiBody,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { FundraisingCampaignService } from './fundraising_campaign.service';
 import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.dto';
 import { CreateDonationDto } from './dto/create-donation.dto';
@@ -51,6 +52,9 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
 
   @Get()
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список зборів' })
   @ApiQuery({
     name: 'status',
@@ -86,12 +90,17 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       categories,
     );
   }
+
   @Get(':id')
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати деталі конкретного збору' })
   findOne(@Param('id') id: string) {
     return this.service.findOne(+id);
   }
+
   @Post()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
@@ -145,6 +154,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       dto.message,
     );
   }
+
   @Patch(':id/image')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()

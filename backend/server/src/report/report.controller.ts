@@ -10,7 +10,10 @@ import {
   ParseIntPipe,
   Query,
   ParseEnumPipe,
+  UseInterceptors,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
@@ -44,6 +47,9 @@ export class ReportController extends AbstractCrudController<report[]> {
 
   @Get()
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список звітів' })
   @ApiQuery({ name: 'type', enum: report_type_enum, required: false })
   async getReports(
@@ -61,6 +67,9 @@ export class ReportController extends AbstractCrudController<report[]> {
 
   @Get(':id')
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати звіт за ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
