@@ -26,7 +26,7 @@ export class FundraisingCampaignsUser implements OnInit {
   ngOnInit(): void {
     if (this.fundraisingCampaignItem.length === 0) {
       this.profileService.getFundraisingCampaigns().subscribe({
-        next: (data) => (this.fundraisingCampaignItem = data),
+        next: (res) => (this.fundraisingCampaignItem = res.data),
         error: (err) => console.error(err),
       });
     }

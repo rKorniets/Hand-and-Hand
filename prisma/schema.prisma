@@ -190,6 +190,8 @@ model project_registration {
   app_user                  app_user                         @relation(fields: [user_id], references: [id], onDelete: Cascade)
   reviewer                  app_user?                        @relation("project_registration_reviewer", fields: [reviewed_by], references: [id], onUpdate: NoAction, map: "fk_project_registration_reviewer")
   notification_organization notification_organization[]
+  attempt_count             Int                              @default(1)
+
 
   @@unique([project_id, user_id], map: "uq_project_registration")
   @@index([project_id])

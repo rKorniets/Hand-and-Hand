@@ -33,6 +33,7 @@ export class ProfileOrganization implements OnInit {
   location: OrgLocation | undefined;
   reports: Report[] = [];
   isOwner = false;
+  currentUser: { id: string | number } | null = null;
 
   constructor(
     private orgService: OrganizationProfileService,
@@ -44,6 +45,7 @@ export class ProfileOrganization implements OnInit {
   ngOnInit(): void {
     const userId = this.authService.getUserId();
     this.currentUser = userId ? { id: userId } : null;
+
     const idParam = this.route.snapshot.paramMap.get('id');
     this.isOwner = !idParam;
 

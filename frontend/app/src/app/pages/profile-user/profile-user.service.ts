@@ -4,6 +4,11 @@ import { HttpClient } from '@angular/common/http';
 import { ITicket, ActivityItem, FundraisingCampaign, Reward, AppUser } from './profile-user.model';
 import { API_BASE_URL } from '../../tokens';
 
+export interface FundraisingCampaignResponse {
+  data: FundraisingCampaign[];
+  total: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
   constructor(
@@ -14,6 +19,7 @@ export class UserProfileService {
   getUser(): Observable<AppUser> {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/me`);
   }
+
   getUserById(id: number): Observable<AppUser> {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/${id}`);
   }
@@ -34,7 +40,7 @@ export class UserProfileService {
     return this.http.get<ActivityItem[]>(`${this.apiUrl}/app-users/activities`);
   }
 
-  getFundraisingCampaigns(): Observable<FundraisingCampaign[]> {
-    return this.http.get<FundraisingCampaign[]>(`${this.apiUrl}/fundraising_campaigns`);
+  getFundraisingCampaigns(): Observable<FundraisingCampaignResponse> {
+    return this.http.get<FundraisingCampaignResponse>(`${this.apiUrl}/fundraising_campaigns`);
   }
 }

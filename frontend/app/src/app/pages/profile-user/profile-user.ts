@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
-
+import { user_role_enum } from '@prisma/client';
 import { MainInfo } from './main-info/main-info';
 import { Activity } from './activity/activity';
 import { Requests } from './requests/requests';
@@ -34,7 +34,7 @@ import { Message } from './message/message';
 export class ProfileUserComponent implements OnInit, OnDestroy {
   user: AppUser | null = null;
   private routeSub: Subscription | null = null;
-
+  protected readonly UserRole = user_role_enum;
   constructor(
     private profileUserService: UserProfileService,
     private cdr: ChangeDetectorRef,
@@ -89,6 +89,6 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
   }
   get isOwnProfile(): boolean {
     const paramId = this.route.snapshot.paramMap.get('id');
-    return !paramId || +paramId === this.authService.getUserId();
+    return !paramId || parseInt(paramId, 10) === this.authService.getUserId();
   }
 }

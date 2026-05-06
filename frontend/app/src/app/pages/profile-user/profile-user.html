@@ -44,7 +44,7 @@
 
         @if (isOwnProfile) {
           <div class="user__profile__page__actions">
-            @if (user.role !== 'VOLUNTEER') {
+            @if (user.role !== UserRole.VOLUNTEER) {
               <a class="verify-button" routerLink="/vol-verification">Верифікуватись</a>
             }
           </div>
