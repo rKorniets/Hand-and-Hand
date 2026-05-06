@@ -346,7 +346,6 @@ export class ProjectService {
       where: { id: userId },
       select: { first_name: true, last_name: true },
     });
-
     const fullName =
       `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim();
 
@@ -387,16 +386,36 @@ export class ProjectService {
             attempt_count: existingRegistration.attempt_count + 1,
           },
         });
-        await tx.notification_organization.create({
-          data: {
-            organization_id: project.organization_profile_id,
-            message: `${fullName} подав(ла) заявку на проєкт "${project.title}"`,
-            type: notification_organization_type_enum.REGISTRATION,
-            project_id: projectId,
-            actor_id: userId,
-            entity_id: registration.id,
-          },
-        });
+
+        const existingNotification =
+          await tx.notification_organization.findFirst({
+            where: {
+              entity_id: registration.id,
+              type: notification_organization_type_enum.REGISTRATION,
+            },
+          });
+
+        if (!existingNotification || existingNotification.is_read) {
+          await tx.notification_organization.create({
+            data: {
+              organization_id: project.organization_profile_id,
+              message: `${fullName} повторно подав(ла) заявку на проєкт "${project.title}"`,
+              type: notification_organization_type_enum.REGISTRATION,
+              project_id: projectId,
+              actor_id: userId,
+              entity_id: registration.id,
+            },
+          });
+        } else {
+          await tx.notification_organization.update({
+            where: { id: existingNotification.id },
+            data: {
+              message: `${fullName} повторно подав(ла) заявку на проєкт "${project.title}"`,
+              expires_at: null,
+            },
+          });
+        }
+
         return registration;
       });
     } catch (error) {
@@ -417,9 +436,7 @@ export class ProjectService {
       where: { project_id: projectId, user_id: userId },
     });
 
-    if (!registration) {
-      throw new NotFoundException('Реєстрація не знайдена');
-    }
+    if (!registration) throw new NotFoundException('Реєстрація не знайдена');
 
     if (registration.status !== project_registration_status_enum.PENDING) {
       throw new BadRequestException(
@@ -427,12 +444,60 @@ export class ProjectService {
       );
     }
 
-    return this.prisma.project_registration.update({
-      where: { id: registration.id },
-      data: { status: project_registration_status_enum.CANCELLED },
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: userId },
+      select: { first_name: true, last_name: true },
+    });
+    const fullName =
+      `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim();
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { title: true, organization_profile_id: true },
+    });
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.project_registration.update({
+        where: { id: registration.id },
+        data: { status: project_registration_status_enum.CANCELLED },
+      });
+
+      const existingNotification = await tx.notification_organization.findFirst(
+        {
+          where: {
+            entity_id: registration.id,
+            type: notification_organization_type_enum.REGISTRATION,
+          },
+        },
+      );
+
+      if (!existingNotification || existingNotification.is_read) {
+        await tx.notification_organization.create({
+          data: {
+            organization_id: project!.organization_profile_id,
+            message: `${fullName} скасував(ла) заявку на проєкт "${project?.title}"`,
+            type: notification_organization_type_enum.REGISTRATION,
+            project_id: projectId,
+            actor_id: userId,
+            entity_id: registration.id,
+          },
+        });
+      } else {
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        await tx.notification_organization.update({
+          where: { id: existingNotification.id },
+          data: {
+            message: `${fullName} скасував(ла) заявку на проєкт "${project?.title}"`,
+            expires_at: expiresAt,
+          },
+        });
+      }
+
+      return updated;
     });
   }
-
   async getProjectRegistrations(projectId: number) {
     return this.prisma.project_registration.findMany({
       where: {
@@ -469,6 +534,10 @@ export class ProjectService {
       throw new NotFoundException(
         `Registration with ID ${registrationId} not found`,
       );
+    }
+
+    if (registration.status === project_registration_status_enum.CANCELLED) {
+      throw new BadRequestException('Користувач скасував реєстрацію');
     }
 
     if (registration.status !== project_registration_status_enum.PENDING) {

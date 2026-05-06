@@ -15,6 +15,7 @@ import { UserProfileService } from '../profile-user.service';
 export class FundraisingCampaignsUser implements OnInit {
   @Input() user: AppUser | undefined;
   @Input() fundraisingCampaignItem: FundraisingCampaign[] = [];
+  @Input() isOwnProfile: boolean = false;
 
   isExpanded: boolean = false;
 

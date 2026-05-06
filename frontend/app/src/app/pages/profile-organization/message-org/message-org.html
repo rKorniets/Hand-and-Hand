@@ -43,7 +43,7 @@
           <span class="message-org__notification-text">{{ n.message }}</span>
         </div>
 
-        @if (n.type === 'REGISTRATION' && n.registration_data) {
+        @if (n.type === NotificationType.REGISTRATION && n.registration_data) {
           <div class="message-org__notification-logic" (click)="$event.stopPropagation()">
             @if (n.registration_data.status === RegistrationStatus.PENDING) {
               <div class="message-org__notification-actions">

@@ -16,6 +16,7 @@ import {
 } from '../profile-organization.model';
 import { NotificationService, NotificationResponse } from './message-org.service';
 import { OrganizationProfileService } from '../profile-organization.service';
+import { notification_organization_type_enum } from '@prisma/client';
 
 @Component({
   selector: 'app-message-org',
@@ -28,6 +29,7 @@ import { OrganizationProfileService } from '../profile-organization.service';
 export class MessageOrg implements OnInit, OnDestroy {
   @Input() organization?: Organization;
   public readonly RegistrationStatus = ProjectRegistrationStatus;
+  public readonly NotificationType = notification_organization_type_enum;
 
   isPanelOpen = false;
   isHovered = false;
@@ -44,20 +46,22 @@ export class MessageOrg implements OnInit, OnDestroy {
   ) {}
 
   handleNotificationClick(n: OrgNotification) {
-    const isPendingRegistration =
-      n.type === 'REGISTRATION' && n.registration_data?.status === this.RegistrationStatus.PENDING;
-    const userId = n.user_id || n.registration_data?.user_id;
-
-    if (userId) {
-      this.router.navigate(['/profile-user', userId]).then(() => {
-        this.isPanelOpen = false;
-        this.cdr.markForCheck();
-      });
+    if (this.clickTimer) {
+      clearTimeout(this.clickTimer);
+      this.clickTimer = null;
+      if (!n.is_read) this.markAsRead(n.id);
+      return;
     }
-
-    if (!n.is_read && !isPendingRegistration) {
-      this.markAsRead(n.id);
-    }
+    this.clickTimer = setTimeout(() => {
+      this.clickTimer = null;
+      const userId = n.user_id ?? n.registration_data?.user_id;
+      if (userId) {
+        this.router.navigate(['/profile-user', userId]).then(() => {
+          this.isPanelOpen = false;
+          this.cdr.markForCheck();
+        });
+      }
+    }, 250);
   }
 
   ngOnInit() {
@@ -75,7 +79,6 @@ export class MessageOrg implements OnInit, OnDestroy {
       .getMyNotifications()
       .pipe(take(1))
       .subscribe((res: NotificationResponse) => {
-        // Фільтруємо: прибираємо прочитані сповіщення (пункт 3)
         this.notifications = res.data.filter((n) => !n.is_read);
         this.total = this.notifications.length;
         this.cdr.markForCheck();
@@ -86,7 +89,7 @@ export class MessageOrg implements OnInit, OnDestroy {
     const toMark = this.notifications
       .filter(
         (n) =>
-          n.type !== 'REGISTRATION' ||
+          n.type !== notification_organization_type_enum.REGISTRATION ||
           n.registration_data?.status !== this.RegistrationStatus.PENDING,
       )
       .map((n) => n.id);

@@ -59,7 +59,7 @@ export class AppUserService {
     const user = await this.prisma.app_user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
-    const isOwner = id === currentUser.id;
+    const isOwner = currentUser && id === currentUser.id;
 
     return this.prisma.app_user.findUnique({
       where: { id },

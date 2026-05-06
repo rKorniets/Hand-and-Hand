@@ -2,29 +2,24 @@
   @if (user !== null) {
     <div class="user__profile__page__wrapper">
       <div class="user__profile__page__content">
-        @if (isOwnProfile) {
-          <section>
-            <app-main-info [user]="user"></app-main-info>
-          </section>
-        }
+        <section>
+          <app-main-info [user]="user"></app-main-info>
+        </section>
 
-        @if (isOwnProfile) {
-          <section>
-            <app-activity [user]="user"></app-activity>
-          </section>
-        }
+        <section>
+          <app-activity [user]="user"></app-activity>
+        </section>
 
         @if (isVolunteer) {
           <section>
-            <app-fundraising-campaigns-user [user]="user"></app-fundraising-campaigns-user>
+            <app-fundraising-campaigns-user [user]="user" [isOwnProfile]="isOwnProfile">
+            </app-fundraising-campaigns-user>
           </section>
         }
 
-        @if (isOwnProfile) {
-          <section>
-            <app-requests [user]="user"></app-requests>
-          </section>
-        }
+        <section>
+          <app-requests [user]="user" [isOwnProfile]="isOwnProfile"></app-requests>
+        </section>
       </div>
 
       <aside class="user__profile__page__sidebar">

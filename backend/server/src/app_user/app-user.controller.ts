@@ -93,8 +93,14 @@ export class AppUserController {
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: number, @CurrentUser() currentUser: AuthUser) {
-    return this.appUserService.getUserById(+id, currentUser);
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Отримати користувача за ID' })
+  getUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: AuthUser,
+  ) {
+    return this.appUserService.getUserById(id, currentUser);
   }
 
   @Put(':id')

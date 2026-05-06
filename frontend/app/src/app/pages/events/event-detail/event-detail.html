@@ -81,31 +81,23 @@
                   Увійдіть щоб подати заявку
                 </button>
               } @else {
-                @if (isAttemptsExceeded && myRegistration?.status !== Status.ACCEPTED) {
+                @if (myRegistration?.status === Status.PENDING) {
+                  <p class="event-detail__status-pending">Заявку подано — очікуйте розгляду</p>
+                  <button (click)="unregister()" class="event-detail__apply-btn--cancel">
+                    Скасувати заявку
+                  </button>
+                } @else if (myRegistration?.status === Status.ACCEPTED) {
+                  <p class="event-detail__status-success">Вашу заявку прийнято!</p>
+                } @else if (isAttemptsExceeded) {
                   <p class="event-detail__status-error">
                     Перевищено кількість спроб подання заявки.
                   </p>
+                } @else if (isRegistrationOpen) {
+                  <button (click)="register()" class="event-detail__apply-btn">
+                    {{ myRegistration ? 'Подати заявку повторно' : 'Податися на подію' }}
+                  </button>
                 } @else {
-                  @if (!myRegistration || myRegistration.status === Status.CANCELLED || myRegistration.status === Status.REJECTED) {
-                    @if (isRegistrationOpen) {
-                      <button (click)="register()" class="event-detail__apply-btn">
-                        {{ myRegistration ? 'Подати заявку повторно' : 'Податися на подію' }}
-                      </button>
-                    } @else {
-                      <p class="event-detail__full-msg">Набір закрито (місць немає)</p>
-                    }
-                  }
-
-                  @if (myRegistration?.status === Status.PENDING) {
-                    <p class="event-detail__status-pending">Заявку подано — очікуйте розгляду</p>
-                    <button (click)="unregister()" class="event-detail__apply-btn--cancel">
-                      Скасувати заявку
-                    </button>
-                  } @else if (myRegistration?.status === Status.ACCEPTED) {
-                    <p class="event-detail__status-success">Вашу заявку прийнято!</p>
-                  } @else if (myRegistration?.status === Status.REJECTED) {
-                    <p class="event-detail__status-error">Заявку відхилено</p>
-                  }
+                  <p class="event-detail__full-msg">Набір закрито (місць немає)</p>
                 }
               }
             </div>
@@ -178,7 +170,9 @@
                         [alt]="v.full_name"
                       />
                     } @else {
-                      <div class="event-detail__volunteer-avatar event-detail__volunteer-avatar--placeholder">
+                      <div
+                        class="event-detail__volunteer-avatar event-detail__volunteer-avatar--placeholder"
+                      >
                         {{ v.full_name.charAt(0) }}
                       </div>
                     }

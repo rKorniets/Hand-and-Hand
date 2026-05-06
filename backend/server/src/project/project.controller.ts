@@ -133,7 +133,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number },
   ) {
-    return this.projectService.unregisterFromProject(id, user.id);
+    return await this.projectService.unregisterFromProject(id, user.id);
   }
 
   @Get(':id/registrations')

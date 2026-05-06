@@ -98,7 +98,7 @@ export class EventDetailComponent implements OnInit {
 
   register(): void {
     this.eventService.register(this.eventId).subscribe({
-      next: (reg) => {
+      next: (reg: ProjectRegistration) => {
         this.myRegistration = reg;
         this.attemptsExceededLocal = false;
         this.refreshEvent();
@@ -114,12 +114,15 @@ export class EventDetailComponent implements OnInit {
 
   unregister(): void {
     this.eventService.unregister(this.eventId).subscribe({
-      next: () => {
-        this.myRegistration = null;
+      next: (updatedReg: ProjectRegistration) => {
+        this.myRegistration = updatedReg;
         this.attemptsExceededLocal = false;
         this.refreshEvent();
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error('Помилка при скасуванні:', err);
+      },
     });
   }
 

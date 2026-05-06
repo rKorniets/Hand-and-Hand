@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, switchMap } from 'rxjs';
 import { user_role_enum } from '@prisma/client';
 import { MainInfo } from './main-info/main-info';
 import { Activity } from './activity/activity';
@@ -33,8 +33,10 @@ import { Message } from './message/message';
 })
 export class ProfileUserComponent implements OnInit, OnDestroy {
   user: AppUser | null = null;
+  isOwnProfile = false;
   private routeSub: Subscription | null = null;
   protected readonly UserRole = user_role_enum;
+
   constructor(
     private profileUserService: UserProfileService,
     private cdr: ChangeDetectorRef,
@@ -47,35 +49,28 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.routeSub = this.route.paramMap.subscribe((params) => {
-      const userId = params.get('id');
+    this.routeSub = this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const userId = params.get('id');
+          const myId = this.authService.getUserId();
 
-      if (userId) {
-        this.loadUserProfile(+userId);
-      } else {
-        this.loadMyProfile();
-      }
-    });
-  }
-
-  private loadUserProfile(id: number): void {
-    this.profileUserService.getUserById(id).subscribe({
-      next: (data) => {
-        this.user = data;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Помилка завантаження профілю за ID:', err),
-    });
-  }
-
-  private loadMyProfile(): void {
-    this.profileUserService.getUser().subscribe({
-      next: (data) => {
-        this.user = data;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Помилка завантаження власного профілю:', err),
-    });
+          if (userId) {
+            this.isOwnProfile = Number(userId) === myId;
+            return this.profileUserService.getUserById(+userId);
+          } else {
+            this.isOwnProfile = true;
+            return this.profileUserService.getUser();
+          }
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.user = data;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Помилка завантаження профілю:', err),
+      });
   }
 
   logout() {
@@ -83,12 +78,6 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.routeSub) {
-      this.routeSub.unsubscribe();
-    }
-  }
-  get isOwnProfile(): boolean {
-    const paramId = this.route.snapshot.paramMap.get('id');
-    return !paramId || parseInt(paramId, 10) === this.authService.getUserId();
+    this.routeSub?.unsubscribe();
   }
 }
