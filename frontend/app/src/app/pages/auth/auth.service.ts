@@ -69,6 +69,10 @@ export class AuthService {
     });
   }
 
+  verifyEmail(userId: number, token: string) {
+    return this.http.post(`${this.apiUrl}/auth/verify-email`, { userId, token });
+  }
+
   logout() {
     localStorage.removeItem('access_token');
     this.loggedIn$.next(false);

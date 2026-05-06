@@ -111,21 +111,11 @@ export class AuthService {
         data: {
           email: dto.email,
           password_hash: passwordHash,
-          role: user_role_enum.VOLUNTEER,
+          role: user_role_enum.APP_USER,
           status: user_status_enum.PENDING,
           first_name: dto.firstName,
           last_name: dto.lastName,
           city: dto.city,
-        },
-      });
-
-      await tx.volunteer_profile.create({
-        data: {
-          user_id: u.id,
-          display_name: dto.email,
-          phone: '',
-          bio: '',
-          is_verified: false,
         },
       });
 
