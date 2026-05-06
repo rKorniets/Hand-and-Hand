@@ -180,4 +180,72 @@
       </div>
     }
   </section>
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Новини на розгляді</h2>
+      @if (!newsLoading && pendingNews.length > 0) {
+        <span class="ap-section__pill">{{ pendingNews.length }} очікують</span>
+      } @else if (!newsLoading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (newsLoading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (newsError) {
+      <p class="ap-section__error">{{ newsError }}</p>
+    }
+    @if (!newsLoading && pendingNews.length === 0) {
+      <div class="ap-section__empty">Немає новин що очікують підтвердження</div>
+    }
+    @if (!newsLoading && pendingNews.length > 0) {
+      <div class="ap-col-labels">
+        <span>Заголовок новини</span>
+        <span>Організація</span>
+        <span>Email</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of pendingNews; track item.id) {
+          <div
+            class="ap-card ap-card--clickable"
+            role="button"
+            tabindex="0"
+            (click)="openNews(item.id)"
+            (keydown.enter)="openNews(item.id)"
+            (keydown.space)="$event.preventDefault(); openNews(item.id)"
+          >
+            <div class="ap-card__name">{{ item.title }}</div>
+            <div class="ap-card__secondary">
+              @if (item.organization?.name) {
+                {{ item.organization?.name }}
+              } @else {
+                Організація
+              }
+            </div>
+            <div class="ap-card__email">{{ item.organization?.contact_email }}</div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions" (click)="$event.stopPropagation()">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveNewsAction(item.id)"
+                [disabled]="newsActionLoading === item.id"
+              >
+                {{ newsActionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectNewsAction(item.id)"
+                [disabled]="newsActionLoading === item.id"
+              >
+                {{ newsActionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
 </div>
