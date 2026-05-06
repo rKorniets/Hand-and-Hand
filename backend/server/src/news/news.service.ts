@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
+import { UpdateNewsDto } from './dto/update-news.dto';
 import { Prisma, news_status_enum } from '@prisma/client';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
@@ -99,6 +100,24 @@ export class NewsService {
       },
     });
   }
+  async updateNewsPartial(
+    id: number,
+    data: UpdateNewsDto,
+    currentUser: RequestUser,
+  ) {
+    await this.validateOwnership(id, currentUser);
+
+    return this.prisma.news.update({
+      where: { id },
+      data: {
+        ...(data.title && { title: data.title }),
+        ...(data.description && { description: data.description }),
+        ...(data.main_content && { main_content: data.main_content }),
+        ...(data.image_url !== undefined && { image_url: data.image_url }),
+      },
+    });
+  }
+
   async updateImage(
     id: number,
     file: Express.Multer.File,
