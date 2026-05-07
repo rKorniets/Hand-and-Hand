@@ -35,7 +35,10 @@ export class VerifyEmailComponent implements OnInit {
       },
       error: (err) => {
         this.state = 'error';
-        this.errorMessage = err?.error?.message || 'Щось пішло не так. Спробуйте ще раз.';
+        const msg = err?.error?.message;
+        this.errorMessage = Array.isArray(msg)
+          ? msg[0]
+          : msg || 'Щось пішло не так. Спробуйте ще раз.';
       },
     });
   }
