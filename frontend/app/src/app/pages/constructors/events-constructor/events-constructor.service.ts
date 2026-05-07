@@ -25,10 +25,14 @@ export class EventsConstructorService {
   ): Promise<{ lat: number | null; lng: number | null }> {
     const query = [address, city, region].filter(Boolean).join(', ');
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-        { headers: { 'User-Agent': 'HandAndHand/1.0' } },
-      );
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.searchParams.set('format', 'json');
+      url.searchParams.set('q', query);
+      url.searchParams.set('limit', '1');
+
+      const res = await fetch(url.toString(), {
+        headers: { 'User-Agent': 'HandAndHand/1.0' },
+      });
       const results: { lat: string; lon: string }[] = await res.json();
       if (results?.[0]) {
         return {
