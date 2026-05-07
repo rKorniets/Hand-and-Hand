@@ -73,6 +73,10 @@ export class AuthService {
     });
   }
 
+  verifyEmail(userId: number, token: string) {
+    return this.http.post(`${this.apiUrl}/auth/verify-email`, { userId, token });
+  }
+
   refresh(): Observable<AuthResponse> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
