@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   ParseBoolPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -17,6 +18,8 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { VolunteerProfileService } from './volunteer-profile.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
@@ -52,6 +55,9 @@ export class VolunteerProfileController extends AbstractCrudController<
 
   @Public()
   @Get()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список профілів волонтерів' })
   @ApiQuery({
     name: 'isVerified',
@@ -74,6 +80,9 @@ export class VolunteerProfileController extends AbstractCrudController<
 
   @Public()
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати профіль волонтера за ID' })
   async getVolunteerProfileById(@Param('id', ParseIntPipe) id: number) {
     return this.volunteerProfileService.getVolunteerProfileById(id);

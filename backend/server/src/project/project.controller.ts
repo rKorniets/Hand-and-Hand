@@ -21,6 +21,7 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   project_registration_status_enum,
   project_status_enum,
@@ -53,6 +54,9 @@ export class ProjectController extends AbstractCrudController<project[]> {
 
   @Public()
   @Get()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список подій' })
   @ApiQuery({ name: 'status', required: false, enum: project_status_enum })
   @ApiQuery({ name: 'organization_profile_id', required: false, type: Number })
@@ -109,6 +113,9 @@ export class ProjectController extends AbstractCrudController<project[]> {
 
   @Get(':id')
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати подію за ID' })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.getProjectById(id);
@@ -138,6 +145,9 @@ export class ProjectController extends AbstractCrudController<project[]> {
 
   @Get(':id/registrations')
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Список зареєстрованих людей на подію' })
   async getRegistrations(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.getProjectRegistrations(id);
