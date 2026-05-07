@@ -74,34 +74,34 @@
         </div>
 
         <div class="event-detail__sidebar">
-          <div class="event-detail__apply">
-            @if (!isLoggedIn) {
-              <button routerLink="/login" class="event-detail__apply-btn">
-                Увійдіть щоб подати заявку
-              </button>
-            }
-
-            @if (isLoggedIn && !myRegistration) {
-              @if (isRegistrationOpen) {
-                <button (click)="register()" class="event-detail__apply-btn">
-                  Податися на подію
+          @if (!isOrganization) {
+            <div class="event-detail__apply">
+              @if (!isLoggedIn) {
+                <button routerLink="/login" class="event-detail__apply-btn">
+                  Увійдіть щоб подати заявку
                 </button>
               } @else {
-                <p class="event-detail__full-msg">Набір закрито (місць немає)</p>
+                @if (myRegistration?.status === Status.PENDING) {
+                  <p class="event-detail__status-pending">Заявку подано — очікуйте розгляду</p>
+                  <button (click)="unregister()" class="event-detail__apply-btn--cancel">
+                    Скасувати заявку
+                  </button>
+                } @else if (myRegistration?.status === Status.ACCEPTED) {
+                  <p class="event-detail__status-success">Вашу заявку прийнято!</p>
+                } @else if (isAttemptsExceeded) {
+                  <p class="event-detail__status-error">
+                    Перевищено кількість спроб подання заявки.
+                  </p>
+                } @else if (isRegistrationOpen) {
+                  <button (click)="register()" class="event-detail__apply-btn">
+                    {{ myRegistration ? 'Подати заявку повторно' : 'Податися на подію' }}
+                  </button>
+                } @else {
+                  <p class="event-detail__full-msg">Набір закрито (місць немає)</p>
+                }
               }
-            }
-
-            @if (myRegistration?.status === Status.PENDING) {
-              <p>Заявку подано — очікуйте розгляду</p>
-              <button (click)="unregister()" class="event-detail__apply-btn--cancel">
-                Скасувати заявку
-              </button>
-            } @else if (myRegistration?.status === Status.ACCEPTED) {
-              <p class="event-detail__status-success">Вашу заявку прийнято!</p>
-            } @else if (myRegistration?.status === Status.REJECTED) {
-              <p class="event-detail__status-error">Заявку відхилено</p>
-            }
-          </div>
+            </div>
+          }
 
           @if (event.organization_profile) {
             <div class="event-detail__org-card">
@@ -122,7 +122,7 @@
               }
 
               @if (event.organization_profile.city) {
-                <p class="event-detail__org-city">м.{{ event.organization_profile.city }}</p>
+                <p class="event-detail__org-city">м. {{ event.organization_profile.city }}</p>
               }
 
               @if (event.organization_profile.mission) {
@@ -158,7 +158,7 @@
 
           @if (event.volunteers && event.volunteers.length > 0) {
             <div class="event-detail__volunteers-card">
-              <h3 class="event-detail__volunteers-title">Волонтери, що приєдналися</h3>
+              <h3 class="event-detail__volunteers-title">Приєдналися волонтери</h3>
 
               <div class="event-detail__volunteers-list">
                 @for (v of event.volunteers.slice(0, 5); track v.id) {

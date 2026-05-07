@@ -1,37 +1,39 @@
-<div class="requests-container" #listTop>
-  <h2 class="requests-title">Запити про допомогу</h2>
+@if (requests.length > 0 || isOwnProfile) {
+  <div class="requests-container" #listTop>
+    <h2 class="requests-title">Запити про допомогу</h2>
 
-  <button class="add-button" routerLink="/request">+</button>
+    @if (isOwnProfile && requests.length === 0) {
+      <button class="add-button" routerLink="/request">+</button>
+    }
 
-  <div class="tickets-list">
-    @for (item of requests | slice: 0 : (isExpanded ? requests.length : 2); track item.id) {
-      <div class="ticket-card" [class.is-closed]="isClosed(item.status)">
-        <h2 class="ticket-title">{{ item.title }}</h2>
-
-        <span class="ticket-status">
-          {{ isClosed(item.status) ? 'Неактуально' : 'Актуально' }}
-        </span>
-
-        <p class="ticket-description">{{ item.description }}</p>
-
-        <div class="ticket-footer">
-          <div class="ticket-info">{{ item.city }}, {{ item.created_at | date: 'dd.MM.yyyy' }}</div>
-
-          <div class="ticket-meta">
-            @if (isClosed(item.status)) {
-              <span class="closed-info">Організація закрила потребу</span>
-            }
+    <div class="tickets-list">
+      @for (item of requests | slice: 0 : (isExpanded ? requests.length : 2); track item.id) {
+        <div class="ticket-card" [class.is-closed]="isClosed(item.status)">
+          <h2 class="ticket-title">{{ item.title }}</h2>
+          <span class="ticket-status">
+            {{ isClosed(item.status) ? 'Неактуально' : 'Актуально' }}
+          </span>
+          <p class="ticket-description">{{ item.description }}</p>
+          <div class="ticket-footer">
+            <div class="ticket-info">
+              {{ item.city }}, {{ item.created_at | date: 'dd.MM.yyyy' }}
+            </div>
+            <div class="ticket-meta">
+              @if (isClosed(item.status)) {
+                <span class="closed-info">Організація закрила потребу</span>
+              }
+            </div>
           </div>
         </div>
+      }
+    </div>
+
+    @if (requests.length > 2) {
+      <div class="load-more__button">
+        <button class="requests__more" (click)="toggleRequests(listTop)">
+          {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
+        </button>
       </div>
     }
   </div>
-
-  @if (requests.length > 2) {
-    <div class="load-more__button">
-      <button class="requests__more" (click)="toggleRequests(listTop)">
-        {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
-      </button>
-    </div>
-  }
-</div>
+}

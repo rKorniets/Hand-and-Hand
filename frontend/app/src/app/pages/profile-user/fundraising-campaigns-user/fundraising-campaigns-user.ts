@@ -15,6 +15,7 @@ import { UserProfileService } from '../profile-user.service';
 export class FundraisingCampaignsUser implements OnInit {
   @Input() user: AppUser | undefined;
   @Input() fundraisingCampaignItem: FundraisingCampaign[] = [];
+  @Input() isOwnProfile: boolean = false;
 
   isExpanded: boolean = false;
 
@@ -26,7 +27,7 @@ export class FundraisingCampaignsUser implements OnInit {
   ngOnInit(): void {
     if (this.fundraisingCampaignItem.length === 0) {
       this.profileService.getFundraisingCampaigns().subscribe({
-        next: (data) => (this.fundraisingCampaignItem = data),
+        next: (res) => (this.fundraisingCampaignItem = res.data),
         error: (err) => console.error(err),
       });
     }

@@ -1,0 +1,84 @@
+<link rel="stylesheet" href="message-org.scss" />
+<div
+  class="message-org"
+  (click)="togglePanel()"
+  (mouseenter)="isHovered = true"
+  (mouseleave)="isHovered = false"
+>
+  <span class="message-org__title">
+    {{ isHovered ? 'Переглянути сповіщення' : 'Сповіщення' }}
+  </span>
+  @if (hasUnread()) {
+    <span class="message-org__badge">{{ getUnreadCount() }}</span>
+  }
+</div>
+
+<div class="message-org__panel" [class.message-org__panel--open]="isPanelOpen">
+  <div class="message-org__panel-header">
+    <span>Сповіщення</span>
+    <div class="message-org__panel-actions">
+      @if (hasUnread()) {
+        <button class="message-org__panel-read-all" (click)="markAllAsRead()">Прочитати всі</button>
+      }
+      <button class="message-org__panel-close" (click)="togglePanel()">✕</button>
+    </div>
+  </div>
+
+  <div class="message-org__panel-content">
+    @if (!notifications.length) {
+      <p class="message-org__panel-empty">Сповіщень немає</p>
+    }
+
+    @for (n of notifications; track n.id) {
+      <div
+        class="message-org__notification"
+        [class.message-org__notification--unread]="!n.is_read"
+        [class.message-org__notification--read]="n.is_read"
+        (click)="handleNotificationClick(n)"
+      >
+        <div class="message-org__notification-body">
+          @if (!n.is_read) {
+            <span class="message-org__notification-dot"></span>
+          }
+          <span class="message-org__notification-text">{{ n.message }}</span>
+        </div>
+
+        @if (n.type === NotificationType.REGISTRATION && n.registration_data) {
+          <div class="message-org__notification-logic" (click)="$event.stopPropagation()">
+            @if (n.registration_data.status === RegistrationStatus.PENDING) {
+              <div class="message-org__notification-actions">
+                <button class="btn-accept" (click)="onAccept(n)">Прийняти</button>
+                <button class="btn-reject" (click)="onReject(n)">Відхилити</button>
+              </div>
+            } @else if (n.registration_data.status === RegistrationStatus.ACCEPTED) {
+              <div class="status-badge status-badge--accepted">Прийнято</div>
+            } @else if (n.registration_data.status === RegistrationStatus.REJECTED) {
+              <div class="status-badge status-badge--rejected">Відхилено</div>
+            } @else if (n.registration_data.status === RegistrationStatus.CANCELLED) {
+              <div class="status-badge status-badge--cancelled">Скасовано волонтером</div>
+            }
+          </div>
+        }
+
+        <div class="message-org__notification-footer">
+          <span class="message-org__notification-type">{{ n.type }}</span>
+          <span class="message-org__notification-date">
+            {{ n.created_at | date: 'dd.MM.yyyy HH:mm' }}
+          </span>
+          @if (n.is_read) {
+            <button
+              class="message-org__notification-delete"
+              (click)="$event.stopPropagation(); deleteNotification(n.id)"
+            >
+              ✕
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+@if (isPanelOpen) {
+  <div class="message-org__overlay" (click)="togglePanel()"></div>
+}

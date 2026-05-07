@@ -9,10 +9,13 @@ import {
   Prisma,
   project_registration_status_enum,
   project_status_enum,
+  notification_type_enum,
+  notification_organization_type_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
+import { NotificationService } from '../notification/notification.service';
 
 export interface RequestUser {
   id: number;
@@ -23,6 +26,7 @@ export class ProjectService {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
+    private notificationService: NotificationService,
   ) {}
 
   private async validateOwnership(id: number, currentUser: RequestUser) {
@@ -127,7 +131,7 @@ export class ProjectService {
           participants: data.participants ?? null,
           partners: data.partners,
           image_url: data.image_url,
-          status: 'DRAFT',
+          status: project_status_enum.DRAFT,
           starts_at: data.starts_at ? new Date(data.starts_at) : null,
           ends_at: data.ends_at ? new Date(data.ends_at) : null,
           ...(locationId && { location_id: locationId }),
@@ -284,6 +288,7 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
+
     return {
       ...project,
       registered_count: project._count.project_registration,
@@ -295,9 +300,8 @@ export class ProjectService {
         : null,
       volunteers: project.project_registration.map((r) => ({
         id: r.app_user.id,
-        full_name: `${r.app_user.first_name ?? ''} ${
-          r.app_user.last_name ?? ''
-        }`.trim(),
+        full_name:
+          `${r.app_user.first_name ?? ''} ${r.app_user.last_name ?? ''}`.trim(),
         avatar_url: r.app_user.volunteer_profile?.avatar_url ?? null,
       })),
     };
@@ -307,7 +311,20 @@ export class ProjectService {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        _count: { select: { project_registration: true } },
+        _count: {
+          select: {
+            project_registration: {
+              where: {
+                status: {
+                  in: [
+                    project_registration_status_enum.PENDING,
+                    project_registration_status_enum.ACCEPTED,
+                  ],
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -325,12 +342,81 @@ export class ProjectService {
       throw new BadRequestException('Project has reached maximum participants');
     }
 
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: userId },
+      select: { first_name: true, last_name: true },
+    });
+    const fullName =
+      `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim();
+
+    const existingRegistration =
+      await this.prisma.project_registration.findFirst({
+        where: { project_id: projectId, user_id: userId },
+      });
+
     try {
-      return await this.prisma.project_registration.create({
-        data: {
-          project_id: projectId,
-          user_id: userId,
-        },
+      if (!existingRegistration) {
+        return await this.prisma.$transaction(async (tx) => {
+          const registration = await tx.project_registration.create({
+            data: { project_id: projectId, user_id: userId },
+          });
+          await tx.notification_organization.create({
+            data: {
+              organization_id: project.organization_profile_id,
+              message: `${fullName} подав(ла) заявку на проєкт "${project.title}"`,
+              type: notification_organization_type_enum.REGISTRATION,
+              project_id: projectId,
+              actor_id: userId,
+              entity_id: registration.id,
+            },
+          });
+          return registration;
+        });
+      }
+
+      if (existingRegistration.attempt_count >= 3) {
+        throw new BadRequestException('Перевищено ліміт спроб');
+      }
+
+      return await this.prisma.$transaction(async (tx) => {
+        const registration = await tx.project_registration.update({
+          where: { id: existingRegistration.id },
+          data: {
+            status: project_registration_status_enum.PENDING,
+            attempt_count: existingRegistration.attempt_count + 1,
+          },
+        });
+
+        const existingNotification =
+          await tx.notification_organization.findFirst({
+            where: {
+              entity_id: registration.id,
+              type: notification_organization_type_enum.REGISTRATION,
+            },
+          });
+
+        if (!existingNotification || existingNotification.is_read) {
+          await tx.notification_organization.create({
+            data: {
+              organization_id: project.organization_profile_id,
+              message: `${fullName} повторно подав(ла) заявку на проєкт "${project.title}"`,
+              type: notification_organization_type_enum.REGISTRATION,
+              project_id: projectId,
+              actor_id: userId,
+              entity_id: registration.id,
+            },
+          });
+        } else {
+          await tx.notification_organization.update({
+            where: { id: existingNotification.id },
+            data: {
+              message: `${fullName} повторно подав(ла) заявку на проєкт "${project.title}"`,
+              expires_at: null,
+            },
+          });
+        }
+
+        return registration;
       });
     } catch (error) {
       if (
@@ -350,9 +436,7 @@ export class ProjectService {
       where: { project_id: projectId, user_id: userId },
     });
 
-    if (!registration) {
-      throw new NotFoundException('Реєстрація не знайдена');
-    }
+    if (!registration) throw new NotFoundException('Реєстрація не знайдена');
 
     if (registration.status !== project_registration_status_enum.PENDING) {
       throw new BadRequestException(
@@ -360,11 +444,60 @@ export class ProjectService {
       );
     }
 
-    return this.prisma.project_registration.delete({
-      where: { id: registration.id },
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: userId },
+      select: { first_name: true, last_name: true },
+    });
+    const fullName =
+      `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim();
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { title: true, organization_profile_id: true },
+    });
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.project_registration.update({
+        where: { id: registration.id },
+        data: { status: project_registration_status_enum.CANCELLED },
+      });
+
+      const existingNotification = await tx.notification_organization.findFirst(
+        {
+          where: {
+            entity_id: registration.id,
+            type: notification_organization_type_enum.REGISTRATION,
+          },
+        },
+      );
+
+      if (!existingNotification || existingNotification.is_read) {
+        await tx.notification_organization.create({
+          data: {
+            organization_id: project!.organization_profile_id,
+            message: `${fullName} скасував(ла) заявку на проєкт "${project?.title}"`,
+            type: notification_organization_type_enum.REGISTRATION,
+            project_id: projectId,
+            actor_id: userId,
+            entity_id: registration.id,
+          },
+        });
+      } else {
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        await tx.notification_organization.update({
+          where: { id: existingNotification.id },
+          data: {
+            message: `${fullName} скасував(ла) заявку на проєкт "${project?.title}"`,
+            expires_at: expiresAt,
+          },
+        });
+      }
+
+      return updated;
     });
   }
-
   async getProjectRegistrations(projectId: number) {
     return this.prisma.project_registration.findMany({
       where: {
@@ -401,6 +534,10 @@ export class ProjectService {
       throw new NotFoundException(
         `Registration with ID ${registrationId} not found`,
       );
+    }
+
+    if (registration.status === project_registration_status_enum.CANCELLED) {
+      throw new BadRequestException('Користувач скасував реєстрацію');
     }
 
     if (registration.status !== project_registration_status_enum.PENDING) {
@@ -449,7 +586,7 @@ export class ProjectService {
       currentUser,
     );
 
-    return this.prisma.project_registration.update({
+    const updated = await this.prisma.project_registration.update({
       where: { id: registration.id },
       data: {
         status: project_registration_status_enum.ACCEPTED,
@@ -457,6 +594,19 @@ export class ProjectService {
         reviewed_by: currentUser.id,
       },
     });
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { title: true },
+    });
+
+    await this.notificationService.create({
+      user_id: registration.user_id,
+      message: `Вашу заявку на подію "${project?.title}" прийнято`,
+      type: notification_type_enum.PROJECT,
+    });
+
+    return updated;
   }
 
   async rejectProjectRegistration(
@@ -470,7 +620,7 @@ export class ProjectService {
       currentUser,
     );
 
-    return this.prisma.project_registration.update({
+    const updated = await this.prisma.project_registration.update({
       where: { id: registration.id },
       data: {
         status: project_registration_status_enum.REJECTED,
@@ -478,5 +628,18 @@ export class ProjectService {
         reviewed_by: currentUser.id,
       },
     });
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { title: true },
+    });
+
+    await this.notificationService.create({
+      user_id: registration.user_id,
+      message: `Вашу заявку на подію "${project?.title}" відхилено`,
+      type: notification_type_enum.PROJECT,
+    });
+
+    return updated;
   }
 }

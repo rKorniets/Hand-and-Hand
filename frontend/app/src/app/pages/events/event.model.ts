@@ -65,6 +65,7 @@ export interface ProjectRegistration {
   created_at: string;
   reviewed_at?: string | null;
   reviewed_by?: number | null;
+  attempt_count: number;
   app_user?: {
     id: number;
     first_name: string;

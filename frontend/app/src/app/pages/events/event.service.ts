@@ -35,8 +35,8 @@ export class EventService {
     return this.http.post<ProjectRegistration>(`${this.apiUrl}/projects/${projectId}/register`, {});
   }
 
-  unregister(projectId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/projects/${projectId}/register`);
+  unregister(projectId: number): Observable<ProjectRegistration> {
+    return this.http.delete<ProjectRegistration>(`${this.apiUrl}/projects/${projectId}/register`);
   }
 
   getMyRegistration(projectId: number): Observable<ProjectRegistration | null> {
