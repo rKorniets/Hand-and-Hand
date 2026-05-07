@@ -7,7 +7,7 @@
 
     <section class="events__page__main">
       <div class="map-container">
-        <app-map></app-map>
+        <app-map [eventsData]="mapEvents" (openEvent)="handleOpenEvent($event)"> </app-map>
       </div>
 
       <div class="list__container">

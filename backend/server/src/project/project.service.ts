@@ -47,11 +47,11 @@ export class ProjectService {
   }
 
   async getProjects(
-    limit?: number,
-    skip?: number,
+    limit: number = 5,
+    skip: number = 0,
     status?: project_status_enum,
     search?: string,
-    organizationProfileId?: number,
+    organization_profile_id?: number,
   ) {
     const approvedRequests = await this.prisma.approval_request.findMany({
       where: { type: 'PROJECT', status: 'APPROVED' },
@@ -63,12 +63,8 @@ export class ProjectService {
     const whereClause: Prisma.projectWhereInput = {
       id: { in: approvedProjectIds },
       ...(status && { status }),
-      ...(organizationProfileId && {
-        organization_profile_id: organizationProfileId,
-      }),
-      ...(search && {
-        title: { contains: search, mode: 'insensitive' },
-      }),
+      ...(search && { title: { contains: search, mode: 'insensitive' } }),
+      ...(organization_profile_id && { organization_profile_id }),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -77,6 +73,9 @@ export class ProjectService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
+        include: {
+          location: true,
+        },
       }),
       this.prisma.project.count({ where: whereClause }),
     ]);

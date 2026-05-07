@@ -1,16 +1,17 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FiltersComponent } from '../../components/category/category';
 import { FilterConfig, FilterState } from '../../components/category/category.model';
 import { ListEvents } from './list-events/list-events';
-import { Map } from './map/map';
+import { MapComponent, MapEvent } from './map/map';
 import { EventService } from './event.service';
 import { NewEvent } from './event.model';
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, FiltersComponent, Map, ListEvents],
+  imports: [CommonModule, FiltersComponent, MapComponent, ListEvents],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })
@@ -19,6 +20,7 @@ export class Events implements OnInit {
   readonly limit = 5;
   totalPages = 1;
   events: NewEvent[] = [];
+  mapEvents: MapEvent[] = [];
 
   filterConfig: FilterConfig = {
     showSearch: true,
@@ -40,10 +42,29 @@ export class Events implements OnInit {
   constructor(
     private eventService: EventService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.loadEvents();
+    this.loadMapEvents();
+  }
+
+  private toMapEvent(e: NewEvent): MapEvent {
+    return {
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      location: e.location
+        ? {
+            id: e.location.id ?? 0,
+            lat: e.location.lat ?? null,
+            lng: e.location.lng ?? null,
+            city: e.location.city,
+            address: e.location.address,
+          }
+        : undefined,
+    };
   }
 
   loadEvents(): void {
@@ -59,9 +80,31 @@ export class Events implements OnInit {
     });
   }
 
+  loadMapEvents(): void {
+    this.eventService.getAllEventsForMap().subscribe({
+      next: (data) => {
+        this.mapEvents = data
+          .filter((e) => e.location?.lat != null && e.location?.lng != null)
+          .map((e) => this.toMapEvent(e));
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error(err),
+    });
+  }
+
+  handleOpenEvent(id: number): void {
+    this.eventService.getEventById(id).subscribe({
+      next: (event) => {
+        this.router.navigate(['/events', event.id]);
+      },
+      error: (err) => console.error(err),
+    });
+  }
+
   get hasNextPage(): boolean {
     return this.currentPage < this.totalPages;
   }
+
   onFiltersChanged(filters: FilterState): void {
     this.activeFilters = filters;
     this.currentPage = 1;
