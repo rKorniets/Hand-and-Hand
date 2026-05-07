@@ -8,9 +8,12 @@ export enum ProjectRegistrationStatus {
 }
 
 export interface EventLocation {
+  id?: number;
   city: string;
   address: string;
   region: string;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export interface OrganizationProfile {

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { NewEvent, ProjectRegistration } from './event.model';
 import { API_BASE_URL } from '../../tokens';
 
@@ -24,6 +24,13 @@ export class EventService {
     }
 
     return this.http.get<PaginatedEvents>(`${this.apiUrl}/projects`, { params });
+  }
+
+  getAllEventsForMap(): Observable<NewEvent[]> {
+    const params = new HttpParams().set('limit', 50).set('skip', 0);
+    return this.http
+      .get<PaginatedEvents>(`${this.apiUrl}/projects`, { params })
+      .pipe(map((r) => r.data));
   }
 
   getEventById(id: number): Observable<NewEvent> {

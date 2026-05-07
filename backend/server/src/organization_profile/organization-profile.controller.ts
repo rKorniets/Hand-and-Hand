@@ -23,6 +23,7 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   user_role_enum,
   verification_status_enum,
@@ -58,6 +59,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список організацій' })
   @ApiQuery({
     name: 'verification_status',
@@ -91,6 +95,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати профіль організації за ID' })
   async getOrganizationProfileById(@Param('id', ParseIntPipe) id: number) {
     return this.organizationProfileService.getOrganizationProfileById(id);
@@ -161,6 +168,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get(':id/projects')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати проекти організації' })
   async getProjects(@Param('id', ParseIntPipe) id: number) {
     return this.organizationProfileService.getOrganizationProjects(id);
@@ -168,6 +178,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get(':id/reports')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати звіти організації' })
   async getReports(@Param('id', ParseIntPipe) id: number) {
     return this.organizationProfileService.getOrganizationReports(id);
@@ -175,6 +188,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get(':id/members')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати учасників організації' })
   async getMembers(@Param('id', ParseIntPipe) id: number) {
     return this.organizationProfileService.getOrganizationMembers(id);
@@ -182,6 +198,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get(':id/fundraising')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати збори організації' })
   async getFundraising(@Param('id', ParseIntPipe) id: number) {
     return this.organizationProfileService.getOrganizationFundraising(id);
@@ -378,6 +397,9 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Public()
   @Get('by-user/:userId')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати профіль організації за user_id' })
   async getByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.organizationProfileService.getOrganizationProfileByUserId(

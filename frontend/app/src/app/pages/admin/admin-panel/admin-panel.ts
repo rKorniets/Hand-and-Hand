@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
-import { PendingOrganization, PendingProject, PendingTicket } from '../admin.model';
+import { PendingNews, PendingOrganization, PendingProject, PendingTicket } from '../admin.model';
 
 @Component({
   selector: 'app-admin-panel',
@@ -27,6 +27,11 @@ export class AdminPanelComponent implements OnInit {
   ticketsError = '';
   ticketActionLoading: number | null = null;
 
+  pendingNews: PendingNews[] = [];
+  newsLoading = true;
+  newsError = '';
+  newsActionLoading: number | null = null;
+
   constructor(
     private adminService: AdminService,
     private cdr: ChangeDetectorRef,
@@ -37,6 +42,7 @@ export class AdminPanelComponent implements OnInit {
     this.loadOrganizations();
     this.loadProjects();
     this.loadTickets();
+    this.loadPendingNews();
   }
 
   loadOrganizations() {
@@ -82,6 +88,22 @@ export class AdminPanelComponent implements OnInit {
       error: () => {
         this.ticketsError = 'Помилка завантаження';
         this.ticketsLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadPendingNews() {
+    this.newsLoading = true;
+    this.adminService.getPendingNews().subscribe({
+      next: (data) => {
+        this.pendingNews = data;
+        this.newsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.newsError = 'Помилка завантаження новин';
+        this.newsLoading = false;
         this.cdr.detectChanges();
       },
     });
@@ -163,6 +185,34 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
+  openNews(newsId: number) {
+    this.router.navigate(['/news', newsId]);
+  }
+
+  approveNewsAction(id: number) {
+    this.newsActionLoading = id;
+    this.adminService.approveNews(id).subscribe({
+      next: () => this.removeNewsFromList(id),
+      error: () => {
+        this.newsError = 'Помилка підтвердження новин';
+        this.newsActionLoading = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  rejectNewsAction(id: number) {
+    this.newsActionLoading = id;
+    this.adminService.rejectNews(id).subscribe({
+      next: () => this.removeNewsFromList(id),
+      error: () => {
+        this.newsError = 'Помилка відхилення новин';
+        this.newsActionLoading = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   private removeFromList(id: number) {
     this.items = this.items.filter((i) => i.id !== id);
     this.actionLoading = null;
@@ -178,6 +228,12 @@ export class AdminPanelComponent implements OnInit {
   private removeTicketFromList(id: number) {
     this.tickets = this.tickets.filter((t) => t.id !== id);
     this.ticketActionLoading = null;
+    this.cdr.detectChanges();
+  }
+
+  private removeNewsFromList(id: number) {
+    this.pendingNews = this.pendingNews.filter((n) => n.id !== id);
+    this.newsActionLoading = null;
     this.cdr.detectChanges();
   }
 }

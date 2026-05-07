@@ -8,7 +8,6 @@ import {
   Param,
   ParseIntPipe,
   Req,
-  ForbiddenException,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create_ticket.dto';
@@ -26,7 +25,7 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 type RequestWithUser = {
   user: {
     id: number;
-    role: string;
+    role: user_role_enum;
   };
 };
 
@@ -39,6 +38,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   }
 
   @Get(':id')
+  @SkipThrottle()
   @Public()
   @ApiOperation({ summary: 'Отримати деталі тікету за ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
@@ -64,14 +64,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
     @Body() data: UpdateTicketDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.id;
-    const ticket = await this.service.findOne(id);
-
-    if (!ticket || ticket.user_id !== userId) {
-      throw new ForbiddenException('Ви можете редагувати тільки власні запити');
-    }
-
-    return this.service.update(id, data);
+    return this.service.update(id, data, req.user.id);
   }
 
   @Delete(':id')
@@ -87,20 +80,6 @@ export class TicketController extends AbstractCrudController<ticket[]> {
     @Param('id', ParseIntPipe) id: number,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.id;
-    const userRole = req.user.role;
-    const ticket = await this.service.findOne(id);
-
-    if (!ticket) {
-      throw new ForbiddenException('Тікет не знайдено');
-    }
-
-    if (userRole !== user_role_enum.ADMIN && ticket.user_id !== userId) {
-      throw new ForbiddenException(
-        'У вас немає прав на видалення цього запиту',
-      );
-    }
-
-    return this.service.remove(id);
+    return this.service.remove(id, req.user.id, req.user.role);
   }
 }

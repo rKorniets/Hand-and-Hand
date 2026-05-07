@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../../tokens';
-import { PendingOrganization, PendingProject, PendingTicket } from './admin.model';
+import { PendingNews, PendingOrganization, PendingProject, PendingTicket } from './admin.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -64,5 +64,19 @@ export class AdminService {
 
   rejectTicket(ticketId: number) {
     return this.http.patch(`${this.apiUrl}/admin/tickets/${ticketId}/reject`, {});
+  }
+
+  getPendingNews() {
+    return this.http.get<PendingNews[]>(
+      `${this.apiUrl}/admin/news/pending${this.getNoCacheParam()}`,
+    );
+  }
+
+  approveNews(newsId: number) {
+    return this.http.patch(`${this.apiUrl}/admin/news/${newsId}/approve`, {});
+  }
+
+  rejectNews(newsId: number) {
+    return this.http.patch(`${this.apiUrl}/admin/news/${newsId}/reject`, {});
   }
 }

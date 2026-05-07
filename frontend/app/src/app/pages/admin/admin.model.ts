@@ -46,3 +46,13 @@ export interface PendingTicket {
     last_name?: string;
   };
 }
+
+export interface PendingNews {
+  id: number;
+  title: string;
+  created_at: string;
+  organization?: {
+    name: string;
+    contact_email?: string;
+  };
+}

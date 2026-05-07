@@ -7,7 +7,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { ProjectQueryAdminDto } from './dto/project-query.admin.dto';
 import { CreateProjectAdminDto } from './dto/create-project.admin.dto';
 import { UpdateProjectDto } from '../../project/dto/update-project.dto';
-import { Prisma, project_status_enum } from '@prisma/client';
+import {
+  Prisma,
+  approval_request_status_enum,
+  approval_request_type_enum,
+  project_status_enum,
+} from '@prisma/client';
 
 @Injectable()
 export class ProjectAdminService {
@@ -48,8 +53,8 @@ export class ProjectAdminService {
   async findPending() {
     const requests = await this.prisma.approval_request.findMany({
       where: {
-        type: 'PROJECT',
-        status: 'PENDING',
+        type: approval_request_type_enum.PROJECT,
+        status: approval_request_status_enum.PENDING,
       },
       orderBy: { created_at: 'desc' },
       include: {

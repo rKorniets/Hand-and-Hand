@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NewsQueryAdminDto } from './dto/news-query.admin.dto';
 import { CreateNewsDto } from '../../news/dto/create-news.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, news_status_enum } from '@prisma/client';
 
 @Injectable()
 export class NewsAdminService {
@@ -84,5 +84,32 @@ export class NewsAdminService {
     await this.findOne(id);
 
     return this.prisma.news.delete({ where: { id } });
+  }
+  async findPending() {
+    return this.prisma.news.findMany({
+      where: { status: news_status_enum.PENDING },
+      orderBy: { created_at: 'desc' },
+      include: {
+        organization: {
+          select: { name: true, contact_email: true },
+        },
+      },
+    });
+  }
+
+  async approve(id: number) {
+    await this.findOne(id);
+    return this.prisma.news.update({
+      where: { id },
+      data: { status: news_status_enum.PUBLISHED },
+    });
+  }
+
+  async reject(id: number) {
+    await this.findOne(id);
+    return this.prisma.news.update({
+      where: { id },
+      data: { status: news_status_enum.REJECTED },
+    });
   }
 }
