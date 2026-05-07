@@ -14,8 +14,13 @@ import * as nodemailer from 'nodemailer';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
 import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
-import { user_role_enum, user_status_enum } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import {
+  user_role_enum,
+  user_status_enum,
+  approval_request_type_enum,
+  approval_request_status_enum,
+  Prisma,
+} from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -184,8 +189,8 @@ export class AuthService {
         data: {
           submitted_by: u.id,
           entity_id: orgProfile.id,
-          type: 'ORGANIZATION',
-          status: 'PENDING',
+          type: approval_request_type_enum.ORGANIZATION,
+          status: approval_request_status_enum.PENDING,
         },
       });
 
@@ -221,7 +226,8 @@ export class AuthService {
       throw new ForbiddenException('Account is not active');
     }
 
-    return this.signToken(user);
+    await this.cleanupStaleRefreshTokens(user.id);
+    return this.issueTokens(user);
   }
 
   async loginOrganization(dto: LoginOrganizationDto) {
@@ -251,7 +257,8 @@ export class AuthService {
       throw new ForbiddenException('Акаунт організації не активний');
     }
 
-    return this.signToken(user);
+    await this.cleanupStaleRefreshTokens(user.id);
+    return this.issueTokens(user);
   }
 
   async verifyEmail(userId: number, token: string) {
@@ -448,17 +455,17 @@ export class AuthService {
     return { message: 'Пароль успішно змінено' };
   }
 
-  private async signToken(user: {
+  private async signAccessToken(user: {
     id: number;
     email: string;
     role: user_role_enum;
     status: user_status_enum;
-  }) {
-    const payload: Record<string, any> = {
+  }): Promise<string> {
+    const payload: Record<string, unknown> = {
       sub: user.id,
       email: user.email,
-      role: String(user.role),
-      status: String(user.status),
+      role: user.role,
+      status: user.status,
     };
 
     if (user.role === user_role_enum.ORGANIZATION) {
@@ -475,12 +482,148 @@ export class AuthService {
     const ttl = this.config.get<string>('ACCESS_TOKEN_TTL') || '15m';
 
     // @ts-expect-error: Ігноруємо баг типізації перевантажених методів у бібліотеці JwtService
-    const accessToken = await this.jwt.signAsync(payload, {
+    return this.jwt.signAsync(payload, {
       secret,
       expiresIn: ttl,
     });
+  }
 
-    return { accessToken };
+  private parseDuration(input: string): number {
+    const match = /^(\d+)([smhd])$/.exec(input.trim());
+    if (!match) {
+      throw new Error(`Invalid duration format: ${input}`);
+    }
+    const value = Number(match[1]);
+    const unit = match[2];
+    const multipliers: Record<string, number> = {
+      s: 1_000,
+      m: 60_000,
+      h: 3_600_000,
+      d: 86_400_000,
+    };
+    return value * multipliers[unit];
+  }
+
+  private hashRefreshToken(raw: string): string {
+    return crypto.createHash('sha256').update(raw).digest('hex');
+  }
+
+  private getRefreshTtlMs(): number {
+    const ttlString = this.config.get<string>('REFRESH_TOKEN_TTL') || '7d';
+    return this.parseDuration(ttlString);
+  }
+
+  private async issueTokens(user: {
+    id: number;
+    email: string;
+    role: user_role_enum;
+    status: user_status_enum;
+  }) {
+    const accessToken = await this.signAccessToken(user);
+    const refreshToken = await this.createRefreshToken(user.id);
+    return { accessToken, refreshToken };
+  }
+
+  private async createRefreshToken(userId: number): Promise<string> {
+    const raw = crypto.randomBytes(64).toString('hex');
+    const tokenHash = this.hashRefreshToken(raw);
+    const expiresAt = new Date(Date.now() + this.getRefreshTtlMs());
+
+    await this.prisma.refresh_token.create({
+      data: {
+        user_id: userId,
+        token_hash: tokenHash,
+        expires_at: expiresAt,
+      },
+    });
+
+    return raw;
+  }
+
+  private async cleanupStaleRefreshTokens(userId: number) {
+    await this.prisma.refresh_token.deleteMany({
+      where: { user_id: userId, expires_at: { lt: new Date() } },
+    });
+  }
+
+  async refresh(refreshToken: string) {
+    const tokenHash = this.hashRefreshToken(refreshToken);
+    const record = await this.prisma.refresh_token.findUnique({
+      where: { token_hash: tokenHash },
+      include: { app_user: true },
+    });
+
+    if (!record) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (record.expires_at < new Date()) {
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    if (record.app_user.status !== user_status_enum.ACTIVE) {
+      throw new UnauthorizedException('User account is not active');
+    }
+
+    if (record.revoked_at !== null) {
+      const REFRESH_GRACE_MS = 5_000;
+      const justRevokedMs = Date.now() - record.revoked_at.getTime();
+      if (justRevokedMs < REFRESH_GRACE_MS && record.replaced_by_id !== null) {
+        throw new UnauthorizedException(
+          'Refresh token recently rotated, please re-login',
+        );
+      }
+
+      await this.prisma.refresh_token.updateMany({
+        where: { user_id: record.user_id, revoked_at: null },
+        data: { revoked_at: new Date() },
+      });
+      throw new UnauthorizedException('Refresh token has been revoked');
+    }
+
+    const newRaw = crypto.randomBytes(64).toString('hex');
+    const newHash = this.hashRefreshToken(newRaw);
+    const newExpiresAt = new Date(Date.now() + this.getRefreshTtlMs());
+    const accessToken = await this.signAccessToken(record.app_user);
+    await this.prisma.$transaction(async (tx) => {
+      const claim = await tx.refresh_token.updateMany({
+        where: {
+          token_hash: tokenHash,
+          revoked_at: null,
+          expires_at: { gt: new Date() },
+        },
+        data: { revoked_at: new Date() },
+      });
+
+      if (claim.count === 0) {
+        throw new UnauthorizedException(
+          'Refresh token already used, please retry',
+        );
+      }
+
+      const created = await tx.refresh_token.create({
+        data: {
+          user_id: record.user_id,
+          token_hash: newHash,
+          expires_at: newExpiresAt,
+        },
+      });
+
+      await tx.refresh_token.update({
+        where: { id: record.id },
+        data: { replaced_by_id: created.id },
+      });
+    });
+
+    return { accessToken, refreshToken: newRaw };
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+    const tokenHash = this.hashRefreshToken(refreshToken);
+    await this.prisma.refresh_token.updateMany({
+      where: { token_hash: tokenHash, revoked_at: null },
+      data: { revoked_at: new Date() },
+    });
   }
 
   async me(user: { id: number }) {
