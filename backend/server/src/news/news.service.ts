@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto } from './dto/create-news.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, news_status_enum } from '@prisma/client';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 
 export interface RequestUser {
@@ -40,6 +40,7 @@ export class NewsService {
     search?: string,
   ) {
     const whereClause: Prisma.newsWhereInput = {
+      status: news_status_enum.PUBLISHED,
       ...(isPinned !== undefined && { is_pinned: isPinned }),
       ...(search && {
         title: {
@@ -55,6 +56,7 @@ export class NewsService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
+        include: { organization: true },
       }),
       this.prisma.news.count({ where: whereClause }),
     ]);
