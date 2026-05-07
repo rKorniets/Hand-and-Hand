@@ -5,6 +5,7 @@ import {
   Prisma,
   verification_status_enum,
   approval_request_status_enum,
+  approval_request_type_enum,
   user_status_enum,
 } from '@prisma/client';
 import {
@@ -41,7 +42,10 @@ export class OrgProfileAdminService {
 
   async findPending() {
     return this.prisma.approval_request.findMany({
-      where: { type: 'ORGANIZATION', status: 'PENDING' },
+      where: {
+        type: approval_request_type_enum.ORGANIZATION,
+        status: approval_request_status_enum.PENDING,
+      },
       orderBy: { created_at: 'desc' },
       include: {
         submitter: {

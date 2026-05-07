@@ -34,12 +34,32 @@
 
 ## Автентифікація
 
-- **JWT Bearer Token** — `Authorization: Bearer <token>`
-- **Термін дії:** 15 хвилин (`ACCESS_TOKEN_TTL`)
-- **Хешування паролів:** Argon2
+- **JWT Bearer Token** — `Authorization: Bearer <accessToken>`
+- **Access token TTL:** 15 хвилин (`ACCESS_TOKEN_TTL`)
+- **Refresh token TTL:** 7 днів (`REFRESH_TOKEN_TTL`) — opaque random hex (128 chars), не JWT
+- **Хешування паролів:** Argon2; refresh-токени у БД зберігаються як SHA-256 hash
 - **Адмін логіниться** через загальний `/auth/login/user` (окремого ендпоінта немає)
 
-### JWT payload
+### Login response
+
+Усі `/auth/login/*` повертають пару:
+
+```json
+{
+  "accessToken": "eyJhbGc...",
+  "refreshToken": "3a3c1141a48e69dd..."
+}
+```
+
+Фронт зберігає обидва (`access_token`, `refresh_token` у `localStorage`). При 401 на захищеному запиті interceptor автоматично кличе `/auth/refresh` і повторює оригінальний запит з новим access-токеном.
+
+### Refresh token rotation + reuse detection
+
+- Кожен `/auth/refresh` у транзакції видає **нову** пару, відкликає старий RT (`revoked_at`), у старого ставить `replaced_by_id` на новий (chain).
+- Якщо хтось використовує вже відкликаний RT — спрацьовує **reuse detection**: усі активні RT юзера відкликаються, юзер мусить логінитись заново. Захист від крадіжки токена.
+- `/auth/logout` — м'яке відкликання конкретного RT (idempotent).
+
+### JWT payload (access token)
 
 ```json
 {
@@ -52,13 +72,15 @@
 
 ### Ендпоїнти
 
-| Метод | Шлях                          | Опис                                    |
-| ----- | ----------------------------- | --------------------------------------- |
-| POST  | `/auth/register/user`         | Реєстрація користувача (статус ACTIVE)  |
-| POST  | `/auth/register/organization` | Реєстрація організації (статус PENDING) |
-| POST  | `/auth/login/user`            | Логін користувача/волонтера/адміна      |
-| POST  | `/auth/login/organization`    | Логін організації (ЄДРПОУ + password)   |
-| GET   | `/auth/me`                    | Профіль поточного користувача           |
+| Метод | Шлях                          | Опис                                                               |
+| ----- | ----------------------------- | ------------------------------------------------------------------ |
+| POST  | `/auth/register/user`         | Реєстрація користувача (статус PENDING до verify-email)            |
+| POST  | `/auth/register/organization` | Реєстрація організації (статус PENDING)                            |
+| POST  | `/auth/login/user`            | Логін користувача/волонтера/адміна → `{accessToken, refreshToken}` |
+| POST  | `/auth/login/organization`    | Логін організації (ЄДРПОУ + password) → пара токенів               |
+| POST  | `/auth/refresh`               | Public. Body `{refreshToken}` → нова пара токенів. Throttle 10/хв. |
+| POST  | `/auth/logout`                | Public. Body `{refreshToken}` → 204. Idempotent revoke.            |
+| GET   | `/auth/me`                    | Профіль поточного користувача                                      |
 
 ---
 

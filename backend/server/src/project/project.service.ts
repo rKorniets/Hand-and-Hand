@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import {
   Prisma,
+  approval_request_status_enum,
+  approval_request_type_enum,
   project_registration_status_enum,
   project_status_enum,
 } from '@prisma/client';
@@ -54,7 +56,10 @@ export class ProjectService {
     organizationProfileId?: number,
   ) {
     const approvedRequests = await this.prisma.approval_request.findMany({
-      where: { type: 'PROJECT', status: 'APPROVED' },
+      where: {
+        type: approval_request_type_enum.PROJECT,
+        status: approval_request_status_enum.APPROVED,
+      },
       select: { entity_id: true },
     });
 
@@ -127,7 +132,7 @@ export class ProjectService {
           participants: data.participants ?? null,
           partners: data.partners,
           image_url: data.image_url,
-          status: 'DRAFT',
+          status: project_status_enum.DRAFT,
           starts_at: data.starts_at ? new Date(data.starts_at) : null,
           ends_at: data.ends_at ? new Date(data.ends_at) : null,
           ...(locationId && { location_id: locationId }),
@@ -137,8 +142,8 @@ export class ProjectService {
 
       await tx.approval_request.create({
         data: {
-          type: 'PROJECT',
-          status: 'PENDING',
+          type: approval_request_type_enum.PROJECT,
+          status: approval_request_status_enum.PENDING,
           entity_id: project.id,
           submitted_by: currentUser.id,
         },
