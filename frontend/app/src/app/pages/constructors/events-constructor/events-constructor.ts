@@ -90,7 +90,7 @@ export class EventsConstructorComponent implements OnInit {
       time: ['', [Validators.required, validTimeFormat]],
       application_deadline: ['', [Validators.required, notPastDate]],
       partners: ['', Validators.maxLength(500)],
-      image_url: ['', Validators.required],
+      image_url: [''],
       participants: [null, [Validators.min(1)]],
       location: this.fb.group(
         {

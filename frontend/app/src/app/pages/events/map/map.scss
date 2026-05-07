@@ -36,6 +36,16 @@
     border: 1px solid $border-color;
     position: relative;
     margin-left: 80px;
+    flex-shrink: 0;
+
+    :global(.ol-viewport) {
+      border-radius: 40px;
+    }
+
+    :global(.ol-attribution) {
+      font-size: 10px;
+      opacity: 0.6;
+    }
   }
 
   &__info {
@@ -47,7 +57,130 @@
   }
 }
 
+.map__popup {
+  position: absolute;
+  background: $bg-color-block;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  padding: 16px;
+  width: 240px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateX(-50%) translateY(-100%) translateY(-16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+
+  &--visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  &__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: $text-placeholder;
+    z-index: 11;
+
+    &:hover {
+      color: $text-color;
+    }
+  }
+
+  &__title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: $text-color;
+    padding-right: 20px;
+  }
+
+  &__desc {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: $text-placeholder;
+    line-height: 1.4;
+  }
+
+  &__date {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: $text-placeholder;
+  }
+
+  &__more {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+
+    &--sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+  }
+
+  &__cluster-label {
+    font-size: 13px;
+    margin-bottom: 10px;
+    color: $text-color;
+  }
+
+  &__cluster-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__cluster-item {
+    padding: 8px;
+    background: rgba($border-color, 0.1);
+    border-radius: 8px;
+  }
+
+  &__cluster-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__cluster-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__cluster-pin {
+    background: none;
+    border: 1px solid $border-color;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: $text-color;
+  }
+}
+
 .map__search {
+  &__wrapper {
+    position: relative;
+    width: 100%;
+  }
+
   &__input {
     width: 100%;
     padding: 15px 20px;
@@ -57,11 +190,27 @@
     font-size: 25px;
     outline: none;
     color: $text-color;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #ff6b35;
+    }
 
     &::placeholder {
       color: $text-placeholder;
-      font-size: 25px;
     }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: $text-placeholder;
+    cursor: pointer;
   }
 }
 
@@ -69,17 +218,120 @@
   &__text {
     font-size: 35px;
     font-weight: 500;
-    line-height: 1.3;
     color: $text-color;
     margin: 0;
+
+    strong {
+      color: #ff6b35;
+    }
+  }
+}
+
+.map__points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 350px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 4px;
+  }
+
+  &__empty {
+    color: $text-placeholder;
+    padding: 20px 0;
+  }
+}
+
+.map__point {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background-color: $bg-color-block;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #ff6b35;
+    transform: translateX(5px);
+  }
+
+  &__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ff6b35;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-color;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__category {
+    font-size: 12px;
+    color: #ff6b35;
   }
 }
 
 .map__placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  font-size: 18px;
-  color: $text-placeholder;
+  gap: 15px;
+  background: $bg-color-block;
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(#ff6b35, 0.1);
+    border-top-color: #ff6b35;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .map__component__body {
+    flex-direction: column;
+  }
+  .map__component__canvas {
+    width: 100%;
+    margin-left: 0;
+  }
+  .map__component__info {
+    width: 100%;
+  }
 }

@@ -4,20 +4,91 @@
   </div>
 
   <div class="map__component__body">
-    <div class="map__component__canvas" id="map">
-      <div class="map__placeholder">
-        <span>Завантаження інтерактивної карти...</span>
+    <div class="map__component__canvas" #mapContainer>
+      @if (!mapReady) {
+        <div class="map__placeholder">
+          <div class="map__placeholder__spinner"></div>
+          <span>Завантаження інтерактивної карти...</span>
+        </div>
+      }
+
+      <div
+        #popup
+        class="map__popup"
+        [class.map__popup--visible]="selectedEvent() || clusterEvents().length > 0"
+      >
+        <button class="map__popup__close" (click)="closePopup()">✕</button>
+
+        @if (selectedEvent(); as project) {
+          <h3 class="map__popup__title">{{ project.title }}</h3>
+          <p class="map__popup__desc">{{ project.description }}</p>
+          @if (project.location?.address) {
+            <p class="map__popup__date">📍 {{ project.location?.address }}</p>
+          }
+          <button class="map__popup__more" (click)="onOpenEvent(project.id)">Більше</button>
+        } @else if (clusterEvents().length > 0) {
+          <p class="map__popup__cluster-label">
+            <strong>{{ clusterEvents().length }}</strong> події тут
+          </p>
+          <ul class="map__popup__cluster-list">
+            @for (event of clusterEvents(); track event.id) {
+              <li class="map__popup__cluster-item">
+                <span class="map__popup__cluster-title">{{ event.title }}</span>
+                <div class="map__popup__cluster-actions">
+                  <button class="map__popup__cluster-pin" (click)="selectFromCluster(event)">
+                    На карті
+                  </button>
+                  <button
+                    class="map__popup__more map__popup__more--sm"
+                    (click)="onOpenEvent(event.id, $event)"
+                  >
+                    Більше
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
       </div>
     </div>
 
     <div class="map__component__info">
-      <div class="map__search">
-        <input type="text" class="map__search__input" placeholder="пошук події" />
+      <div class="map__description">
+        <p class="map__description__text">
+          Знайдено подій: <strong>{{ filteredEvents.length }}</strong>
+        </p>
       </div>
 
-      <div class="map__description">
-        <p class="map__description__text">Знайдіть події поруч з вами та приєднуйтеся до них</p>
+      <div class="map__search">
+        <div class="map__search__wrapper">
+          <input
+            class="map__search__input"
+            type="text"
+            placeholder="Пошук за назвою або містом..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearch($event)"
+          />
+          @if (searchQuery()) {
+            <button class="map__search__clear" (click)="onSearch('')">✕</button>
+          }
+        </div>
       </div>
+
+      <ul class="map__points">
+        @for (project of filteredEvents; track project.id) {
+          <li class="map__point" (click)="flyToEvent(project)">
+            <div class="map__point__dot"></div>
+            <div class="map__point__content">
+              <span class="map__point__title">{{ project.title }}</span>
+              @if (project.location?.city) {
+                <span class="map__point__category">{{ project.location?.city }}</span>
+              }
+            </div>
+          </li>
+        } @empty {
+          <li class="map__points__empty">Подій не знайдено</li>
+        }
+      </ul>
     </div>
   </div>
 </section>
