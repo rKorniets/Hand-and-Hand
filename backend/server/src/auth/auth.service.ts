@@ -12,6 +12,8 @@ import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../audit/audit.service';
+import { AUDIT_ACTIONS } from '../audit/audit.constants';
 import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
 import { LoginUserDto, LoginOrganizationDto } from './dto/login.dto';
 import {
@@ -21,6 +23,11 @@ import {
   approval_request_status_enum,
   Prisma,
 } from '@prisma/client';
+
+export interface AuthRequestContext {
+  ip?: string | null;
+  userAgent?: string | null;
+}
 
 @Injectable()
 export class AuthService {
@@ -32,11 +39,19 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private audit: AuditService,
   ) {
     this.mailUser = this.config.getOrThrow<string>('MAIL_USER');
     this.mailPass = this.config.getOrThrow<string>('MAIL_PASSWORD');
     this.frontendUrl =
       this.config.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+  }
+
+  private extractAuditCtx(req?: AuthRequestContext) {
+    return {
+      ip: req?.ip ?? null,
+      userAgent: req?.userAgent ?? null,
+    };
   }
 
   private async resolveLocation(
@@ -196,59 +211,102 @@ export class AuthService {
     };
   }
 
-  async loginUser(dto: LoginUserDto) {
+  async loginUser(dto: LoginUserDto, ctx?: AuthRequestContext) {
+    const auditCtx = this.extractAuditCtx(ctx);
+    const logFail = (reason: string, userId?: number) =>
+      this.audit.log({
+        action: AUDIT_ACTIONS.LOGIN_FAIL,
+        userId: userId ?? null,
+        payload: { email: dto.email, reason },
+        ...auditCtx,
+      });
+
     const user = await this.prisma.app_user.findUnique({
       where: { email: dto.email },
     });
 
     if (!user || user.role === user_role_enum.ORGANIZATION) {
+      logFail('invalid_credentials');
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const isValid = await argon2.verify(user.password_hash, dto.password);
-    if (!isValid) throw new UnauthorizedException('Invalid credentials');
+    if (!isValid) {
+      logFail('invalid_credentials', user.id);
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     if (user.status === user_status_enum.PENDING) {
+      logFail('email_not_verified', user.id);
       throw new UnauthorizedException('Please verify your email first');
     }
 
     if (user.status !== user_status_enum.ACTIVE) {
+      logFail('inactive', user.id);
       throw new ForbiddenException('Account is not active');
     }
 
     await this.cleanupStaleRefreshTokens(user.id);
-    return this.issueTokens(user);
+    const tokens = await this.issueTokens(user);
+    this.audit.log({
+      action: AUDIT_ACTIONS.LOGIN_SUCCESS,
+      userId: user.id,
+      ...auditCtx,
+    });
+    return tokens;
   }
 
-  async loginOrganization(dto: LoginOrganizationDto) {
+  async loginOrganization(dto: LoginOrganizationDto, ctx?: AuthRequestContext) {
+    const auditCtx = this.extractAuditCtx(ctx);
+    const logFail = (reason: string, userId?: number) =>
+      this.audit.log({
+        action: AUDIT_ACTIONS.ORG_LOGIN_FAIL,
+        userId: userId ?? null,
+        payload: { edrpou: dto.edrpou, reason },
+        ...auditCtx,
+      });
+
     const orgProfile = await this.prisma.organization_profile.findUnique({
       where: { edrpou: dto.edrpou },
       include: { app_user: true },
     });
 
     if (!orgProfile || !orgProfile.app_user) {
+      logFail('invalid_credentials');
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const user = orgProfile.app_user;
 
     const isValid = await argon2.verify(user.password_hash, dto.password);
-    if (!isValid) throw new UnauthorizedException('Invalid credentials');
+    if (!isValid) {
+      logFail('invalid_credentials', user.id);
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     if (user.status === user_status_enum.PENDING) {
+      logFail('email_not_verified', user.id);
       throw new UnauthorizedException('Please verify your email first');
     }
 
     if (user.status === user_status_enum.INACTIVE) {
+      logFail('inactive', user.id);
       throw new ForbiddenException('Ваш акаунт було відхилено');
     }
 
     if (user.status !== user_status_enum.ACTIVE) {
+      logFail('not_active', user.id);
       throw new ForbiddenException('Акаунт організації не активний');
     }
 
     await this.cleanupStaleRefreshTokens(user.id);
-    return this.issueTokens(user);
+    const tokens = await this.issueTokens(user);
+    this.audit.log({
+      action: AUDIT_ACTIONS.ORG_LOGIN_SUCCESS,
+      userId: user.id,
+      ...auditCtx,
+    });
+    return tokens;
   }
 
   async verifyEmail(userId: number, token: string) {
@@ -536,7 +594,8 @@ export class AuthService {
     });
   }
 
-  async refresh(refreshToken: string) {
+  async refresh(refreshToken: string, ctx?: AuthRequestContext) {
+    const auditCtx = this.extractAuditCtx(ctx);
     const tokenHash = this.hashRefreshToken(refreshToken);
     const record = await this.prisma.refresh_token.findUnique({
       where: { token_hash: tokenHash },
@@ -564,6 +623,12 @@ export class AuthService {
         );
       }
 
+      this.audit.log({
+        action: AUDIT_ACTIONS.TOKEN_REUSE_DETECTED,
+        userId: record.user_id,
+        payload: { tokenId: record.id },
+        ...auditCtx,
+      });
       await this.prisma.refresh_token.updateMany({
         where: { user_id: record.user_id, revoked_at: null },
         data: { revoked_at: new Date() },
@@ -605,14 +670,33 @@ export class AuthService {
       });
     });
 
+    this.audit.log({
+      action: AUDIT_ACTIONS.TOKEN_REFRESH,
+      userId: record.user_id,
+      ...auditCtx,
+    });
+
     return { accessToken, refreshToken: newRaw };
   }
 
-  async logout(refreshToken: string): Promise<void> {
+  async logout(
+    refreshToken: string,
+    ctx?: AuthRequestContext,
+  ): Promise<void> {
+    const auditCtx = this.extractAuditCtx(ctx);
     const tokenHash = this.hashRefreshToken(refreshToken);
+    const record = await this.prisma.refresh_token.findUnique({
+      where: { token_hash: tokenHash },
+      select: { user_id: true },
+    });
     await this.prisma.refresh_token.updateMany({
       where: { token_hash: tokenHash, revoked_at: null },
       data: { revoked_at: new Date() },
+    });
+    this.audit.log({
+      action: AUDIT_ACTIONS.LOGOUT,
+      userId: record?.user_id ?? null,
+      ...auditCtx,
     });
   }
 
