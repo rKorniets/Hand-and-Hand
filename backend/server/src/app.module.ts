@@ -29,6 +29,7 @@ import { MyModule } from './my/my.module';
 import { MyOrgModule } from './my-org/my-org.module';
 import { PointsModule } from './points/points.module';
 import { NotificationModule } from './notification/notification.module';
+import { NotificationOrganizationModule } from './notification-organization/notification-organization.module';
 import { AuditModule } from './audit/audit.module';
 
 @Module({
@@ -71,6 +72,7 @@ import { AuditModule } from './audit/audit.module';
     MyOrgModule,
     PointsModule,
     NotificationModule,
+    NotificationOrganizationModule,
   ],
   controllers: [AppController],
   providers: [

@@ -74,12 +74,11 @@ export class Activity implements OnInit, OnChanges {
       next: (data) => {
         this.activities = data;
         this.visibleActivities = data.slice(0, 5);
-        this.cdr.detectChanges();
+        setTimeout(() => this.cdr.detectChanges());
       },
       error: (err) => console.error('Помилка завантаження активностей:', err),
     });
   }
-
   toggleActivities(target: HTMLElement): void {
     this.isExpanded = this.uiHelper.toggleExpansion(this.isExpanded, target);
     if (this.isExpanded) {
