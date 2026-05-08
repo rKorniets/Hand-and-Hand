@@ -61,6 +61,7 @@ export class ReportAdminService {
         title: data.title,
         type: data.type,
         file_url: data.file_url,
+        description: data.description,
         published_at: data.published_at ?? new Date(),
         organization_profile: {
           connect: { id: data.organization_profile_id },

@@ -62,6 +62,7 @@ export interface Report {
   title: string;
   type: ReportType;
   file_url: string;
+  description: string;
   published_at: string | Date;
   created_at: string | Date;
   updated_at: string | Date;

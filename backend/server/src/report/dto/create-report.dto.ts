@@ -30,7 +30,14 @@ export class CreateReportDto {
   @IsNotEmpty()
   @MaxLength(200)
   title: string;
-
+  @ApiProperty({
+    description: 'Опис звіту',
+    example: 'Фінансовий звіт за березень 2025 року',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(250)
+  description: string;
   @ApiProperty({
     enum: report_type_enum,
     description: 'Тип звіту',
