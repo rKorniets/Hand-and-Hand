@@ -5,10 +5,13 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { Request } from 'express';
 import { Observable, tap } from 'rxjs';
 import { AUDIT_KEY } from './audit.constants';
 import { AuditMetadata } from './decorators/audit.decorator';
 import { AuditService } from './audit.service';
+
+type AuditableRequest = Request & { user?: { id: number } };
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
@@ -24,7 +27,7 @@ export class AuditInterceptor implements NestInterceptor {
     );
     if (!meta) return next.handle();
 
-    const req = ctx.switchToHttp().getRequest();
+    const req = ctx.switchToHttp().getRequest<AuditableRequest>();
 
     return next.handle().pipe(
       tap((res: unknown) => {
@@ -36,6 +39,8 @@ export class AuditInterceptor implements NestInterceptor {
 
         const payload = meta.resolvePayload?.(req, res);
 
+        const rawUa = req.headers['user-agent'];
+
         this.audit.log({
           userId: req.user?.id ?? null,
           action: meta.action,
@@ -45,9 +50,7 @@ export class AuditInterceptor implements NestInterceptor {
             : null,
           payload,
           ip: req.ip,
-          userAgent: Array.isArray(req.headers?.['user-agent'])
-            ? req.headers['user-agent'][0]
-            : (req.headers?.['user-agent'] ?? null),
+          userAgent: rawUa ?? null,
         });
       }),
     );
