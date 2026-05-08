@@ -26,6 +26,8 @@ export class RegisterComponent {
 
   error = '';
   loading = false;
+  success = false;
+  successEmail = '';
 
   constructor(
     private fb: FormBuilder,
@@ -57,6 +59,7 @@ export class RegisterComponent {
   setTab(tab: 'user' | 'org') {
     this.activeTab = tab;
     this.error = '';
+    this.success = false;
   }
 
   getError(form: FormGroup, field: string): string | null {
@@ -105,7 +108,8 @@ export class RegisterComponent {
             queryParams: { pending: 'org' },
           });
         } else {
-          this.router.navigate(['/login']);
+          this.success = true;
+          this.successEmail = this.userForm.value.email;
         }
       },
       error: (err) => {

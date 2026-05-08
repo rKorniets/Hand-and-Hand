@@ -1,0 +1,27 @@
+<div class="verify-email">
+  @switch (state) {
+    @case ('loading') {
+      <div class="verify-email__card">
+        <div class="verify-email__spinner"></div>
+        <p class="verify-email__text">Підтверджуємо вашу пошту…</p>
+      </div>
+    }
+    @case ('success') {
+      <div class="verify-email__card">
+        <div class="verify-email__icon">✅</div>
+        <h2 class="verify-email__title">Пошту підтверджено!</h2>
+        <p class="verify-email__hint">
+          Ваш акаунт активовано. Зараз вас перенаправить на сторінку входу…
+        </p>
+      </div>
+    }
+    @case ('error') {
+      <div class="verify-email__card">
+        <div class="verify-email__icon">❌</div>
+        <h2 class="verify-email__title">Помилка</h2>
+        <p class="verify-email__text">{{ errorMessage }}</p>
+        <a routerLink="/login" class="verify-email__button">Перейти на вхід</a>
+      </div>
+    }
+  }
+</div>

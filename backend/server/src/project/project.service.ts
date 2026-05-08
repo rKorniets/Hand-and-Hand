@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import {
   Prisma,
+  approval_request_status_enum,
+  approval_request_type_enum,
   project_registration_status_enum,
   project_status_enum,
   notification_type_enum,
@@ -51,14 +53,17 @@ export class ProjectService {
   }
 
   async getProjects(
-    limit?: number,
-    skip?: number,
+    limit: number = 5,
+    skip: number = 0,
     status?: project_status_enum,
     search?: string,
-    organizationProfileId?: number,
+    organization_profile_id?: number,
   ) {
     const approvedRequests = await this.prisma.approval_request.findMany({
-      where: { type: 'PROJECT', status: 'APPROVED' },
+      where: {
+        type: approval_request_type_enum.PROJECT,
+        status: approval_request_status_enum.APPROVED,
+      },
       select: { entity_id: true },
     });
 
@@ -67,12 +72,8 @@ export class ProjectService {
     const whereClause: Prisma.projectWhereInput = {
       id: { in: approvedProjectIds },
       ...(status && { status }),
-      ...(organizationProfileId && {
-        organization_profile_id: organizationProfileId,
-      }),
-      ...(search && {
-        title: { contains: search, mode: 'insensitive' },
-      }),
+      ...(search && { title: { contains: search, mode: 'insensitive' } }),
+      ...(organization_profile_id && { organization_profile_id }),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -81,6 +82,9 @@ export class ProjectService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
+        include: {
+          location: true,
+        },
       }),
       this.prisma.project.count({ where: whereClause }),
     ]);
@@ -141,8 +145,8 @@ export class ProjectService {
 
       await tx.approval_request.create({
         data: {
-          type: 'PROJECT',
-          status: 'PENDING',
+          type: approval_request_type_enum.PROJECT,
+          status: approval_request_status_enum.PENDING,
           entity_id: project.id,
           submitted_by: currentUser.id,
         },

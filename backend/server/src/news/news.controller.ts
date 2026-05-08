@@ -19,8 +19,10 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
+import { UpdateNewsDto } from './dto/update-news.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -43,6 +45,9 @@ export class NewsController extends AbstractCrudController<unknown> {
 
   @Get()
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список новин' })
   async findAll(@Query() query: GetNewsDto) {
     return this.newsService.getNews(
@@ -55,6 +60,9 @@ export class NewsController extends AbstractCrudController<unknown> {
 
   @Get(':id')
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30000)
+  @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати новину за ID' })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.newsService.getNewsById(id);
@@ -76,13 +84,25 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
-  @ApiOperation({ summary: 'Оновити новину (тільки автор)' })
-  async update(
+  @ApiOperation({ summary: 'Оновити новину (повністю)' })
+  async updateFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: CreateNewsDto,
     @CurrentUser() user: { id: number },
   ) {
     return this.newsService.updateNewsFull(id, data, { id: user.id });
+  }
+  @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Оновити новину (частково)' })
+  async updatePartial(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateNewsDto, // Використовує UpdateNewsDto
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.newsService.updateNewsPartial(id, data, { id: user.id });
   }
 
   @Delete(':id')
@@ -96,6 +116,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   ) {
     return this.newsService.deleteNews(id, { id: user.id });
   }
+
   @Patch(':id/image')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()

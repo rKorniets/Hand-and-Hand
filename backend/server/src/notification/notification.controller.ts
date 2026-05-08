@@ -13,6 +13,7 @@ import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { user_role_enum } from '@prisma/client';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
@@ -43,6 +44,17 @@ export class NotificationController {
   @ApiOperation({ summary: 'Позначити всі сповіщення як прочитані' })
   async markAllAsRead(@CurrentUser() user: { id: number }) {
     return this.notificationService.markAllAsRead(user);
+  }
+  @Patch(':id')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN)
+  @ApiOperation({ summary: 'Оновити сповіщення (тільки адмін)' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateNotificationDto,
+  ) {
+    return this.notificationService.update(id, data);
   }
 
   @Patch(':id/read')
