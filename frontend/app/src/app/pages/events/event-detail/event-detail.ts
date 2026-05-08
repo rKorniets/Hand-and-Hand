@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EventService } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
 import { NewEvent, ProjectRegistration, ProjectRegistrationStatus } from '../event.model';
+import { user_role_enum } from '@prisma/client';
 
 @Component({
   selector: 'app-event-detail',
@@ -21,6 +22,7 @@ export class EventDetailComponent implements OnInit {
   myRegistration: ProjectRegistration | null = null;
   isLoggedIn = false;
   eventId = 0;
+  attemptsExceededLocal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -70,6 +72,10 @@ export class EventDetailComponent implements OnInit {
     }
   }
 
+  get isAttemptsExceeded(): boolean {
+    return this.attemptsExceededLocal || (this.myRegistration?.attempt_count ?? 0) >= 3;
+  }
+
   get joinedCount(): number {
     return this.event?.registered_count ?? 0;
   }
@@ -92,21 +98,31 @@ export class EventDetailComponent implements OnInit {
 
   register(): void {
     this.eventService.register(this.eventId).subscribe({
-      next: (reg) => {
+      next: (reg: ProjectRegistration) => {
         this.myRegistration = reg;
+        this.attemptsExceededLocal = false;
         this.refreshEvent();
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        if (err.status === 400 && err.error?.message === 'Перевищено ліміт спроб') {
+          this.attemptsExceededLocal = true;
+        }
+        this.cdr.detectChanges();
+      },
     });
   }
 
   unregister(): void {
     this.eventService.unregister(this.eventId).subscribe({
-      next: () => {
-        this.myRegistration = null;
+      next: (updatedReg: ProjectRegistration) => {
+        this.myRegistration = updatedReg;
+        this.attemptsExceededLocal = false;
         this.refreshEvent();
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error('Помилка при скасуванні:', err);
+      },
     });
   }
 
@@ -117,5 +133,9 @@ export class EventDetailComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  get isOrganization(): boolean {
+    return this.authService.getRole() === user_role_enum.ORGANIZATION;
   }
 }

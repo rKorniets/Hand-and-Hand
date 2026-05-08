@@ -14,6 +14,7 @@ import { UserProfileService } from '../profile-user.service';
 })
 export class Requests implements OnInit {
   @Input() user: AppUser | undefined;
+  @Input() isOwnProfile: boolean = false;
 
   requests: ITicket[] = [];
   isExpanded: boolean = false;

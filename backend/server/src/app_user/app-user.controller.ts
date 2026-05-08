@@ -94,9 +94,9 @@ export class AppUserController {
 
   @Get(':id')
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Отримати користувача за ID' })
-  async getUserById(
+  getUserById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() currentUser: AuthUser,
   ) {
