@@ -26,8 +26,9 @@ import { ApplicationSubmitted } from './pages/auth/application-submitted/applica
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
 import { RequestConstructor } from './pages/constructors/request-constructor/request-constructor';
 import { NewsCreateComponent } from './pages/constructors/news-create/news-create';
-import { TicketsComponent } from './pages/tickets/tickets';
+//import { TicketsComponent } from './pages/tickets/tickets';
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email';
+import { OrganizationDetailComponent } from './pages/organizations/organization-detail/organization-detail';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -58,7 +59,7 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
   { path: 'activity/edit/:id', component: EventsConstructorComponent, canActivate: [authGuard] },
-  { path: 'organizations/:id', component: ProfileOrganization },
+  { path: 'organizations/:id', component: OrganizationDetailComponent },
   {
     path: 'fundraisingCampaign/create',
     loadComponent: () =>
@@ -70,5 +71,5 @@ export const routes: Routes = [
     path: 'fundraising/:id',
     component: FundraisingCampaignsDetail,
   },
-  { path: 'ticket', component: TicketsComponent, canActivate: [authGuard] },
+  // { path: 'ticket', component: TicketsComponent, canActivate: [authGuard] },
 ];
