@@ -679,10 +679,7 @@ export class AuthService {
     return { accessToken, refreshToken: newRaw };
   }
 
-  async logout(
-    refreshToken: string,
-    ctx?: AuthRequestContext,
-  ): Promise<void> {
+  async logout(refreshToken: string, ctx?: AuthRequestContext): Promise<void> {
     const auditCtx = this.extractAuditCtx(ctx);
     const tokenHash = this.hashRefreshToken(refreshToken);
     const record = await this.prisma.refresh_token.findUnique({
