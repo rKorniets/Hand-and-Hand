@@ -67,7 +67,9 @@
   }
 }
 
-.org-data, .members-card, .org-apply {
+.org-data,
+.members-card,
+.org-apply {
   background-color: #f3f3f3;
   padding: 24px;
   border-radius: 20px;
@@ -75,7 +77,8 @@
   box-sizing: border-box;
 }
 
-.org-data, .members-card {
+.org-data,
+.members-card {
   &__title {
     font-size: 26px;
     font-weight: 700;
@@ -141,13 +144,22 @@
     font-size: 16px;
     font-weight: 600;
 
-    &--info { color: #666; }
-    &--success { color: #27ae60; }
+    &--info {
+      color: #666;
+    }
+    &--success {
+      color: #27ae60;
+    }
     &--error {
       flex-direction: column;
       color: #eb5757;
       gap: 4px;
-      p { margin: 0; display: flex; align-items: center; gap: 8px; }
+      p {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
     }
 
     .material-symbols-outlined {
@@ -162,7 +174,9 @@
   }
 }
 
-.activity, .list__component, .reports {
+.activity,
+.list__component,
+.reports {
   width: 100%;
 
   &__title {
@@ -172,7 +186,8 @@
   }
 }
 
-.activity__item, .fundraising__card {
+.activity__item,
+.fundraising__card {
   display: flex;
   flex-direction: row;
   background-color: $bg-color-block;
@@ -212,13 +227,15 @@
     gap: 10px;
   }
 
-  .activity__top, .fundraising__card__top {
+  .activity__top,
+  .fundraising__card__top {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
   }
 
-  .activity__item-title, .fundraising__card__title {
+  .activity__item-title,
+  .fundraising__card__title {
     font-size: 22px;
     font-weight: 700;
     margin: 0;
@@ -229,7 +246,8 @@
     color: #666;
   }
 
-  .activity__text, .fundraising__card__description {
+  .activity__text,
+  .fundraising__card__description {
     font-size: 18px;
     line-height: 1.4;
     margin: 0;
@@ -299,7 +317,9 @@
   }
 }
 
-.activity__more, .reports__more, .members-card__toggle {
+.activity__more,
+.reports__more,
+.members-card__toggle {
   width: 100%;
   padding: 12px;
   margin-top: 5px;
