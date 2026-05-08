@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { notification_type_enum } from '@prisma/client';
 
 export interface RequestUser {
@@ -70,6 +71,24 @@ export class NotificationService {
         user_id: data.user_id,
         message: data.message,
         type: data.type ?? notification_type_enum.GENERAL,
+      },
+    });
+  }
+  async update(id: number, data: UpdateNotificationDto) {
+    const notification = await this.prisma.notification.findUnique({
+      where: { id },
+    });
+
+    if (!notification) {
+      throw new NotFoundException(`Notification with ID ${id} not found`);
+    }
+
+    return this.prisma.notification.update({
+      where: { id },
+      data: {
+        ...(data.user_id && { user_id: data.user_id }),
+        ...(data.message && { message: data.message }),
+        ...(data.type && { type: data.type }),
       },
     });
   }
