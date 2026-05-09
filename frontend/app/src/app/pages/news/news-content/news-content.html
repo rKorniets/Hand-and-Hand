@@ -8,7 +8,7 @@
 
   <div class="news-content__list">
     @for (item of items; track item.id) {
-      <a class="news-content__item" [routerLink]="['/news', item.id]">
+      <div class="news-content__item" (click)="navigateToNews(item.id)" style="cursor: pointer">
         @if (item.image_url) {
           <img
             class="news-content__image"
@@ -46,10 +46,6 @@
             <p class="news-content__text">{{ item.description }}</p>
           }
         </div>
-      </a>
-    } @empty {
-      <div class="news-content__empty">
-        <p>Список новин порожній або дані завантажуються...</p>
       </div>
     }
   </div>

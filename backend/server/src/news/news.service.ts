@@ -32,13 +32,15 @@ export class NewsService {
       select: { organization_id: true },
     });
 
-    if (!user || news.organization_id !== user.organization_id) {
+    if (
+      !user?.organization_id ||
+      news.organization_id !== user.organization_id
+    ) {
       throw new ForbiddenException('You can only edit or delete your own news');
     }
 
     return news;
   }
-
   async getNews(
     limit: number,
     skip: number,
@@ -62,7 +64,14 @@ export class NewsService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
-        include: { organization: true },
+        include: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       }),
       this.prisma.news.count({ where: whereClause }),
     ]);

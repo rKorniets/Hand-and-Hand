@@ -35,12 +35,11 @@ export class NewsAdminService {
   }
 
   async findOne(id: number) {
-    const news = await this.prisma.news.findUnique({ where: { id } });
-
-    if (!news) {
-      throw new NotFoundException(`News with ID ${id} not found`);
-    }
-
+    const news = await this.prisma.news.findUnique({
+      where: { id },
+      include: { organization: { select: { id: true, name: true } } },
+    });
+    if (!news) throw new NotFoundException(`News with ID ${id} not found`);
     return news;
   }
 
@@ -92,7 +91,7 @@ export class NewsAdminService {
       orderBy: { created_at: 'desc' },
       include: {
         organization: {
-          select: { name: true, contact_email: true },
+          select: { id: true, name: true, contact_email: true },
         },
       },
     });
