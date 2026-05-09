@@ -5,26 +5,42 @@
     <p class="news-detail__error">Новину не знайдено.</p>
   } @else {
     <div class="news-detail__wrapper">
-      <div class="news-detail__card">
-        <div class="news-detail__top-row">
-          @if (news.image_url) {
-            <img class="news-detail__image" [src]="news.image_url" [alt]="news.title" />
-          }
-          <div class="news-detail__header">
-            <div class="news-detail__title-row">
-              <h1 class="news-detail__title">{{ news.title }}</h1>
-              <span class="news-detail__date">{{ news.created_at | date: 'dd.MM' }}</span>
-            </div>
-            @if (news.description) {
-              <p class="news-detail__description">{{ news.description }}</p>
-            }
+      <a routerLink="/news" class="news-detail__back">&larr; До всіх новин</a>
+
+      <header class="news-detail__header">
+        <h1 class="news-detail__title">{{ news.title }}</h1>
+
+        <div class="news-detail__meta">
+          <div class="news-detail__author">
+            <div class="news-detail__avatar">👤</div>
+            <span class="news-detail__author-name">
+              @if (news.organization) {
+                {{ news.organization.name }}
+              } @else {
+                Редакція Hand&Hand
+              }
+            </span>
           </div>
+          <span class="news-detail__separator">•</span>
+          <time class="news-detail__date">{{ news.created_at | date: 'dd.MM.yyyy' }}</time>
         </div>
+      </header>
+
+      @if (news.image_url) {
+        <div class="news-detail__image-wrapper">
+          <img class="news-detail__image" [src]="news.image_url" [alt]="news.title" />
+        </div>
+      }
+
+      <article class="news-detail__body">
+        @if (news.description) {
+          <p class="news-detail__lead">{{ news.description }}</p>
+        }
 
         @if (news.main_content) {
-          <div class="news-detail__body">{{ news.main_content }}</div>
+          <div class="news-detail__content">{{ news.main_content }}</div>
         }
-      </div>
+      </article>
     </div>
   }
 </div>

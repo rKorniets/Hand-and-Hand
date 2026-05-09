@@ -27,7 +27,12 @@ export class NewsService {
       throw new NotFoundException(`News with ID ${id} not found`);
     }
 
-    if (news.created_by !== currentUser.id) {
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: currentUser.id },
+      select: { organization_id: true },
+    });
+
+    if (!user || news.organization_id !== user.organization_id) {
       throw new ForbiddenException('You can only edit or delete your own news');
     }
 
@@ -68,17 +73,30 @@ export class NewsService {
   async getNewsById(id: number) {
     return this.prisma.news.findUnique({
       where: { id },
+      include: {
+        organization: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 
-  async createNews(data: CreateNewsDto, createdBy: number) {
+  async createNews(data: CreateNewsDto, currentUserId: number) {
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: currentUserId },
+      select: { organization_id: true },
+    });
+
+    if (!user || user.organization_id === null) {
+      throw new ForbiddenException('Користувач не належить до організації');
+    }
+
     return this.prisma.news.create({
       data: {
-        title: data.title,
-        description: data.description,
-        main_content: data.main_content,
-        image_url: data.image_url,
-        created_by: createdBy,
+        ...data,
+        organization_id: user.organization_id,
         is_pinned: false,
       },
     });

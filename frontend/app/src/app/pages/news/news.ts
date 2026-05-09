@@ -53,7 +53,8 @@ export class NewsComponent implements OnInit {
     this.pinnedNews = data.pinned;
     this.regularNews = data.regular;
     this.hasNextPage = data.regular.length === this.limit;
-    this.isOrganization = this.authService.getRole() === 'ORGANIZATION';
+    const role = this.authService.getRole();
+    this.isOrganization = role === 'ORGANIZATION' || role === 'ADMIN';
     this.cdr.detectChanges();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

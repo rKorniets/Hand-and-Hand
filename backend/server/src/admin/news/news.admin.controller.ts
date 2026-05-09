@@ -14,14 +14,12 @@ import { NewsQueryAdminDto } from './dto/news-query.admin.dto';
 import { CreateNewsDto } from '../../news/dto/create-news.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { user_role_enum, news } from '@prisma/client';
 import {
   AbstractCrudController,
   type IBaseCrudService,
 } from '../../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import type { AuthAdmin } from '../approval/approval.admin.controller';
 
 @ApiTags('Адмін — Новини')
 @ApiBearerAuth()
@@ -63,8 +61,8 @@ export class NewsAdminController extends AbstractCrudController<news[]> {
 
   @Post()
   @ApiOperation({ summary: 'Створити новину' })
-  async create(@Body() data: CreateNewsDto, @CurrentUser() user: AuthAdmin) {
-    return this.service.create(data, user.id);
+  async create(@Body() data: CreateNewsDto) {
+    return this.service.create(data);
   }
 
   @Patch(':id')

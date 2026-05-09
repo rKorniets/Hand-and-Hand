@@ -44,15 +44,16 @@ export class NewsAdminService {
     return news;
   }
 
-  async create(data: CreateNewsDto, createdBy: number) {
+  async create(data: CreateNewsDto) {
     return this.prisma.news.create({
       data: {
         title: data.title,
         description: data.description,
         main_content: data.main_content,
         image_url: data.image_url,
-        created_by: createdBy,
+        organization_id: null,
         is_pinned: false,
+        status: news_status_enum.PUBLISHED,
       },
     });
   }

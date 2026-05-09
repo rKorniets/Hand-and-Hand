@@ -6,5 +6,8 @@ export interface NewsItem {
   is_pinned: boolean;
   description: string;
   main_content: string;
-  created_by: number | null;
+  organization?: {
+    id: number;
+    name: string;
+  };
 }
