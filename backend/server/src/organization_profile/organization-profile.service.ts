@@ -112,21 +112,30 @@ export class OrganizationProfileService {
     data: CreateOrganizationProfileDto,
     currentUser: RequestUser,
   ) {
-    return this.prisma.organization_profile.create({
-      data: {
-        user_id: currentUser.id,
-        name: data.name,
-        edrpou: data.edrpou,
-        description: data.description,
-        verification_status: verification_status_enum.PENDING,
-        official_docs_url: data.official_docs_url,
-        contact_phone: data.contact_phone,
-        contact_email: data.contact_email,
-        location_id: data.location_id,
-        mission: data.mission,
-        logo_url: data.logo_url,
-      },
-      include: { location: true },
+    return this.prisma.$transaction(async (tx) => {
+      const newProfile = await tx.organization_profile.create({
+        data: {
+          user_id: currentUser.id,
+          name: data.name,
+          edrpou: data.edrpou,
+          description: data.description,
+          verification_status: verification_status_enum.PENDING,
+          official_docs_url: data.official_docs_url,
+          contact_phone: data.contact_phone,
+          contact_email: data.contact_email,
+          location_id: data.location_id,
+          mission: data.mission,
+          logo_url: data.logo_url,
+        },
+        include: { location: true },
+      });
+
+      await tx.app_user.update({
+        where: { id: currentUser.id },
+        data: { organization_id: newProfile.id },
+      });
+
+      return newProfile;
     });
   }
 

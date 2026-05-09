@@ -102,7 +102,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Patch(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити новину (частково)' })
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,

@@ -76,6 +76,7 @@ export class NewsService {
       include: {
         organization: {
           select: {
+            id: true,
             name: true,
           },
         },
