@@ -12,10 +12,12 @@
 
         <div class="news-detail__meta">
           <div class="news-detail__author">
-            <div class="news-detail__avatar">👤</div>
+            <div class="news-detail__avatar" aria-hidden="true">👤</div>
             <span class="news-detail__author-name">
               @if (news.organization) {
-                {{ news.organization.name }}
+                <a [routerLink]="['/organizations', news.organization.id]" class="author-link">
+                  {{ news.organization.name }}
+                </a>
               } @else {
                 Редакція Hand&Hand
               }

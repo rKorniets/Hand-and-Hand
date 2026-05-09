@@ -71,8 +71,11 @@ export class NewsService {
   }
 
   async getNewsById(id: number) {
-    return this.prisma.news.findUnique({
-      where: { id },
+    return this.prisma.news.findFirst({
+      where: {
+        id,
+        status: news_status_enum.PUBLISHED,
+      },
       include: {
         organization: {
           select: {
