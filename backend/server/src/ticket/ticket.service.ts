@@ -155,7 +155,34 @@ export class TicketService {
       },
     });
   }
-
+  async updateFull(id: number, data: CreateTicketDto, userId: number) {
+    const ticket = await this.findOne(id);
+    if (ticket.user_id !== userId) {
+      throw new ForbiddenException('Ви можете редагувати тільки власні тікети');
+    }
+    return this.prisma.$transaction(async (tx) => {
+      let locationId: number | null = null;
+      if (data.location) {
+        locationId = await this.findOrCreateLocation(
+          tx,
+          data.location as LocationData,
+        );
+      }
+      return tx.ticket.update({
+        where: { id },
+        data: {
+          title: data.title,
+          description: data.description,
+          priority: data.priority ?? 'MEDIUM',
+          location: locationId
+            ? { connect: { id: locationId } }
+            : { disconnect: true },
+          file_url: data.file_url ?? null,
+          updated_at: new Date(),
+        },
+      });
+    });
+  }
   async remove(id: number, userId: number, userRole: user_role_enum) {
     const ticket = await this.findOne(id);
 
