@@ -30,6 +30,7 @@ import { MyOrgModule } from './my-org/my-org.module';
 import { PointsModule } from './points/points.module';
 import { NotificationModule } from './notification/notification.module';
 import { NotificationOrganizationModule } from './notification-organization/notification-organization.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { NotificationOrganizationModule } from './notification-organization/noti
       max: 100,
     }),
     PrismaModule,
+    AuditModule,
     AuthModule,
     NewsModule,
     ProjectModule,
