@@ -129,6 +129,12 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
 
   canAccept(): boolean {
     if (!this.ticket?.task?.length) return true;
+
+    const alreadyTaken = this.ticket.task.some(
+      (t) => t.project?.organization_profile_id !== this.currentOrgProfileId,
+    );
+    if (alreadyTaken) return false;
+
     return !this.ticket.task.some(
       (t) => t.project?.organization_profile_id === this.currentOrgProfileId,
     );

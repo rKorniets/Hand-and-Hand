@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create_task.dto';
 import { UpdateTaskDto } from './dto/update_task.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, ticket_status_enum } from '@prisma/client';
 
 export interface RequestUser {
   id: number;
@@ -64,7 +64,6 @@ export class TaskService {
     if (data.ticket_id) {
       const ticket = await this.prisma.ticket.findUnique({
         where: { id: data.ticket_id },
-        include: { task: true },
       });
 
       if (!ticket) {
@@ -72,16 +71,30 @@ export class TaskService {
           `Ticket with ID ${data.ticket_id} not found`,
         );
       }
-
-      if (ticket.task.length > 0) {
-        throw new BadRequestException(
-          'Цей тікет вже прийнятий іншою організацією',
-        );
-      }
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const task = await tx.task.create({
+      if (data.ticket_id) {
+        const updated = await tx.ticket.updateMany({
+          where: {
+            id: data.ticket_id,
+            status: { not: ticket_status_enum.IN_REVIEW },
+            task: { none: {} },
+          },
+          data: {
+            status: ticket_status_enum.IN_REVIEW,
+            updated_at: new Date(),
+          },
+        });
+
+        if (updated.count === 0) {
+          throw new BadRequestException(
+            'Цей тікет вже прийнятий іншою організацією',
+          );
+        }
+      }
+
+      return tx.task.create({
         data: {
           project_id: data.project_id,
           ticket_id: data.ticket_id ?? null,
@@ -93,15 +106,6 @@ export class TaskService {
           deadline: data.deadline,
         },
       });
-
-      if (data.ticket_id) {
-        await tx.ticket.update({
-          where: { id: data.ticket_id },
-          data: { status: 'IN_REVIEW', updated_at: new Date() },
-        });
-      }
-
-      return task;
     });
   }
 

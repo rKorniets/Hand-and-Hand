@@ -12,8 +12,6 @@ import { NotificationModule } from '../notification/notification.module';
     CloudinaryModule,
     NotificationModule,
     CacheModule.register(),
-    PrismaModule,
-    CloudinaryModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService],

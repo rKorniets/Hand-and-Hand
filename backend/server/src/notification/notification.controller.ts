@@ -25,15 +25,20 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+enum NotifyTaskType {
+  FUNDRAISER_CREATED = 'fundraiser_created',
+  EVENT_CREATED = 'event_created',
+}
+
 class NotifyFromTaskDto {
   @ApiProperty({ example: 42, description: 'ID задачі (task)' })
   @IsInt()
   @IsPositive()
   task_id: number;
 
-  @ApiProperty({ enum: ['fundraiser_created', 'event_created'] })
-  @IsEnum(['fundraiser_created', 'event_created'])
-  type: 'fundraiser_created' | 'event_created';
+  @ApiProperty({ enum: NotifyTaskType })
+  @IsEnum(NotifyTaskType)
+  type: NotifyTaskType;
 
   @ApiProperty({ example: 7, description: 'ID створеного збору або події' })
   @IsInt()
@@ -108,8 +113,11 @@ export class NotificationController {
   @ApiOperation({
     summary: 'Сповістити автора тікету про створення збору або події',
   })
-  async notifyFromTask(@Body() dto: NotifyFromTaskDto) {
-    return this.notificationService.notifyFromTask(dto);
+  async notifyFromTask(
+    @Body() dto: NotifyFromTaskDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.notificationService.notifyFromTask(dto, user);
   }
 
   @Delete(':id')

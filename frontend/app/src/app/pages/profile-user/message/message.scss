@@ -122,6 +122,16 @@
     padding: 16px;
     transition: background 0.15s ease;
 
+    &--clickable {
+      cursor: pointer;
+    }
+
+    &-arrow {
+      margin-left: 6px;
+      color: #999;
+      font-size: 13px;
+    }
+
     &:hover {
       background: #f9f9f9;
     }
@@ -216,15 +226,5 @@
     inset: 0;
     background: rgba(0, 0, 0, 0.2);
     z-index: 999;
-  }
-
-  &--clickable {
-    cursor: pointer;
-  }
-
-  &-arrow {
-    margin-left: 6px;
-    color: #999;
-    font-size: 13px;
   }
 }

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -82,7 +83,7 @@ export class NotificationService {
     });
   }
 
-  async notifyFromTask(dto: NotifyFromTaskDto) {
+  async notifyFromTask(dto: NotifyFromTaskDto, currentUser: RequestUser) {
     const task = await this.prisma.task.findUnique({
       where: { id: dto.task_id },
       include: {
@@ -92,7 +93,7 @@ export class NotificationService {
         project: {
           select: {
             organization_profile: {
-              select: { name: true },
+              select: { name: true, user_id: true },
             },
           },
         },
@@ -103,11 +104,17 @@ export class NotificationService {
       throw new NotFoundException(`Task with ID ${dto.task_id} not found`);
     }
 
+    const orgUserId = task.project?.organization_profile?.user_id;
+    if (orgUserId !== currentUser.id) {
+      throw new ForbiddenException(
+        'You do not have permission to notify from this task',
+      );
+    }
+
     if (!task.ticket || !task.ticket.user_id) {
-      return {
-        skipped: true,
-        reason: 'Task has no linked ticket or ticket has no author',
-      };
+      throw new BadRequestException(
+        'Task has no linked ticket or ticket has no author',
+      );
     }
 
     const recipientUserId = task.ticket.user_id;

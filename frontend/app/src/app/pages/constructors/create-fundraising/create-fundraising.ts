@@ -78,6 +78,11 @@ export class CreateFundraisingComponent implements OnInit {
   }
 
   private submitCampaignData(imageUrl: string) {
+    const apiBaseUrl = (
+      (globalThis as typeof globalThis & { API_BASE_URL?: string }).API_BASE_URL || ''
+    ).replace(/\/$/, '');
+    const fundraisingCampaignsUrl = `${apiBaseUrl}/fundraising_campaigns`;
+
     const payload = {
       title: this.campaignForm.value.title,
       description: this.campaignForm.value.description,
@@ -93,7 +98,7 @@ export class CreateFundraisingComponent implements OnInit {
     };
 
     this.http
-      .post<{ id: number; title: string }>('http://localhost:3000/fundraising_campaigns', payload)
+      .post<{ id: number; title: string }>(fundraisingCampaignsUrl, payload)
       .pipe(
         switchMap((created) => {
           if (this.taskId) {
