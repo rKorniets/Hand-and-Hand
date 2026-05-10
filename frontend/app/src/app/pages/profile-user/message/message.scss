@@ -217,4 +217,14 @@
     background: rgba(0, 0, 0, 0.2);
     z-index: 999;
   }
+
+  &--clickable {
+    cursor: pointer;
+  }
+
+  &-arrow {
+    margin-left: 6px;
+    color: #999;
+    font-size: 13px;
+  }
 }

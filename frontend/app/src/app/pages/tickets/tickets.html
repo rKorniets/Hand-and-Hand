@@ -1,0 +1,88 @@
+<main class="tickets-page">
+  <div class="tickets-page__wrapper">
+    <aside class="tickets-page__sidebar">
+      <app-filters [config]="filterConfig" (filtersChanged)="onFiltersChanged($event)" />
+    </aside>
+
+    <section class="tickets-page__main">
+      <div class="tickets-page__tabs">
+        <button
+          class="tickets-page__tab"
+          [class.tickets-page__tab--active]="activeTab === 'available'"
+          (click)="switchTab('available')"
+        >
+          Доступні тікети
+        </button>
+
+        <button
+          class="tickets-page__tab"
+          [class.tickets-page__tab--active]="activeTab === 'my'"
+          (click)="switchTab('my')"
+        >
+          Мої тікети
+        </button>
+      </div>
+
+      @if (loading) {
+        <div class="tickets-page__loading">
+          <div class="tickets-page__spinner"></div>
+          <span>Завантаження тікетів...</span>
+        </div>
+      }
+
+      @if (error) {
+        <p class="tickets-page__error">Помилка завантаження. Спробуйте пізніше.</p>
+      }
+
+      @if (!loading) {
+        <app-tickets-list [tickets]="filteredTickets" />
+
+        <div class="tickets-page__pagination">
+          <button
+            class="tickets-page__page-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(1)"
+          >
+            «
+          </button>
+          <button
+            class="tickets-page__page-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            ‹
+          </button>
+
+          @for (page of visiblePages; track page) {
+            @if (page === -1) {
+              <span class="tickets-page__page-dots">...</span>
+            } @else {
+              <button
+                class="tickets-page__page-btn"
+                [class.tickets-page__page-btn--active]="page === currentPage"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            }
+          }
+
+          <button
+            class="tickets-page__page-btn"
+            [disabled]="!hasNextPage"
+            (click)="goToPage(currentPage + 1)"
+          >
+            ›
+          </button>
+          <button
+            class="tickets-page__page-btn"
+            [disabled]="!hasNextPage"
+            (click)="goToPage(lastPage)"
+          >
+            »
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+</main>

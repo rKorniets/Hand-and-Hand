@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create_task.dto';
@@ -60,17 +61,47 @@ export class TaskService {
       );
     }
 
-    return this.prisma.task.create({
-      data: {
-        project_id: data.project_id,
-        ticket_id: data.ticket_id,
-        title: data.title,
-        description: data.description,
-        difficulty: data.difficulty,
-        points_reward_base: data.points_reward_base,
-        location_id: data.location_id,
-        deadline: data.deadline,
-      },
+    if (data.ticket_id) {
+      const ticket = await this.prisma.ticket.findUnique({
+        where: { id: data.ticket_id },
+        include: { task: true },
+      });
+
+      if (!ticket) {
+        throw new NotFoundException(
+          `Ticket with ID ${data.ticket_id} not found`,
+        );
+      }
+
+      if (ticket.task.length > 0) {
+        throw new BadRequestException(
+          'Цей тікет вже прийнятий іншою організацією',
+        );
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const task = await tx.task.create({
+        data: {
+          project_id: data.project_id,
+          ticket_id: data.ticket_id ?? null,
+          title: data.title,
+          description: data.description,
+          difficulty: data.difficulty,
+          points_reward_base: data.points_reward_base,
+          location_id: data.location_id,
+          deadline: data.deadline,
+        },
+      });
+
+      if (data.ticket_id) {
+        await tx.ticket.update({
+          where: { id: data.ticket_id },
+          data: { status: 'IN_REVIEW', updated_at: new Date() },
+        });
+      }
+
+      return task;
     });
   }
 
@@ -94,9 +125,7 @@ export class TaskService {
           project: true,
           ticket: true,
           location: true,
-          task_category: {
-            include: { category: true },
-          },
+          task_category: { include: { category: true } },
         },
       }),
       this.prisma.task.count({ where }),
@@ -112,9 +141,7 @@ export class TaskService {
         project: true,
         ticket: true,
         location: true,
-        task_category: {
-          include: { category: true },
-        },
+        task_category: { include: { category: true } },
         task_assignment: true,
       },
     });
@@ -144,9 +171,6 @@ export class TaskService {
 
   async remove(id: number, currentUser: RequestUser) {
     await this.validateTaskOwnership(id, currentUser);
-
-    return this.prisma.task.delete({
-      where: { id },
-    });
+    return this.prisma.task.delete({ where: { id } });
   }
 }

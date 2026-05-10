@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Reports } from './reports/reports';
 import { MainInfo } from './main-info/main-info';
 import { OrgData } from './org-data/org-data';
@@ -24,6 +24,7 @@ import { MessageOrg } from './message-org/message-org';
     MainInfo,
     Activity,
     MessageOrg,
+    RouterLink,
   ],
   templateUrl: './profile-organization.html',
   styleUrl: './profile-organization.scss',
@@ -33,7 +34,7 @@ export class ProfileOrganization implements OnInit {
   location: OrgLocation | undefined;
   reports: Report[] = [];
   isOwner = false;
-  currentUser: { id: string | number } | null = null;
+  currentUser: { id: number } | null = null;
 
   constructor(
     private orgService: OrganizationProfileService,
@@ -44,7 +45,7 @@ export class ProfileOrganization implements OnInit {
 
   ngOnInit(): void {
     const userId = this.authService.getUserId();
-    this.currentUser = userId ? { id: userId } : null;
+    this.currentUser = userId != null ? { id: Number(userId) } : null;
 
     const idParam = this.route.snapshot.paramMap.get('id');
     this.isOwner = !idParam;

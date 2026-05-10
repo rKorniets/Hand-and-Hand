@@ -6,6 +6,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { AppUser, UserNotification } from '../profile-user.model';
 import { NotificationService, NotificationResponse } from './message.service';
@@ -29,6 +30,7 @@ export class Message implements OnInit {
   constructor(
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -49,6 +51,25 @@ export class Message implements OnInit {
   togglePanel() {
     this.isPanelOpen = !this.isPanelOpen;
     this.cdr.markForCheck();
+  }
+
+  onNotificationClick(n: UserNotification) {
+    if (!n.is_read) {
+      this.notificationService
+        .markAsRead(n.id)
+        .pipe(take(1))
+        .subscribe(() => {
+          this.notifications = this.notifications.map((item: UserNotification) =>
+            item.id === n.id ? { ...item, is_read: true } : item,
+          );
+          this.cdr.markForCheck();
+        });
+    }
+
+    if (n.link) {
+      this.isPanelOpen = false;
+      void this.router.navigate([n.link]);
+    }
   }
 
   markAsRead(id: number) {

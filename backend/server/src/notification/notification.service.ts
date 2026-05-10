@@ -6,10 +6,17 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { notification_type_enum } from '@prisma/client';
+import { notification_type_enum, ticket_status_enum } from '@prisma/client';
 
 export interface RequestUser {
   id: number;
+}
+
+export interface NotifyFromTaskDto {
+  task_id: number;
+  type: 'fundraiser_created' | 'event_created';
+  source_id: number;
+  title: string;
 }
 
 @Injectable()
@@ -74,6 +81,71 @@ export class NotificationService {
       },
     });
   }
+
+  async notifyFromTask(dto: NotifyFromTaskDto) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: dto.task_id },
+      include: {
+        ticket: {
+          select: { id: true, user_id: true },
+        },
+        project: {
+          select: {
+            organization_profile: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${dto.task_id} not found`);
+    }
+
+    if (!task.ticket || !task.ticket.user_id) {
+      return {
+        skipped: true,
+        reason: 'Task has no linked ticket or ticket has no author',
+      };
+    }
+
+    const recipientUserId = task.ticket.user_id;
+    const ticketId = task.ticket.id;
+    const orgName = task.project?.organization_profile?.name ?? 'Організація';
+
+    const linkMap: Record<NotifyFromTaskDto['type'], string> = {
+      fundraiser_created: `/fundraising/${dto.source_id}`,
+      event_created: `/events/${dto.source_id}`,
+    };
+
+    const messageMap: Record<NotifyFromTaskDto['type'], string> = {
+      fundraiser_created: `${orgName} відгукнулася на вашу заявку та створила збір коштів «${dto.title}».`,
+      event_created: `${orgName} відгукнулася на вашу заявку та створила подію «${dto.title}».`,
+    };
+
+    return this.prisma.$transaction(async (tx) => {
+      const notification = await tx.notification.create({
+        data: {
+          user_id: recipientUserId,
+          message: messageMap[dto.type],
+          link: linkMap[dto.type],
+          type: notification_type_enum.TICKET,
+        },
+      });
+
+      await tx.ticket.update({
+        where: { id: ticketId },
+        data: {
+          status: ticket_status_enum.RESOLVED,
+          closed_at: new Date(),
+        },
+      });
+
+      return notification;
+    });
+  }
+
   async update(id: number, data: UpdateNotificationDto) {
     const notification = await this.prisma.notification.findUnique({
       where: { id },

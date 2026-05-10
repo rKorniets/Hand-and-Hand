@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Query,
   Req,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
@@ -20,10 +21,11 @@ import {
   AbstractCrudController,
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 type RequestWithUser = {
-  user: {
+  user?: {
     id: number;
     role: user_role_enum;
   };
@@ -32,13 +34,30 @@ type RequestWithUser = {
 @ApiTags('Tickets')
 @Controller('tickets')
 @SkipThrottle()
-export class TicketController extends AbstractCrudController<ticket[]> {
+export class TicketController extends AbstractCrudController<ticket> {
   constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<ticket[]>);
+    super(service as unknown as IBaseCrudService<ticket>);
+  }
+
+  @Get()
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Отримати список тікетів' })
+  async getAll(
+    @Query() query: PaginationDto,
+    @Req() req: RequestWithUser,
+  ): Promise<ticket[]> {
+    return this.service.findAll(
+      query.limit,
+      query.skip,
+      query.search,
+      req.user?.id,
+      req.user?.role,
+      query.tab,
+    );
   }
 
   @Get(':id')
-  @SkipThrottle()
   @Public()
   @ApiOperation({ summary: 'Отримати деталі тікету за ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
@@ -51,7 +70,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
   @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
   @ApiOperation({ summary: 'Створити новий тікет' })
   async create(@Body() data: CreateTicketDto, @Req() req: RequestWithUser) {
-    return this.service.create(data, req.user.id);
+    return this.service.create(data, req.user!.id);
   }
 
   @Patch(':id')
@@ -64,7 +83,7 @@ export class TicketController extends AbstractCrudController<ticket[]> {
     @Body() data: UpdateTicketDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.service.update(id, data, req.user.id);
+    return this.service.update(id, data, req.user!.id);
   }
 
   @Delete(':id')
@@ -80,6 +99,6 @@ export class TicketController extends AbstractCrudController<ticket[]> {
     @Param('id', ParseIntPipe) id: number,
     @Req() req: RequestWithUser,
   ) {
-    return this.service.remove(id, req.user.id, req.user.role);
+    return this.service.remove(id, req.user!.id, req.user!.role);
   }
 }

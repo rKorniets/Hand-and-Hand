@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { switchMap, of } from 'rxjs';
+import { NotificationService } from '../../profile-user/message/message.service';
 
-// Хардкод-словник дефолтних картинок(Переробити під Cloudinary)
 const DEFAULT_IMAGES: Record<string, string> = {
   military:
     'https://images.unsplash.com/photo-1595011706692-0b1a13fc6b1f?auto=format&fit=crop&w=800&q=80',
@@ -23,15 +24,18 @@ const DEFAULT_IMAGES: Record<string, string> = {
   templateUrl: './create-fundraising.html',
   styleUrl: './create-fundraising.scss',
 })
-export class CreateFundraisingComponent {
+export class CreateFundraisingComponent implements OnInit {
   campaignForm: FormGroup;
   isSubmitting = false;
   selectedFile: File | null = null;
+  private taskId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
     private router: Router,
+    private route: ActivatedRoute,
+    private notificationService: NotificationService,
   ) {
     this.campaignForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
@@ -43,6 +47,16 @@ export class CreateFundraisingComponent {
       mono_token: ['', Validators.required],
       end_at: [''],
     });
+  }
+
+  ngOnInit(): void {
+    const taskIdParam = this.route.snapshot.queryParamMap.get('task_id');
+    this.taskId = taskIdParam ? Number(taskIdParam) : null;
+
+    const titleParam = this.route.snapshot.queryParamMap.get('title');
+    if (titleParam) {
+      this.campaignForm.patchValue({ title: titleParam });
+    }
   }
 
   onFileSelected(event: Event) {
@@ -57,12 +71,9 @@ export class CreateFundraisingComponent {
       this.campaignForm.markAllAsTouched();
       return;
     }
-
     this.isSubmitting = true;
-
     const category = this.campaignForm.value.category;
     const fallbackImageUrl = DEFAULT_IMAGES[category] || DEFAULT_IMAGES['default'];
-
     this.submitCampaignData(fallbackImageUrl);
   }
 
@@ -78,23 +89,39 @@ export class CreateFundraisingComponent {
       end_at: this.campaignForm.value.end_at
         ? new Date(this.campaignForm.value.end_at).toISOString()
         : null,
+      ...(this.taskId ? { task_id: this.taskId } : {}),
     };
 
-    this.http.post('http://localhost:3000/fundraising_campaigns', payload).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-
-        alert(
-          'Дякуємо! Збір успішно створено та відправлено на розгляд адміністрації. Він з’явиться на сайті після підтвердження.',
-        );
-
-        this.router.navigate(['/profile-organization']);
-      },
-      error: (err) => {
-        console.error('Помилка створення збору:', err);
-        alert('Сталася помилка при збереженні збору. Спробуйте ще раз або зверніться в підтримку.');
-        this.isSubmitting = false;
-      },
-    });
+    this.http
+      .post<{ id: number; title: string }>('http://localhost:3000/fundraising_campaigns', payload)
+      .pipe(
+        switchMap((created) => {
+          if (this.taskId) {
+            return this.notificationService.notifyFromTask({
+              task_id: this.taskId,
+              type: 'fundraiser_created',
+              source_id: created.id,
+              title: created.title,
+            });
+          }
+          return of(null);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          alert(
+            "Дякуємо! Збір успішно створено та відправлено на розгляд адміністрації. Він з'явиться на сайті після підтвердження.",
+          );
+          this.router.navigate(['/profile-organization']);
+        },
+        error: (err) => {
+          console.error('Помилка створення збору:', err);
+          alert(
+            'Сталася помилка при збереженні збору. Спробуйте ще раз або зверніться в підтримку.',
+          );
+          this.isSubmitting = false;
+        },
+      });
   }
 }

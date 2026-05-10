@@ -7,8 +7,14 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [PrismaModule, CloudinaryModule, NotificationModule],
-  imports: [CacheModule.register(), PrismaModule, CloudinaryModule],
+  imports: [
+    PrismaModule,
+    CloudinaryModule,
+    NotificationModule,
+    CacheModule.register(),
+    PrismaModule,
+    CloudinaryModule,
+  ],
   controllers: [ProjectController],
   providers: [ProjectService],
 })

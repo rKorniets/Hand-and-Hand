@@ -70,28 +70,58 @@ export class TicketService {
           description: data.description,
           priority: data.priority || 'MEDIUM',
           status: ticket_status_enum.IN_REVIEW,
-          app_user: {
-            connect: { id: userId },
-          },
-          ...(locationId && {
-            location: { connect: { id: locationId } },
-          }),
+          app_user: { connect: { id: userId } },
+          ...(locationId && { location: { connect: { id: locationId } } }),
           ...(data.file_url && { file_url: data.file_url }),
         },
       });
     });
   }
 
-  async findAll(limit?: number, skip?: number, search?: string) {
-    const where: Prisma.ticketWhereInput = {
-      status: ticket_status_enum.OPEN,
-      ...(search && {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-    };
+  async findAll(
+    limit?: number,
+    skip?: number,
+    search?: string,
+    userId?: number,
+    userRole?: string,
+    tab?: 'available' | 'my',
+  ) {
+    const searchFilter: Prisma.ticketWhereInput = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    let where: Prisma.ticketWhereInput;
+
+    if (userRole === 'ORGANIZATION' && userId) {
+      if (tab === 'my') {
+        where = {
+          ...searchFilter,
+          task: {
+            some: {
+              project: {
+                organization_profile: { user_id: userId },
+              },
+            },
+          },
+        };
+      } else {
+        where = {
+          ...searchFilter,
+          status: ticket_status_enum.OPEN,
+          task: { none: {} },
+        };
+      }
+    } else {
+      where = {
+        status: ticket_status_enum.OPEN,
+        ...searchFilter,
+      };
+    }
 
     return this.prisma.ticket.findMany({
       where,
@@ -101,11 +131,13 @@ export class TicketService {
       include: {
         location: true,
         app_user: {
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            email: true,
+          select: { id: true, first_name: true, last_name: true, email: true },
+        },
+        task: {
+          include: {
+            project: {
+              select: { id: true, organization_profile_id: true },
+            },
           },
         },
       },
@@ -117,15 +149,16 @@ export class TicketService {
       where: { id },
       include: {
         app_user: {
-          select: {
-            id: true,
-            first_name: true,
-            last_name: true,
-            email: true,
-          },
+          select: { id: true, first_name: true, last_name: true, email: true },
         },
         location: true,
-        task: true,
+        task: {
+          include: {
+            project: {
+              select: { id: true, organization_profile_id: true },
+            },
+          },
+        },
       },
     });
 
