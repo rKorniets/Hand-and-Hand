@@ -6,7 +6,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { notification_type_enum } from '@prisma/client';
+import { notification_type_enum, Prisma } from '@prisma/client';
+import { AppGateway } from '../websocket/app.gateway';
 
 export interface RequestUser {
   id: number;
@@ -14,16 +15,36 @@ export interface RequestUser {
 
 @Injectable()
 export class NotificationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private appGateway: AppGateway,
+  ) {}
 
-  async getMyNotifications(currentUser: RequestUser) {
+  async findAll(
+    userId: number,
+    limit: number = 5,
+    skip: number = 0,
+    search?: string,
+  ) {
+    const whereClause: Prisma.notificationWhereInput = {
+      user_id: userId,
+      ...(search && {
+        message: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      }),
+    };
+
     const [data, total] = await this.prisma.$transaction([
       this.prisma.notification.findMany({
-        where: { user_id: currentUser.id },
+        where: whereClause,
+        take: limit,
+        skip: skip,
         orderBy: { created_at: 'desc' },
       }),
       this.prisma.notification.count({
-        where: { user_id: currentUser.id },
+        where: whereClause,
       }),
     ]);
 
@@ -66,14 +87,19 @@ export class NotificationService {
   }
 
   async create(data: CreateNotificationDto) {
-    return this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         user_id: data.user_id,
         message: data.message,
         type: data.type ?? notification_type_enum.GENERAL,
       },
     });
+
+    this.appGateway.sendToUser(data.user_id, 'newNotification', notification);
+
+    return notification;
   }
+
   async update(id: number, data: UpdateNotificationDto) {
     const notification = await this.prisma.notification.findUnique({
       where: { id },

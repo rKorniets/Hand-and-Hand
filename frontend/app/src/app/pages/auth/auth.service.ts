@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { API_BASE_URL } from '../../tokens';
+import { SocketService } from '../../services/socket.service';
 
 export interface AuthResponse {
   accessToken: string;
@@ -26,7 +27,15 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     @Inject(API_BASE_URL) private apiUrl: string,
-  ) {}
+    private socketService: SocketService
+  ) {
+    if (this.isLoggedIn()) {
+      const userId = this.getUserId();
+      if (userId) {
+        this.socketService.connect(userId);
+      }
+    }
+  }
 
   registerUser(data: {
     firstName: string;
@@ -145,11 +154,17 @@ export class AuthService {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     this.loggedIn$.next(true);
+
+    const userId = this.getUserId();
+    if (userId) {
+      this.socketService.connect(userId);
+    }
   }
 
   private clearTokens() {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     this.loggedIn$.next(false);
+    this.socketService.disconnect();
   }
 }

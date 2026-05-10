@@ -12,7 +12,6 @@ import {
   ParseEnumPipe,
   UseInterceptors,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';

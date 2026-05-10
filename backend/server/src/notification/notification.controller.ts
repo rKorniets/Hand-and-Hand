@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,18 +17,33 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Notifications')
 @Controller('notifications')
 @SkipThrottle()
-export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+export class NotificationController extends AbstractCrudController<any> {
+  constructor(private readonly notificationService: NotificationService) {
+    super(notificationService as unknown as IBaseCrudService<any>);
+  }
 
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Отримати мої сповіщення' })
-  async getMyNotifications(@CurrentUser() user: { id: number }) {
-    return this.notificationService.getMyNotifications(user);
+  async findAll(
+    @Query() query: PaginationDto,
+    @CurrentUser() user?: { id: number },
+  ) {
+    return this.notificationService.findAll(
+      user!.id,
+      query.limit,
+      query.skip,
+      query.search,
+    );
   }
 
   @Get('unread-count')
@@ -45,6 +61,7 @@ export class NotificationController {
   async create(@Body() data: CreateNotificationDto) {
     return this.notificationService.create(data);
   }
+
   @Patch(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
