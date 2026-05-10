@@ -12,7 +12,11 @@
   }
 </div>
 
-<div class="message__panel" [class.message__panel--open]="isPanelOpen">
+<div
+  class="message__panel"
+  [class.message__panel--open]="isPanelOpen"
+  (click)="$event.stopPropagation()"
+>
   <div class="message__panel-header">
     <span>Сповіщення</span>
     <div class="message__panel-actions">
