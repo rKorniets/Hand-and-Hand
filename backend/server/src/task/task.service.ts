@@ -78,7 +78,7 @@ export class TaskService {
         const updated = await tx.ticket.updateMany({
           where: {
             id: data.ticket_id,
-            status: { not: ticket_status_enum.IN_REVIEW },
+            status: ticket_status_enum.OPEN,
             task: { none: {} },
           },
           data: {

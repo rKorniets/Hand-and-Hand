@@ -141,11 +141,14 @@ export class NotificationService {
         },
       });
 
+      const resolvedAt = new Date();
+
       await tx.ticket.update({
         where: { id: ticketId },
         data: {
           status: ticket_status_enum.RESOLVED,
-          closed_at: new Date(),
+          closed_at: resolvedAt,
+          updated_at: resolvedAt,
         },
       });
 

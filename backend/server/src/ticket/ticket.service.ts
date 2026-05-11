@@ -131,7 +131,7 @@ export class TicketService {
       include: {
         location: true,
         app_user: {
-          select: { id: true, first_name: true, last_name: true, email: true },
+          select: { id: true, first_name: true, last_name: true },
         },
         task: {
           include: {
@@ -149,7 +149,7 @@ export class TicketService {
       where: { id },
       include: {
         app_user: {
-          select: { id: true, first_name: true, last_name: true, email: true },
+          select: { id: true, first_name: true, last_name: true },
         },
         location: true,
         task: {

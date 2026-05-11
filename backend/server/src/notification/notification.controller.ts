@@ -9,46 +9,16 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiProperty,
-  ApiTags,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { user_role_enum } from '@prisma/client';
-import { IsInt, IsPositive, IsString, IsEnum } from 'class-validator';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { NotifyFromTaskDto } from './dto/notify-from-task.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
-enum NotifyTaskType {
-  FUNDRAISER_CREATED = 'fundraiser_created',
-  EVENT_CREATED = 'event_created',
-}
-
-class NotifyFromTaskDto {
-  @ApiProperty({ example: 42, description: 'ID задачі (task)' })
-  @IsInt()
-  @IsPositive()
-  task_id: number;
-
-  @ApiProperty({ enum: NotifyTaskType })
-  @IsEnum(NotifyTaskType)
-  type: NotifyTaskType;
-
-  @ApiProperty({ example: 7, description: 'ID створеного збору або події' })
-  @IsInt()
-  @IsPositive()
-  source_id: number;
-
-  @ApiProperty({ example: 'Допомога пораненим бійцям' })
-  @IsString()
-  title: string;
-}
 
 @ApiTags('Notifications')
 @Controller('notifications')
