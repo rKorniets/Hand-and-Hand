@@ -1,13 +1,13 @@
-import { notification_organization_type_enum } from '@prisma/client';
+import {
+  organization_membership_request_direction_enum as MembershipDirection,
+  organization_membership_request_status_enum as MembershipStatus,
+  user_role_enum as UserRole,
+  notification_organization_type_enum,
+} from '@prisma/client';
+
+export { MembershipDirection, MembershipStatus, UserRole };
 
 export type ReportType = 'фінансовий' | 'результати' | 'активності' | 'інше' | string;
-
-export enum ProjectRegistrationStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-  CANCELLED = 'CANCELLED',
-}
 
 export interface UserMinInfo {
   id: number;
@@ -19,8 +19,9 @@ export interface UserMinInfo {
 export interface RegistrationData {
   id: number;
   user_id: number;
-  status: ProjectRegistrationStatus;
-  project_id?: number;
+  status: MembershipStatus;
+  organization_id?: number;
+  attempt_count?: number;
   created_at: string | Date;
   user?: UserMinInfo;
 }
@@ -40,7 +41,7 @@ export interface OrgNotification {
 export interface ActivityItem {
   id: number;
   title: string;
-  starts_at: string | Date;
+  starts_at: string | Date | null;
   description: string;
   location: string;
 }
@@ -61,6 +62,8 @@ export interface OrgMember {
   last_name: string;
   role: string;
   avatar_url?: string;
+  email?: string;
+  city?: string;
 }
 
 export interface OrgLocation {

@@ -48,7 +48,7 @@
             n.type === NotificationType.JOININGORG ||
             n.type === NotificationType.LEAVE_REQUEST) &&
           n.registration_data
-          ) {
+        ) {
           <div class="message-org__notification-logic" (click)="$event.stopPropagation()">
             @if (n.registration_data.status === RegistrationStatus.PENDING) {
               <div class="message-org__notification-actions">

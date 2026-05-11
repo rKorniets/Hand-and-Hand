@@ -105,14 +105,21 @@
               }
 
               <div class="org-apply__status">
-                @if (myMembership?.status === MembershipStatus.PENDING && myMembership?.direction === MembershipDirection.REQUEST) {
+                @if (
+                  myMembership?.status === MembershipStatus.PENDING &&
+                  myMembership?.direction === MembershipDirection.REQUEST
+                ) {
                   <p class="status-msg status-msg--info">
                     <span class="material-symbols-outlined">schedule</span> Заявка на розгляді
                   </p>
                 }
-                @if (myMembership?.status === MembershipStatus.PENDING && myMembership?.direction === MembershipDirection.LEAVE) {
+                @if (
+                  myMembership?.status === MembershipStatus.PENDING &&
+                  myMembership?.direction === MembershipDirection.LEAVE
+                ) {
                   <p class="status-msg status-msg--info">
-                    <span class="material-symbols-outlined">schedule</span> Заявка на вихід на розгляді
+                    <span class="material-symbols-outlined">schedule</span> Заявка на вихід на
+                    розгляді
                   </p>
                 }
 
@@ -146,7 +153,10 @@
                   </p>
                 }
 
-                @if (myMembership?.status === MembershipStatus.CANCELLED && myMembership?.direction === MembershipDirection.LEAVE) {
+                @if (
+                  myMembership?.status === MembershipStatus.CANCELLED &&
+                  myMembership?.direction === MembershipDirection.LEAVE
+                ) {
                   <p class="status-msg status-msg--muted">Ви вийшли з організації</p>
                 }
               </div>

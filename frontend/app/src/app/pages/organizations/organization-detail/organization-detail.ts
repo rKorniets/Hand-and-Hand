@@ -26,6 +26,7 @@ import {
 export class OrganizationDetailComponent implements OnInit {
   organization: Organization | null = null;
   location: OrgLocation | null = null;
+
   protected readonly MembershipStatus = MembershipStatus;
   protected readonly MembershipDirection = MembershipDirection;
 
@@ -48,15 +49,13 @@ export class OrganizationDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       const id = Number(params['id']);
-      if (id) {
-        this.isLoggedIn = this.authService.isLoggedIn();
-        this.loadOrganization(id);
-        if (this.isLoggedIn) this.checkMembership(id);
-      } else {
-        this.error = true;
-        this.loading = false;
-        this.cdr.markForCheck();
+      if (!id) {
+        this.handleError();
+        return;
       }
+      this.isLoggedIn = this.authService.isLoggedIn();
+      this.loadOrganization(id);
+      if (this.isLoggedIn) this.checkMembership(id);
     });
   }
 
@@ -83,12 +82,14 @@ export class OrganizationDetailComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        error: () => {
-          this.error = true;
-          this.loading = false;
-          this.cdr.markForCheck();
-        },
+        error: () => this.handleError(),
       });
+  }
+
+  private handleError(): void {
+    this.error = true;
+    this.loading = false;
+    this.cdr.markForCheck();
   }
 
   private checkMembership(id: number): void {
@@ -135,9 +136,8 @@ export class OrganizationDetailComponent implements OnInit {
 
   leaveOrganization(): void {
     if (!this.organization || !confirm('Ви впевнені?')) return;
-    const orgId = this.organization.id;
     this.orgService
-      .leaveOrganization(orgId)
+      .leaveOrganization(this.organization.id)
       .pipe(take(1))
       .subscribe({
         next: (res) => {
@@ -147,14 +147,35 @@ export class OrganizationDetailComponent implements OnInit {
       });
   }
 
+  get membershipStatusText(): string {
+    const status = this.myMembership?.status;
+
+    if (this.isMaxAttemptsReached) {
+      return 'Доступ обмежено (ліміт спроб)';
+    }
+
+    switch (status) {
+      case MembershipStatus.PENDING:
+        return 'Заявка на розгляді';
+      case MembershipStatus.ACCEPTED:
+        return 'Ви учасник';
+      case MembershipStatus.REJECTED:
+        return 'Заявку відхилено';
+      default:
+        return 'Приєднатися до організації';
+    }
+  }
+
   get attemptsLeft(): number {
     return 3 - (this.myMembership?.attempt_count || 0);
   }
 
   get isMaxAttemptsReached(): boolean {
+    const status = this.myMembership?.status;
+    const count = this.myMembership?.attempt_count || 0;
+
     return (
-      this.myMembership?.status === MembershipStatus.REJECTED ||
-      (this.attemptsLeft <= 0 && this.myMembership?.status !== MembershipStatus.ACCEPTED)
+      status === MembershipStatus.REJECTED || (count >= 3 && status !== MembershipStatus.ACCEPTED)
     );
   }
 
@@ -170,11 +191,13 @@ export class OrganizationDetailComponent implements OnInit {
   get showJoinButton(): boolean {
     const status = this.myMembership?.status;
     const direction = this.myMembership?.direction;
-    if (this.isMaxAttemptsReached) return false;
-    if (status === MembershipStatus.ACCEPTED) return false;
-    if (status === MembershipStatus.PENDING) return false;
-    if (status === MembershipStatus.CANCELLED && direction === MembershipDirection.LEAVE) return false;
-    return true;
+
+    const isPending = status === MembershipStatus.PENDING;
+    const isAccepted = status === MembershipStatus.ACCEPTED;
+    const isLeaveCancelled =
+      status === MembershipStatus.CANCELLED && direction === MembershipDirection.LEAVE;
+
+    return !this.isMaxAttemptsReached && !isAccepted && !isPending && !isLeaveCancelled;
   }
 
   get showCancelButton(): boolean {
@@ -223,6 +246,7 @@ export class OrganizationDetailComponent implements OnInit {
   }
 
   getFullName(member: Member): string {
-    return `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'Користувач';
+    const name = `${member.first_name || ''} ${member.last_name || ''}`.trim();
+    return name || 'Користувач';
   }
 }

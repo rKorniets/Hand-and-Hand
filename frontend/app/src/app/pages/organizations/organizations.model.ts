@@ -34,7 +34,7 @@ export interface ActivityItem {
   status?: string;
   organization_profile_id: number;
 }
-export interface OrgMember {
+export interface Member {
   id: number;
   user_id: number;
   first_name: string;
@@ -69,14 +69,14 @@ export interface Organization {
   category?: string;
   contact_phone: string;
   contact_email: string;
-  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  verification_status: VerificationStatus;
   official_docs_url?: string;
   location_id?: number;
   location?: OrgLocation;
   created_at: string | Date;
   events?: OrgEvent[];
   fundraising_campaigns?: FundraisingCampaign[];
-  members?: OrgMember[];
+  members?: Member[];
   reports?: OrgReport[];
 }
 
@@ -90,5 +90,10 @@ export interface MembershipRequest {
 }
 
 export interface OrganizationProfileResponse {
-  members: OrgMember[];
+  members: Member[];
+}
+export enum VerificationStatus {
+  PENDING = 'PENDING',
+  VERIFIED = 'VERIFIED',
+  REJECTED = 'REJECTED',
 }
