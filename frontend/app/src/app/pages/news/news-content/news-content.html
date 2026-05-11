@@ -8,7 +8,7 @@
 
   <div class="news-content__list">
     @for (item of items; track item.id) {
-      <div class="news-content__item" (click)="navigateToNews(item.id)" style="cursor: pointer">
+      <div class="news-content__item" (click)="navigateToNews(item.id)">
         @if (item.image_url) {
           <img
             class="news-content__image"
@@ -26,7 +26,6 @@
                 <a
                   class="news-content__author news-content__author--link"
                   [routerLink]="['/organizations', item.organization.id]"
-                  (click)="$event.stopPropagation()"
                 >
                   {{ item.organization.name }}
                 </a>
