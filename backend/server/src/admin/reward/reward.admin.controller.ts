@@ -15,6 +15,7 @@ import { user_role_enum, reward } from '@prisma/client';
 import { RewardService } from '../../reward/reward.service';
 import { CreateRewardDto } from '../../reward/dto/create-reward.dto';
 import { UpdateRewardDto } from '../../reward/dto/update-reward.dto';
+import { RewardRedemptionService } from '../../reward/reward-redemption.service';
 import {
   AbstractCrudController,
   type IBaseCrudService,
@@ -26,13 +27,23 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 @Roles(user_role_enum.ADMIN)
 @Controller('admin/rewards')
 export class RewardAdminController extends AbstractCrudController<reward[]> {
-  constructor(private readonly service: RewardService) {
+  constructor(
+    private readonly service: RewardService,
+    private readonly redemptionService: RewardRedemptionService,
+  ) {
     super({
       findAll: (limit?: number, skip?: number, search?: string) =>
         service.findAll(limit, skip, search),
     } as unknown as IBaseCrudService<reward[]>);
   }
-
+  @Get('redemptions')
+  @ApiOperation({ summary: 'Список всіх обмінів нагород' })
+  async getRedemptions(@Query() query: PaginationDto) {
+    return this.redemptionService.getAllRedemptions(
+      query.limit ?? 10,
+      query.skip ?? 0,
+    );
+  }
   @Get()
   @ApiOperation({ summary: 'Список усіх нагород' })
   async getRewards(@Query() query: PaginationDto) {

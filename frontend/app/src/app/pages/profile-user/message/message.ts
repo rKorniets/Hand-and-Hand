@@ -2,14 +2,17 @@ import {
   Component,
   Input,
   OnInit,
+  OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
+import { take, Subscription } from 'rxjs';
 import { AppUser, UserNotification } from '../profile-user.model';
 import { NotificationService, NotificationResponse } from './message.service';
+import { SocketService } from '../../../services/socket.service';
 
 @Component({
   selector: 'app-message',
@@ -19,22 +22,38 @@ import { NotificationService, NotificationResponse } from './message.service';
   styleUrl: './message.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Message implements OnInit {
+export class Message implements OnInit, OnDestroy {
   @Input() user?: AppUser;
 
   isPanelOpen = false;
   isHovered = false;
   notifications: UserNotification[] = [];
   total = 0;
+  private socketSub?: Subscription;
 
   constructor(
     private notificationService: NotificationService,
+    private socketService: SocketService,
     private cdr: ChangeDetectorRef,
     private router: Router,
   ) {}
 
   ngOnInit() {
     this.loadNotifications();
+
+    this.socketSub = this.socketService
+      .listen<UserNotification>('newNotification')
+      .subscribe((newNotif: UserNotification) => {
+        this.notifications = [newNotif, ...this.notifications];
+        this.total++;
+        this.cdr.markForCheck();
+      });
+  }
+
+  ngOnDestroy() {
+    if (this.socketSub) {
+      this.socketSub.unsubscribe();
+    }
   }
 
   loadNotifications() {

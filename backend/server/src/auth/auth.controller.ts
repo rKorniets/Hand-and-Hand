@@ -5,8 +5,10 @@ import {
   Post,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import type { Request } from 'express';
+import { AuthService, AuthRequestContext } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RegisterUserDto, RegisterOrganizationDto } from './dto/register.dto';
@@ -30,6 +32,13 @@ export interface AuthUser {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private buildCtx(req: Request): AuthRequestContext {
+    return {
+      ip: req.ip ?? null,
+      userAgent: req.headers['user-agent'] ?? null,
+    };
+  }
+
   @Public()
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('register/user')
@@ -51,8 +60,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login/user')
   @ApiOperation({ summary: 'Логін звичайного користувача' })
-  loginUser(@Body() dto: LoginUserDto) {
-    return this.authService.loginUser(dto);
+  loginUser(@Body() dto: LoginUserDto, @Req() req: Request) {
+    return this.authService.loginUser(dto, this.buildCtx(req));
   }
 
   @Public()
@@ -60,8 +69,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login/organization')
   @ApiOperation({ summary: 'Логін організації' })
-  loginOrganization(@Body() dto: LoginOrganizationDto) {
-    return this.authService.loginOrganization(dto);
+  loginOrganization(@Body() dto: LoginOrganizationDto, @Req() req: Request) {
+    return this.authService.loginOrganization(dto, this.buildCtx(req));
   }
 
   @Public()
@@ -107,16 +116,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   @ApiOperation({ summary: 'Оновлення access token за refresh token' })
-  refresh(@Body() dto: RefreshTokenDto) {
-    return this.authService.refresh(dto.refreshToken);
+  refresh(@Body() dto: RefreshTokenDto, @Req() req: Request) {
+    return this.authService.refresh(dto.refreshToken, this.buildCtx(req));
   }
 
   @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   @ApiOperation({ summary: 'Logout — відкликає refresh token' })
-  async logout(@Body() dto: RefreshTokenDto): Promise<void> {
-    await this.authService.logout(dto.refreshToken);
+  async logout(
+    @Body() dto: RefreshTokenDto,
+    @Req() req: Request,
+  ): Promise<void> {
+    await this.authService.logout(dto.refreshToken, this.buildCtx(req));
   }
 
   @ApiBearerAuth()

@@ -99,7 +99,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   @ApiOperation({ summary: 'Оновити новину (частково)' })
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateNewsDto, // Використовує UpdateNewsDto
+    @Body() data: UpdateNewsDto,
     @CurrentUser() user: { id: number },
   ) {
     return this.newsService.updateNewsPartial(id, data, { id: user.id });

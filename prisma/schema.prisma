@@ -40,6 +40,7 @@ model app_user {
   notification                           notification[]
   notification_organization              notification_organization[]
   refresh_token                          refresh_token[]
+  audit_log                              audit_log[]
 }
 
 model notification {
@@ -517,6 +518,24 @@ model refresh_token {
 
   @@index([user_id], map: "idx_refresh_token_user_id")
   @@index([expires_at], map: "idx_refresh_token_expires_at")
+}
+
+model audit_log {
+  id          Int       @id @default(autoincrement())
+  user_id     Int?
+  action      String
+  entity_type String?
+  entity_id   Int?
+  payload     Json?
+  ip          String?
+  user_agent  String?
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  app_user    app_user? @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_audit_log_user")
+
+  @@index([user_id], map: "idx_audit_log_user")
+  @@index([action], map: "idx_audit_log_action")
+  @@index([entity_type, entity_id], map: "idx_audit_log_entity")
+  @@index([created_at], map: "idx_audit_log_created_at")
 }
 
 model report {
