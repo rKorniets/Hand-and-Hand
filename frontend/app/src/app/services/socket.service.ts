@@ -14,14 +14,6 @@ export class SocketService {
       this.socket = io(this.SERVER_URL, {
         query: { userId: userId.toString() },
       });
-
-      this.socket.on('connect', () => {
-        console.log('WebSocket успішно підключено!');
-      });
-
-      this.socket.on('disconnect', () => {
-        console.log('WebSocket відключено');
-      });
     }
   }
 
@@ -35,7 +27,6 @@ export class SocketService {
   listen<T>(eventName: string): Observable<T> {
     return new Observable((subscriber) => {
       if (!this.socket) {
-        console.warn(`Спроба слухати подію '${eventName}' до підключення сокета!`);
         return;
       }
 
