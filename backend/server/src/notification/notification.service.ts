@@ -7,7 +7,11 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { notification_type_enum, Prisma } from '@prisma/client';
+import {
+  notification_type_enum,
+  ticket_status_enum,
+  Prisma,
+} from '@prisma/client';
 import { AppGateway } from '../websocket/app.gateway';
 
 export interface RequestUser {
