@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './pages/auth/auth.guard';
+import { guestGuard } from './pages/auth/guest.guard';
 import { Home } from './pages/home/home';
 import { AboutUs } from './pages/about-us/about-us';
 import { PolicyAndRules } from './pages/policy-and-rules/policy-and-rules';
@@ -40,8 +41,8 @@ export const routes: Routes = [
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'vol-verification', component: VolVerification },
   { path: 'application-submitted', component: ApplicationSubmitted },
@@ -62,6 +63,7 @@ export const routes: Routes = [
   { path: 'organizations/:id', component: ProfileOrganization },
   {
     path: 'fundraisingCampaign/create',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/constructors/create-fundraising/create-fundraising').then(
         (m) => m.CreateFundraisingComponent,
