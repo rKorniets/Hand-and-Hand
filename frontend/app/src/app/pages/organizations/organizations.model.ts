@@ -1,7 +1,14 @@
+import {
+  organization_membership_request_direction_enum as MembershipDirection,
+  organization_membership_request_status_enum as MembershipStatus,
+  user_role_enum as UserRole,
+} from '@prisma/client';
+export { MembershipDirection, MembershipStatus, UserRole };
+
 export interface OrgEvent {
   id: number;
   title: string;
-  starts_at: string;
+  starts_at: string | Date | null;
   description?: string;
   location?: string;
   img?: string;
@@ -18,9 +25,18 @@ export interface FundraisingCampaign {
     name: string;
   };
 }
-
-export interface Member {
+export interface ActivityItem {
   id: number;
+  title: string;
+  description: string;
+  starts_at: string | Date | null;
+  image_url?: string;
+  status?: string;
+  organization_profile_id: number;
+}
+export interface OrgMember {
+  id: number;
+  user_id: number;
   first_name: string;
   last_name: string;
   role?: string;
@@ -60,13 +76,8 @@ export interface Organization {
   created_at: string | Date;
   events?: OrgEvent[];
   fundraising_campaigns?: FundraisingCampaign[];
-  members?: Member[];
+  members?: OrgMember[];
   reports?: OrgReport[];
-}
-export enum MembershipStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
 }
 
 export interface MembershipRequest {
@@ -74,11 +85,10 @@ export interface MembershipRequest {
   user_id: number;
   organization_id: number;
   status: MembershipStatus;
-  rejection_count: number;
+  direction: MembershipDirection;
+  attempt_count: number;
 }
-export enum UserRole {
-  APP_USER = 'APP_USER',
-  VOLUNTEER = 'VOLUNTEER',
-  ORGANIZATION = 'ORGANIZATION',
-  ADMIN = 'ADMIN',
+
+export interface OrganizationProfileResponse {
+  members: OrgMember[];
 }

@@ -5,10 +5,7 @@
         <section class="main-info">
           <div class="main-info__avatar"></div>
           <div class="main-info__details">
-            <div class="main-info__header">
-              <h1 class="main-info__name">{{ organization.name }}</h1>
-            </div>
-
+            <h1 class="main-info__name">{{ organization.name }}</h1>
             <div class="main-info__rating">
               <p>
                 <span class="main-info__stars">Місто: </span>
@@ -56,70 +53,13 @@
               }
             </div>
             @if (activities.length > 5) {
-              <div class="activity__button">
-                <button class="activity__more" (click)="toggleActivities()">
-                  {{ isExpanded ? 'Згорнути' : 'Переглянути більше' }}
-                </button>
-              </div>
-            }
-          </section>
-        }
-
-        @if (fundraisingCampaignItem.length > 0) {
-          <section class="list__component">
-            <div class="list__component__header">
-              <h2 class="list__component__title">Збори</h2>
-            </div>
-            <div class="list__component__grid">
-              @for (
-                campaign of fundraisingCampaignItem
-                  | slice: 0 : (isExpanded ? fundraisingCampaignItem.length : 2);
-                track campaign.id
-              ) {
-                <article class="fundraising__card">
-                  <a class="activity__item" [routerLink]="['/fundraising', campaign.id]">
-                    <div class="fundraising__card__image"></div>
-                    <div class="fundraising__card__body">
-                      <h3 class="fundraising__card__title">{{ campaign.title }}</h3>
-                      <p class="fundraising__card__description">{{ campaign.description }}</p>
-                      <div class="fundraising__card__footer">
-                        <span class="fundraising__card__org-name"
-                          >Організатор: {{ organization.name }}</span
-                        >
-                      </div>
-                    </div>
-                  </a>
-                </article>
-              }
-            </div>
-          </section>
-        }
-
-        @if (reports.length > 0) {
-          <section class="reports">
-            <h2 class="reports__title">Звіти</h2>
-            <div class="reports__list">
-              @for (item of reports | slice: 0 : (isExpanded ? reports.length : 2); track item.id) {
-                <a class="reports__item" [routerLink]="['/reports', item.id]">
-                  <span class="material-symbols-outlined reports__file-icon">description</span>
-                  <div class="reports__body">
-                    <h3 class="reports__item-title">{{ item.title }}</h3>
-                    <p class="reports__text">Тип: {{ item.type }}</p>
-                    @if (item.published_at) {
-                      <span class="reports__date">{{
-                        item.published_at | date: 'dd.MM.yyyy'
-                      }}</span>
-                    }
-                  </div>
-                </a>
-              }
-            </div>
-            @if (reports.length > 2) {
-              <div class="reports__button">
-                <button class="reports__more" (click)="getOrgReports()">
-                  {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
-                </button>
-              </div>
+              <button class="activity__more" (click)="toggleActivities()">
+                @if (activitiesExpanded) {
+                  Згорнути
+                } @else {
+                  Більше
+                }
+              </button>
             }
           </section>
         }
@@ -128,59 +68,93 @@
 
     <aside class="org-page__sidebar">
       <section class="org-data">
-        <div class="org-data__header">
-          <h3 class="org-data__title">Опис:</h3>
-        </div>
-        <div class="org-data__list">
-          <p class="org-data__text">{{ description || 'Опис відсутній' }}</p>
-        </div>
+        <h3 class="org-data__title">Опис:</h3>
+        <p class="org-data__text">
+          @if (description) {
+            {{ description }}
+          } @else {
+            Опис відсутній
+          }
+        </p>
       </section>
+
       @if (canSeeJoinBlock) {
         <section class="org-apply">
           <div class="org-apply__content">
             @if (!isLoggedIn) {
               <button routerLink="/login" class="join-button">Увійдіть, щоб приєднатися</button>
             } @else {
-              <button
-                class="join-button"
-                [disabled]="isJoinDisabled()"
-                (click)="joinOrganization()"
-              >
-                {{ getJoinButtonText() }}
-              </button>
+              @if (showJoinButton) {
+                <button
+                  class="join-button"
+                  [disabled]="isJoinDisabled"
+                  (click)="joinOrganization()"
+                >
+                  Приєднатися
+                </button>
+              }
+
+              @if (showCancelButton) {
+                <button class="cancel-button" (click)="cancelRequest()">Скасувати заявку</button>
+              }
+
+              @if (showLeaveButton) {
+                <button class="leave-button" (click)="leaveOrganization()">
+                  Залишити організацію
+                </button>
+              }
 
               <div class="org-apply__status">
-                @if (myMembership?.status === MembershipStatus.PENDING) {
+                @if (myMembership?.status === MembershipStatus.PENDING && myMembership?.direction === MembershipDirection.REQUEST) {
                   <p class="status-msg status-msg--info">
-                    <span class="material-symbols-outlined">schedule</span>
-                    Заявка на розгляді
+                    <span class="material-symbols-outlined">schedule</span> Заявка на розгляді
+                  </p>
+                }
+                @if (myMembership?.status === MembershipStatus.PENDING && myMembership?.direction === MembershipDirection.LEAVE) {
+                  <p class="status-msg status-msg--info">
+                    <span class="material-symbols-outlined">schedule</span> Заявка на вихід на розгляді
                   </p>
                 }
 
-                @if (myMembership?.status === MembershipStatus.REJECTED) {
+                @if (
+                  myMembership?.status === MembershipStatus.REJECTED ||
+                  (isMaxAttemptsReached && myMembership?.status !== MembershipStatus.ACCEPTED)
+                ) {
                   <div class="status-msg status-msg--error">
-                    <p><span class="material-symbols-outlined">cancel</span> Заявку відхилено</p>
-                    @if ((myMembership?.rejection_count || 0) < 3) {
-                      <span class="attempts-left"
-                        >Залишилося спроб: {{ 3 - (myMembership?.rejection_count || 0) }}</span
-                      >
-                    } @else {
-                      <span class="attempts-left">Спроби вичерпано</span>
-                    }
+                    <p>
+                      <span class="material-symbols-outlined">cancel</span>
+                      @if (isMaxAttemptsReached) {
+                        Доступ обмежено
+                      } @else {
+                        Заявку відхилено
+                      }
+                    </p>
+                    <span class="attempts-left">
+                      @if (isMaxAttemptsReached) {
+                        Перевищено ліміт спроб (3/3)
+                      } @else {
+                        Залишилося спроб: {{ attemptsLeft }}
+                      }
+                    </span>
                   </div>
                 }
 
                 @if (myMembership?.status === MembershipStatus.ACCEPTED) {
                   <p class="status-msg status-msg--success">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    Ви учасник організації
+                    <span class="material-symbols-outlined">check_circle</span> Ви учасник
+                    організації
                   </p>
+                }
+
+                @if (myMembership?.status === MembershipStatus.CANCELLED && myMembership?.direction === MembershipDirection.LEAVE) {
+                  <p class="status-msg status-msg--muted">Ви вийшли з організації</p>
                 }
               </div>
             }
           </div>
         </section>
       }
+
       @if (members.length > 0) {
         <section class="members-card">
           <h2 class="members-card__title">Учасники ({{ members.length }})</h2>
@@ -200,7 +174,11 @@
           </ul>
           @if (members.length > collapseCount) {
             <button class="members-card__toggle" (click)="toggleExpand()">
-              {{ expanded ? 'Згорнути' : 'Розгорнути' }}
+              @if (expanded) {
+                Згорнути
+              } @else {
+                Розгорнути
+              }
             </button>
           }
         </section>

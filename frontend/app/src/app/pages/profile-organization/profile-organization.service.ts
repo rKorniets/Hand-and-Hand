@@ -6,23 +6,16 @@ import {
   Organization,
   ActivityItem,
   FundraisingCampaign,
-  Report,
+  OrgReport,
   OrgMember,
-} from './profile-organization.model';
+  MembershipRequest,
+} from '../organizations/organizations.model';
 import { ProjectRegistration, ProjectRegistrationStatus } from '../events/event.model';
 import { AuthService } from '../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
 import { API_BASE_URL } from '../../tokens';
 
 const DEFAULT_LIMIT = 50;
-
-export interface UpdateOrganizationProfileDto {
-  description?: string;
-  city?: string;
-  contact_phone?: string;
-  contact_email?: string;
-  mission?: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -40,8 +33,9 @@ export class OrganizationProfileService {
 
     try {
       const payload = jwtDecode<{ sub: number }>(token);
-      const userId = payload.sub;
-      return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/by-user/${userId}`);
+      return this.http.get<Organization>(
+        `${this.apiUrl}/organization-profiles/by-user/${payload.sub}`,
+      );
     } catch {
       return throwError(() => new Error('Невалідний токен'));
     }
@@ -51,7 +45,7 @@ export class OrganizationProfileService {
     return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
   }
 
-  updateOrganization(id: number, data: UpdateOrganizationProfileDto): Observable<Organization> {
+  updateOrganization(id: number, data: Partial<Organization>): Observable<Organization> {
     return this.http.patch<Organization>(`${this.apiUrl}/organization-profiles/${id}`, data);
   }
 
@@ -59,8 +53,8 @@ export class OrganizationProfileService {
     return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
   }
 
-  getOrgReports(orgId: number): Observable<Report[]> {
-    return this.http.get<Report[]>(`${this.apiUrl}/organization-profiles/${orgId}/reports`);
+  getOrgReports(orgId: number): Observable<OrgReport[]> {
+    return this.http.get<OrgReport[]>(`${this.apiUrl}/organization-profiles/${orgId}/reports`);
   }
 
   getOrgActivities(orgId: number, limit: number = DEFAULT_LIMIT): Observable<ActivityItem[]> {
@@ -83,9 +77,7 @@ export class OrganizationProfileService {
     status?: ProjectRegistrationStatus,
   ): Observable<ProjectRegistration[]> {
     let params = new HttpParams();
-    if (status) {
-      params = params.set('status', status);
-    }
+    if (status) params = params.set('status', status);
     return this.http.get<ProjectRegistration[]>(
       `${this.apiUrl}/projects/${projectId}/registrations/manage`,
       { params },
@@ -108,6 +100,34 @@ export class OrganizationProfileService {
   ): Observable<ProjectRegistration> {
     return this.http.patch<ProjectRegistration>(
       `${this.apiUrl}/projects/${projectId}/registrations/${registrationId}/reject`,
+      {},
+    );
+  }
+
+  acceptOrganizationMember(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/accept`,
+      {},
+    );
+  }
+
+  rejectOrganizationMember(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/reject`,
+      {},
+    );
+  }
+
+  acceptLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/accept`,
+      {},
+    );
+  }
+
+  rejectLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/reject`,
       {},
     );
   }

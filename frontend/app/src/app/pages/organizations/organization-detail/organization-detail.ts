@@ -1,18 +1,17 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, take } from 'rxjs';
 import { OrganizationService } from '../organization.service';
 import { AuthService } from '../../auth/auth.service';
 import {
   Organization,
   Member,
   OrgEvent,
-  OrgReport,
   OrgLocation,
-  FundraisingCampaign,
   MembershipRequest,
   MembershipStatus,
+  MembershipDirection,
   UserRole,
 } from '../organizations.model';
 
@@ -22,19 +21,20 @@ import {
   imports: [CommonModule, RouterLink, DatePipe],
   templateUrl: './organization-detail.html',
   styleUrl: './organization-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationDetailComponent implements OnInit {
   organization: Organization | null = null;
   location: OrgLocation | null = null;
   protected readonly MembershipStatus = MembershipStatus;
+  protected readonly MembershipDirection = MembershipDirection;
 
   myMembership: MembershipRequest | null = null;
   isLoggedIn = false;
-
   loading = true;
   error = false;
 
-  isExpanded = false;
+  activitiesExpanded = false;
   expanded = false;
   collapseCount = 3;
 
@@ -51,93 +51,145 @@ export class OrganizationDetailComponent implements OnInit {
       if (id) {
         this.isLoggedIn = this.authService.isLoggedIn();
         this.loadOrganization(id);
-        this.checkMembership(id);
+        if (this.isLoggedIn) this.checkMembership(id);
       } else {
         this.error = true;
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   private loadOrganization(id: number): void {
     this.loading = true;
-    this.error = false;
-
     forkJoin({
       mainInfo: this.orgService.getOrganizationById(id),
       events: this.orgService.getOrganizationProjects(id),
       fundraising: this.orgService.getOrganizationFundraising(id),
       members: this.orgService.getOrganizationMembers(id),
       reports: this.orgService.getOrganizationReports(id),
-    }).subscribe({
-      next: (res) => {
-        this.organization = {
-          ...res.mainInfo,
-          events: res.events,
-          fundraising_campaigns: res.fundraising,
-          members: res.members,
-          reports: res.reports,
-        };
-
-        this.location = res.mainInfo.location || null;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Помилка завантаження даних організації:', err);
-        this.error = true;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    })
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          this.organization = {
+            ...res.mainInfo,
+            events: res.events,
+            fundraising_campaigns: res.fundraising,
+            members: res.members,
+            reports: res.reports,
+          };
+          this.location = res.mainInfo.location ?? null;
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.error = true;
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   private checkMembership(id: number): void {
-    if (this.isLoggedIn) {
-      this.orgService.getMyMembershipStatus(id).subscribe({
+    this.orgService
+      .getMyMembershipStatus(id)
+      .pipe(take(1))
+      .subscribe({
         next: (res) => {
           this.myMembership = res;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
         error: () => {
           this.myMembership = null;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
       });
-    }
   }
 
   joinOrganization(): void {
-    if (!this.organization || !this.isLoggedIn) return;
-
-    this.orgService.joinOrganization(this.organization.id).subscribe({
-      next: (res) => {
-        this.myMembership = res;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Помилка приєднання:', err),
-    });
+    if (!this.organization || this.isJoinDisabled) return;
+    this.orgService
+      .joinOrganization(this.organization.id)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          this.myMembership = res;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  getJoinButtonText(): string {
-    const status = this.myMembership?.status;
-    const rejections = this.myMembership?.rejection_count || 0;
-
-    if (status === MembershipStatus.PENDING) return 'Заявка на розгляді';
-    if (status === MembershipStatus.ACCEPTED) return 'Ви вже учасник';
-    if (status === MembershipStatus.REJECTED) {
-      return rejections >= 3 ? 'Доступ заблоковано' : 'Подати ще раз';
-    }
-    return 'Приєднатися до організації';
+  cancelRequest(): void {
+    if (!this.organization) return;
+    this.orgService
+      .cancelMembershipRequest(this.organization.id)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          this.myMembership = res;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  isJoinDisabled(): boolean {
-    const status = this.myMembership?.status;
-    const rejections = this.myMembership?.rejection_count || 0;
+  leaveOrganization(): void {
+    if (!this.organization || !confirm('Ви впевнені?')) return;
+    const orgId = this.organization.id;
+    this.orgService
+      .leaveOrganization(orgId)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          this.myMembership = res;
+          this.cdr.markForCheck();
+        },
+      });
+  }
 
+  get attemptsLeft(): number {
+    return 3 - (this.myMembership?.attempt_count || 0);
+  }
+
+  get isMaxAttemptsReached(): boolean {
     return (
-      status === MembershipStatus.PENDING || status === MembershipStatus.ACCEPTED || rejections >= 3
+      this.myMembership?.status === MembershipStatus.REJECTED ||
+      (this.attemptsLeft <= 0 && this.myMembership?.status !== MembershipStatus.ACCEPTED)
     );
+  }
+
+  get isJoinDisabled(): boolean {
+    const status = this.myMembership?.status;
+    return (
+      status === MembershipStatus.PENDING ||
+      status === MembershipStatus.ACCEPTED ||
+      this.isMaxAttemptsReached
+    );
+  }
+
+  get showJoinButton(): boolean {
+    const status = this.myMembership?.status;
+    const direction = this.myMembership?.direction;
+    if (this.isMaxAttemptsReached) return false;
+    if (status === MembershipStatus.ACCEPTED) return false;
+    if (status === MembershipStatus.PENDING) return false;
+    if (status === MembershipStatus.CANCELLED && direction === MembershipDirection.LEAVE) return false;
+    return true;
+  }
+
+  get showCancelButton(): boolean {
+    return (
+      this.myMembership?.status === MembershipStatus.PENDING &&
+      this.myMembership?.direction === MembershipDirection.REQUEST
+    );
+  }
+
+  get showLeaveButton(): boolean {
+    return this.myMembership?.status === MembershipStatus.ACCEPTED;
+  }
+
+  get canSeeJoinBlock(): boolean {
+    return this.authService.getRole() !== UserRole.ORGANIZATION;
   }
 
   get activities(): OrgEvent[] {
@@ -145,15 +197,7 @@ export class OrganizationDetailComponent implements OnInit {
   }
 
   get visibleActivities(): OrgEvent[] {
-    return this.isExpanded ? this.activities : this.activities.slice(0, 5);
-  }
-
-  get fundraisingCampaignItem(): FundraisingCampaign[] {
-    return this.organization?.fundraising_campaigns || [];
-  }
-
-  get reports(): OrgReport[] {
-    return this.organization?.reports || [];
+    return this.activitiesExpanded ? this.activities : this.activities.slice(0, 5);
   }
 
   get members(): Member[] {
@@ -169,23 +213,16 @@ export class OrganizationDetailComponent implements OnInit {
   }
 
   toggleActivities(): void {
-    this.isExpanded = !this.isExpanded;
-  }
-
-  getOrgReports(): void {
-    this.isExpanded = !this.isExpanded;
+    this.activitiesExpanded = !this.activitiesExpanded;
+    this.cdr.markForCheck();
   }
 
   toggleExpand(): void {
     this.expanded = !this.expanded;
+    this.cdr.markForCheck();
   }
 
   getFullName(member: Member): string {
-    if (!member) return 'Анонімний користувач';
     return `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'Користувач';
-  }
-  get canSeeJoinBlock(): boolean {
-    const role = this.authService.getRole();
-    return role !== UserRole.ORGANIZATION;
   }
 }
