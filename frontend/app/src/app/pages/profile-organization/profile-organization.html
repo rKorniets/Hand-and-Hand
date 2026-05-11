@@ -28,6 +28,12 @@
           <app-org-data [organization]="organization" [isOwner]="isOwner"></app-org-data>
         </section>
 
+        @if (currentUser && currentUser.id === organization.user_id) {
+          <section>
+            <app-message-org [organization]="organization"></app-message-org>
+          </section>
+        }
+
         <section>
           <app-list-users [organization]="organization"></app-list-users>
         </section>

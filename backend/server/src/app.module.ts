@@ -30,6 +30,8 @@ import { MyOrgModule } from './my-org/my-org.module';
 import { PointsModule } from './points/points.module';
 import { NotificationModule } from './notification/notification.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { NotificationOrganizationModule } from './notification-organization/notification-organization.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -50,6 +52,7 @@ import { WebsocketModule } from './websocket/websocket.module';
       max: 100,
     }),
     PrismaModule,
+    AuditModule,
     AuthModule,
     NewsModule,
     ProjectModule,
@@ -71,6 +74,7 @@ import { WebsocketModule } from './websocket/websocket.module';
     MyOrgModule,
     PointsModule,
     NotificationModule,
+    NotificationOrganizationModule,
   ],
   controllers: [AppController],
   providers: [

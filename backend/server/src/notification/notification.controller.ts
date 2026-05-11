@@ -8,6 +8,7 @@ import {
   Body,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { user_role_enum } from '@prisma/client';
@@ -22,10 +23,13 @@ import {
   IBaseCrudService,
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Notifications')
 @Controller('notifications')
 @SkipThrottle()
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class NotificationController extends AbstractCrudController<any> {
   constructor(private readonly notificationService: NotificationService) {
     super(notificationService as unknown as IBaseCrudService<any>);

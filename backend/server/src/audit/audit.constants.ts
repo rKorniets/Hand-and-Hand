@@ -1,0 +1,14 @@
+export const AUDIT_KEY = 'audit_metadata';
+
+export const AUDIT_ACTIONS = {
+  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
+  LOGIN_FAIL: 'LOGIN_FAIL',
+  ORG_LOGIN_SUCCESS: 'ORG_LOGIN_SUCCESS',
+  ORG_LOGIN_FAIL: 'ORG_LOGIN_FAIL',
+  LOGOUT: 'LOGOUT',
+  TOKEN_REFRESH: 'TOKEN_REFRESH',
+  TOKEN_REUSE_DETECTED: 'TOKEN_REUSE_DETECTED',
+} as const;
+
+export type AuditActionName =
+  (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
