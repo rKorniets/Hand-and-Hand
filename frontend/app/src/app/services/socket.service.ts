@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SocketService {
   private socket: Socket | undefined;
@@ -12,7 +12,7 @@ export class SocketService {
   connect(userId: number) {
     if (!this.socket) {
       this.socket = io(this.SERVER_URL, {
-        query: { userId: userId.toString() }
+        query: { userId: userId.toString() },
       });
 
       this.socket.on('connect', () => {

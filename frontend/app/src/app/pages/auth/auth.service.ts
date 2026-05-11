@@ -27,7 +27,7 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     @Inject(API_BASE_URL) private apiUrl: string,
-    private socketService: SocketService
+    private socketService: SocketService,
   ) {
     if (this.isLoggedIn()) {
       const userId = this.getUserId();
