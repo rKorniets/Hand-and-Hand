@@ -9,9 +9,11 @@ import {
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { switchMap, of } from 'rxjs';
 import { EventsConstructorService } from './events-constructor.service';
 import { project_status_enum } from './events-constructor.model';
 import { AuthService } from '../../auth/auth.service';
+import { NotificationService } from '../../profile-user/message/message.service';
 import { jwtDecode } from 'jwt-decode';
 
 function notBlank(control: AbstractControl): ValidationErrors | null {
@@ -66,6 +68,7 @@ export class EventsConstructorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private eventService = inject(EventsConstructorService);
   private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -76,6 +79,7 @@ export class EventsConstructorComponent implements OnInit {
   selectedFilePreview = signal<string | null>(null);
   isEditMode = signal(false);
   editId = signal<number | null>(null);
+  private taskId: number | null = null;
 
   form = this.fb.group(
     {
@@ -137,7 +141,6 @@ export class EventsConstructorComponent implements OnInit {
   get image_url() {
     return this.form.controls.image_url;
   }
-
   get locationGroup() {
     return this.form.controls.location as FormGroup;
   }
@@ -163,6 +166,14 @@ export class EventsConstructorComponent implements OnInit {
       next: (data) => (this.categories = data),
       error: () => {},
     });
+
+    const taskIdParam = this.route.snapshot.queryParamMap.get('task_id');
+    this.taskId = taskIdParam ? Number(taskIdParam) : null;
+
+    const titleParam = this.route.snapshot.queryParamMap.get('title');
+    if (titleParam) {
+      this.form.patchValue({ title: titleParam });
+    }
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
@@ -314,16 +325,33 @@ export class EventsConstructorComponent implements OnInit {
         },
       });
     } else {
-      this.eventService.createProject(payload).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          void this.router.navigate(['/events']);
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.isLoading.set(false);
-          this.serverError.set(err?.error?.message ?? 'Помилка створення події. Спробуйте ще раз.');
-        },
-      });
+      this.eventService
+        .createProject(payload)
+        .pipe(
+          switchMap((created) => {
+            if (this.taskId) {
+              return this.notificationService.notifyFromTask({
+                task_id: this.taskId,
+                type: 'event_created',
+                source_id: created.id,
+                title: created.title,
+              });
+            }
+            return of(null);
+          }),
+        )
+        .subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            void this.router.navigate(['/events']);
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.isLoading.set(false);
+            this.serverError.set(
+              err?.error?.message ?? 'Помилка створення події. Спробуйте ще раз.',
+            );
+          },
+        });
     }
   }
 }

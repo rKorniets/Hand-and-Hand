@@ -13,9 +13,11 @@ export interface UserNotification {
   id: number;
   message: string;
   is_read: boolean;
+  link?: string;
   type: 'GENERAL' | 'PROJECT' | 'TASK' | 'TICKET' | 'REWARD' | 'WARNING';
   created_at: string;
 }
+
 export interface AppUser {
   id: number;
   email: string;

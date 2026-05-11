@@ -68,4 +68,28 @@
       background-color: #fadbd8;
     }
   }
+
+  .tickets-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f3f3f3;
+    border-radius: 16px;
+    padding: 5px 20px;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #e8e8e8;
+    }
+
+    &__title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #444;
+      margin-top: 5px;
+      margin-bottom: 16px;
+      white-space: nowrap;
+    }
+  }
 }

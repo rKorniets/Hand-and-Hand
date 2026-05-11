@@ -29,6 +29,7 @@ import { RequestConstructor } from './pages/constructors/request-constructor/req
 import { NewsCreateComponent } from './pages/constructors/news-create/news-create';
 import { TicketsComponent } from './pages/tickets/tickets';
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email';
+import { TicketDetailComponent } from './pages/tickets/ticket-detail/ticket-detail';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -73,5 +74,6 @@ export const routes: Routes = [
     path: 'fundraising/:id',
     component: FundraisingCampaignsDetail,
   },
-  { path: 'ticket', component: TicketsComponent, canActivate: [authGuard] },
+  { path: 'tickets', component: TicketsComponent, canActivate: [authGuard] },
+  { path: 'tickets/:id', component: TicketDetailComponent, canActivate: [authGuard] },
 ];
