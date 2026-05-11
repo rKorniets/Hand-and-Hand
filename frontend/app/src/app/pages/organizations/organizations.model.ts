@@ -25,15 +25,7 @@ export interface FundraisingCampaign {
     name: string;
   };
 }
-export interface ActivityItem {
-  id: number;
-  title: string;
-  description: string;
-  starts_at: string | Date | null;
-  image_url?: string;
-  status?: string;
-  organization_profile_id: number;
-}
+
 export interface Member {
   id: number;
   user_id: number;
@@ -69,7 +61,7 @@ export interface Organization {
   category?: string;
   contact_phone: string;
   contact_email: string;
-  verification_status: VerificationStatus;
+  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
   official_docs_url?: string;
   location_id?: number;
   location?: OrgLocation;
@@ -80,20 +72,6 @@ export interface Organization {
   reports?: OrgReport[];
 }
 
-export interface MembershipRequest {
-  id: number;
-  user_id: number;
-  organization_id: number;
-  status: MembershipStatus;
-  direction: MembershipDirection;
-  attempt_count: number;
-}
-
 export interface OrganizationProfileResponse {
   members: Member[];
-}
-export enum VerificationStatus {
-  PENDING = 'PENDING',
-  VERIFIED = 'VERIFIED',
-  REJECTED = 'REJECTED',
 }

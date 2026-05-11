@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -9,12 +9,22 @@ import {
   Report,
   OrgMember,
   RegistrationData,
+  MembershipRequest,
 } from './profile-organization.model';
+import { ProjectRegistration, ProjectRegistrationStatus } from '../events/event.model';
 import { AuthService } from '../auth/auth.service';
 import { jwtDecode } from 'jwt-decode';
 import { API_BASE_URL } from '../../tokens';
 
 const DEFAULT_LIMIT = 50;
+
+export interface UpdateOrganizationProfileDto {
+  description?: string;
+  city?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  mission?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +54,7 @@ export class OrganizationProfileService {
     return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
   }
 
-  updateOrganization(id: number, data: Partial<Organization>): Observable<Organization> {
+  updateOrganization(id: number, data: UpdateOrganizationProfileDto): Observable<Organization> {
     return this.http.patch<Organization>(`${this.apiUrl}/organization-profiles/${id}`, data);
   }
 
@@ -71,29 +81,62 @@ export class OrganizationProfileService {
     );
   }
 
-  acceptOrganizationMember(orgId: number, requestId: number): Observable<RegistrationData> {
-    return this.http.patch<RegistrationData>(
-      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/accept`,
+  listProjectRegistrations(
+    projectId: number,
+    status?: ProjectRegistrationStatus,
+  ): Observable<ProjectRegistration[]> {
+    let params = new HttpParams();
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.http.get<ProjectRegistration[]>(
+      `${this.apiUrl}/projects/${projectId}/registrations/manage`,
+      { params },
+    );
+  }
+
+  acceptProjectRegistration(
+    projectId: number,
+    registrationId: number,
+  ): Observable<ProjectRegistration> {
+    return this.http.patch<ProjectRegistration>(
+      `${this.apiUrl}/projects/${projectId}/registrations/${registrationId}/accept`,
       {},
     );
   }
 
-  rejectOrganizationMember(orgId: number, requestId: number): Observable<RegistrationData> {
-    return this.http.patch<RegistrationData>(
-      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/reject`,
+  rejectProjectRegistration(
+    projectId: number,
+    registrationId: number,
+  ): Observable<ProjectRegistration> {
+    return this.http.patch<ProjectRegistration>(
+      `${this.apiUrl}/projects/${projectId}/registrations/${registrationId}/reject`,
       {},
     );
   }
 
-  acceptLeaveRequest(orgId: number, requestId: number): Observable<RegistrationData> {
-    return this.http.patch<RegistrationData>(
+  acceptOrganizationMember(registrationId: number): Observable<RegistrationData> {
+    return this.http.post<RegistrationData>(
+      `${this.apiUrl}/organization-profiles/joining-accept/${registrationId}`,
+      {},
+    );
+  }
+
+  rejectOrganizationMember(registrationId: number): Observable<RegistrationData> {
+    return this.http.post<RegistrationData>(
+      `${this.apiUrl}/organization-profiles/joining-reject/${registrationId}`,
+      {},
+    );
+  }
+  acceptLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
       `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/accept`,
       {},
     );
   }
 
-  rejectLeaveRequest(orgId: number, requestId: number): Observable<RegistrationData> {
-    return this.http.patch<RegistrationData>(
+  rejectLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
       `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/reject`,
       {},
     );

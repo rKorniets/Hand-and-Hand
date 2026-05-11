@@ -107,3 +107,11 @@ export interface Report {
   published_at: string | Date;
   created_at: string | Date;
 }
+export interface MembershipRequest {
+  id: number;
+  user_id: number;
+  organization_id: number;
+  status: MembershipStatus;
+  direction: MembershipDirection;
+  attempt_count: number;
+}
