@@ -1,8 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, report_type_enum } from '@prisma/client';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { writeFile, mkdir } from 'fs/promises';
+import { join, extname } from 'path';
 
 export interface RequestUser {
   id: number;
@@ -82,7 +88,6 @@ export class ReportService {
       data: {
         title: data.title,
         type: data.type,
-        file_url: data.file_url,
         description: data.description,
         published_at: data.published_at ?? new Date(),
         organization_profile: {
@@ -105,11 +110,38 @@ export class ReportService {
       data: {
         ...(data.title !== undefined && { title: data.title }),
         ...(data.type !== undefined && { type: data.type }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.file_url !== undefined && { file_url: data.file_url }),
         ...(data.published_at !== undefined && {
           published_at: data.published_at,
         }),
       },
+    });
+  }
+
+  async uploadFile(
+    id: number,
+    file: Express.Multer.File,
+    currentUser: RequestUser,
+  ) {
+    await this.validateOwnership(id, currentUser);
+
+    if (!file) {
+      throw new BadRequestException('Файл не надано');
+    }
+
+    const ext = extname(file.originalname);
+    const fileName = `report-${id}-${Date.now()}${ext}`;
+    const uploadDir = join(process.cwd(), 'uploads', 'reports');
+
+    await mkdir(uploadDir, { recursive: true });
+    await writeFile(join(uploadDir, fileName), file.buffer);
+
+    return this.prisma.report.update({
+      where: { id },
+      data: { file_url: `/uploads/reports/${fileName}` },
     });
   }
 

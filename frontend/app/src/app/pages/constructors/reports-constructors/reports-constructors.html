@@ -44,26 +44,48 @@
         </div>
       </div>
 
-      <div class="form-group mt-20">
-        <label>Посилання на файл звіту <span class="required">*</span></label>
-        <div class="input-wrapper">
-          <input
-            type="url"
-            formControlName="file_url"
-            placeholder="https://drive.google.com/..."
-            class="url-input"
-          />
-          <p class="field-hint">Вставте посилання на PDF файл (Google Drive, Dropbox тощо).</p>
+      <h2 class="section-title mt-40">Файл звіту</h2>
 
-          @if (reportForm.get('file_url')?.touched && reportForm.get('file_url')?.invalid) {
-            <div class="error-messages">
-              @if (reportForm.get('file_url')?.errors?.['required']) {
-                <small class="error-msg">Посилання обов'язкове</small>
-              }
-              @if (reportForm.get('file_url')?.errors?.['pattern']) {
-                <small class="error-msg">Введіть коректну URL-адресу (http/https)</small>
-              }
-            </div>
+      <div class="form-group">
+        <label>PDF файл <span class="required">*</span></label>
+
+        <div class="input-wrapper" [class.has-error]="isInvalid('file')">
+          <input
+            type="file"
+            id="file-upload"
+            accept=".pdf"
+            (change)="onFileSelected($event)"
+            class="hidden-file-input"
+          />
+
+          <label
+            for="file-upload"
+            class="custom-file-dropzone"
+            [style.border-color]="isInvalid('file') ? '#ef4444' : ''"
+          >
+            @if (selectedFile) {
+              <div class="dropzone-content">
+                <span class="icon-camera">📄</span>
+                <span class="upload-title">{{ selectedFile.name }}</span>
+                <span class="upload-subtitle">Натисніть, щоб змінити файл</span>
+              </div>
+            } @else {
+              <div class="dropzone-content">
+                <span class="icon-camera">📄</span>
+                <span class="upload-title">Натисніть, щоб обрати PDF файл</span>
+                <span class="upload-subtitle">або перетягніть файл сюди (PDF до 10MB)</span>
+              </div>
+            }
+          </label>
+
+          @if (selectedFile) {
+            <p class="file-success-msg">✅ Вибрано файл: {{ selectedFile.name }}</p>
+          }
+
+          @if (isInvalid('file')) {
+            <p class="field-hint" style="color: #ef4444; margin-top: 8px">
+              Завантажте файл звіту (це обов'язково).
+            </p>
           }
         </div>
       </div>

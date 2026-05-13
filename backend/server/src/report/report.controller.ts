@@ -11,8 +11,8 @@ import {
   Query,
   ParseEnumPipe,
   UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -33,6 +33,8 @@ import {
 } from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Reports')
 @Controller('reports')
@@ -123,5 +125,25 @@ export class ReportController extends AbstractCrudController<report[]> {
     @CurrentUser() user: { id: number },
   ) {
     return this.service.remove(id, { id: user.id });
+  }
+  @Post(':id/upload')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Завантажити файл звіту' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.service.uploadFile(id, file, { id: user.id });
   }
 }

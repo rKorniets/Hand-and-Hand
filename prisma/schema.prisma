@@ -500,7 +500,7 @@ model report {
   project_id              Int?
   title                   String
   type                    report_type_enum
-  file_url                String
+  file_url                String?
   published_at            DateTime             @db.Timestamptz(6)
   created_at              DateTime             @default(now()) @db.Timestamptz(6)
   updated_at              DateTime             @default(now()) @db.Timestamptz(6)

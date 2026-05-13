@@ -78,12 +78,14 @@ export class ReportAdminService {
   // noinspection DuplicatedCode
   async update(id: number, data: UpdateReportDto) {
     await this.findOne(id);
-    // noinspection DuplicatedCode
     return this.prisma.report.update({
       where: { id },
       data: {
         ...(data.title !== undefined && { title: data.title }),
         ...(data.type !== undefined && { type: data.type }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.file_url !== undefined && { file_url: data.file_url }),
         ...(data.published_at !== undefined && {
           published_at: data.published_at,
@@ -91,7 +93,6 @@ export class ReportAdminService {
       },
     });
   }
-
   async remove(id: number) {
     await this.findOne(id);
 
