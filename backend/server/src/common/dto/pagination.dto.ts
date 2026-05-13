@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PaginationDto {
   @ApiPropertyOptional({
@@ -45,4 +45,13 @@ export class PaginationDto {
   @IsOptional()
   @IsString()
   for?: string;
+
+  @ApiPropertyOptional({
+    description: 'Таб тікетів для організації',
+    enum: ['available', 'my'],
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['available', 'my'])
+  tab?: 'available' | 'my';
 }

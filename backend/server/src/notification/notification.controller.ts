@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
@@ -14,9 +15,15 @@ import { user_role_enum } from '@prisma/client';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { NotifyFromTaskDto } from './dto/notify-from-task.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import {
+  AbstractCrudController,
+  IBaseCrudService,
+} from '../common/controllers/abstract-crud.controller';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Notifications')
@@ -24,27 +31,42 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+export class NotificationController extends AbstractCrudController<any> {
+  constructor(private readonly notificationService: NotificationService) {
+    super(notificationService as unknown as IBaseCrudService<any>);
+  }
+
+  @Get()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Отримати мої сповіщення' })
+  async findAll(
+    @Query() query: PaginationDto,
+    @CurrentUser() user?: { id: number },
+  ) {
+    return this.notificationService.findAll(
+      user!.id,
+      query.limit,
+      query.skip,
+      query.search,
+    );
+  }
 
   @Get('unread-count')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Кількість непрочитаних сповіщень' })
   async getUnreadCount(@CurrentUser() user: { id: number }) {
     return this.notificationService.getUnreadCount(user);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Отримати мої сповіщення' })
-  async getMyNotifications(@CurrentUser() user: { id: number }) {
-    return this.notificationService.getMyNotifications(user);
+  @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ADMIN)
+  @ApiOperation({ summary: 'Створити сповіщення (тільки адмін)' })
+  async create(@Body() data: CreateNotificationDto) {
+    return this.notificationService.create(data);
   }
 
-  @Patch('read-all')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  @ApiOperation({ summary: 'Позначити всі сповіщення як прочитані' })
-  async markAllAsRead(@CurrentUser() user: { id: number }) {
-    return this.notificationService.markAllAsRead(user);
-  }
   @Patch(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
@@ -59,6 +81,7 @@ export class NotificationController {
 
   @Patch(':id/read')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Позначити сповіщення як прочитане' })
   async markAsRead(
     @Param('id', ParseIntPipe) id: number,
@@ -67,16 +90,30 @@ export class NotificationController {
     return this.notificationService.markAsRead(id, user);
   }
 
-  @Post()
+  @Patch('read-all')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  @Roles(user_role_enum.ADMIN)
-  @ApiOperation({ summary: 'Створити сповіщення (тільки адмін)' })
-  async create(@Body() data: CreateNotificationDto) {
-    return this.notificationService.create(data);
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Позначити всі сповіщення як прочитані' })
+  async markAllAsRead(@CurrentUser() user: { id: number }) {
+    return this.notificationService.markAllAsRead(user);
+  }
+
+  @Post('from-task')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({
+    summary: 'Сповістити автора тікету про створення збору або події',
+  })
+  async notifyFromTask(
+    @Body() dto: NotifyFromTaskDto,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.notificationService.notifyFromTask(dto, user);
   }
 
   @Delete(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Видалити сповіщення' })
   async delete(
     @Param('id', ParseIntPipe) id: number,

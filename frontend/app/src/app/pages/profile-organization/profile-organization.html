@@ -38,9 +38,19 @@
           <app-list-users [organization]="organization"></app-list-users>
         </section>
 
-        <div>
-          <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
-        </div>
+        @if (isOwner) {
+          <section>
+            <a routerLink="/tickets" class="tickets-nav">
+              <span class="tickets-nav__title">Заявки про допомогу</span>
+            </a>
+          </section>
+        }
+
+        @if (isOwner) {
+          <div>
+            <button class="logout__button" (click)="logout()">Вийти з акаунту</button>
+          </div>
+        }
       }
     </aside>
   </div>
