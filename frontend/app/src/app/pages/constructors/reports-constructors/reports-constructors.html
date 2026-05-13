@@ -1,0 +1,98 @@
+<main class="constructor-page">
+  <div class="constructor-container">
+    <div class="constructor-header">
+      <h1 class="constructor-title">Створити звіт</h1>
+    </div>
+
+    <form [formGroup]="reportForm" (ngSubmit)="onSubmit()" class="constructor-form">
+      <h2 class="section-title">Основна інформація</h2>
+
+      <div class="form-group">
+        <label>Назва звіту <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Наприклад: Фінансовий звіт по збору на 20 дронів"
+          />
+          <p class="field-hint">Коротка і зрозуміла назва (максимум 100 символів).</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Тип звіту <span class="required">*</span></label>
+        <div class="input-wrapper select-wrapper">
+          <select formControlName="type">
+            <option value="" disabled selected>Оберіть тип звіту</option>
+            <option value="FINANCIAL">Фінансовий</option>
+            <option value="RESULT">Результати</option>
+            <option value="ACTIVITY">Діяльність</option>
+            <option value="OTHER">Інший</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Короткий опис <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <textarea
+            formControlName="description"
+            rows="2"
+            placeholder="Опишіть вміст звіту..."
+          ></textarea>
+          <p class="field-hint">Цей текст буде видно на картці звіту в загальному списку.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title mt-40">Файл звіту</h2>
+
+      <div class="form-group">
+        <label>PDF файл <span class="required">*</span></label>
+
+        <div class="input-wrapper" [class.has-error]="isInvalid('file')">
+          <input
+            type="file"
+            id="file-upload"
+            accept=".pdf"
+            (change)="onFileSelected($event)"
+            class="hidden-file-input"
+          />
+
+          <label
+            for="file-upload"
+            class="custom-file-dropzone"
+            [style.border-color]="isInvalid('file') ? '#ef4444' : ''"
+          >
+            @if (selectedFile) {
+              <div class="dropzone-content">
+                <span class="icon-camera">📄</span>
+                <span class="upload-title">{{ selectedFile.name }}</span>
+                <span class="upload-subtitle">Натисніть, щоб змінити файл</span>
+              </div>
+            } @else {
+              <div class="dropzone-content">
+                <span class="icon-camera">📄</span>
+                <span class="upload-title">Натисніть, щоб обрати PDF файл</span>
+                <span class="upload-subtitle">або перетягніть файл сюди (PDF до 10MB)</span>
+              </div>
+            }
+          </label>
+
+          @if (selectedFile) {
+            <p class="file-success-msg">✅ Вибрано файл: {{ selectedFile.name }}</p>
+          }
+
+          @if (isInvalid('file')) {
+            <p class="field-hint" style="color: #ef4444; margin-top: 8px">
+              Завантажте файл звіту (це обов'язково).
+            </p>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting || reportForm.invalid">
+        {{ isSubmitting ? 'Створення...' : 'СТВОРИТИ ЗВІТ' }}
+      </button>
+    </form>
+  </div>
+</main>
