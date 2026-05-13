@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { API_BASE_URL } from '../../../tokens';
+
 
 @Component({
   selector: 'app-reports-constructors',
@@ -19,6 +21,7 @@ export class ReportsConstructors {
     private fb: FormBuilder,
     private http: HttpClient,
     private router: Router,
+    @Inject(API_BASE_URL) private apiUrl: string,
   ) {
     this.reportForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
@@ -42,7 +45,7 @@ export class ReportsConstructors {
       published_at: new Date().toISOString(),
     };
 
-    this.http.post('http://localhost:3000/reports', payload).subscribe({
+    this.http.post(`${this.apiUrl}/reports`, payload).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.router.navigate(['/profile-organization']);

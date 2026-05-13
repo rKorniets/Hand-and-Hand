@@ -26,12 +26,10 @@ export class Reports implements OnInit {
 
   ngOnInit(): void {
     if (this.organization && (!this.reports || this.reports.length === 0)) {
-      this.orgService
-        .getOrgReports(this.organization.id)
-        .subscribe((res: { data: Report[] } | Report[]) => {
-          this.reports = Array.isArray(res) ? res : res.data;
-          this.cdr.detectChanges();
-        });
+      this.orgService.getOrgReports(this.organization.id).subscribe((res: Report[]) => {
+        this.reports = res;
+        this.cdr.detectChanges();
+      });
     }
   }
 
@@ -40,7 +38,7 @@ export class Reports implements OnInit {
     event.stopPropagation();
 
     if (url) {
-      window.open(url, '_blank');
+      window.open(url, '_blank', 'noopener,noreferrer');
     } else {
       alert('Файл відсутній для цього звіту');
     }
