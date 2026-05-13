@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './pages/auth/auth.guard';
+import { guestGuard } from './pages/auth/guest.guard';
 import { Home } from './pages/home/home';
 import { AboutUs } from './pages/about-us/about-us';
 import { PolicyAndRules } from './pages/policy-and-rules/policy-and-rules';
@@ -26,9 +27,10 @@ import { ApplicationSubmitted } from './pages/auth/application-submitted/applica
 import { FundraisingCampaignsDetail } from './pages/fundraising-campaigns/fundraising-campaigns-detail/fundraising-campaigns-detail';
 import { RequestConstructor } from './pages/constructors/request-constructor/request-constructor';
 import { NewsCreateComponent } from './pages/constructors/news-create/news-create';
-//import { TicketsComponent } from './pages/tickets/tickets';
+import { TicketsComponent } from './pages/tickets/tickets';
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email';
 import { ReportsConstructors } from './pages/constructors/reports-constructors/reports-constructors';
+import { TicketDetailComponent } from './pages/tickets/ticket-detail/ticket-detail';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -41,8 +43,8 @@ export const routes: Routes = [
   { path: 'news/:id', component: NewsDetailComponent },
   { path: 'fundraising', component: FundraisingCampaigns },
   { path: 'organizations', component: OrganizationsPage, resolve: { data: OrganizationResolver } },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'vol-verification', component: VolVerification },
   { path: 'application-submitted', component: ApplicationSubmitted },
@@ -55,6 +57,7 @@ export const routes: Routes = [
   },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },
   { path: 'profile-user', component: ProfileUserComponent, canActivate: [authGuard] },
+  { path: 'profile-user/:id', component: ProfileUserComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'activity/create', component: EventsConstructorComponent, canActivate: [authGuard] },
@@ -62,6 +65,7 @@ export const routes: Routes = [
   { path: 'organizations/:id', component: ProfileOrganization },
   {
     path: 'fundraisingCampaign/create',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/constructors/create-fundraising/create-fundraising').then(
         (m) => m.CreateFundraisingComponent,
@@ -71,10 +75,12 @@ export const routes: Routes = [
     path: 'fundraising/:id',
     component: FundraisingCampaignsDetail,
   },
-  //{ path: 'ticket', component: TicketsComponent, canActivate: [authGuard] },
+  { path: 'ticket', component: TicketsComponent, canActivate: [authGuard] },
   {
     path: 'reports/create',
     component: ReportsConstructors,
     canActivate: [authGuard],
   },
+  { path: 'tickets', component: TicketsComponent, canActivate: [authGuard] },
+  { path: 'tickets/:id', component: TicketDetailComponent, canActivate: [authGuard] },
 ];

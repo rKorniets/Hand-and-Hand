@@ -13,6 +13,13 @@ export interface BatchPayload {
   count: number;
 }
 
+export interface NotifyFromTaskDto {
+  task_id: number;
+  type: 'fundraiser_created' | 'event_created';
+  source_id: number;
+  title: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   constructor(
@@ -34,5 +41,9 @@ export class NotificationService {
 
   delete(id: number): Observable<UserNotification> {
     return this.http.delete<UserNotification>(`${this.apiUrl}/notifications/${id}`);
+  }
+
+  notifyFromTask(dto: NotifyFromTaskDto): Observable<UserNotification> {
+    return this.http.post<UserNotification>(`${this.apiUrl}/notifications/from-task`, dto);
   }
 }

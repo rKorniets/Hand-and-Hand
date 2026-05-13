@@ -22,14 +22,28 @@ export class ListUsers implements OnChanges {
     private uiHelper: UiHelperService,
     private orgService: OrganizationProfileService,
   ) {}
-
   ngOnChanges(): void {
-    if (this.organization) {
-      this.orgService.getOrgMembers(this.organization.id).subscribe((data: OrgMember[]) => {
-        this.members = data;
+    if (this.organization?.id) {
+      this.orgService.getOrgMembers(Number(this.organization.id)).subscribe((data: unknown) => {
+        if (Array.isArray(data)) {
+          this.members = data as OrgMember[];
+        } else if (this.isOrgMembersResponse(data)) {
+          this.members = data.members;
+        } else {
+          this.members = [];
+        }
       });
     }
     this.expanded = false;
+  }
+
+  private isOrgMembersResponse(data: unknown): data is { members: OrgMember[] } {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'members' in data &&
+      Array.isArray((data as { members: unknown }).members)
+    );
   }
 
   get visibleMembers(): OrgMember[] {
