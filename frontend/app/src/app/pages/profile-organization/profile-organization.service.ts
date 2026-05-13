@@ -8,6 +8,8 @@ import {
   FundraisingCampaign,
   Report,
   OrgMember,
+  RegistrationData,
+  MembershipRequest,
 } from './profile-organization.model';
 import { ProjectRegistration, ProjectRegistrationStatus } from '../events/event.model';
 import { AuthService } from '../auth/auth.service';
@@ -40,8 +42,9 @@ export class OrganizationProfileService {
 
     try {
       const payload = jwtDecode<{ sub: number }>(token);
-      const userId = payload.sub;
-      return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/by-user/${userId}`);
+      return this.http.get<Organization>(
+        `${this.apiUrl}/organization-profiles/by-user/${payload.sub}`,
+      );
     } catch {
       return throwError(() => new Error('Невалідний токен'));
     }
@@ -108,6 +111,33 @@ export class OrganizationProfileService {
   ): Observable<ProjectRegistration> {
     return this.http.patch<ProjectRegistration>(
       `${this.apiUrl}/projects/${projectId}/registrations/${registrationId}/reject`,
+      {},
+    );
+  }
+
+  acceptOrganizationMember(registrationId: number): Observable<RegistrationData> {
+    return this.http.post<RegistrationData>(
+      `${this.apiUrl}/organization-profiles/joining-accept/${registrationId}`,
+      {},
+    );
+  }
+
+  rejectOrganizationMember(registrationId: number): Observable<RegistrationData> {
+    return this.http.post<RegistrationData>(
+      `${this.apiUrl}/organization-profiles/joining-reject/${registrationId}`,
+      {},
+    );
+  }
+  acceptLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/accept`,
+      {},
+    );
+  }
+
+  rejectLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
+    return this.http.patch<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/reject`,
       {},
     );
   }

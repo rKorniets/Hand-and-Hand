@@ -1,9 +1,47 @@
+import {
+  organization_membership_request_direction_enum as MembershipDirection,
+  organization_membership_request_status_enum as MembershipStatus,
+  user_role_enum as UserRole,
+  notification_organization_type_enum,
+} from '@prisma/client';
+
+export { MembershipDirection, MembershipStatus, UserRole };
+
 export type ReportType = 'фінансовий' | 'результати' | 'активності' | 'інше' | string;
+
+export interface UserMinInfo {
+  id: number;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string | null;
+}
+
+export interface RegistrationData {
+  id: number;
+  user_id: number;
+  status: MembershipStatus;
+  organization_id?: number;
+  attempt_count?: number;
+  created_at: string | Date;
+  user?: UserMinInfo;
+}
+
+export interface OrgNotification {
+  id: number;
+  organization_id: number;
+  message: string;
+  is_read: boolean;
+  type: notification_organization_type_enum;
+  project_id?: number;
+  user_id?: number;
+  created_at: string;
+  registration_data?: RegistrationData | null;
+}
 
 export interface ActivityItem {
   id: number;
   title: string;
-  starts_at: string | Date;
+  starts_at: string | Date | null;
   description: string;
   location: string;
 }
@@ -24,40 +62,19 @@ export interface OrgMember {
   last_name: string;
   role: string;
   avatar_url?: string;
+  email?: string;
+  city?: string;
 }
 
-export enum ProjectRegistrationStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-  CANCELLED = 'CANCELLED',
-}
-
-export interface ProjectRegistration {
+export interface OrgLocation {
   id: number;
-  project_id: number;
-  user_id: number;
-  status: ProjectRegistrationStatus;
-  reviewed_at?: string | Date;
-  created_at: string | Date;
-  user?: {
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-  };
+  lat?: number;
+  lng?: number;
+  address: string;
+  region?: string;
+  city: string;
 }
 
-export interface OrgNotification {
-  id: number;
-  message: string;
-  is_read: boolean;
-  type: 'GENERAL' | 'PROJECT' | 'TASK' | 'TICKET' | 'REWARD' | 'WARNING' | 'REGISTRATION';
-  created_at: string;
-  registration_data?: ProjectRegistration;
-  organization_id: number;
-  project_id?: number;
-  user_id?: number;
-}
 export interface Organization {
   id: number;
   user_id: number;
@@ -80,15 +97,6 @@ export interface Organization {
   notifications?: OrgNotification[];
 }
 
-export interface OrgLocation {
-  id: number;
-  lat?: number;
-  lng?: number;
-  address: string;
-  region?: string;
-  city: string;
-}
-
 export interface Report {
   id: number;
   organization_profile_id: number;
@@ -99,5 +107,12 @@ export interface Report {
   description: string;
   published_at: string | Date;
   created_at: string | Date;
-  updated_at: string | Date;
+}
+export interface MembershipRequest {
+  id: number;
+  user_id: number;
+  organization_id: number;
+  status: MembershipStatus;
+  direction: MembershipDirection;
+  attempt_count: number;
 }

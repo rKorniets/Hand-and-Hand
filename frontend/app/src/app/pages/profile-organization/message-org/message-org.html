@@ -43,7 +43,12 @@
           <span class="message-org__notification-text">{{ n.message }}</span>
         </div>
 
-        @if (n.type === NotificationType.REGISTRATION && n.registration_data) {
+        @if (
+          (n.type === NotificationType.REGISTRATION ||
+            n.type === NotificationType.JOININGORG ||
+            n.type === NotificationType.LEAVE_REQUEST) &&
+          n.registration_data
+        ) {
           <div class="message-org__notification-logic" (click)="$event.stopPropagation()">
             @if (n.registration_data.status === RegistrationStatus.PENDING) {
               <div class="message-org__notification-actions">
@@ -55,7 +60,7 @@
             } @else if (n.registration_data.status === RegistrationStatus.REJECTED) {
               <div class="status-badge status-badge--rejected">Відхилено</div>
             } @else if (n.registration_data.status === RegistrationStatus.CANCELLED) {
-              <div class="status-badge status-badge--cancelled">Скасовано волонтером</div>
+              <div class="status-badge status-badge--cancelled">Скасовано</div>
             }
           </div>
         }

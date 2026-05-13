@@ -87,11 +87,19 @@ export class MessageOrg implements OnInit, OnDestroy {
 
   markAllAsRead() {
     const toMark = this.notifications
-      .filter(
-        (n) =>
-          n.type !== notification_organization_type_enum.REGISTRATION ||
-          n.registration_data?.status !== this.RegistrationStatus.PENDING,
-      )
+      .filter((n) => {
+        const isPendingReg =
+          n.type === this.NotificationType.REGISTRATION &&
+          n.registration_data?.status === this.RegistrationStatus.PENDING;
+        const isPendingJoin =
+          n.type === this.NotificationType.JOININGORG &&
+          n.registration_data?.status === this.RegistrationStatus.PENDING;
+        const isPendingLeave =
+          n.type === this.NotificationType.LEAVE_REQUEST &&
+          n.registration_data?.status === this.RegistrationStatus.PENDING;
+
+        return !isPendingReg && !isPendingJoin && !isPendingLeave;
+      })
       .map((n) => n.id);
 
     if (toMark.length === 0) return;
@@ -137,45 +145,76 @@ export class MessageOrg implements OnInit, OnDestroy {
   hasUnread(): boolean {
     return this.notifications.some((n: OrgNotification) => !n.is_read);
   }
+
   onAccept(n: OrgNotification) {
     const regId = n.registration_data?.id;
-    const projId = n.project_id;
+    const orgId = this.organization?.id;
+    if (!regId) return;
 
-    if (!projId || !regId) return;
-
-    this.orgProfileService
-      .acceptProjectRegistration(projId, regId)
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          if (n.registration_data) {
-            n.registration_data.status = this.RegistrationStatus.ACCEPTED;
-          }
-          this.markAsRead(n.id);
-          this.cdr.markForCheck();
-        },
-        error: (err) => console.error('Помилка прийому:', err),
-      });
+    if (n.type === this.NotificationType.REGISTRATION && n.project_id) {
+      this.orgProfileService
+        .acceptProjectRegistration(n.project_id, regId)
+        .pipe(take(1))
+        .subscribe({
+          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.ACCEPTED),
+          error: (err) => console.error(err),
+        });
+    } else if (n.type === this.NotificationType.JOININGORG) {
+      this.orgProfileService
+        .acceptOrganizationMember(regId)
+        .pipe(take(1))
+        .subscribe({
+          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.ACCEPTED),
+          error: (err) => console.error(err),
+        });
+    } else if (n.type === this.NotificationType.LEAVE_REQUEST && orgId) {
+      this.orgProfileService
+        .acceptLeaveRequest(orgId, regId)
+        .pipe(take(1))
+        .subscribe({
+          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.ACCEPTED),
+          error: (err) => console.error(err),
+        });
+    }
   }
 
   onReject(n: OrgNotification) {
     const regId = n.registration_data?.id;
-    const projId = n.project_id;
+    const orgId = this.organization?.id;
+    if (!regId) return;
 
-    if (!projId || !regId) return;
+    if (n.type === this.NotificationType.REGISTRATION && n.project_id) {
+      this.orgProfileService
+        .rejectProjectRegistration(n.project_id, regId)
+        .pipe(take(1))
+        .subscribe({
+          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.REJECTED),
+          error: (err) => console.error(err),
+        });
+    } else if (n.type === this.NotificationType.JOININGORG) {
+      this.orgProfileService
+        .rejectOrganizationMember(regId)
+        .pipe(take(1))
+        .subscribe({
+          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.REJECTED),
+          error: (err) => console.error(err),
+        });
+    } else if (n.type === this.NotificationType.LEAVE_REQUEST && orgId) {
+      this.orgProfileService
+        .rejectLeaveRequest(orgId, regId)
+        .pipe(take(1))
+        .subscribe({
+          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.REJECTED),
+          error: (err) => console.error(err),
+        });
+    }
+  }
 
-    this.orgProfileService
-      .rejectProjectRegistration(projId, regId)
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          if (n.registration_data) {
-            n.registration_data.status = this.RegistrationStatus.REJECTED;
-          }
-          this.markAsRead(n.id);
-          this.cdr.markForCheck();
-        },
-        error: (err) => console.error('Помилка відхилення:', err),
-      });
+  private updateUIAfterAction(n: OrgNotification, status: ProjectRegistrationStatus) {
+    if (n.registration_data) {
+      n.registration_data.status = status;
+    }
+    this.markAsRead(n.id);
+    this.cdr.markForCheck();
   }
 }
