@@ -19,7 +19,7 @@ import { AuthService } from '../auth/auth.service';
 export class NewsComponent implements OnInit {
   pinnedNews: NewsItem[] = [];
   regularNews: NewsItem[] = [];
-  isOrganization = false;
+  canCreateNews = false;
   loading = false;
   error = false;
 
@@ -53,7 +53,8 @@ export class NewsComponent implements OnInit {
     this.pinnedNews = data.pinned;
     this.regularNews = data.regular;
     this.hasNextPage = data.regular.length === this.limit;
-    this.isOrganization = this.authService.getRole() === 'ORGANIZATION';
+    const role = this.authService.getRole();
+    this.canCreateNews = role === 'ORGANIZATION' || role === 'ADMIN';
     this.cdr.detectChanges();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

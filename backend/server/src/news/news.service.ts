@@ -27,13 +27,20 @@ export class NewsService {
       throw new NotFoundException(`News with ID ${id} not found`);
     }
 
-    if (news.created_by !== currentUser.id) {
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: currentUser.id },
+      select: { organization_id: true },
+    });
+
+    if (
+      !user?.organization_id ||
+      news.organization_id !== user.organization_id
+    ) {
       throw new ForbiddenException('You can only edit or delete your own news');
     }
 
     return news;
   }
-
   async getNews(
     limit: number,
     skip: number,
@@ -57,7 +64,14 @@ export class NewsService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
-        include: { organization: true },
+        include: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       }),
       this.prisma.news.count({ where: whereClause }),
     ]);
@@ -66,19 +80,36 @@ export class NewsService {
   }
 
   async getNewsById(id: number) {
-    return this.prisma.news.findUnique({
-      where: { id },
+    return this.prisma.news.findFirst({
+      where: {
+        id,
+        status: news_status_enum.PUBLISHED,
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
-  async createNews(data: CreateNewsDto, createdBy: number) {
+  async createNews(data: CreateNewsDto, currentUserId: number) {
+    const user = await this.prisma.app_user.findUnique({
+      where: { id: currentUserId },
+      select: { organization_id: true },
+    });
+
+    if (!user || user.organization_id === null) {
+      throw new ForbiddenException('Користувач не належить до організації');
+    }
+
     return this.prisma.news.create({
       data: {
-        title: data.title,
-        description: data.description,
-        main_content: data.main_content,
-        image_url: data.image_url,
-        created_by: createdBy,
+        ...data,
+        organization_id: user.organization_id,
         is_pinned: false,
       },
     });

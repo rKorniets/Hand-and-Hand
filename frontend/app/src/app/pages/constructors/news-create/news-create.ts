@@ -34,7 +34,8 @@ export class NewsCreateComponent implements OnInit {
 
   ngOnInit(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (this.authService.getRole() !== 'ORGANIZATION') {
+    const role = this.authService.getRole() || '';
+    if (!['ORGANIZATION', 'ADMIN'].includes(role)) {
       this.router.navigate(['/news']);
     }
   }

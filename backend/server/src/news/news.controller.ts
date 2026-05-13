@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { NewsService } from './news.service';
+import { NewsAdminService } from '../admin/news/news.admin.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 import { Public } from '../auth/decorators/public.decorator';
@@ -39,7 +40,10 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 @Controller('news')
 @SkipThrottle()
 export class NewsController extends AbstractCrudController<unknown> {
-  constructor(private readonly newsService: NewsService) {
+  constructor(
+    private readonly newsService: NewsService,
+    private readonly newsAdminService: NewsAdminService,
+  ) {
     super(newsService as unknown as IBaseCrudService<unknown>);
   }
 
@@ -71,19 +75,22 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Post()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Створити новину' })
   async create(
     @Body() data: CreateNewsDto,
-    @CurrentUser() user: { id: number },
+    @CurrentUser() user: { id: number; role: user_role_enum },
   ) {
+    if (user.role === user_role_enum.ADMIN) {
+      return this.newsAdminService.create(data);
+    }
     return this.newsService.createNews(data, user.id);
   }
 
   @Put(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити новину (повністю)' })
   async updateFull(
     @Param('id', ParseIntPipe) id: number,
@@ -95,7 +102,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Patch(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Оновити новину (частково)' })
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
@@ -108,7 +115,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Delete(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Видалити новину (тільки автор)' })
   async remove(
     @Param('id', ParseIntPipe) id: number,
@@ -120,7 +127,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   @Patch(':id/image')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.ORGANIZATION, user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.ORGANIZATION, user_role_enum.ADMIN)
   @ApiOperation({ summary: 'Завантажити/замінити зображення новини' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { NewsItem } from '../news.model';
 import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 
 @Component({
   selector: 'app-news-content',
@@ -13,6 +13,8 @@ import { RouterLink } from '@angular/router';
 export class NewsContentComponent {
   private _items: NewsItem[] = [];
   @Input() showCreateButton = false;
+
+  constructor(private router: Router) {}
 
   @Input()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,6 +30,10 @@ export class NewsContentComponent {
 
   get items(): NewsItem[] {
     return this._items;
+  }
+
+  navigateToNews(id: number): void {
+    this.router.navigate(['/news', id]);
   }
 
   onImageError(event: Event): void {

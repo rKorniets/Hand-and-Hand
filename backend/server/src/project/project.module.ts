@@ -8,10 +8,10 @@ import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
+    CacheModule.register(),
     PrismaModule,
     CloudinaryModule,
     NotificationModule,
-    CacheModule.register(),
   ],
   controllers: [ProjectController],
   providers: [ProjectService],

@@ -1,13 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NewsService } from '../news.service';
 import { NewsItem } from '../news.model';
 
 @Component({
   selector: 'app-news-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './news-detail.html',
   styleUrls: ['./news-detail.scss'],
 })

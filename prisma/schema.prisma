@@ -23,7 +23,6 @@ model app_user {
   organization                           organization_profile?             @relation("OrganizationMembers", fields: [organization_id], references: [id])
   reviewed_requests                      approval_request[]                @relation("reviewed_requests")
   submitted_requests                     approval_request[]                @relation("submitted_requests")
-  news                                   news[]
   organization_profile                   organization_profile?             @relation("OrganizationOwner")
   password_reset_token                   password_reset_token[]
   points_transaction                     points_transaction[]
@@ -317,21 +316,19 @@ model donation {
 }
 
 model news {
-  id              Int                   @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   title           String
   image_url       String?
-  created_at      DateTime              @default(now()) @db.Timestamptz(6)
-  is_pinned       Boolean               @default(false)
+  created_at      DateTime         @default(now()) @db.Timestamptz(6)
+  is_pinned       Boolean          @default(false)
   description     String
   main_content    String
-  created_by      Int?
   organization_id Int?
-  status          news_status_enum      @default(PENDING)
-  app_user        app_user?             @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_news_created_by")
-  organization    organization_profile? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
-  news_category   news_category[]
+  status          news_status_enum @default(PENDING)
 
-  @@index([created_by], map: "idx_news_created_by")
+  organization  organization_profile? @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  news_category news_category[]
+
   @@index([organization_id])
 }
 
