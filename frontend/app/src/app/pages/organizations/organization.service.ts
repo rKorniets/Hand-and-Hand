@@ -1,7 +1,16 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Organization } from './organizations.model';
+import { map } from 'rxjs/operators';
+import {
+  Organization,
+  OrgEvent,
+  Member,
+  MembershipRequest,
+  FundraisingCampaign,
+  OrgReport,
+  OrganizationProfileResponse,
+} from './organizations.model';
 import { API_BASE_URL } from '../../tokens';
 
 @Injectable({ providedIn: 'root' })
@@ -30,5 +39,51 @@ export class OrganizationService {
 
   getOrganizationById(id: number): Observable<Organization> {
     return this.http.get<Organization>(`${this.apiUrl}/organization-profiles/${id}`);
+  }
+
+  getOrganizationProjects(id: number): Observable<OrgEvent[]> {
+    return this.http.get<OrgEvent[]>(`${this.apiUrl}/organization-profiles/${id}/projects`);
+  }
+
+  getOrganizationMembers(id: number): Observable<Member[]> {
+    return this.http
+      .get<OrganizationProfileResponse>(`${this.apiUrl}/organization-profiles/${id}/members`)
+      .pipe(map((res) => res.members));
+  }
+
+  getOrganizationFundraising(id: number): Observable<FundraisingCampaign[]> {
+    return this.http.get<FundraisingCampaign[]>(
+      `${this.apiUrl}/organization-profiles/${id}/fundraising`,
+    );
+  }
+
+  getOrganizationReports(id: number): Observable<OrgReport[]> {
+    return this.http.get<OrgReport[]>(`${this.apiUrl}/organization-profiles/${id}/reports`);
+  }
+
+  getMyMembershipStatus(orgId: number): Observable<MembershipRequest | null> {
+    return this.http.get<MembershipRequest | null>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-status`,
+    );
+  }
+
+  joinOrganization(orgId: number): Observable<MembershipRequest> {
+    return this.http.post<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests`,
+      {},
+    );
+  }
+
+  cancelMembershipRequest(orgId: number): Observable<MembershipRequest> {
+    return this.http.delete<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/me`,
+    );
+  }
+
+  leaveOrganization(orgId: number): Observable<MembershipRequest> {
+    return this.http.post<MembershipRequest>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/me/leave`,
+      {},
+    );
   }
 }

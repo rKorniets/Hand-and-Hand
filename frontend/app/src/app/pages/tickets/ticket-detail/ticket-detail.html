@@ -1,0 +1,258 @@
+@if (loading) {
+  <div class="ticket-detail__loading">Завантаження...</div>
+}
+
+@if (!loading && ticket) {
+  <div class="ticket-detail__wrapper">
+    <div class="ticket-detail__layout">
+      <div class="ticket-detail__main">
+        <div class="ticket-detail__title-block">
+          <h1 class="ticket-detail__title">{{ ticket.title }}</h1>
+        </div>
+
+        <div class="ticket-detail__card">
+          <div class="ticket-detail__top-row">
+            @if (ticket.file_url) {
+              <img class="ticket-detail__image" [src]="ticket.file_url" [alt]="ticket.title" />
+            }
+
+            <div class="ticket-detail__meta">
+              <div class="ticket-detail__meta-item">
+                <strong>Пріоритет</strong>
+                <span
+                  class="ticket-detail__priority"
+                  [ngClass]="'ticket-detail__priority--' + ticket.priority.toLowerCase()"
+                >
+                  {{ getPriorityLabel(ticket.priority) }}
+                </span>
+              </div>
+              <div class="ticket-detail__meta-item">
+                <strong>Статус</strong>
+                <span
+                  class="ticket-detail__status"
+                  [ngClass]="'ticket-detail__status--' + ticket.status.toLowerCase()"
+                >
+                  {{ getStatusLabel(ticket.status) }}
+                </span>
+              </div>
+              @if (ticket.app_user) {
+                <div class="ticket-detail__meta-item">
+                  <strong>Автор</strong>
+                  {{ ticket.app_user.first_name }} {{ ticket.app_user.last_name }}
+                </div>
+              }
+              @if (ticket.location) {
+                <div class="ticket-detail__meta-item">
+                  <strong>Локація</strong>
+                  м. {{ ticket.location.city }}, {{ ticket.location.address }}
+                </div>
+              }
+              <div class="ticket-detail__meta-item">
+                <strong>Створено</strong>
+                {{ formatDate(ticket.created_at) }}
+              </div>
+              @if (ticket.closed_at) {
+                <div class="ticket-detail__meta-item">
+                  <strong>Закрито</strong>
+                  {{ formatDate(ticket.closed_at) }}
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (ticket.description) {
+            <div class="ticket-detail__section">
+              <h3>Опис</h3>
+              <p>{{ ticket.description }}</p>
+            </div>
+          }
+        </div>
+
+        @if (ticket.task && ticket.task.length > 0) {
+          <div class="ticket-detail__card">
+            <div class="ticket-detail__section">
+              <h3>Задачі ({{ ticket.task.length }})</h3>
+              <div class="ticket-detail__tasks">
+                @for (task of ticket.task; track task.id) {
+                  <div class="ticket-detail__task">
+                    <div class="ticket-detail__task-header">
+                      <span class="ticket-detail__task-title">{{ task.title }}</span>
+                      <span
+                        class="ticket-detail__task-status"
+                        [ngClass]="'ticket-detail__task-status--' + task.status.toLowerCase()"
+                      >
+                        {{ task.status }}
+                      </span>
+                    </div>
+                    <p class="ticket-detail__task-desc">{{ task.description }}</p>
+                    <div class="ticket-detail__task-meta">
+                      <span>{{ task.difficulty }}</span>
+                      <span>{{ task.points_reward_base }} балів</span>
+                      @if (task.deadline) {
+                        <span>до {{ formatDate(task.deadline) }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="ticket-detail__sidebar">
+        @if (successMessage) {
+          <div class="ticket-detail__alert ticket-detail__alert--success">
+            <mat-icon>check_circle</mat-icon>
+            {{ successMessage }}
+          </div>
+        }
+
+        @if (acceptedTask) {
+          <div class="ticket-detail__post-accept">
+            <p class="ticket-detail__post-accept-label">Що зробити далі з цією задачею?</p>
+            <div class="ticket-detail__post-accept-actions">
+              <button
+                class="ticket-detail__action-btn ticket-detail__action-btn--fundraiser"
+                (click)="navigateToCreateFundraiser(acceptedTask)"
+              >
+                <span class="ticket-detail__action-btn-icon">💰</span>
+                <span>Створити збір</span>
+              </button>
+              <button
+                class="ticket-detail__action-btn ticket-detail__action-btn--event"
+                (click)="navigateToCreateEvent(acceptedTask)"
+              >
+                <span class="ticket-detail__action-btn-icon">📅</span>
+                <span>Створити подію</span>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (errorMessage) {
+          <div class="ticket-detail__alert ticket-detail__alert--error">
+            <mat-icon>error</mat-icon>
+            {{ errorMessage }}
+          </div>
+        }
+
+        @if (canAccept() && !showAcceptForm) {
+          <div class="ticket-detail__apply">
+            <button class="ticket-detail__apply-btn" (click)="openAcceptForm()">
+              Прийняти як задачу
+            </button>
+          </div>
+        }
+
+        @if (ticket.file_url) {
+          <div class="ticket-detail__file-card">
+            <p class="ticket-detail__file-label">Прикріплений файл</p>
+            <a class="ticket-detail__file-link" [href]="ticket.file_url" target="_blank">
+              Переглянути →
+            </a>
+          </div>
+        }
+
+        @if (showAcceptForm) {
+          <form class="ticket-detail__form-card" [formGroup]="acceptForm">
+            <div class="ticket-detail__form-header">
+              <h4>Створити задачу з тікета</h4>
+              <button class="ticket-detail__close-sm" type="button" (click)="closeAcceptForm()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            @if (loadingProject) {
+              <div class="ticket-detail__project-loading">
+                <mat-spinner diameter="20" />
+                <span>Завантаження проєкту...</span>
+              </div>
+            }
+
+            @if (!loadingProject && projectId) {
+              <div class="ticket-detail__project-info">
+                <mat-icon>folder</mat-icon>
+                <span>Проєкт #{{ projectId }} обрано автоматично</span>
+              </div>
+            }
+
+            <div class="ticket-detail__field">
+              <label class="ticket-detail__label"
+                >Назва задачі <span class="ticket-detail__required">*</span></label
+              >
+              <input
+                class="ticket-detail__input"
+                type="text"
+                formControlName="title"
+                placeholder="Назва задачі"
+              />
+            </div>
+
+            <div class="ticket-detail__field">
+              <label class="ticket-detail__label"
+                >Опис <span class="ticket-detail__required">*</span></label
+              >
+              <textarea
+                class="ticket-detail__textarea"
+                formControlName="description"
+                rows="3"
+                placeholder="Детальний опис задачі"
+              ></textarea>
+            </div>
+
+            <div class="ticket-detail__form-row">
+              <div class="ticket-detail__field">
+                <label class="ticket-detail__label">Складність</label>
+                <select class="ticket-detail__select" formControlName="difficulty">
+                  @for (d of difficulties; track d.value) {
+                    <option [value]="d.value">{{ d.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="ticket-detail__field">
+                <label class="ticket-detail__label">Балів за виконання</label>
+                <input
+                  class="ticket-detail__input"
+                  type="number"
+                  formControlName="points_reward_base"
+                  min="0"
+                  max="10000"
+                />
+              </div>
+            </div>
+
+            <div class="ticket-detail__field">
+              <label class="ticket-detail__label">Дедлайн (необов'язково)</label>
+              <input
+                class="ticket-detail__input"
+                type="datetime-local"
+                formControlName="deadline"
+              />
+            </div>
+
+            <div class="ticket-detail__form-actions">
+              <button mat-stroked-button type="button" (click)="closeAcceptForm()">
+                Скасувати
+              </button>
+              <button
+                mat-flat-button
+                class="ticket-detail__submit-btn"
+                type="button"
+                (click)="submitAccept()"
+                [disabled]="acceptForm.invalid || accepting || loadingProject || !projectId"
+              >
+                @if (accepting) {
+                  <mat-spinner diameter="16" />
+                  Створення...
+                } @else {
+                  Створити задачу
+                }
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+}

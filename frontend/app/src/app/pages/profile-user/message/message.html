@@ -37,13 +37,17 @@
         class="message__notification"
         [class.message__notification--unread]="!n.is_read"
         [class.message__notification--read]="n.is_read"
-        (click)="markAsRead(n.id)"
+        [class.message__notification--clickable]="!!n.link"
+        (click)="onNotificationClick(n)"
       >
         <div class="message__notification-body">
           @if (!n.is_read) {
             <span class="message__notification-dot"></span>
           }
           <span class="message__notification-text">{{ n.message }}</span>
+          @if (n.link) {
+            <span class="message__notification-arrow">→</span>
+          }
         </div>
         <div class="message__notification-footer">
           <span class="message__notification-type">{{ n.type }}</span>

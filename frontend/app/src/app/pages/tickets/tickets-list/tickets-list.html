@@ -1,0 +1,53 @@
+<section class="tickets-list">
+  <div class="tickets-list__header">
+    <h2 class="tickets-list__title">Тікети</h2>
+  </div>
+
+  <div class="tickets-list__list">
+    @for (ticket of tickets; track ticket.id) {
+      <div class="tickets-list__item" (click)="navigate(ticket)">
+        <div
+          class="tickets-list__image"
+          [style.background-image]="ticket.file_url ? 'url(' + ticket.file_url + ')' : null"
+        >
+          <span
+            class="tickets-list__priority"
+            [ngClass]="'tickets-list__priority--' + (ticket.priority | lowercase)"
+          >
+            {{ getPriorityLabel(ticket.priority) }}
+          </span>
+        </div>
+
+        <div class="tickets-list__body">
+          <div class="tickets-list__top">
+            <h3 class="tickets-list__item-title">{{ ticket.title }}</h3>
+            <div class="tickets-list__info">
+              <span class="tickets-list__date">
+                {{ formatDate(ticket.created_at) }}
+              </span>
+            </div>
+          </div>
+
+          @if (ticket.location) {
+            <div class="tickets-list__location">
+              {{ ticket.location.city }}, {{ ticket.location.address }}
+            </div>
+          }
+
+          @if (ticket.description) {
+            <p class="tickets-list__text">{{ ticket.description }}</p>
+          }
+
+          <div
+            class="tickets-list__status"
+            [ngClass]="'tickets-list__status--' + (ticket.status | lowercase)"
+          >
+            {{ getStatusLabel(ticket.status) }}
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <p class="tickets-list__empty">Тікетів не знайдено.</p>
+    }
+  </div>
+</section>
