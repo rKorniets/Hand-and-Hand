@@ -9,11 +9,8 @@ import {
 import { DatePipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { take } from 'rxjs';
-import {
-  Organization,
-  OrgNotification,
-  ProjectRegistrationStatus,
-} from '../profile-organization.model';
+import { Organization, OrgNotification } from '../profile-organization.model';
+import { ProjectRegistrationStatus } from '../../events/event.model';
 import { NotificationService, NotificationResponse } from './message-org.service';
 import { OrganizationProfileService } from '../profile-organization.service';
 import { notification_organization_type_enum } from '@prisma/client';
