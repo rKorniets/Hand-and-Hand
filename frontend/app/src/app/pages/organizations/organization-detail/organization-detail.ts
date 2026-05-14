@@ -9,11 +9,11 @@ import {
   Member,
   OrgEvent,
   OrgLocation,
-  MembershipRequest,
   MembershipStatus,
   MembershipDirection,
   UserRole,
 } from '../organizations.model';
+import { MembershipRequest } from '../../profile-organization/profile-organization.model';
 
 @Component({
   selector: 'app-organization-detail',

@@ -6,11 +6,11 @@ import {
   Organization,
   OrgEvent,
   Member,
-  MembershipRequest,
   FundraisingCampaign,
   OrgReport,
   OrganizationProfileResponse,
 } from './organizations.model';
+import { MembershipRequest } from '../profile-organization/profile-organization.model';
 import { API_BASE_URL } from '../../tokens';
 
 @Injectable({ providedIn: 'root' })

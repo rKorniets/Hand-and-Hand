@@ -96,7 +96,7 @@ export class TicketController extends AbstractCrudController<ticket> {
     @Body() data: CreateTicketDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.service.updateFull(id, data, req.user.id);
+    return this.service.updateFull(id, data, req.user!.id);
   }
   @Delete(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
