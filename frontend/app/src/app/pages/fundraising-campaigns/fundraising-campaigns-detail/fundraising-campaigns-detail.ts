@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule, Location } from '@angular/common'; // Додав Location
+import { CommonModule, Location } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { FundraisingCampaignsService } from '../fundraising-campaigns.service';
 import { FundraisingCampaignItem } from '../fundraising-campaings.model';
+import { SocketService } from '../../../services/socket.service';
 
 @Component({
   selector: 'app-fundraising-campaigns-detail',
@@ -11,13 +13,15 @@ import { FundraisingCampaignItem } from '../fundraising-campaings.model';
   templateUrl: './fundraising-campaigns-detail.html',
   styleUrl: './fundraising-campaigns-detail.scss',
 })
-export class FundraisingCampaignsDetail implements OnInit {
+export class FundraisingCampaignsDetail implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private fundraisingService = inject(FundraisingCampaignsService);
   private location = inject(Location);
   private cdr = inject(ChangeDetectorRef);
+  private socketService = inject(SocketService);
 
   campaign?: FundraisingCampaignItem;
+  private subs: Subscription = new Subscription();
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -30,7 +34,37 @@ export class FundraisingCampaignsDetail implements OnInit {
         },
         error: (err) => console.error('Помилка завантаження:', err),
       });
+
+      this.initSocketListeners();
     }
+  }
+
+  private initSocketListeners(): void {
+    const donationSub = this.socketService
+      .listen<{ campaignId: number; amount: number; newTotal: number }>('donationProcessed')
+      .subscribe((data) => {
+        if (this.campaign && this.campaign.id === data.campaignId) {
+          this.campaign.current_amount = data.newTotal;
+          this.cdr.detectChanges();
+        }
+      });
+
+    const monoSub = this.socketService
+      .listen<{
+        campaignId: number;
+        currentAmount: number;
+        status: 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+      }>('balanceUpdated')
+      .subscribe((data) => {
+        if (this.campaign && this.campaign.id === data.campaignId) {
+          this.campaign.current_amount = data.currentAmount;
+          this.campaign.status = data.status;
+          this.cdr.detectChanges();
+        }
+      });
+
+    this.subs.add(donationSub);
+    this.subs.add(monoSub);
   }
 
   calculateProgress(campaign: FundraisingCampaignItem): number {
@@ -43,5 +77,9 @@ export class FundraisingCampaignsDetail implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

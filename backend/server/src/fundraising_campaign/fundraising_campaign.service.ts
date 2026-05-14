@@ -10,6 +10,7 @@ import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.
 import { MonobankService } from './monobank.service';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.dto';
+import { AppGateway } from '../websocket/app.gateway'; // <-- ПЕРЕВІР ШЛЯХ ДО ГЕЙТВЕЯ
 
 export interface RequestUser {
   id: number;
@@ -21,6 +22,7 @@ export class FundraisingCampaignService {
     private prisma: PrismaService,
     private monobankService: MonobankService,
     private cloudinary: CloudinaryService,
+    private appGateway: AppGateway,
   ) {}
 
   private sanitizeCampaign<T extends { mono_token?: string | null }>(
@@ -73,7 +75,6 @@ export class FundraisingCampaignService {
       whereClause.title = { contains: search, mode: 'insensitive' };
     }
 
-    // Якщо статус не передано — за замовчуванням показуємо тільки ACTIVE
     const filterStatus = status ?? fundraising_campaign_status_enum.ACTIVE;
     const statusArray = Array.isArray(filterStatus)
       ? filterStatus
@@ -182,7 +183,11 @@ export class FundraisingCampaignService {
       data: createData,
     });
 
-    return this.sanitizeCampaign(campaign);
+    const sanitizedCampaign = this.sanitizeCampaign(campaign);
+
+    this.appGateway.sendToAll('campaignCreated', sanitizedCampaign);
+
+    return sanitizedCampaign;
   }
 
   async update(
@@ -206,6 +211,7 @@ export class FundraisingCampaignService {
     });
     return this.sanitizeCampaign(campaign);
   }
+
   async updateImage(
     id: number,
     file: Express.Multer.File,
@@ -223,6 +229,7 @@ export class FundraisingCampaignService {
     });
     return { image_url };
   }
+
   async remove(id: number, currentUser: RequestUser) {
     const existing = await this.validateOwnership(id, currentUser);
     if (existing.image_url)
@@ -257,7 +264,7 @@ export class FundraisingCampaignService {
       throw new BadRequestException('Ціль збору вже досягнута');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const newDonation = await tx.donation.create({
         data: {
           campaign_id: campaignId,
@@ -278,6 +285,14 @@ export class FundraisingCampaignService {
 
       return newDonation;
     });
+
+    this.appGateway.sendToAll('donationProcessed', {
+      campaignId,
+      amount,
+      newTotal: Number(campaign.current_amount) + amount,
+    });
+
+    return result;
   }
 
   async findByJarId(jarId: string) {
@@ -315,7 +330,14 @@ export class FundraisingCampaignService {
         updated_at: new Date(),
       },
     });
+
+    this.appGateway.sendToAll('balanceUpdated', {
+      campaignId,
+      currentAmount: currentBalance,
+      status: newStatus,
+    });
   }
+
   async findOne(id: number) {
     const campaign = await this.prisma.fundraising_campaign.findUnique({
       where: { id },
