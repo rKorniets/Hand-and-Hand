@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { switchMap, of } from 'rxjs';
 import { NotificationService } from '../../profile-user/message/message.service';
+import { API_BASE_URL } from '../../../tokens';
 
 const DEFAULT_IMAGES: Record<string, string> = {
   military:
@@ -29,6 +30,7 @@ export class CreateFundraisingComponent implements OnInit {
   isSubmitting = false;
   selectedFile: File | null = null;
   private taskId: number | null = null;
+  private apiBaseUrl = inject(API_BASE_URL);
 
   constructor(
     private fb: FormBuilder,
@@ -78,10 +80,7 @@ export class CreateFundraisingComponent implements OnInit {
   }
 
   private submitCampaignData(imageUrl: string) {
-    const apiBaseUrl = (
-      (globalThis as typeof globalThis & { API_BASE_URL?: string }).API_BASE_URL || ''
-    ).replace(/\/$/, '');
-    const fundraisingCampaignsUrl = `${apiBaseUrl}/fundraising_campaigns`;
+    const fundraisingCampaignsUrl = `${this.apiBaseUrl}/fundraising_campaigns`;
 
     const payload = {
       title: this.campaignForm.value.title,
