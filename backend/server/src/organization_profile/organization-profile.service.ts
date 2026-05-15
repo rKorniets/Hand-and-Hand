@@ -479,8 +479,13 @@ export class OrganizationProfileService {
 
     if (!target)
       throw new NotFoundException(`User with ID ${targetUserId} not found`);
-    if (target.role !== user_role_enum.VOLUNTEER)
-      throw new BadRequestException('Only volunteers can be invited');
+    if (
+      target.role !== user_role_enum.VOLUNTEER &&
+      target.role !== user_role_enum.APP_USER
+    )
+      throw new BadRequestException(
+        'Only volunteers and regular users can be invited',
+      );
     if (target.organization_id)
       throw new ConflictException('User already belongs to an organization');
 
@@ -685,6 +690,49 @@ export class OrganizationProfileService {
     return this.prisma.app_user.update({
       where: { id: currentUser.id },
       data: { organization_id: null },
+    });
+  }
+
+  async getMyMembershipStatus(orgId: number, currentUser: RequestUser) {
+    return this.prisma.organization_membership_request.findUnique({
+      where: {
+        organization_id_user_id: {
+          organization_id: orgId,
+          user_id: currentUser.id,
+        },
+      },
+    });
+  }
+
+  async cancelMembershipRequest(orgId: number, currentUser: RequestUser) {
+    const existing =
+      await this.prisma.organization_membership_request.findUnique({
+        where: {
+          organization_id_user_id: {
+            organization_id: orgId,
+            user_id: currentUser.id,
+          },
+        },
+      });
+
+    if (!existing) {
+      throw new NotFoundException('Заявку не знайдено');
+    }
+
+    if (
+      existing.status !== organization_membership_request_status_enum.PENDING ||
+      existing.direction !==
+        organization_membership_request_direction_enum.REQUEST
+    ) {
+      throw new BadRequestException('Немає активної заявки на скасування');
+    }
+
+    return this.prisma.organization_membership_request.update({
+      where: { id: existing.id },
+      data: {
+        status: organization_membership_request_status_enum.CANCELLED,
+        reviewed_at: new Date(),
+      },
     });
   }
 }

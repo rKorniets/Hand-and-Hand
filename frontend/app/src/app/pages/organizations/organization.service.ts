@@ -80,10 +80,7 @@ export class OrganizationService {
     );
   }
 
-  leaveOrganization(orgId: number): Observable<MembershipRequest> {
-    return this.http.post<MembershipRequest>(
-      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/me/leave`,
-      {},
-    );
+  leaveOrganization(orgId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/organization-profiles/${orgId}/members/me`);
   }
 }

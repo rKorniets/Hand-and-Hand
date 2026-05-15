@@ -140,8 +140,8 @@ export class OrganizationDetailComponent implements OnInit {
       .leaveOrganization(this.organization.id)
       .pipe(take(1))
       .subscribe({
-        next: (res) => {
-          this.myMembership = res;
+        next: () => {
+          this.myMembership = null;
           this.cdr.markForCheck();
         },
       });
