@@ -44,7 +44,7 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private socketService: SocketService
+    private socketService: SocketService,
   ) {}
 
   get isVolunteer(): boolean {

@@ -113,7 +113,11 @@ export class AppUserService {
       select: USER_SELECT,
     });
 
-    this.appGateway.sendToUser(currentUser.id, 'userProfileUpdated', updatedUser);
+    this.appGateway.sendToUser(
+      currentUser.id,
+      'userProfileUpdated',
+      updatedUser,
+    );
 
     return updatedUser;
   }

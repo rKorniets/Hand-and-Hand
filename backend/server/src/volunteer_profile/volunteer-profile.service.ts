@@ -129,7 +129,9 @@ export class VolunteerProfileService {
   async deleteVolunteerProfile(id: number, currentUser: RequestUser) {
     await this.validateProfileOwnership(id, currentUser);
 
-    const deletedProfile = await this.prisma.volunteer_profile.delete({ where: { id } });
+    const deletedProfile = await this.prisma.volunteer_profile.delete({
+      where: { id },
+    });
 
     this.appGateway.sendToAll('volunteerProfileDeleted', { id });
 
