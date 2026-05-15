@@ -13,6 +13,7 @@ import { UserProfileService } from './profile-user.service';
 import { AppUser } from './profile-user.model';
 import { AuthService } from '../auth/auth.service';
 import { Message } from './message/message';
+import { SocketService } from '../../services/socket.service';
 
 @Component({
   selector: 'app-profile-user',
@@ -35,6 +36,7 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
   user: AppUser | null = null;
   isOwnProfile = false;
   private routeSub: Subscription | null = null;
+  private socketSub: Subscription | null = null;
   protected readonly UserRole = user_role_enum;
 
   constructor(
@@ -42,6 +44,7 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
     private route: ActivatedRoute,
+    private socketService: SocketService
   ) {}
 
   get isVolunteer(): boolean {
@@ -71,6 +74,19 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
         },
         error: (err) => console.error('Помилка завантаження профілю:', err),
       });
+
+    this.initSocketListeners();
+  }
+
+  private initSocketListeners(): void {
+    this.socketSub = this.socketService
+      .listen<AppUser>('userProfileUpdated')
+      .subscribe((updatedUser) => {
+        if (this.user && this.user.id === updatedUser.id) {
+          this.user = { ...this.user, ...updatedUser };
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   logout() {
@@ -79,5 +95,6 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.socketSub?.unsubscribe();
   }
 }

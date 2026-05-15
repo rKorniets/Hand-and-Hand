@@ -35,6 +35,14 @@ export class AuthService {
         this.socketService.connect(userId);
       }
     }
+
+    this.initGlobalSocketListeners();
+  }
+
+  private initGlobalSocketListeners() {
+    this.socketService.listen('userDeleted').subscribe(() => {
+      this.handleAuthFailure();
+    });
   }
 
   registerUser(data: {

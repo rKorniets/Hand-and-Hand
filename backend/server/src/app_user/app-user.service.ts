@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import type { AuthUser } from './app-user.controller';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
+import { AppGateway } from '../websocket/app.gateway';
 
 const USER_SELECT = {
   id: true,
@@ -28,6 +29,7 @@ const USER_SELECT = {
     },
   },
 } as const;
+
 const PUBLIC_USER_SELECT = {
   id: true,
   first_name: true,
@@ -42,6 +44,7 @@ export class AppUserService {
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
+    private appGateway: AppGateway,
   ) {}
 
   private async validateUserOwnership(id: number, currentUser: AuthUser) {
@@ -73,7 +76,8 @@ export class AppUserService {
     currentUser: AuthUser,
   ) {
     await this.validateUserOwnership(id, currentUser);
-    return this.prisma.app_user.update({
+
+    const updatedUser = await this.prisma.app_user.update({
       where: { id },
       data: {
         ...(data.email !== undefined && { email: data.email }),
@@ -84,6 +88,10 @@ export class AppUserService {
       },
       select: USER_SELECT,
     });
+
+    this.appGateway.sendToUser(id, 'userProfileUpdated', updatedUser);
+
+    return updatedUser;
   }
 
   async uploadAvatar(file: Express.Multer.File, currentUser: AuthUser) {
@@ -99,11 +107,15 @@ export class AppUserService {
       currentUser.id,
     );
 
-    return this.prisma.app_user.update({
+    const updatedUser = await this.prisma.app_user.update({
       where: { id: currentUser.id },
       data: { avatar_url },
       select: USER_SELECT,
     });
+
+    this.appGateway.sendToUser(currentUser.id, 'userProfileUpdated', updatedUser);
+
+    return updatedUser;
   }
 
   async deleteAvatar(id: number, currentUser: AuthUser) {
@@ -118,18 +130,27 @@ export class AppUserService {
       await this.cloudinaryService.deleteImage(user.avatar_url);
     }
 
-    return this.prisma.app_user.update({
+    const updatedUser = await this.prisma.app_user.update({
       where: { id },
       data: { avatar_url: null },
       select: USER_SELECT,
     });
+
+    this.appGateway.sendToUser(id, 'userProfileUpdated', updatedUser);
+
+    return updatedUser;
   }
 
   async deleteUser(id: number, currentUser: AuthUser) {
     await this.validateUserOwnership(id, currentUser);
-    return this.prisma.app_user.delete({
+
+    const deletedUser = await this.prisma.app_user.delete({
       where: { id },
       select: USER_SELECT,
     });
+
+    this.appGateway.sendToUser(id, 'userDeleted', { id });
+
+    return deletedUser;
   }
 }
