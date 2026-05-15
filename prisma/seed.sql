@@ -102,7 +102,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   -- 4: волонтер #1
   (4, 'vol-anna@demo.local',
       '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
-      'VOLUNTEER', 'ACTIVE', 120, 'Анна', 'Хорошая', 'Львів', NULL),
+      'VOLUNTEER', 'ACTIVE', 120, 'Анна', 'Шимчук', 'Львів', NULL),
   -- 5: волонтер #2
   (5, 'vol-petro@demo.local',
       '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
