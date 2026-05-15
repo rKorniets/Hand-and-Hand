@@ -10,7 +10,7 @@ import { CreateFundraisingCampaignDto } from './dto/create-fundraising_campaign.
 import { MonobankService } from './monobank.service';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
 import { UpdateFundraisingCampaignDto } from './dto/update-fundraising_campaign.dto';
-import { AppGateway } from '../websocket/app.gateway'; // <-- ПЕРЕВІР ШЛЯХ ДО ГЕЙТВЕЯ
+import { AppGateway } from '../websocket/app.gateway';
 
 export interface RequestUser {
   id: number;
