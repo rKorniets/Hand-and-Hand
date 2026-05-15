@@ -102,7 +102,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   -- 4: волонтер #1
   (4, 'vol-anna@demo.local',
       '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
-      'VOLUNTEER', 'ACTIVE', 120, 'Анна', 'Мельник', 'Львів', NULL),
+      'VOLUNTEER', 'ACTIVE', 120, 'Анна', 'Хорошая', 'Львів', NULL),
   -- 5: волонтер #2
   (5, 'vol-petro@demo.local',
       '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
@@ -276,14 +276,62 @@ INSERT INTO fundraising_campaign (id, organization_profile_id, volunteer_profile
       'У гуртожитку для ВПО в Києві живуть 10 дітей шкільного віку. У них немає техніки для дистанційного навчання. Купимо вживані ноутбуки на OLX.',
       40000.00, 8200.00, 'ACTIVE', NOW() - INTERVAL '3 days', NOW() + INTERVAL '30 days',
       'https://send.monobank.ua/jar/demoLaptops',
-      'https://placehold.co/600x400/9775fa/ffffff/png?text=Laptops');
+      'https://placehold.co/600x400/9775fa/ffffff/png?text=Laptops'),
+
+  (4, 1, NULL, 'Ліки для тварин з прифронтових районів',
+      'Рятуємо поранених та хворих тварин, яких евакуювали з прифронтових міст.',
+      'Щомісяця до нас надходить 15–20 тварин з прифронтових районів. Більшість потребують операцій, перев''язок, антибіотиків. Кожна гривня — це шанс для тварини вижити.',
+      35000.00, 12300.00, 'ACTIVE', NOW() - INTERVAL '8 days', NOW() + INTERVAL '22 days',
+      'https://send.monobank.ua/jar/demoFrontlineAnimals',
+      'https://placehold.co/600x400/ff6b6b/ffffff/png?text=Frontline+Animals'),
+
+  (5, 2, NULL, 'Очищення річки Либідь',
+      'Масштабна прибиральна акція на берегах річки Либідь у Києві.',
+      'Либідь — одна з найзабрудненіших річок Києва. Плануємо 3 суботники на 100+ учасників кожен: прибирання берегів, вилучення великогабаритного сміття, встановлення попереджувальних знаків.',
+      80000.00, 5500.00, 'ACTIVE', NOW() - INTERVAL '2 days', NOW() + INTERVAL '58 days',
+      'https://send.monobank.ua/jar/demoRiverClean',
+      'https://placehold.co/600x400/74c0fc/ffffff/png?text=River+Clean'),
+
+  (6, NULL, 1, 'Памперси та харчування для немовлят ВПО',
+      'Особистий збір Анни: базові засоби догляду для немовлят у гуртожитку переселенців.',
+      'У гуртожитку на Подолі тимчасово проживають 8 родин з дітьми до 2 років. Батьки без роботи, гроші закінчились. Купуємо памперси, суміші та дитяче харчування на 2 місяці.',
+      20000.00, 20000.00, 'COMPLETED', NOW() - INTERVAL '45 days', NOW() - INTERVAL '5 days',
+      'https://send.monobank.ua/jar/demoBabySupplies',
+      'https://placehold.co/600x400/ffa8a8/ffffff/png?text=Baby+Supplies'),
+
+  (7, 1, NULL, 'Тепло у зимовому притулку',
+      'Утеплення та опалення вольєрів для 80 собак на зиму.',
+      'Взимку температура у вольєрах опускається до -5°C. Потрібні інфрачервоні обігрівачі, утеплювальні матеріали та ремонт даху над секцією цуценят. Без цього ризикуємо втратити найслабших.',
+      45000.00, 3200.00, 'ACTIVE', NOW() - INTERVAL '1 days', NOW() + INTERVAL '44 days',
+      'https://send.monobank.ua/jar/demoShelterHeat',
+      'https://placehold.co/600x400/ffd43b/ffffff/png?text=Shelter+Heat'),
+
+  (8, 2, NULL, 'Обладнання для шкільного екогуртка',
+      'Мікроскоп, визначники рослин та польовий інвентар для еколабораторії в школі №98.',
+      'Школа №98 відкриває еколабораторію для учнів 5–9 класів. Потрібні: бінокулярний мікроскоп, набори для аналізу ґрунту та води, визначники рослин і комах. Навчання через практику — найкращий спосіб виховати екосвідомість.',
+      30000.00, 18750.00, 'ACTIVE', NOW() - INTERVAL '12 days', NOW() + INTERVAL '18 days',
+      'https://send.monobank.ua/jar/demoScienceClub',
+      'https://placehold.co/600x400/63e6be/ffffff/png?text=Science+Club'),
+
+  (9, NULL, 2, 'Смартфони для ветеранів',
+      'Особистий збір Петра: базові смартфони для ветеранів, що повернулись із зони бойових дій.',
+      'Багато ветеранів повертаються без засобів зв''язку. Смартфон — це зв''язок з рідними, доступ до держпослуг та телемедицини. Плануємо придбати 20 бюджетних смартфонів і провести короткі курси користування.',
+      50000.00, 2000.00, 'ACTIVE', NOW() - INTERVAL '1 days', NOW() + INTERVAL '59 days',
+      'https://send.monobank.ua/jar/demoVeteranPhones',
+      'https://placehold.co/600x400/748ffc/ffffff/png?text=Veteran+Phones');
 
 SELECT setval('fundraising_campaign_id_seq', (SELECT MAX(id) FROM fundraising_campaign));
 
 INSERT INTO fundraising_category (campaign_id, category_id) VALUES
   (1, 2), (1, 6),
   (2, 1),
-  (3, 8), (3, 10), (3, 3);
+  (3, 8), (3, 10), (3, 3),
+  (4, 2), (4, 5),
+  (5, 1), (5, 6),
+  (6, 8), (6, 10),
+  (7, 2), (7, 6),
+  (8, 3), (8, 8),
+  (9, 5), (9, 9);
 
 -- ============================================================================
 -- 12. DONATION (донати)
@@ -313,7 +361,13 @@ INSERT INTO approval_request (type, status, entity_id, submitted_by, reviewed_by
   ('NEWS',        'APPROVED', 3, 2, 1, NOW() - INTERVAL '3 days'),
   ('FUNDRAISING', 'APPROVED', 1, 2, 1, NOW() - INTERVAL '5 days'),
   ('FUNDRAISING', 'APPROVED', 2, 3, 1, NOW() - INTERVAL '60 days'),
-  ('FUNDRAISING', 'APPROVED', 3, 5, 1, NOW() - INTERVAL '3 days');
+  ('FUNDRAISING', 'APPROVED', 3, 5, 1, NOW() - INTERVAL '3 days'),
+  ('FUNDRAISING', 'APPROVED', 4, 2, 1, NOW() - INTERVAL '8 days'),
+  ('FUNDRAISING', 'APPROVED', 5, 3, 1, NOW() - INTERVAL '2 days'),
+  ('FUNDRAISING', 'APPROVED', 6, 4, 1, NOW() - INTERVAL '45 days'),
+  ('FUNDRAISING', 'APPROVED', 7, 2, 1, NOW() - INTERVAL '1 days'),
+  ('FUNDRAISING', 'APPROVED', 8, 3, 1, NOW() - INTERVAL '12 days'),
+  ('FUNDRAISING', 'APPROVED', 9, 5, 1, NOW() - INTERVAL '1 days');
 
 -- ============================================================================
 -- 14. TASK (мікрозавдання в межах проектів)
