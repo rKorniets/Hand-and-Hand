@@ -210,7 +210,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
   @ApiOperation({ summary: 'Подати заявку на вступ до організації' })
   async requestMembership(
     @Param('id', ParseIntPipe) id: number,
@@ -303,7 +303,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
 
   @Get('me/invitations')
   @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
   @ApiOperation({ summary: 'Мої запрошення в організації' })
   async listMyInvitations(@CurrentUser() currentUser: RequestUser) {
     return this.organizationProfileService.listMyInvitations(currentUser);
@@ -312,7 +312,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   @Patch('me/invitations/:invitationId/accept')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
   @ApiOperation({ summary: 'Прийняти запрошення' })
   async acceptInvitation(
     @Param('invitationId', ParseIntPipe) invitationId: number,
@@ -327,7 +327,7 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
   @Patch('me/invitations/:invitationId/reject')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
   @ApiOperation({ summary: 'Відхилити запрошення' })
   async rejectInvitation(
     @Param('invitationId', ParseIntPipe) invitationId: number,
@@ -366,10 +366,40 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     );
   }
 
+  @Get(':id/membership-status')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
+  @ApiOperation({ summary: 'Перевірити статус членства поточного користувача' })
+  async getMembershipStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.organizationProfileService.getMyMembershipStatus(
+      id,
+      currentUser,
+    );
+  }
+
+  @Delete(':id/membership-requests/me')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
+  @ApiOperation({ summary: 'Скасувати власну заявку на вступ' })
+  async cancelMyMembershipRequest(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.organizationProfileService.cancelMembershipRequest(
+      id,
+      currentUser,
+    );
+  }
+
   @Delete(':id/members/me')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @Roles(user_role_enum.VOLUNTEER)
+  @Roles(user_role_enum.VOLUNTEER, user_role_enum.APP_USER)
   @ApiOperation({ summary: 'Вийти з організації' })
   async leaveOrganization(
     @Param('id', ParseIntPipe) id: number,
