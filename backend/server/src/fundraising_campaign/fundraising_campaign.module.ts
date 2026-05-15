@@ -7,6 +7,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { MonoPollingService } from './mono_polling.service';
 import { MonobankService } from './monobank.service';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { WebsocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
     PrismaModule,
     ConfigModule,
     CloudinaryModule,
+    WebsocketModule,
   ],
   controllers: [FundraisingCampaignController],
   providers: [FundraisingCampaignService, MonoPollingService, MonobankService],

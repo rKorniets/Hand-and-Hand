@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { NewsContentComponent } from './news-content/news-content';
 import { NewsPinnedComponent } from './news-pinned/news-pinned';
 import { NewsItem } from './news.model';
@@ -8,6 +9,7 @@ import { NewsService } from './news.service';
 import { FiltersComponent } from '../../components/category/category';
 import { FilterConfig, FilterState } from '../../components/category/category.model';
 import { AuthService } from '../auth/auth.service';
+import { SocketService } from '../../services/socket.service';
 
 @Component({
   selector: 'app-news',
@@ -16,7 +18,7 @@ import { AuthService } from '../auth/auth.service';
   templateUrl: './news.html',
   styleUrls: ['./news.scss'],
 })
-export class NewsComponent implements OnInit {
+export class NewsComponent implements OnInit, OnDestroy {
   pinnedNews: NewsItem[] = [];
   regularNews: NewsItem[] = [];
   canCreateNews = false;
@@ -41,11 +43,14 @@ export class NewsComponent implements OnInit {
     city: '',
   };
 
+  private subs: Subscription = new Subscription();
+
   constructor(
     private route: ActivatedRoute,
     private newsService: NewsService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
+    private socketService: SocketService,
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +62,70 @@ export class NewsComponent implements OnInit {
     this.canCreateNews = role === 'ORGANIZATION' || role === 'ADMIN';
     this.cdr.detectChanges();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    this.initSocketListeners();
+  }
+
+  private initSocketListeners(): void {
+    const createSub = this.socketService.listen<NewsItem>('newsCreated').subscribe((newNews) => {
+      if (newNews.is_pinned) {
+        this.pinnedNews = [newNews, ...this.pinnedNews];
+        this.cdr.detectChanges();
+      } else if (this.currentPage === 1) {
+        this.regularNews = [newNews, ...this.regularNews];
+        if (this.regularNews.length > this.limit) {
+          this.regularNews.pop();
+          this.hasNextPage = true;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+
+    const updateSub = this.socketService
+      .listen<NewsItem>('newsUpdated')
+      .subscribe((updatedNews) => {
+        let changed = false;
+
+        const regularIndex = this.regularNews.findIndex((n) => n.id === updatedNews.id);
+        if (regularIndex !== -1) {
+          this.regularNews[regularIndex] = { ...this.regularNews[regularIndex], ...updatedNews };
+          changed = true;
+        }
+
+        const pinnedIndex = this.pinnedNews.findIndex((n) => n.id === updatedNews.id);
+        if (pinnedIndex !== -1) {
+          this.pinnedNews[pinnedIndex] = { ...this.pinnedNews[pinnedIndex], ...updatedNews };
+          changed = true;
+        }
+
+        if (changed) {
+          this.cdr.detectChanges();
+        }
+      });
+
+    const deleteSub = this.socketService.listen<{ id: number }>('newsDeleted').subscribe((data) => {
+      let changed = false;
+
+      const initialRegularLength = this.regularNews.length;
+      this.regularNews = this.regularNews.filter((n) => n.id !== data.id);
+      if (this.regularNews.length !== initialRegularLength) {
+        changed = true;
+      }
+
+      const initialPinnedLength = this.pinnedNews.length;
+      this.pinnedNews = this.pinnedNews.filter((n) => n.id !== data.id);
+      if (this.pinnedNews.length !== initialPinnedLength) {
+        changed = true;
+      }
+
+      if (changed) {
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.subs.add(createSub);
+    this.subs.add(updateSub);
+    this.subs.add(deleteSub);
   }
 
   onFiltersChanged(filters: FilterState): void {
@@ -95,25 +164,26 @@ export class NewsComponent implements OnInit {
   }
 
   get visiblePages(): number[] {
-    const pages: number[] = [];
     const last = this.hasNextPage ? this.currentPage + 1 : this.currentPage;
 
     if (last <= 5) {
-      for (let i = 1; i <= last; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (this.currentPage > 3) pages.push(-1);
-      for (
-        let i = Math.max(2, this.currentPage - 1);
-        i <= Math.min(last - 1, this.currentPage + 1);
-        i++
-      ) {
-        pages.push(i);
-      }
-      if (this.currentPage < last - 2) pages.push(-1);
-      pages.push(last);
+      return Array.from({ length: last }, (_, i) => i + 1);
     }
 
+    const pages: number[] = [1];
+    if (this.currentPage > 3) pages.push(-1);
+
+    const start = Math.max(2, this.currentPage - 1);
+    const end = Math.min(last - 1, this.currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    if (this.currentPage < last - 2) pages.push(-1);
+    pages.push(last);
+
     return pages;
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

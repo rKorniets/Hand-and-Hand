@@ -8,6 +8,7 @@ import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 import { Prisma, news_status_enum } from '@prisma/client';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
+import { AppGateway } from '../websocket/app.gateway';
 
 export interface RequestUser {
   id: number;
@@ -18,6 +19,7 @@ export class NewsService {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
+    private appGateway: AppGateway,
   ) {}
 
   private async validateOwnership(id: number, currentUser: RequestUser) {
@@ -41,6 +43,7 @@ export class NewsService {
 
     return news;
   }
+
   async getNews(
     limit: number,
     skip: number,
@@ -106,13 +109,17 @@ export class NewsService {
       throw new ForbiddenException('Користувач не належить до організації');
     }
 
-    return this.prisma.news.create({
+    const news = await this.prisma.news.create({
       data: {
         ...data,
         organization_id: user.organization_id,
         is_pinned: false,
       },
     });
+
+    this.appGateway.sendToAll('newsCreated', news);
+
+    return news;
   }
 
   async updateNewsFull(
@@ -122,7 +129,7 @@ export class NewsService {
   ) {
     await this.validateOwnership(id, currentUser);
 
-    return this.prisma.news.update({
+    const updatedNews = await this.prisma.news.update({
       where: { id },
       data: {
         title: data.title,
@@ -130,7 +137,12 @@ export class NewsService {
         main_content: data.main_content,
       },
     });
+
+    this.appGateway.sendToAll('newsUpdated', updatedNews);
+
+    return updatedNews;
   }
+
   async updateNewsPartial(
     id: number,
     data: UpdateNewsDto,
@@ -138,7 +150,7 @@ export class NewsService {
   ) {
     await this.validateOwnership(id, currentUser);
 
-    return this.prisma.news.update({
+    const updatedNews = await this.prisma.news.update({
       where: { id },
       data: {
         ...(data.title && { title: data.title }),
@@ -147,6 +159,10 @@ export class NewsService {
         ...(data.image_url !== undefined && { image_url: data.image_url }),
       },
     });
+
+    this.appGateway.sendToAll('newsUpdated', updatedNews);
+
+    return updatedNews;
   }
 
   async updateImage(
@@ -155,18 +171,34 @@ export class NewsService {
     currentUser: RequestUser,
   ): Promise<{ image_url: string }> {
     const existing = await this.validateOwnership(id, currentUser);
+
     const image_url = await this.cloudinary.replaceImage(
       file,
       ImageType.NEWS,
       existing.image_url,
     );
-    await this.prisma.news.update({ where: { id }, data: { image_url } });
+
+    const updatedNews = await this.prisma.news.update({
+      where: { id },
+      data: { image_url },
+    });
+
+    this.appGateway.sendToAll('newsUpdated', updatedNews);
+
     return { image_url };
   }
+
   async deleteNews(id: number, currentUser: RequestUser) {
     const existing = await this.validateOwnership(id, currentUser);
-    if (existing.image_url)
+
+    if (existing.image_url) {
       await this.cloudinary.deleteImage(existing.image_url);
-    return this.prisma.news.delete({ where: { id } });
+    }
+
+    const deletedNews = await this.prisma.news.delete({ where: { id } });
+
+    this.appGateway.sendToAll('newsDeleted', { id });
+
+    return deletedNews;
   }
 }

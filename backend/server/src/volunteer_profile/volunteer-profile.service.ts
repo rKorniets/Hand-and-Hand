@@ -13,6 +13,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVolunteerProfileDto } from './dto/create-volunteer-profile.dto';
 import { UpdateVolunteerProfileDto } from './dto/update-volunteer-profile.dto';
+import { AppGateway } from '../websocket/app.gateway';
 
 export interface RequestUser {
   id: number;
@@ -20,7 +21,10 @@ export interface RequestUser {
 
 @Injectable()
 export class VolunteerProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private appGateway: AppGateway,
+  ) {}
 
   private async validateProfileOwnership(id: number, currentUser: RequestUser) {
     const profile = await this.prisma.volunteer_profile.findUnique({
@@ -80,7 +84,7 @@ export class VolunteerProfileService {
   ) {
     await this.validateProfileOwnership(id, currentUser);
 
-    return this.prisma.volunteer_profile.update({
+    const updatedProfile = await this.prisma.volunteer_profile.update({
       where: { id },
       data: {
         display_name: data.display_name,
@@ -89,6 +93,10 @@ export class VolunteerProfileService {
         skills_text: data.skills_text,
       },
     });
+
+    this.appGateway.sendToAll('volunteerProfileUpdated', updatedProfile);
+
+    return updatedProfile;
   }
 
   async updateVolunteerProfilePartial(
@@ -98,7 +106,7 @@ export class VolunteerProfileService {
   ) {
     await this.validateProfileOwnership(id, currentUser);
 
-    return this.prisma.volunteer_profile.update({
+    const updatedProfile = await this.prisma.volunteer_profile.update({
       where: { id },
       data: {
         ...(data.display_name !== undefined && {
@@ -112,12 +120,22 @@ export class VolunteerProfileService {
         ...(data.docs_url !== undefined && { docs_url: data.docs_url }),
       },
     });
+
+    this.appGateway.sendToAll('volunteerProfileUpdated', updatedProfile);
+
+    return updatedProfile;
   }
 
   async deleteVolunteerProfile(id: number, currentUser: RequestUser) {
     await this.validateProfileOwnership(id, currentUser);
 
-    return this.prisma.volunteer_profile.delete({ where: { id } });
+    const deletedProfile = await this.prisma.volunteer_profile.delete({
+      where: { id },
+    });
+
+    this.appGateway.sendToAll('volunteerProfileDeleted', { id });
+
+    return deletedProfile;
   }
 
   async createVerificationRequest(currentUser: RequestUser) {
@@ -138,7 +156,7 @@ export class VolunteerProfileService {
     }
 
     try {
-      return await this.prisma.approval_request.create({
+      const request = await this.prisma.approval_request.create({
         data: {
           type: approval_request_type_enum.VOLUNTEER,
           entity_id: profile.id,
@@ -146,6 +164,10 @@ export class VolunteerProfileService {
           status: approval_request_status_enum.PENDING,
         },
       });
+
+      this.appGateway.sendToAll('verificationRequestSubmitted', request);
+
+      return request;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
