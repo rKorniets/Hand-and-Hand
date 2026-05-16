@@ -21,47 +21,11 @@
           [showCreateButton]="canCreateNews"
         ></app-news-content>
 
-        <div class="news-page__pagination">
-          <button class="news-page__page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
-            «
-          </button>
-          <button
-            class="news-page__page-btn"
-            [disabled]="currentPage === 1"
-            (click)="goToPage(currentPage - 1)"
-          >
-            ‹
-          </button>
-
-          @for (page of visiblePages; track page) {
-            @if (page === -1) {
-              <span class="news-page__page-dots">...</span>
-            } @else {
-              <button
-                class="news-page__page-btn"
-                [class.news-page__page-btn--active]="page === currentPage"
-                (click)="goToPage(page)"
-              >
-                {{ page }}
-              </button>
-            }
-          }
-
-          <button
-            class="news-page__page-btn"
-            [disabled]="!hasNextPage"
-            (click)="goToPage(currentPage + 1)"
-          >
-            ›
-          </button>
-          <button
-            class="news-page__page-btn"
-            [disabled]="!hasNextPage"
-            (click)="goToPage(currentPage + 1)"
-          >
-            »
-          </button>
-        </div>
+        <app-pagination
+          [currentPage]="currentPage"
+          [totalPages]="hasNextPage ? currentPage + 1 : currentPage"
+          (pageChanged)="goToPage($event)"
+        />
       }
     </section>
   </div>

@@ -10,11 +10,18 @@ import { FiltersComponent } from '../../components/category/category';
 import { FilterConfig, FilterState } from '../../components/category/category.model';
 import { AuthService } from '../auth/auth.service';
 import { SocketService } from '../../services/socket.service';
+import { PaginationComponent } from '../../components/pagination/pagination';
 
 @Component({
   selector: 'app-news',
   standalone: true,
-  imports: [CommonModule, NewsPinnedComponent, NewsContentComponent, FiltersComponent],
+  imports: [
+    CommonModule,
+    NewsPinnedComponent,
+    NewsContentComponent,
+    FiltersComponent,
+    PaginationComponent,
+  ],
   templateUrl: './news.html',
   styleUrls: ['./news.scss'],
 })
@@ -26,7 +33,7 @@ export class NewsComponent implements OnInit, OnDestroy {
   error = false;
 
   currentPage = 1;
-  readonly limit = 10;
+  readonly limit = 5;
   hasNextPage = false;
 
   filterConfig: FilterConfig = {
@@ -108,19 +115,13 @@ export class NewsComponent implements OnInit, OnDestroy {
 
       const initialRegularLength = this.regularNews.length;
       this.regularNews = this.regularNews.filter((n) => n.id !== data.id);
-      if (this.regularNews.length !== initialRegularLength) {
-        changed = true;
-      }
+      if (this.regularNews.length !== initialRegularLength) changed = true;
 
       const initialPinnedLength = this.pinnedNews.length;
       this.pinnedNews = this.pinnedNews.filter((n) => n.id !== data.id);
-      if (this.pinnedNews.length !== initialPinnedLength) {
-        changed = true;
-      }
+      if (this.pinnedNews.length !== initialPinnedLength) changed = true;
 
-      if (changed) {
-        this.cdr.detectChanges();
-      }
+      if (changed) this.cdr.detectChanges();
     });
 
     this.subs.add(createSub);
@@ -158,29 +159,7 @@ export class NewsComponent implements OnInit, OnDestroy {
   goToPage(page: number): void {
     this.currentPage = page;
     this.loadRegular();
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 0);
-  }
-
-  get visiblePages(): number[] {
-    const last = this.hasNextPage ? this.currentPage + 1 : this.currentPage;
-
-    if (last <= 5) {
-      return Array.from({ length: last }, (_, i) => i + 1);
-    }
-
-    const pages: number[] = [1];
-    if (this.currentPage > 3) pages.push(-1);
-
-    const start = Math.max(2, this.currentPage - 1);
-    const end = Math.min(last - 1, this.currentPage + 1);
-    for (let i = start; i <= end; i++) pages.push(i);
-
-    if (this.currentPage < last - 2) pages.push(-1);
-    pages.push(last);
-
-    return pages;
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
   }
 
   ngOnDestroy(): void {

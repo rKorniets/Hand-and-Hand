@@ -5,11 +5,12 @@ import { FiltersComponent } from '../../components/category/category';
 import { FilterConfig, FilterState } from '../../components/category/category.model';
 import { Organization } from './organizations.model';
 import { OrganizationService } from './organization.service';
+import { PaginationComponent } from '../../components/pagination/pagination';
 
 @Component({
   selector: 'app-organizations',
   standalone: true,
-  imports: [FiltersComponent, ListOrgComponent],
+  imports: [FiltersComponent, ListOrgComponent, PaginationComponent],
   templateUrl: './organizations.html',
   styleUrl: './organizations.scss',
 })
@@ -43,7 +44,6 @@ export class OrganizationsPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // початкові дані з resolver
     this.route.data.subscribe((res) => {
       this.organizations = res['data']?.data ?? res['data'] ?? [];
     });
@@ -53,6 +53,12 @@ export class OrganizationsPage implements OnInit {
     this.activeFilters = filters;
     this.currentPage = 1;
     this.loadOrganizations();
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.loadOrganizations();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   loadOrganizations(): void {

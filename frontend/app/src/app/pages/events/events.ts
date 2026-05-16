@@ -7,11 +7,12 @@ import { ListEvents } from './list-events/list-events';
 import { MapComponent, MapEvent } from './map/map';
 import { EventService } from './event.service';
 import { NewEvent } from './event.model';
+import { PaginationComponent } from '../../components/pagination/pagination';
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, FiltersComponent, MapComponent, ListEvents],
+  imports: [CommonModule, FiltersComponent, MapComponent, ListEvents, PaginationComponent],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })
@@ -94,15 +95,9 @@ export class Events implements OnInit {
 
   handleOpenEvent(id: number): void {
     this.eventService.getEventById(id).subscribe({
-      next: (event) => {
-        this.router.navigate(['/events', event.id]);
-      },
+      next: (event) => this.router.navigate(['/events', event.id]),
       error: (err) => console.error(err),
     });
-  }
-
-  get hasNextPage(): boolean {
-    return this.currentPage < this.totalPages;
   }
 
   onFiltersChanged(filters: FilterState): void {
@@ -112,32 +107,8 @@ export class Events implements OnInit {
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
     this.loadEvents();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  get visiblePages(): (number | -1)[] {
-    const pages: (number | -1)[] = [];
-    const last = this.totalPages;
-
-    if (last <= 5) {
-      for (let i = 1; i <= last; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (this.currentPage > 3) pages.push(-1);
-      for (
-        let i = Math.max(2, this.currentPage - 1);
-        i <= Math.min(last - 1, this.currentPage + 1);
-        i++
-      ) {
-        pages.push(i);
-      }
-      if (this.currentPage < last - 2) pages.push(-1);
-      pages.push(last);
-    }
-
-    return pages;
   }
 }

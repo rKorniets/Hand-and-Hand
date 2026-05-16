@@ -45,13 +45,9 @@
           </div>
           <div class="campaign-card__actions">
             <a [routerLink]="['/fundraising', campaign.id]" class="btn-secondary">Детальніше</a>
-            <a
-              [href]="campaign.jar_link"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-primary"
-              >Задонатити</a
-            >
+
+            [href]="campaign.jar_link" target="_blank" rel="noopener noreferrer" class="btn-primary"
+            <a>Задонатити</a>
           </div>
         </div>
       </article>
@@ -62,45 +58,9 @@
     }
   </div>
 
-  @if (totalPages > 1) {
-    <div class="pagination-wrapper">
-      <div class="pagination-container">
-        <button class="page-btn nav-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
-          &lt;&lt;
-        </button>
-        <button
-          class="page-btn nav-btn"
-          [disabled]="currentPage === 1"
-          (click)="goToPage(currentPage - 1)"
-        >
-          &lt;
-        </button>
-
-        @for (page of getPagesArray(); track $index) {
-          @if (page === '...') {
-            <span class="page-dots">...</span>
-          } @else {
-            <button class="page-btn" [class.active]="currentPage === page" (click)="goToPage(page)">
-              {{ page }}
-            </button>
-          }
-        }
-
-        <button
-          class="page-btn nav-btn"
-          [disabled]="currentPage === totalPages"
-          (click)="goToPage(currentPage + 1)"
-        >
-          &gt;
-        </button>
-        <button
-          class="page-btn nav-btn"
-          [disabled]="currentPage === totalPages"
-          (click)="goToPage(totalPages)"
-        >
-          &gt;&gt;
-        </button>
-      </div>
-    </div>
-  }
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    (pageChanged)="pageChanged.emit($event)"
+  />
 </section>
