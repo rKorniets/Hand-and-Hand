@@ -11,12 +11,15 @@ import { CommonModule } from '@angular/common';
 export class PaginationComponent {
   @Input() currentPage: number = 1;
   @Input() totalPages: number = 1;
+  @Input() scrollOnPageChange: boolean = true;
   @Output() pageChanged = new EventEmitter<number>();
 
   goToPage(page: number | string) {
     if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
       this.pageChanged.emit(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (this.scrollOnPageChange) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   }
 
