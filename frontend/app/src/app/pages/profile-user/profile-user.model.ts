@@ -71,3 +71,35 @@ export interface ITicket {
   city?: string;
   created_at: string;
 }
+
+export interface UpcomingRegistration {
+  id: number;
+  status: 'PENDING' | 'ACCEPTED';
+  created_at: string;
+  project: {
+    id: number;
+    title: string;
+    image_url: string | null;
+    starts_at: string | null;
+    ends_at: string | null;
+    location: { city: string; address: string } | null;
+    category: { id: number; name: string } | null;
+    organization_profile: { id: number; name: string; logo_url: string | null };
+  };
+}
+
+export interface PastRegistration {
+  id: number;
+  status: 'ACCEPTED';
+  created_at: string;
+  project: {
+    id: number;
+    title: string;
+    image_url: string | null;
+    starts_at: string | null;
+    ends_at: string | null;
+    location: { city: string; address: string } | null;
+    category: { id: number; name: string } | null;
+    organization_profile: { id: number; name: string; logo_url: string | null };
+  };
+}

@@ -1,7 +1,15 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ITicket, ActivityItem, FundraisingCampaign, Reward, AppUser } from './profile-user.model';
+import {
+  ITicket,
+  ActivityItem,
+  FundraisingCampaign,
+  Reward,
+  AppUser,
+  UpcomingRegistration,
+  PastRegistration,
+} from './profile-user.model';
 import { API_BASE_URL } from '../../tokens';
 
 export interface FundraisingCampaignResponse {
@@ -42,5 +50,13 @@ export class UserProfileService {
 
   getFundraisingCampaigns(): Observable<FundraisingCampaignResponse> {
     return this.http.get<FundraisingCampaignResponse>(`${this.apiUrl}/fundraising_campaigns`);
+  }
+
+  getMyUpcomingEvents(): Observable<UpcomingRegistration[]> {
+    return this.http.get<UpcomingRegistration[]>(`${this.apiUrl}/projects/my-upcoming`);
+  }
+
+  getMyPastEvents(): Observable<PastRegistration[]> {
+    return this.http.get<PastRegistration[]>(`${this.apiUrl}/projects/my-past`);
   }
 }

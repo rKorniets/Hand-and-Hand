@@ -1,0 +1,119 @@
+@if (pastEvents.length > 0 || isOwnProfile) {
+  <div class="requests-container" #listTop>
+    <div class="requests-header">
+      <h2 class="requests-title">Мої події</h2>
+      <button
+        class="upcoming-button"
+        [class.upcoming-button--active]="upcomingEvents.length > 0"
+        (click)="openModal()"
+      >
+        Майбутні події
+        @if (upcomingEvents.length > 0) {
+          <span class="upcoming-button__badge">{{ upcomingEvents.length }}</span>
+        }
+      </button>
+    </div>
+
+    @if (pastEvents.length === 0) {
+      <button class="add-button" routerLink="/events">Знайти події +</button>
+    }
+
+    <div class="tickets-list">
+      @for (
+        item of pastEvents | slice: 0 : (isPastExpanded ? pastEvents.length : 2);
+        track item.id
+      ) {
+        <div class="ticket-card">
+          <h2 class="ticket-title">{{ item.project.title }}</h2>
+          <span class="ticket-status is-accepted">Завершено</span>
+
+          @if (item.project.location) {
+            <p class="ticket-description">
+              {{ item.project.location.city }}, {{ item.project.location.address }}
+            </p>
+          }
+
+          <div class="ticket-footer">
+            <div class="ticket-info">
+              @if (item.project.starts_at) {
+                {{ item.project.starts_at | date: 'dd.MM.yyyy' }}
+                @if (item.project.ends_at) {
+                  &nbsp;— {{ item.project.ends_at | date: 'dd.MM.yyyy' }}
+                }
+              } @else {
+                Дата уточнюється
+              }
+            </div>
+            <div class="ticket-meta">
+              {{ item.project.organization_profile.name }}
+            </div>
+          </div>
+
+          <a class="ticket-link" [routerLink]="['/events', item.project.id]"> Детальніше </a>
+        </div>
+      }
+    </div>
+
+    @if (pastEvents.length > 2) {
+      <div class="load-more__button">
+        <button class="requests__more" (click)="togglePast(listTop)">
+          {{ isPastExpanded ? 'Згорнути' : 'Переглянути всі' }}
+        </button>
+      </div>
+    }
+  </div>
+}
+
+@if (isModalOpen) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Майбутні події</h3>
+        <button class="modal__close" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal__body">
+        @if (upcomingEvents.length === 0) {
+          <p class="modal__empty">Немає запланованих подій</p>
+        }
+
+        @for (item of upcomingEvents; track item.id) {
+          <div
+            class="modal-card"
+            [routerLink]="['/events', item.project.id]"
+            (click)="closeModal()"
+          >
+            <h4 class="modal-card__title">{{ item.project.title }}</h4>
+            <span class="modal-card__status" [class.is-accepted]="isAccepted(item.status)">
+              {{ getStatusLabel(item.status) }}
+            </span>
+
+            @if (item.project.location) {
+              <p class="modal-card__location">
+                {{ item.project.location.city }}, {{ item.project.location.address }}
+              </p>
+            }
+
+            <div class="modal-card__footer">
+              <div class="modal-card__dates">
+                @if (item.project.starts_at) {
+                  {{ item.project.starts_at | date: 'dd.MM.yyyy' }}
+                  @if (item.project.ends_at) {
+                    &nbsp;— {{ item.project.ends_at | date: 'dd.MM.yyyy' }}
+                  }
+                } @else {
+                  Дата уточнюється
+                }
+              </div>
+              <div class="modal-card__org">
+                {{ item.project.organization_profile.name }}
+              </div>
+            </div>
+
+            <span class="modal-card__link">Детальніше</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

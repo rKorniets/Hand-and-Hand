@@ -14,6 +14,7 @@ import { AppUser } from './profile-user.model';
 import { AuthService } from '../auth/auth.service';
 import { Message } from './message/message';
 import { SocketService } from '../../services/socket.service';
+import { UpcomingEvents } from './upcoming-events/upcoming-events';
 
 @Component({
   selector: 'app-profile-user',
@@ -28,6 +29,7 @@ import { SocketService } from '../../services/socket.service';
     Achievement,
     FundraisingCampaignsUser,
     Message,
+    UpcomingEvents,
   ],
   templateUrl: './profile-user.html',
   styleUrl: './profile-user.scss',

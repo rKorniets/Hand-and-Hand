@@ -74,6 +74,20 @@ export class ProjectController extends AbstractCrudController<project[]> {
     );
   }
 
+  @Get('my-upcoming')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Мої майбутні події (ще не почались)' })
+  async getMyUpcoming(@CurrentUser() user: { id: number }) {
+    return this.projectService.getMyUpcomingRegistrations(user.id);
+  }
+
+  @Get('my-past')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Мої минулі події (вже закінчились)' })
+  async getMyPast(@CurrentUser() user: { id: number }) {
+    return this.projectService.getMyPastRegistrations(user.id);
+  }
+
   @Post()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
@@ -166,9 +180,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Get(':id/registrations/manage')
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
-  @ApiOperation({
-    summary: 'Список заявок на участь у проекті (для власника)',
-  })
+  @ApiOperation({ summary: 'Список заявок на участь у проекті (для власника)' })
   @ApiQuery({
     name: 'status',
     required: false,

@@ -82,14 +82,67 @@ export class ProjectService {
         take: limit,
         skip: skip,
         orderBy: { created_at: 'desc' },
-        include: {
-          location: true,
-        },
+        include: { location: true },
       }),
       this.prisma.project.count({ where: whereClause }),
     ]);
 
     return { data, total };
+  }
+
+  async getMyUpcomingRegistrations(userId: number) {
+    const now = new Date();
+    return this.prisma.project_registration.findMany({
+      where: {
+        user_id: userId,
+        status: {
+          in: [
+            project_registration_status_enum.PENDING,
+            project_registration_status_enum.ACCEPTED,
+          ],
+        },
+        project: {
+          starts_at: { gt: now },
+        },
+      },
+      include: {
+        project: {
+          include: {
+            location: true,
+            category: { select: { id: true, name: true } },
+            organization_profile: {
+              select: { id: true, name: true, logo_url: true },
+            },
+          },
+        },
+      },
+      orderBy: { project: { starts_at: 'asc' } },
+    });
+  }
+
+  async getMyPastRegistrations(userId: number) {
+    const now = new Date();
+    return this.prisma.project_registration.findMany({
+      where: {
+        user_id: userId,
+        status: project_registration_status_enum.ACCEPTED,
+        project: {
+          ends_at: { lt: now },
+        },
+      },
+      include: {
+        project: {
+          include: {
+            location: true,
+            category: { select: { id: true, name: true } },
+            organization_profile: {
+              select: { id: true, name: true, logo_url: true },
+            },
+          },
+        },
+      },
+      orderBy: { project: { ends_at: 'desc' } },
+    });
   }
 
   async createProject(data: CreateProjectDto, currentUser: RequestUser) {
@@ -502,6 +555,7 @@ export class ProjectService {
       return updated;
     });
   }
+
   async getProjectRegistrations(projectId: number) {
     return this.prisma.project_registration.findMany({
       where: {
