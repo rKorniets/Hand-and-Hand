@@ -6,11 +6,12 @@ import { TicketItem } from './ticket.model';
 import { TicketsListComponent } from './tickets-list/tickets-list';
 import { FiltersComponent } from '../../components/category/category';
 import { FilterConfig, FilterState } from '../../components/category/category.model';
+import { PaginationComponent } from '../../components/pagination/pagination';
 
 @Component({
   selector: 'app-tickets',
   standalone: true,
-  imports: [CommonModule, TicketsListComponent, FiltersComponent],
+  imports: [CommonModule, TicketsListComponent, FiltersComponent, PaginationComponent],
   templateUrl: './tickets.html',
   styleUrls: ['./tickets.scss'],
 })
@@ -89,30 +90,5 @@ export class TicketsComponent implements OnInit, OnDestroy {
     this.currentPage = page;
     this.loadTickets();
     setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-  }
-
-  get lastPage(): number {
-    return this.hasNextPage ? this.currentPage + 1 : this.currentPage;
-  }
-
-  get visiblePages(): number[] {
-    const pages: number[] = [];
-    const last = this.lastPage;
-    if (last <= 5) {
-      for (let i = 1; i <= last; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (this.currentPage > 3) pages.push(-1);
-      for (
-        let i = Math.max(2, this.currentPage - 1);
-        i <= Math.min(last - 1, this.currentPage + 1);
-        i++
-      ) {
-        pages.push(i);
-      }
-      if (this.currentPage < last - 2) pages.push(-1);
-      pages.push(last);
-    }
-    return pages;
   }
 }
