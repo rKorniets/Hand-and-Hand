@@ -7,14 +7,9 @@
   <div class="home__footer__grid">
     @for (event of events; track event.id) {
       <a [routerLink]="['/events', event.id]" class="event-card">
-
         <div class="event-card__image-wrapper">
           @if (event.image_url) {
-            <img
-              [src]="event.image_url"
-              alt="{{ event.title }}"
-              class="event-card__img"
-            />
+            <img [src]="event.image_url" alt="{{ event.title }}" class="event-card__img" />
           } @else {
             <div class="event-card__placeholder">
               <span>Подія</span>
@@ -25,7 +20,6 @@
         <div class="event-card__content">
           <h3 class="event-card__title">{{ event.title }}</h3>
         </div>
-
       </a>
     } @empty {
       <div class="home__footer__empty">
