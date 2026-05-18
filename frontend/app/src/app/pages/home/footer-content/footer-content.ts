@@ -19,10 +19,8 @@ export class FooterContent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.eventService.getEvents(10, 0).subscribe({
       next: (response) => {
-
         if (response && response.data) {
           setTimeout(() => {
             this.events = response.data.slice(0, 5);
