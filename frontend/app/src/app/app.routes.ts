@@ -76,7 +76,6 @@ export const routes: Routes = [
     path: 'fundraising/:id',
     component: FundraisingCampaignsDetail,
   },
-  { path: 'ticket', component: TicketsComponent, canActivate: [authGuard] },
   {
     path: 'reports/create',
     component: ReportsConstructors,

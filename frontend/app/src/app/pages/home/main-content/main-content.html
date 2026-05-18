@@ -1,133 +1,96 @@
 <section class="home">
   <h1 class="home__title">Що може наша платформа?</h1>
-
+  <h2 class="home__description__item">Для кожного своя роль</h2>
   <p class="home__description">
     Ми створили простір, де кожен запит знаходить відгук, а кожна дія приноить реальні зміни. Ось як
     ця працює для вас:
   </p>
 
-  <section class="home__cards">
-    <div class="home__cards__item">
+  <div class="home__grid-container">
+    <div class="home__cards__item home__cards__item--row1" (click)="handleNeedHelp()">
+      <p class="home__cards__number">01</p>
+      <img src="/images/home_for_help.png" alt="Потреба допомоги" class="home__cards__item__icon" />
       <h3 class="home__cards__item__title">Для тих, кому потрібна допомога</h3>
-
-      <img src="" alt="Not Found" />
-
-      <p class="home__cards__item__text">Надішліть сигнал про допомогу через платформу</p>
-
-      <p class="home__cards__item__text">
-        Ваш запит автоматично стає доступним перевіреним громадським організаціям, які створюють
-        подію для вирішення вашої проблеми.
-      </p>
+      <ul class="home__cards__item__list">
+        <li class="home__cards__item__text">Надішліть сигнал про допомогу через платформу</li>
+        <li class="home__cards__item__text">Запит стає доступним організаціям</li>
+        <li class="home__cards__item__text">Отримайте реальну допомогу</li>
+      </ul>
     </div>
-    <div class="home__cards__item">
-      <h3 class="home__cards__item__title">Для волонтерів: Твори добро та зростай</h3>
 
-      <img src="" alt="Not Found" />
-
-      <p class="home__cards__item__text">
-        Знаходь події, які тобі відгукуються, та долучайся в один клік.
-      </p>
-
-      <p class="home__cards__item__text">
-        Отримуй бали за кожну добру справу та відкривай нові статуси.
-      </p>
-
-      <p class="home__cards__item__text">
-        Якщо ви зареєстрований волонтер - відкривайте збори та змінюйте світ на краще.
-      </p>
+    <div class="home__cards__item home__cards__item--row1" (click)="handlVolunteer()">
+      <p class="home__cards__number">02</p>
+      <img src="/images/home_volunteer.png" alt="Потреба допомоги" class="home__cards__item__icon" />
+      <h3 class="home__cards__item__title">Для волонтерів</h3>
+      <ul class="home__cards__item__list">
+        <li class="home__cards__item__text">Знаходь події, що відгукуються</li>
+        <li class="home__cards__item__text">Отримуй бали за добрі справи</li>
+        <li class="home__cards__item__text">Відкривай збори та змінюй світ</li>
+      </ul>
     </div>
-    <div class="home__cards__item">
+
+    <div class="home__cards__item home__cards__item--row1" (click)="handleOrganization()">
+      <p class="home__cards__number">03</p>
+      <img src="/images/home_organization.png" alt="Потреба допомоги" class="home__cards__item__icon" />
       <h3 class="home__cards__item__title">Для громадських організацій</h3>
-
-      <img src="" alt="Not Found" />
-
-      <p class="home__cards__item__text">Відкривайте події та збори і залучайте волонтерів</p>
-
-      <p class="home__cards__item__text">
-        Отримуйте сповіщення про реальні потреби людей пов'язаних з вашою діяльністю.
-      </p>
-
-      <p class="home__cards__item__text">
-        Звітуйте про результати діяльності та залучайте ще більше однодумців.
-      </p>
+      <ul class="home__cards__item__list">
+        <li class="home__cards__item__text">Відкривайте події та збори</li>
+        <li class="home__cards__item__text">Отримуйте сповіщення про потреби</li>
+        <li class="home__cards__item__text">Звітуйте про результати</li>
+      </ul>
     </div>
-  </section>
 
-  <section class="home__cards">
-    <div class="home__cards__item">
+    <div class="home__cards__item home__cards__item--full" (click)="handlEvents()">
+      <div class="home__cards__item__full-text">
       <h3 class="home__cards__item__title">Інтерактивна мапа потреб</h3>
-
-      <img src="" alt="Not Found" />
-
       <p class="home__cards__item__text">
-        Не потрібно шукати, де ви корисні — просто погляньте на мапу. Ми відображаємо актуальні
-        запити про допомогу поруч із вами. Це дозволяє реагувати миттєво та допомагати саме там, де
-        це критично важливо зараз.
+        Не потрібно шукати, де ви корисні — просто погляньте на мапу.
+        Ми відображаємо актуальні запити про допомогу поруч із вами.
+        Це дозволяє реагувати миттєво та допомагати саме там, де це критично важливо зараз.
       </p>
+      </div>
+      <img class="home__cards__item__map-mock" src="/images/map-screenshot.png" alt="Map preview">
     </div>
-    <div class="home__cards__item">
-      <h3 class="home__cards__item__title">Волонтерські події</h3>
 
-      <img src="" alt="Not Found" />
-
-      <p class="home__cards__item__text">
-        Використовуйте зручні фільтри за категоріями та датами, щоб знайти події, які підходять саме
-        вам. Чи то гуманітарна допомога, чи екологічні ініціативи — ви самі вирішуєте, коли та кому
-        присвятити свій час.
-      </p>
-
-      <p class="home__cards__item__text">
-        Долучайтеся до активностей у зручний для вас період та перетворюйте свій вільний час на
-        реальні зміни у громаді.
-      </p>
+    <div class="home__cards__item home__cards__item--half" (click)="handlEvents()">
+      <h3 class="home__cards__item__title home__cards__item__title_p">Волонтерські події</h3>
+      <div class="home__cards__item__img-placeholder"></div>
+      <ul class="home__cards__item__list">
+        <li class="home__cards__item__text">Використовуйте зручні фільтри за категоріями та датами, щоб знайти події, які підходять саме вам.</li>
+        <li class="home__cards__item__text">Долучайтеся до активностей у зручний для вас період та перетворюйте свій вільний час на реальні зміни у громаді.</li>
+      </ul>
     </div>
-    <div class="home__cards__item">
-      <h3 class="home__cards__item__title">Стрічка новин та результатів</h3>
 
-      <img src="" alt="Not Found" />
-
-      <p class="home__cards__item__text">Слідкуйте за тим, як змінюється світ завдяки вам!</p>
-
-      <p class="home__cards__item__text">
-        Переглядайте результати діяльності організацій, надихайтеся історіями успіху та бачте
-        реальний вплив вашої допомоги.
-      </p>
+    <div class="home__cards__item home__cards__item--half" (click)="handlListOrg()">
+      <h3 class="home__cards__item__title home__cards__item__title_p">Перелік організацій</h3>
+      <div class="home__cards__item__img-placeholder"></div>
+      <ul class="home__cards__item__list">
+        <li class="home__cards__item__text">Переглядайте усі громадські організації та шукайте яка зацікавить саме вас.</li>
+        <li class="home__cards__item__text">Долучайтеся до їх подій та слідкуйте за діяльністю цікавих вам громадських організацій.</li>
+      </ul>
     </div>
-  </section>
 
-  <section class="home__cards">
-    <div class="home__cards__item">
-      <h3 class="home__cards__item__title">Перелік організацій</h3>
+    <div class="home__cards__item home__cards__item--half" (click)="handlNews()">
+      <h3 class="home__cards__item__title home__cards__item__title_p">Стрічка новин та результатів</h3>
+      <div class="home__cards__item__img-placeholder"></div>
+      <ul class="home__cards__item__list">
+        <li class="home__cards__item__text">Ми — платформа, що перетворює небайдужість на реальні дії. </li>
+        <li class="home__cards__item__text">Наша місія — об’єднати волонтерів, громадські організації та людей, що потребують допомоги.</li>
+        <li class="home__cards__item__text">Переглядайте реальні результати, надихайтеся історіями успіху та будьте частиною змін вже сьогодні.</li>
+      </ul>
+      </div>
 
-      <img src="" alt="Not Found" />
+      <div class="home__cards__item home__cards__item--half" (click)="handlFundraising()">
+        <h3 class="home__cards__item__title home__cards__item__title_p">Збори та фінансова підтримка</h3>
+        <div class="home__cards__item__img-placeholder"></div>
+        <ul class="home__cards__item__list">
+          <li class="home__cards__item__text">Громадські організації та верифіковані волонтери запускають цільові збори на проєкти, що змінюють життя. </li>
+          <li class="home__cards__item__text">Долучайтеся до активних ініціатив та ставайте частиною великих справ.</li>
+          <li class="home__cards__item__text">Кожна ваша гривня змінює світ на краще.</li>
+        </ul>
+      </div>
 
-      <p class="home__cards__item__text">
-        Переглядайте усі громадські організації та шукайте яка зацікавить саме вас.
-      </p>
-
-      <p class="home__cards__item__text">
-        Долучайтеся до їх подій та слідкуйте за діяльністю цікавих вам громадських організацій.
-      </p>
-    </div>
-    <div class="home__cards__item">
-      <h3 class="home__cards__item__title">Збори та фінансова підтримка</h3>
-
-      <img src="" alt="Not Found" />
-
-      <p class="home__cards__item__text">
-        Громадські організації та верифіковані волонтери запускають цільові збори на проєкти, що
-        змінюють життя.
-      </p>
-
-      <p class="home__cards__item__text">
-        Долучайтеся до активних ініціатив та ставайте частиною великих справ.
-      </p>
-
-      <p class="home__cards__item__text">Кожна ваша гривня змінює світ на краще.</p>
-    </div>
-    <div class="home__cards__item">
-      <h3 class="home__cards__item__title">Про нас</h3>
-
+    <div class="home__cards__item home__cards__item__full--about" (click)="handlAboutUs()">
       <div class="home__cards__item__brand">
         <p class="home__cards__item__brand__name">Hand&amp;Hand</p>
         <img
@@ -137,21 +100,13 @@
           loading="lazy"
         />
       </div>
-
-      <p class="home__cards__item__text">
-        Ми — платформа, що перетворює небайдужість на реальні дії.
-      </p>
-
-      <p class="home__cards__item__text">
-        Наша місія — об'єднати волонтерів, громадські організації та людей, що потребують допомоги,
-        у прозору та зручну цифрову спільноту. Ми віримо: благодійність має бути простою та
-        технологічною.
-      </p>
-
-      <p class="home__cards__item__text">
-        Слідкуйте за тим, як змінюється світ завдяки вам! Переглядайте реальні результати,
-        надихайтеся історіями успіху та будьте частиною змін вже сьогодні.
-      </p>
+      <div class="home__cards__item__about-content">
+        <h3 class="home__cards__item__title">Про нас</h3>
+        <ul class="home__cards__item__list">
+          <li class="home__cards__item__text">Слідкуйте за тим, як змінюється світ завдяки вам!</li>
+          <li class="home__cards__item__text">Переглядайте результати діяльності організацій, надихайтеся історіями успіху та бачте реальний вплив вашої допомоги.</li>
+        </ul>
+      </div>
     </div>
-  </section>
+  </div>
 </section>

@@ -17,7 +17,7 @@ export class EventService {
   ) {}
 
   getEvents(limit = 5, skip = 0, status?: string): Observable<PaginatedEvents> {
-    let params = new HttpParams().set('limit', limit).set('skip', skip);
+    let params = new HttpParams().set('limit', limit.toString()).set('skip', skip.toString());
 
     if (status !== undefined) {
       params = params.set('status', status);
@@ -27,7 +27,7 @@ export class EventService {
   }
 
   getAllEventsForMap(): Observable<NewEvent[]> {
-    const params = new HttpParams().set('limit', 50).set('skip', 0);
+    const params = new HttpParams().set('limit', '50').set('skip', '0');
     return this.http
       .get<PaginatedEvents>(`${this.apiUrl}/projects`, { params })
       .pipe(map((r) => r.data));

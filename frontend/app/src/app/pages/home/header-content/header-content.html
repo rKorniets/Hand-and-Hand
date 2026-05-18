@@ -1,20 +1,40 @@
 <section class="home">
   <div class="home__header">
-    <h1 class="home__title">Стань частиною спільноти</h1>
 
-    <div class="home__action">
-      <a class="home__button home__button__small">Хочу допомагати</a>
-      <a class="home__button home__button__small">Потребую допомоги</a>
+    <div class="home__content">
+      <h1 class="home__title">
+        Стань <br>частиною спільноти
+        <span class="home__title--accent">Змін</span>
+      </h1>
+      <p class="home__description">
+        Об'єднуємо волонтерів, організації та людей, що потребують допомоги
+      </p>
     </div>
 
-    <h2 class="home__subtitle">
-      Ви голова громадської організації?
-      <br />
-      Приєднуйтеся
-    </h2>
+    <div class="home__organization-card">
 
-    <div class="home__organization">
-      <a class="home__button home__button__large">Хочу допомагати як громацька організація</a>
+      <div class="home__actions">
+        <button (click)="handleWantToHelp()" class="home__button home__button--small">
+          Хочу допомагати
+        </button>
+
+        <button (click)="handleNeedHelp()" class="home__button home__button--small">
+          Потребую допомоги
+        </button>
+      </div>
+
+      <div class="home__org-text">
+        <div class="home__org-info">
+          <h2 class="home__org-title">Ви голова громадської організації?</h2>
+          <p class="home__org-subtitle">Залучайте волонтерів та керуйте зборами</p>
+        </div>
+
+        <a routerLink="login" class="home__button home__button--large">
+          Приєднатися
+        </a>
+      </div>
+
     </div>
+
   </div>
 </section>
