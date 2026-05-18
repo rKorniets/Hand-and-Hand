@@ -55,7 +55,9 @@
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
     box-shadow:
       0 10px 20px $home-card-shadow-1,
       0 6px 6px $home-card-shadow-2;
@@ -165,7 +167,7 @@
       margin: 25px 0 24px 0;
       color: #000000;
 
-      &_p{
+      &_p {
         text-align: center;
       }
     }
