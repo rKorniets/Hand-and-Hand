@@ -8,7 +8,11 @@
       <article class="org-card" (click)="goToOrg(org.id)">
         <div class="org-card__header">
           <div class="org-card__logo-placeholder">
-            <img src="assets/images/default-org.png" [alt]="org.name" />
+            <img
+              [src]="org.logo_url || 'assets/images/default-org.png'"
+              [alt]="org.name"
+              (error)="org.logo_url = null"
+            />
           </div>
           <h2 class="org-card__name">{{ org.name }}</h2>
         </div>

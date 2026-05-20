@@ -1,5 +1,10 @@
 <div class="main-info">
-  <div class="main-info__avatar"></div>
+  <div class="main-info__avatar">
+    <img
+      [src]="organization?.logo_url || 'assets/images/default-org.png'"
+      [alt]="organization?.name"
+    />
+  </div>
   <div class="main-info__details">
     <div class="main-info__header">
       <h1 class="main-info__name">

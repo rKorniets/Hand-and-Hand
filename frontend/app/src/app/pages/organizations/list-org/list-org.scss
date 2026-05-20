@@ -68,12 +68,11 @@
     flex-shrink: 0;
 
     img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   }
-
   &__name {
     flex: 1;
     font-size: 28px;
