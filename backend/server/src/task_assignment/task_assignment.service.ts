@@ -15,6 +15,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PointsService } from '../points/points.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
+import { AchievementService } from './achievement.service';
 
 export interface RequestUser {
   id: number;
@@ -25,6 +26,7 @@ export class TaskAssignmentService {
   constructor(
     private prisma: PrismaService,
     private pointsService: PointsService,
+    private achievementService: AchievementService,
   ) {}
 
   private async validateVolunteerOwnership(
@@ -149,7 +151,8 @@ export class TaskAssignmentService {
 
     const wantsComplete = data.status === task_assignment_status_enum.COMPLETED;
 
-    return this.prisma.$transaction(async (tx) => {
+    // Витягуємо результат і completedJustNow з транзакції
+    const result = await this.prisma.$transaction(async (tx) => {
       let completedJustNow = false;
 
       if (wantsComplete) {
@@ -204,8 +207,20 @@ export class TaskAssignmentService {
         }
       }
 
-      return tx.task_assignment.findUnique({ where: { id } });
+      const updatedAssignment = await tx.task_assignment.findUnique({
+        where: { id },
+      });
+
+      return { updatedAssignment, completedJustNow };
     });
+
+    if (result.completedJustNow) {
+      this.achievementService
+        .checkAndGrantAchievements(currentUser.id)
+        .catch((e) => console.error('Failed to check achievements:', e));
+    }
+
+    return result.updatedAssignment;
   }
 
   async remove(id: number, currentUser: RequestUser) {

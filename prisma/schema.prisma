@@ -380,6 +380,8 @@ model reward {
   cost_points       Int
   stock             Int
   is_active         Boolean             @default(true)
+  type              reward_type_enum    @default(STORE)
+  condition_count   Int?
   created_at        DateTime            @default(now()) @db.Timestamptz(6)
   reward_redemption reward_redemption[]
 }
@@ -708,4 +710,9 @@ enum news_status_enum {
   PENDING
   PUBLISHED
   REJECTED
+}
+
+enum reward_type_enum {
+  STORE
+  ACHIEVEMENT
 }
