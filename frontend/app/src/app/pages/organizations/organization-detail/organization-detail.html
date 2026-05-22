@@ -3,7 +3,12 @@
     <div class="org-page__content">
       @if (organization) {
         <section class="main-info">
-          <div class="main-info__avatar"></div>
+          <div class="main-info__avatar">
+            <img
+              [src]="organization.logo_url || '/images/default-avatar.png'"
+              [alt]="organization.name"
+            />
+          </div>
           <div class="main-info__details">
             <h1 class="main-info__name">{{ organization.name }}</h1>
             <div class="main-info__rating">

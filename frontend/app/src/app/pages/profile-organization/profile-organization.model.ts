@@ -44,6 +44,7 @@ export interface ActivityItem {
   starts_at: string | Date | null;
   description: string;
   location: string;
+  image_url?: string | null;
 }
 
 export interface FundraisingCampaign {
@@ -91,6 +92,7 @@ export interface Organization {
   created_at: string | Date;
   mission: string;
   category?: string;
+  logo_url?: string | null;
   events?: ActivityItem[];
   fundraising_campaigns?: FundraisingCampaign[];
   members?: OrgMember[];

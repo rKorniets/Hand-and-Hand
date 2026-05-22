@@ -6,10 +6,7 @@
   <div class="events-list__list">
     @for (event of events; track event.id) {
       <a class="events-list__item" [routerLink]="['/events', event.id]">
-        <div
-          class="events-list__image"
-          [style.background-image]="event.image_url ? 'url(' + event.image_url + ')' : null"
-        >
+        <div class="events-list__image" [style.background-image]="getImageStyle(event.image_url)">
           @if (event.category) {
             <span class="events-list__category">{{ event.category.name }}</span>
           }
