@@ -2,56 +2,205 @@
 
 .home {
   padding: 40px 250px;
+  background-color: #ffffff;
 
   &__title {
+    font-size: 37px;
+    background: linear-gradient(135deg, rgba(234, 183, 255, 0.8) 0%, rgba(214, 235, 255, 0.8) 100%);
+    border-radius: 20px;
+    padding: 20px;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  &__description__item {
     font-size: 50px;
+    margin: -10px 0;
   }
 
   &__description {
-    font-size: 35px;
+    font-size: 25px;
     font-weight: 700;
+    background: linear-gradient(135deg, lightgrey 0%, white 100%);
+    display: inline-block;
+    border-radius: 20px;
+    padding: 20px;
+    color: #424242;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  &__cards {
-    display: flex;
+  &__grid-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 40px;
+    width: 100%;
     padding-bottom: 30px;
   }
 
+  &__cards__number {
+    font-size: 70px;
+    font-weight: 800;
+    color: #9e9e9e;
+    line-height: 1;
+    margin: 0 0 15px 0;
+  }
+
   &__cards__item {
-    background-color: $home-card-bg;
+    background-color: #e5e5e5;
     border-radius: 20px;
-    max-width: 470px;
-    min-width: 470px;
-    height: 650px;
+    min-height: 380px;
+    padding: 40px 30px;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
     box-shadow:
       0 10px 20px $home-card-shadow-1,
       0 6px 6px $home-card-shadow-2;
-    border: 2px solid $home-card-border;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 16px 32px $home-card-shadow-1,
+        0 8px 10px $home-card-shadow-2;
+    }
+
+    &--row1 {
+      grid-column: span 2;
+    }
+
+    &__icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      z-index: 2;
+      border-radius: 50%;
+    }
+    &__full--about {
+      grid-column: span 6;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 40px;
+      min-height: 250px;
+
+      .home__cards__item__brand {
+        position: static;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        border-radius: 14px;
+        padding: 16px 20px;
+      }
+
+      .home__cards__item__title {
+        margin-top: 0;
+      }
+      &__about-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .home__cards__item__title {
+          margin-top: 0;
+        }
+      }
+    }
+
+    &--full {
+      grid-column: span 6;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 40px;
+      min-height: 260px;
+    }
+
+    &__full-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &__map-mock {
+      flex-shrink: 0;
+      width: 50%;
+      height: 280px;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      background-color: #d0d8e4;
+    }
+
+    &--half {
+      grid-column: span 3;
+    }
+
+    &__img-placeholder {
+      width: 400px;
+      height: 120px;
+      background-color: #ffffff;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      margin-left: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+    }
 
     &__title {
-      display: flex;
-      justify-content: center;
-      text-align: center;
-      font-size: 33px;
+      font-size: 32px;
+      font-weight: 800;
+      text-align: left;
+      margin: 25px 0 24px 0;
+      color: #000000;
+
+      &_p {
+        text-align: center;
+      }
+    }
+
+    &__list {
+      padding-left: 20px;
+      margin: 0;
     }
 
     &__text {
-      font-size: 24px;
-      max-width: 400px;
-      margin: 0 auto;
+      font-size: 25px;
+      font-weight: 600;
+      color: #757575;
+      line-height: 1.4;
+      margin: 0 0 16px 0;
       text-align: left;
-      padding-bottom: 20px;
+
+      &::marker {
+        color: #757575;
+      }
     }
 
     &__brand {
+      position: absolute;
+      top: 40px;
+      right: 30px;
       display: flex;
-      justify-content: center;
+      align-items: center;
 
       &__name {
         color: $header-text;
         text-decoration: none;
-        margin: 0 0;
+        margin: 0;
         font-size: 35px;
         line-height: 1;
         font-weight: 700;
@@ -60,10 +209,9 @@
       }
 
       &__logo {
-        margin-top: -50px;
-        margin-left: -15px;
-        width: 132px;
+        width: 110px;
         height: auto;
+        margin: 0;
         z-index: 0;
       }
     }
