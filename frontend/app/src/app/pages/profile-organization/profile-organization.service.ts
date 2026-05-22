@@ -65,6 +65,12 @@ export class OrganizationProfileService {
     return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
   }
 
+  removeMember(orgId: number, userId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/organization-profiles/${orgId}/members/${userId}`,
+    );
+  }
+
   getOrgReports(orgId: number): Observable<Report[]> {
     return this.http.get<Report[]>(`${this.apiUrl}/organization-profiles/${orgId}/reports`);
   }
@@ -170,6 +176,10 @@ export class OrganizationProfileService {
       `${this.apiUrl}/organization-profiles/${orgId}/membership-requests`,
       { params },
     );
+  }
+
+  removeMember(orgId: number, userId: number): Observable<unknown> {
+    return this.http.delete(`${this.apiUrl}/organization-profiles/${orgId}/members/${userId}`);
   }
 
   acceptMembershipRequest(orgId: number, requestId: number): Observable<unknown> {

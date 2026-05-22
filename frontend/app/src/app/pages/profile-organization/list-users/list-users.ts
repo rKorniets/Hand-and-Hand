@@ -62,10 +62,17 @@ export class ListUsers implements OnChanges {
   }
 
   onDelete(member: OrgMember): void {
-    this.members = this.members.filter((m) => m.id !== member.id);
-    if (this.members.length <= this.collapseCount) {
-      this.expanded = false;
-    }
+    this.orgService.removeMember(Number(this.organization!.id), member.user_id).subscribe({
+      next: () => {
+        this.members = this.members.filter((m) => m.id !== member.id);
+        if (this.members.length <= this.collapseCount) {
+          this.expanded = false;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to remove member', err);
+      },
+    });
   }
 
   onAdd(): void {
