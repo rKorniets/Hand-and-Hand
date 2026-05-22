@@ -10,6 +10,12 @@
           <app-activity [user]="user"></app-activity>
         </section>
 
+        @if (isOwnProfile) {
+          <section>
+            <app-upcoming-events [user]="user" [isOwnProfile]="isOwnProfile"></app-upcoming-events>
+          </section>
+        }
+
         @if (isVolunteer) {
           <section>
             <app-fundraising-campaigns-user [user]="user" [isOwnProfile]="isOwnProfile">
@@ -39,7 +45,7 @@
 
         @if (isOwnProfile) {
           <div class="user__profile__page__actions">
-            @if (user.role !== UserRole.VOLUNTEER) {
+            @if (user.role !== 'VOLUNTEER') {
               <a class="verify-button" routerLink="/vol-verification">Верифікуватись</a>
             }
           </div>
