@@ -242,7 +242,7 @@ export class TaskAssignmentService {
     });
 
     if (!assignment)
-      throw new NotFoundException(`Task assignment ${id} not found`);
+      throw new NotFoundException(`Task assignment with ID ${id} not found`);
 
     if (
       assignment.task.project.organization_profile.user_id !== currentUser.id
@@ -253,8 +253,6 @@ export class TaskAssignmentService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // updateMany з умовою status гарантує атомарність: якщо статус змінився
-      // між читанням і записом — count буде 0 і кидаємо помилку
       const { count } = await tx.task_assignment.updateMany({
         where: { id, status: task_assignment_status_enum.COMPLETED },
         data: { requester_confirmed: confirmed },
