@@ -461,6 +461,38 @@ export class OrganizationProfileService {
     });
   }
 
+  async listAvailableUsers(
+    orgId: number,
+    currentUser: RequestUser,
+    search?: string,
+    limit = 20,
+  ) {
+    await this.validateOrganizationOwnership(orgId, currentUser);
+
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+
+    return this.prisma.app_user.findMany({
+      where: {
+        organization_id: null,
+        role: { in: [user_role_enum.VOLUNTEER, user_role_enum.APP_USER] },
+        ...(search && {
+          OR: [
+            { first_name: { contains: search, mode: 'insensitive' } },
+            { last_name: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        avatar_url: true,
+      },
+      take: safeLimit,
+      orderBy: { last_name: 'asc' },
+    });
+  }
+
   async inviteVolunteer(
     orgId: number,
     targetUserId: number,
