@@ -81,8 +81,12 @@
             @if (resolvedRequestIds.has(req.id)) {
               <div
                 class="invite-panel__status"
-                [class.invite-panel__status--accepted]="resolvedRequestIds.get(req.id) === 'accepted'"
-                [class.invite-panel__status--rejected]="resolvedRequestIds.get(req.id) === 'rejected'"
+                [class.invite-panel__status--accepted]="
+                  resolvedRequestIds.get(req.id) === 'accepted'
+                "
+                [class.invite-panel__status--rejected]="
+                  resolvedRequestIds.get(req.id) === 'rejected'
+                "
               >
                 {{ resolvedRequestIds.get(req.id) === 'accepted' ? 'Прийнято' : 'Відхилено' }}
               </div>

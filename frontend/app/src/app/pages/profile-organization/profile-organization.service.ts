@@ -155,10 +155,9 @@ export class OrganizationProfileService {
   }
 
   inviteUser(orgId: number, userId: number): Observable<unknown> {
-    return this.http.post(
-      `${this.apiUrl}/organization-profiles/${orgId}/invitations`,
-      { user_id: userId },
-    );
+    return this.http.post(`${this.apiUrl}/organization-profiles/${orgId}/invitations`, {
+      user_id: userId,
+    });
   }
 
   getMembershipRequests(
