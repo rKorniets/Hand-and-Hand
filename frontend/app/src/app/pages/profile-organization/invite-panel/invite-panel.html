@@ -1,7 +1,14 @@
 <div class="invite-panel__panel" [class.invite-panel__panel--open]="isPanelOpen">
   <div class="invite-panel__panel-header">
     <span>Додати учасників</span>
-    <button class="invite-panel__panel-close" (click)="close()">✕</button>
+    <button
+      type="button"
+      class="invite-panel__panel-close"
+      aria-label="Закрити панель"
+      (click)="close()"
+    >
+      ✕
+    </button>
   </div>
 
   <div class="invite-panel__section">

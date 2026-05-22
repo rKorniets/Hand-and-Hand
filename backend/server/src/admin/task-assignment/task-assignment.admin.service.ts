@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { PointsService } from '../../points/points.service';
 import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
 import { UpdateTaskAssignmentAdminDto } from './dto/update-task-assignment.admin.dto';
 import {
@@ -11,10 +10,7 @@ import {
 
 @Injectable()
 export class TaskAssignmentAdminService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly pointsService: PointsService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll(
     limit?: number,

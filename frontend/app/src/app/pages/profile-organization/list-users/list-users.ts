@@ -76,6 +76,7 @@ export class ListUsers implements OnChanges {
   }
 
   onAdd(): void {
+    if (!this.organization?.id) return;
     this.showInvitePanel = true;
   }
 }

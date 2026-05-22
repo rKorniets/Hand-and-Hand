@@ -469,12 +469,21 @@ export class OrganizationProfileService {
   ) {
     await this.validateOrganizationOwnership(orgId, currentUser);
 
-    const safeLimit = Math.min(Math.max(1, limit), 100);
+    const safeLimit = Number.isFinite(limit)
+      ? Math.min(Math.max(1, limit), 100)
+      : 20;
 
     return this.prisma.app_user.findMany({
       where: {
         organization_id: null,
         role: { in: [user_role_enum.VOLUNTEER, user_role_enum.APP_USER] },
+        organization_membership_request: {
+          none: {
+            organization_id: orgId,
+            direction: organization_membership_request_direction_enum.INVITE,
+            status: organization_membership_request_status_enum.PENDING,
+          },
+        },
         ...(search && {
           OR: [
             { first_name: { contains: search, mode: 'insensitive' } },

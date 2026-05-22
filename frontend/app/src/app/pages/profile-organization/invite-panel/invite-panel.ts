@@ -13,7 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import {
   Organization,
@@ -55,7 +55,11 @@ export class InvitePanel implements OnChanges, OnInit, OnDestroy {
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap((q) => this.orgService.getAvailableUsers(this.organization!.id, q)),
+        switchMap((q) =>
+          this.organization?.id
+            ? this.orgService.getAvailableUsers(this.organization.id, q)
+            : of([]),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((users) => {

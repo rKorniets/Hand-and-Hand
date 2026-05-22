@@ -12,7 +12,6 @@ import {
   task_status_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { PointsService } from '../points/points.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
 
@@ -22,10 +21,7 @@ export interface RequestUser {
 
 @Injectable()
 export class TaskAssignmentService {
-  constructor(
-    private prisma: PrismaService,
-    private pointsService: PointsService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   private async validateVolunteerOwnership(
     volunteerProfileId: number,
@@ -275,6 +271,41 @@ export class TaskAssignmentService {
         confirmed &&
         !assignment.requester_confirmed &&
         assignment.task.points_reward_base > 0;
+
+      const shouldRevert =
+        !confirmed &&
+        assignment.requester_confirmed &&
+        assignment.task.points_reward_base > 0;
+
+      if (shouldRevert) {
+        const wasAwarded = await tx.points_transaction.findFirst({
+          where: {
+            task_assignment_id: id,
+            type: points_transaction_type_enum.EARN,
+          },
+          select: { id: true },
+        });
+
+        if (wasAwarded) {
+          const amount = assignment.task.points_reward_base;
+          const userId = assignment.volunteer_profile.user_id;
+
+          await tx.points_transaction.create({
+            data: {
+              user_id: userId,
+              type: points_transaction_type_enum.PENALTY,
+              amount,
+              reason: `Task "${assignment.task.title}" confirmation revoked`,
+              task_assignment_id: id,
+            },
+          });
+
+          await tx.app_user.update({
+            where: { id: userId },
+            data: { points: { decrement: amount } },
+          });
+        }
+      }
 
       if (shouldAward) {
         const alreadyAwarded = await tx.points_transaction.findFirst({
