@@ -44,7 +44,7 @@ export interface ActivityItem {
   starts_at: string | Date | null;
   description: string;
   location: string;
-  img?: string | null;
+  image_url?: string | null;
 }
 
 export interface FundraisingCampaign {

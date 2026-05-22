@@ -8,7 +8,13 @@
       <div class="activity__item-wrapper">
         <a class="activity__item" [routerLink]="['/events', item.id]">
           <div class="activity__image">
-            <img [src]="item.img || 'assets/images/default-org.png'" [alt]="item.title" />
+            <img
+              [src]="
+                item.image_url ||
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+              "
+              [alt]="item.title"
+            />
           </div>
           <div class="activity__body">
             <div class="activity__top">
