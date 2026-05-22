@@ -247,15 +247,17 @@ export class TaskAssignmentService {
       throw new ForbiddenException('You do not own the project this task belongs to');
     }
 
-    if (assignment.status !== task_assignment_status_enum.COMPLETED) {
-      throw new BadRequestException('Task assignment must be COMPLETED before confirming');
-    }
-
     return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.task_assignment.update({
-        where: { id },
+      // updateMany з умовою status гарантує атомарність: якщо статус змінився
+      // між читанням і записом — count буде 0 і кидаємо помилку
+      const { count } = await tx.task_assignment.updateMany({
+        where: { id, status: task_assignment_status_enum.COMPLETED },
         data: { requester_confirmed: confirmed },
       });
+
+      if (count === 0) {
+        throw new BadRequestException('Task assignment must be COMPLETED before confirming');
+      }
 
       const shouldAward =
         confirmed &&
@@ -272,17 +274,27 @@ export class TaskAssignmentService {
         });
 
         if (!alreadyAwarded) {
-          await this.pointsService.createTransaction(
-            assignment.volunteer_profile.user_id,
-            points_transaction_type_enum.EARN,
-            assignment.task.points_reward_base,
-            `Task "${assignment.task.title}" completed`,
-            id,
-          );
+          const amount = assignment.task.points_reward_base;
+          const userId = assignment.volunteer_profile.user_id;
+
+          await tx.points_transaction.create({
+            data: {
+              user_id: userId,
+              type: points_transaction_type_enum.EARN,
+              amount,
+              reason: `Task "${assignment.task.title}" completed`,
+              task_assignment_id: id,
+            },
+          });
+
+          await tx.app_user.update({
+            where: { id: userId },
+            data: { points: { increment: amount } },
+          });
         }
       }
 
-      return updated;
+      return tx.task_assignment.findUnique({ where: { id } });
     });
   }
 }
