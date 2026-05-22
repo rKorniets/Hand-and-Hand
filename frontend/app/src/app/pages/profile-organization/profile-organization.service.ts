@@ -178,10 +178,6 @@ export class OrganizationProfileService {
     );
   }
 
-  removeMember(orgId: number, userId: number): Observable<unknown> {
-    return this.http.delete(`${this.apiUrl}/organization-profiles/${orgId}/members/${userId}`);
-  }
-
   acceptMembershipRequest(orgId: number, requestId: number): Observable<unknown> {
     return this.http.patch(
       `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/accept`,

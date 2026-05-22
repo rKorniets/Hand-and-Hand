@@ -17,6 +17,7 @@
     <div class="invite-panel__search">
       <input
         type="text"
+        aria-label="Пошук волонтерів за ім'ям"
         placeholder="Пошук за ім'ям..."
         [(ngModel)]="searchQuery"
         (ngModelChange)="onSearchChange($event)"
@@ -121,5 +122,13 @@
 </div>
 
 @if (isPanelOpen) {
-  <div class="invite-panel__overlay" (click)="close()"></div>
+  <div
+    class="invite-panel__overlay"
+    role="button"
+    tabindex="0"
+    aria-label="Закрити панель"
+    (click)="close()"
+    (keydown.enter)="close()"
+    (keydown.space)="close()"
+  ></div>
 }

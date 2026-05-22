@@ -257,7 +257,11 @@ export class TaskAssignmentService {
 
     return this.prisma.$transaction(async (tx) => {
       const { count } = await tx.task_assignment.updateMany({
-        where: { id, status: task_assignment_status_enum.COMPLETED },
+        where: {
+          id,
+          status: task_assignment_status_enum.COMPLETED,
+          requester_confirmed: !confirmed,
+        },
         data: { requester_confirmed: confirmed },
       });
 
@@ -268,14 +272,10 @@ export class TaskAssignmentService {
       }
 
       const shouldAward =
-        confirmed &&
-        !assignment.requester_confirmed &&
-        assignment.task.points_reward_base > 0;
+        confirmed && count === 1 && assignment.task.points_reward_base > 0;
 
       const shouldRevert =
-        !confirmed &&
-        assignment.requester_confirmed &&
-        assignment.task.points_reward_base > 0;
+        !confirmed && count === 1 && assignment.task.points_reward_base > 0;
 
       if (shouldRevert) {
         const wasAwarded = await tx.points_transaction.findFirst({
