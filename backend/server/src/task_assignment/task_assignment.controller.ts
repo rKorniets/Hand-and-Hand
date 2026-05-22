@@ -135,13 +135,18 @@ export class TaskAssignmentController extends AbstractCrudController<
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({
-    summary: 'Підтвердити/скасувати виконання завдання волонтером (тільки для організації)',
+    summary:
+      'Підтвердити/скасувати виконання завдання волонтером (тільки для організації)',
   })
   confirm(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ConfirmTaskAssignmentDto,
     @CurrentUser() currentUser: RequestUser,
   ) {
-    return this.taskAssignmentService.confirmByOrganization(id, dto.confirmed, currentUser);
+    return this.taskAssignmentService.confirmByOrganization(
+      id,
+      dto.confirmed,
+      currentUser,
+    );
   }
 }

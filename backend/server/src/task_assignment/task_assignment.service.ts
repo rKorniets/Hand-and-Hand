@@ -241,10 +241,15 @@ export class TaskAssignmentService {
       },
     });
 
-    if (!assignment) throw new NotFoundException(`Task assignment ${id} not found`);
+    if (!assignment)
+      throw new NotFoundException(`Task assignment ${id} not found`);
 
-    if (assignment.task.project.organization_profile.user_id !== currentUser.id) {
-      throw new ForbiddenException('You do not own the project this task belongs to');
+    if (
+      assignment.task.project.organization_profile.user_id !== currentUser.id
+    ) {
+      throw new ForbiddenException(
+        'You do not own the project this task belongs to',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -256,7 +261,9 @@ export class TaskAssignmentService {
       });
 
       if (count === 0) {
-        throw new BadRequestException('Task assignment must be COMPLETED before confirming');
+        throw new BadRequestException(
+          'Task assignment must be COMPLETED before confirming',
+        );
       }
 
       const shouldAward =
