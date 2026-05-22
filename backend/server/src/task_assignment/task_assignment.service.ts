@@ -217,4 +217,72 @@ export class TaskAssignmentService {
 
     return this.prisma.task_assignment.delete({ where: { id } });
   }
+
+  async confirmByOrganization(
+    id: number,
+    confirmed: boolean,
+    currentUser: RequestUser,
+  ) {
+    const assignment = await this.prisma.task_assignment.findUnique({
+      where: { id },
+      include: {
+        task: {
+          select: {
+            points_reward_base: true,
+            title: true,
+            project: {
+              select: {
+                organization_profile: { select: { user_id: true } },
+              },
+            },
+          },
+        },
+        volunteer_profile: { select: { user_id: true } },
+      },
+    });
+
+    if (!assignment) throw new NotFoundException(`Task assignment ${id} not found`);
+
+    if (assignment.task.project.organization_profile.user_id !== currentUser.id) {
+      throw new ForbiddenException('You do not own the project this task belongs to');
+    }
+
+    if (assignment.status !== task_assignment_status_enum.COMPLETED) {
+      throw new BadRequestException('Task assignment must be COMPLETED before confirming');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.task_assignment.update({
+        where: { id },
+        data: { requester_confirmed: confirmed },
+      });
+
+      const shouldAward =
+        confirmed &&
+        !assignment.requester_confirmed &&
+        assignment.task.points_reward_base > 0;
+
+      if (shouldAward) {
+        const alreadyAwarded = await tx.points_transaction.findFirst({
+          where: {
+            task_assignment_id: id,
+            type: points_transaction_type_enum.EARN,
+          },
+          select: { id: true },
+        });
+
+        if (!alreadyAwarded) {
+          await this.pointsService.createTransaction(
+            assignment.volunteer_profile.user_id,
+            points_transaction_type_enum.EARN,
+            assignment.task.points_reward_base,
+            `Task "${assignment.task.title}" completed`,
+            id,
+          );
+        }
+      }
+
+      return updated;
+    });
+  }
 }
