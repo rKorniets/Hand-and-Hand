@@ -151,13 +151,19 @@ export class TaskAssignmentAdminService {
           const amount = assignment.task.points_reward_base;
           const userId = assignment.volunteer_profile.user_id;
           if (amount > 0) {
-            await this.pointsService.createTransaction(
-              userId,
-              points_transaction_type_enum.EARN,
-              amount,
-              `Task "${assignment.task.title}" completed`,
-              id,
-            );
+            await tx.points_transaction.create({
+              data: {
+                user_id: userId,
+                type: points_transaction_type_enum.EARN,
+                amount,
+                reason: `Task "${assignment.task.title}" completed`,
+                task_assignment_id: id,
+              },
+            });
+            await tx.app_user.update({
+              where: { id: userId },
+              data: { points: { increment: amount } },
+            });
           }
         }
       }

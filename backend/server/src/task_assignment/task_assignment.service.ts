@@ -194,13 +194,20 @@ export class TaskAssignmentService {
         });
 
         if (fresh?.requester_confirmed && fresh.task.points_reward_base > 0) {
-          await this.pointsService.createTransaction(
-            currentUser.id,
-            points_transaction_type_enum.EARN,
-            fresh.task.points_reward_base,
-            `Task "${fresh.task.title}" completed`, //meow <3
-            id,
-          );
+          const amount = fresh.task.points_reward_base;
+          await tx.points_transaction.create({
+            data: {
+              user_id: currentUser.id,
+              type: points_transaction_type_enum.EARN,
+              amount,
+              reason: `Task "${fresh.task.title}" completed`,
+              task_assignment_id: id,
+            },
+          });
+          await tx.app_user.update({
+            where: { id: currentUser.id },
+            data: { points: { increment: amount } },
+          });
         }
       }
 
