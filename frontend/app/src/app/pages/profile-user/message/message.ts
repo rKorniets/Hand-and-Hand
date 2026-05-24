@@ -29,6 +29,7 @@ export class Message implements OnInit, OnDestroy {
   notifications: UserNotification[] = [];
   total = 0;
   invitationStatus = new Map<number, 'accepted' | 'rejected'>();
+  invitationError = new Map<number, string>();
   private socketSub?: Subscription;
 
   constructor(
@@ -140,34 +141,42 @@ export class Message implements OnInit, OnDestroy {
   acceptInvitation(n: UserNotification, event: Event): void {
     event.stopPropagation();
     const invitationId = this.getInvitationId(n);
-    if (!invitationId) return;
+    if (invitationId === null) return;
     this.notificationService
       .acceptInvitation(invitationId)
       .pipe(take(1))
       .subscribe({
         next: () => {
           this.invitationStatus.set(n.id, 'accepted');
+          this.invitationError.delete(n.id);
           if (!n.is_read) this.markAsRead(n.id);
           this.cdr.markForCheck();
         },
-        error: () => this.cdr.markForCheck(),
+        error: () => {
+          this.invitationError.set(n.id, 'Помилка. Спробуйте ще раз.');
+          this.cdr.markForCheck();
+        },
       });
   }
 
   rejectInvitation(n: UserNotification, event: Event): void {
     event.stopPropagation();
     const invitationId = this.getInvitationId(n);
-    if (!invitationId) return;
+    if (invitationId === null) return;
     this.notificationService
       .rejectInvitation(invitationId)
       .pipe(take(1))
       .subscribe({
         next: () => {
           this.invitationStatus.set(n.id, 'rejected');
+          this.invitationError.delete(n.id);
           if (!n.is_read) this.markAsRead(n.id);
           this.cdr.markForCheck();
         },
-        error: () => this.cdr.markForCheck(),
+        error: () => {
+          this.invitationError.set(n.id, 'Помилка. Спробуйте ще раз.');
+          this.cdr.markForCheck();
+        },
       });
   }
 
