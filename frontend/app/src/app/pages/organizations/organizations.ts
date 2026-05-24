@@ -47,7 +47,10 @@ export class OrganizationsPage implements OnInit {
 
   ngOnInit(): void {
     this.route.data.subscribe((res) => {
-      this.organizations = [...(res['data']?.data ?? res['data'] ?? [])];
+      const result = res['data'];
+      const data = result?.data ?? result ?? [];
+      this.organizations = [...data];
+      this.hasNextPage = result?.hasNextPage ?? data.length === this.limit;
       this.cdr.markForCheck();
     });
   }

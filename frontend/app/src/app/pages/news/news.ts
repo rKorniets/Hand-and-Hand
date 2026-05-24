@@ -27,14 +27,15 @@ import { PaginationComponent } from '../../components/pagination/pagination';
 })
 export class NewsComponent implements OnInit, OnDestroy {
   pinnedNews: NewsItem[] = [];
+  allRegularNews: NewsItem[] = [];
   regularNews: NewsItem[] = [];
   canCreateNews = false;
   loading = false;
   error = false;
 
   currentPage = 1;
-  readonly limit = 5;
-  hasNextPage = false;
+  readonly limit = 10;
+  totalPagesCount = 1;
 
   filterConfig: FilterConfig = {
     showSearch: true,
@@ -63,29 +64,31 @@ export class NewsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const data = this.route.snapshot.data['data'];
     this.pinnedNews = data.pinned;
-    this.regularNews = data.regular;
-    this.hasNextPage = data.regular.length === this.limit;
+    this.allRegularNews = data.regular;
+    this.totalPagesCount = Math.ceil(this.allRegularNews.length / this.limit);
+    this.updatePage();
     const role = this.authService.getRole();
     this.canCreateNews = role === 'ORGANIZATION' || role === 'ADMIN';
     this.cdr.detectChanges();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
     this.initSocketListeners();
+  }
+
+  private updatePage(): void {
+    const start = (this.currentPage - 1) * this.limit;
+    this.regularNews = this.allRegularNews.slice(start, start + this.limit);
   }
 
   private initSocketListeners(): void {
     const createSub = this.socketService.listen<NewsItem>('newsCreated').subscribe((newNews) => {
       if (newNews.is_pinned) {
         this.pinnedNews = [newNews, ...this.pinnedNews];
-        this.cdr.detectChanges();
-      } else if (this.currentPage === 1) {
-        this.regularNews = [newNews, ...this.regularNews];
-        if (this.regularNews.length > this.limit) {
-          this.regularNews.pop();
-          this.hasNextPage = true;
-        }
-        this.cdr.detectChanges();
+      } else {
+        this.allRegularNews = [newNews, ...this.allRegularNews];
+        this.totalPagesCount = Math.ceil(this.allRegularNews.length / this.limit);
+        this.updatePage();
       }
+      this.cdr.detectChanges();
     });
 
     const updateSub = this.socketService
@@ -93,9 +96,13 @@ export class NewsComponent implements OnInit, OnDestroy {
       .subscribe((updatedNews) => {
         let changed = false;
 
-        const regularIndex = this.regularNews.findIndex((n) => n.id === updatedNews.id);
+        const regularIndex = this.allRegularNews.findIndex((n) => n.id === updatedNews.id);
         if (regularIndex !== -1) {
-          this.regularNews[regularIndex] = { ...this.regularNews[regularIndex], ...updatedNews };
+          this.allRegularNews[regularIndex] = {
+            ...this.allRegularNews[regularIndex],
+            ...updatedNews,
+          };
+          this.updatePage();
           changed = true;
         }
 
@@ -113,9 +120,13 @@ export class NewsComponent implements OnInit, OnDestroy {
     const deleteSub = this.socketService.listen<{ id: number }>('newsDeleted').subscribe((data) => {
       let changed = false;
 
-      const initialRegularLength = this.regularNews.length;
-      this.regularNews = this.regularNews.filter((n) => n.id !== data.id);
-      if (this.regularNews.length !== initialRegularLength) changed = true;
+      const initialLength = this.allRegularNews.length;
+      this.allRegularNews = this.allRegularNews.filter((n) => n.id !== data.id);
+      if (this.allRegularNews.length !== initialLength) {
+        this.totalPagesCount = Math.ceil(this.allRegularNews.length / this.limit);
+        this.updatePage();
+        changed = true;
+      }
 
       const initialPinnedLength = this.pinnedNews.length;
       this.pinnedNews = this.pinnedNews.filter((n) => n.id !== data.id);
@@ -137,14 +148,15 @@ export class NewsComponent implements OnInit, OnDestroy {
 
   loadRegular(): void {
     this.loading = true;
-    const skip = (this.currentPage - 1) * this.limit;
+    this.cdr.detectChanges();
 
     this.newsService
-      .getNews(this.limit, skip, false, this.activeFilters.search, this.activeFilters.categories)
+      .getNews(1000, 0, false, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
         next: (response) => {
-          this.regularNews = response.data;
-          this.hasNextPage = response.data.length === this.limit;
+          this.allRegularNews = response.data;
+          this.totalPagesCount = Math.ceil(this.allRegularNews.length / this.limit);
+          this.updatePage();
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -158,7 +170,8 @@ export class NewsComponent implements OnInit, OnDestroy {
 
   goToPage(page: number): void {
     this.currentPage = page;
-    this.loadRegular();
+    this.updatePage();
+    this.cdr.detectChanges();
     setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
   }
 
