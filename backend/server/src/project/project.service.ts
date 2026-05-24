@@ -58,6 +58,10 @@ export class ProjectService {
     status?: project_status_enum,
     search?: string,
     organization_profile_id?: number,
+    categories?: string[],
+    city?: string,
+    dateFrom?: string,
+    dateTo?: string,
   ) {
     const approvedRequests = await this.prisma.approval_request.findMany({
       where: {
@@ -74,6 +78,20 @@ export class ProjectService {
       ...(status && { status }),
       ...(search && { title: { contains: search, mode: 'insensitive' } }),
       ...(organization_profile_id && { organization_profile_id }),
+      ...(city && {
+        location: { city: { contains: city, mode: 'insensitive' } },
+      }),
+      ...(categories?.length && {
+        category: {
+          slug: { in: categories },
+        },
+      }),
+      ...((dateFrom || dateTo) && {
+        starts_at: {
+          ...(dateFrom && { gte: new Date(dateFrom) }),
+          ...(dateTo && { lte: new Date(dateTo) }),
+        },
+      }),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -334,6 +352,7 @@ export class ProjectService {
                 id: true,
                 first_name: true,
                 last_name: true,
+                avatar_url: true,
                 volunteer_profile: { select: { avatar_url: true } },
               },
             },
@@ -359,7 +378,10 @@ export class ProjectService {
         id: r.app_user.id,
         full_name:
           `${r.app_user.first_name ?? ''} ${r.app_user.last_name ?? ''}`.trim(),
-        avatar_url: r.app_user.volunteer_profile?.avatar_url ?? null,
+        avatar_url:
+          r.app_user.avatar_url ||
+          r.app_user.volunteer_profile?.avatar_url ||
+          null,
       })),
     };
   }
@@ -411,6 +433,10 @@ export class ProjectService {
         where: { project_id: projectId, user_id: userId },
       });
 
+    if (existingRegistration && existingRegistration.attempt_count >= 3) {
+      throw new BadRequestException('Перевищено ліміт спроб');
+    }
+
     try {
       if (!existingRegistration) {
         return await this.prisma.$transaction(async (tx) => {
@@ -429,10 +455,6 @@ export class ProjectService {
           });
           return registration;
         });
-      }
-
-      if (existingRegistration.attempt_count >= 3) {
-        throw new BadRequestException('Перевищено ліміт спроб');
       }
 
       return await this.prisma.$transaction(async (tx) => {

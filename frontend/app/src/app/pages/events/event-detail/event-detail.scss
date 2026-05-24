@@ -188,56 +188,78 @@
     align-items: center;
     gap: 10px;
     text-align: center;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-detail__org-card {
+      background-color: var(--color-white, #fff);
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .event-detail__org-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .event-detail__org-logo-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #eef4fb;
+      border: 0.5px solid rgba(#4a90d9, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+    }
+
+    .event-detail__org-name {
+      font-size: 28px;
+      font-weight: 600;
+      color: $text-color;
+      margin: 6px 0 0;
+    }
+
+    .event-detail__org-email {
+      font-size: 22px;
+      color: rgba($text-color, 0.55);
+      margin: 0;
+    }
+
+    .event-detail__org-city {
+      font-size: 22px;
+      color: rgba($text-color, 0.55);
+      margin: 0;
+    }
+
+    .event-detail__org-mission {
+      font-size: 21px;
+      color: rgba($text-color, 0.65);
+      margin: 10px 0 0;
+      padding-top: 16px;
+      border-top: 0.5px solid rgba($text-color, 0.1);
+      text-align: left;
+      width: 100%;
+      line-height: 1.6;
+    }
   }
 
-  &__org-logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  &__org-logo-placeholder {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #eef4fb;
-    border: 0.5px solid rgba(#4a90d9, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 38px;
-  }
-
-  &__org-name {
-    font-size: 28px;
-    font-weight: 600;
-    color: $text-color;
-    margin: 6px 0 0;
-  }
-
-  &__org-email {
-    font-size: 22px;
-    color: rgba($text-color, 0.55);
-    margin: 0;
-  }
-
-  &__org-city {
-    font-size: 22px;
-    color: rgba($text-color, 0.55);
-    margin: 0;
-  }
-
-  &__org-mission {
-    font-size: 21px;
-    color: rgba($text-color, 0.65);
-    margin: 10px 0 0;
-    padding-top: 16px;
-    border-top: 0.5px solid rgba($text-color, 0.1);
-    text-align: left;
-    width: 100%;
-    line-height: 1.6;
-  }
   &__progress-card {
     border: 0.5px solid rgba($text-color, 0.12);
     border-radius: 20px;
@@ -328,7 +350,16 @@
   &__volunteer {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
   }
 
   &__volunteer-avatar {

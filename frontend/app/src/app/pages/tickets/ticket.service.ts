@@ -16,10 +16,16 @@ export class TicketService {
     skip = 0,
     search?: string,
     tab?: 'available' | 'my',
+    categories?: string[],
   ): Observable<TicketItem[]> {
     let params = new HttpParams().set('limit', limit).set('skip', skip);
     if (search) params = params.set('search', search);
     if (tab) params = params.set('tab', tab);
+    if (categories?.length) {
+      for (const c of categories) {
+        params = params.append('categories', c);
+      }
+    }
     return this.http.get<TicketItem[]>(`${this.apiUrl}/tickets`, { params });
   }
 

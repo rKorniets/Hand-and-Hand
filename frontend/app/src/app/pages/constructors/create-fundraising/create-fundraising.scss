@@ -242,3 +242,34 @@ textarea.ng-invalid.ng-touched {
     box-shadow: none;
   }
 }
+
+.categories-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.category-tag {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #cbd5e1;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  font-family: inherit;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #64748b;
+    color: #0f172a;
+  }
+
+  &.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+  }
+}

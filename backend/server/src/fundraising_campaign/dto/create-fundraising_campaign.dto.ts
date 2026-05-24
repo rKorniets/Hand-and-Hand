@@ -1,11 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsDateString,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
   IsUrl,
+  IsInt,
   Min,
 } from 'class-validator';
 
@@ -40,7 +42,6 @@ export class CreateFundraisingCampaignDto {
 
   @ApiProperty()
   @IsString()
-  @IsUrl()
   jar_link: string;
 
   @ApiProperty()
@@ -52,4 +53,16 @@ export class CreateFundraisingCampaignDto {
   @IsString()
   @IsUrl()
   image_url?: string;
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  categories?: string[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  @IsInt()
+  task_id?: number;
 }

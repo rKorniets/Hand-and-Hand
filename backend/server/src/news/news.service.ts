@@ -49,6 +49,7 @@ export class NewsService {
     skip: number,
     isPinned?: boolean,
     search?: string,
+    categories?: string[],
   ) {
     const whereClause: Prisma.newsWhereInput = {
       status: news_status_enum.PUBLISHED,
@@ -57,6 +58,15 @@ export class NewsService {
         title: {
           contains: search,
           mode: 'insensitive',
+        },
+      }),
+      ...(categories?.length && {
+        news_category: {
+          some: {
+            category: {
+              slug: { in: categories },
+            },
+          },
         },
       }),
     };
@@ -109,11 +119,20 @@ export class NewsService {
       throw new ForbiddenException('Користувач не належить до організації');
     }
 
+    const { categories, ...newsData } = data;
+
     const news = await this.prisma.news.create({
       data: {
-        ...data,
+        ...newsData,
         organization_id: user.organization_id,
         is_pinned: false,
+        ...(categories?.length && {
+          news_category: {
+            create: categories.map((slug) => ({
+              category: { connect: { slug } },
+            })),
+          },
+        }),
       },
     });
 

@@ -6,6 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { switchMap, of } from 'rxjs';
 import { NotificationService } from '../../profile-user/message/message.service';
 import { API_BASE_URL } from '../../../tokens';
+import { CategoryService } from '../../../components/category/category.service';
+import { Category } from '../../../components/category/category.model';
 
 const DEFAULT_IMAGES: Record<string, string> = {
   military:
@@ -29,6 +31,8 @@ export class CreateFundraisingComponent implements OnInit {
   campaignForm: FormGroup;
   isSubmitting = false;
   selectedFile: File | null = null;
+  categories: Category[] = [];
+  selectedCategories: string[] = [];
   private taskId: number | null = null;
   private apiBaseUrl = inject(API_BASE_URL);
 
@@ -38,10 +42,10 @@ export class CreateFundraisingComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private notificationService: NotificationService,
+    private categoryService: CategoryService,
   ) {
     this.campaignForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(100)]],
-      category: ['', Validators.required],
       description: ['', [Validators.required, Validators.maxLength(250)]],
       main_content: ['', Validators.required],
       jar_link: ['', [Validators.required]],
@@ -59,6 +63,23 @@ export class CreateFundraisingComponent implements OnInit {
     if (titleParam) {
       this.campaignForm.patchValue({ title: titleParam });
     }
+
+    this.categoryService.getByContext('fundraising').subscribe({
+      next: (data) => (this.categories = data),
+    });
+  }
+
+  toggleCategory(slug: string): void {
+    const idx = this.selectedCategories.indexOf(slug);
+    if (idx === -1) {
+      this.selectedCategories.push(slug);
+    } else {
+      this.selectedCategories.splice(idx, 1);
+    }
+  }
+
+  isCategorySelected(slug: string): boolean {
+    return this.selectedCategories.includes(slug);
   }
 
   onFileSelected(event: Event) {
@@ -74,8 +95,8 @@ export class CreateFundraisingComponent implements OnInit {
       return;
     }
     this.isSubmitting = true;
-    const category = this.campaignForm.value.category;
-    const fallbackImageUrl = DEFAULT_IMAGES[category] || DEFAULT_IMAGES['default'];
+    const firstCategory = this.selectedCategories[0];
+    const fallbackImageUrl = DEFAULT_IMAGES[firstCategory] || DEFAULT_IMAGES['default'];
     this.submitCampaignData(fallbackImageUrl);
   }
 
@@ -93,6 +114,7 @@ export class CreateFundraisingComponent implements OnInit {
       end_at: this.campaignForm.value.end_at
         ? new Date(this.campaignForm.value.end_at).toISOString()
         : null,
+      categories: this.selectedCategories,
       ...(this.taskId ? { task_id: this.taskId } : {}),
     };
 

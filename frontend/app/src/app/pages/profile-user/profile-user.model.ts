@@ -44,6 +44,8 @@ export interface Reward {
   stock: number;
   is_active: boolean;
   created_at: string;
+  type?: string;
+  condition_count?: number;
 }
 
 export interface ActivityItem {

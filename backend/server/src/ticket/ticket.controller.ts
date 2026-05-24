@@ -55,6 +55,7 @@ export class TicketController extends AbstractCrudController<ticket> {
       req.user?.id,
       req.user?.role,
       query.tab,
+      query.categories,
     );
   }
 
@@ -86,6 +87,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   ) {
     return this.service.update(id, data, req.user!.id);
   }
+
   @Put(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
@@ -98,6 +100,7 @@ export class TicketController extends AbstractCrudController<ticket> {
   ) {
     return this.service.updateFull(id, data, req.user!.id);
   }
+
   @Delete(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()

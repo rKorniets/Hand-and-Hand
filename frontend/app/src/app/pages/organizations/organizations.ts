@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ListOrgComponent } from './list-org/list-org';
 import { FiltersComponent } from '../../components/category/category';
@@ -13,6 +13,7 @@ import { PaginationComponent } from '../../components/pagination/pagination';
   imports: [FiltersComponent, ListOrgComponent, PaginationComponent],
   templateUrl: './organizations.html',
   styleUrl: './organizations.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationsPage implements OnInit {
   organizations: Organization[] = [];
@@ -41,11 +42,16 @@ export class OrganizationsPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.route.data.subscribe((res) => {
-      this.organizations = res['data']?.data ?? res['data'] ?? [];
+      const result = res['data'];
+      const data = result?.data ?? result ?? [];
+      this.organizations = [...data];
+      this.hasNextPage = result?.hasNextPage ?? data.length === this.limit;
+      this.cdr.markForCheck();
     });
   }
 
@@ -63,19 +69,22 @@ export class OrganizationsPage implements OnInit {
 
   loadOrganizations(): void {
     this.loading = true;
+    this.cdr.markForCheck();
     const skip = (this.currentPage - 1) * this.limit;
 
     this.organizationService
       .getOrganizations(this.limit, skip, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
         next: ({ data }) => {
-          this.organizations = data;
+          this.organizations = [...data];
           this.hasNextPage = data.length === this.limit;
           this.loading = false;
+          this.cdr.markForCheck();
         },
         error: () => {
           this.error = true;
           this.loading = false;
+          this.cdr.markForCheck();
         },
       });
   }

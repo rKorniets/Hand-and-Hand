@@ -178,6 +178,43 @@
     gap: 0 24px;
   }
 
+  &__categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  &__category-tag {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1.5px solid $ce-border;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #475569;
+    font-family: $font-main;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $color-black;
+      color: $color-black;
+    }
+
+    &--active {
+      background: $color-black;
+      color: $color-white;
+      border-color: $color-black;
+    }
+  }
+
+  &__hint {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 4px 0 0 2px;
+  }
+
   &__file-wrap {
     position: relative;
   }
@@ -350,6 +387,7 @@
     &__title {
       font-size: 32px;
     }
+
     &__location-grid {
       grid-template-columns: 1fr;
     }

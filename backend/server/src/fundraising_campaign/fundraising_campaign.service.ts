@@ -99,10 +99,10 @@ export class FundraisingCampaignService {
         orderBy: { created_at: 'desc' },
         include: {
           organization_profile: {
-            select: { name: true },
+            select: { id: true, name: true },
           },
           volunteer_profile: {
-            select: { display_name: true },
+            select: { id: true, display_name: true },
           },
         },
       }),
@@ -132,6 +132,7 @@ export class FundraisingCampaignService {
         e instanceof Error ? e.message : e,
       );
     }
+
     let orgProfileId: number | undefined = undefined;
     let volProfileId: number | undefined = undefined;
 
@@ -154,29 +155,35 @@ export class FundraisingCampaignService {
         );
       }
     }
+
+    const { categories, ...rest } = data;
+
     const createData: Prisma.fundraising_campaignCreateInput = {
-      title: data.title,
-      description: data.description,
-      main_content: data.main_content,
-      goal_amount: data.goal_amount,
-      start_at: data.start_at ? new Date(data.start_at) : undefined,
-      end_at: data.end_at ? new Date(data.end_at) : undefined,
-      jar_link: data.jar_link,
+      title: rest.title,
+      description: rest.description,
+      main_content: rest.main_content,
+      goal_amount: rest.goal_amount,
+      start_at: rest.start_at ? new Date(rest.start_at) : undefined,
+      end_at: rest.end_at ? new Date(rest.end_at) : undefined,
+      jar_link: rest.jar_link,
       jar_id: jarId,
-      mono_token: data.mono_token,
-      image_url: data.image_url,
+      mono_token: rest.mono_token,
+      image_url: rest.image_url,
+      ...(categories?.length && {
+        fundraising_category: {
+          create: categories.map((slug) => ({
+            category: { connect: { slug } },
+          })),
+        },
+      }),
     };
 
     if (orgProfileId) {
-      createData.organization_profile = {
-        connect: { id: orgProfileId },
-      };
+      createData.organization_profile = { connect: { id: orgProfileId } };
     }
 
     if (volProfileId) {
-      createData.volunteer_profile = {
-        connect: { id: volProfileId },
-      };
+      createData.volunteer_profile = { connect: { id: volProfileId } };
     }
 
     const campaign = await this.prisma.fundraising_campaign.create({
@@ -184,12 +191,10 @@ export class FundraisingCampaignService {
     });
 
     const sanitizedCampaign = this.sanitizeCampaign(campaign);
-
     this.appGateway.sendToAll('campaignCreated', sanitizedCampaign);
 
     return sanitizedCampaign;
   }
-
   async update(
     id: number,
     data: UpdateFundraisingCampaignDto,
@@ -343,10 +348,10 @@ export class FundraisingCampaignService {
       where: { id },
       include: {
         organization_profile: {
-          select: { name: true },
+          select: { id: true, name: true },
         },
         volunteer_profile: {
-          select: { display_name: true },
+          select: { id: true, display_name: true },
         },
       },
     });

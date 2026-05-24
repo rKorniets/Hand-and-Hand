@@ -31,6 +31,11 @@ export class CategoryService {
       where.fundraising_category = { some: {} };
     } else if (context === 'projects') {
       where.project_category = { some: {} };
+    } else if (context === 'tickets') {
+      where.OR = [
+        { ticket_category: { some: {} } },
+        { fundraising_category: { some: {} } },
+      ];
     }
 
     return this.prisma.category.findMany({
@@ -40,6 +45,7 @@ export class CategoryService {
       orderBy: { name: 'asc' },
     });
   }
+
   async findOne(id: number) {
     const category = await this.prisma.category.findUnique({
       where: { id },

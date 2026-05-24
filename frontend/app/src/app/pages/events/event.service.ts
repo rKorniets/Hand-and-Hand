@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { NewEvent, ProjectRegistration } from './event.model';
 import { API_BASE_URL } from '../../tokens';
+import { FilterState } from '../../components/category/category.model';
 
 export interface PaginatedEvents {
   data: NewEvent[];
@@ -16,21 +17,29 @@ export class EventService {
     @Inject(API_BASE_URL) private apiUrl: string,
   ) {}
 
-  getEvents(limit = 5, skip = 0, status?: string): Observable<PaginatedEvents> {
+  getEvents(limit = 5, skip = 0, filters?: FilterState): Observable<PaginatedEvents> {
     let params = new HttpParams().set('limit', limit.toString()).set('skip', skip.toString());
 
-    if (status !== undefined) {
-      params = params.set('status', status);
+    if (filters?.search) params = params.set('search', filters.search);
+    if (filters?.city) params = params.set('city', filters.city);
+    if (filters?.dateFrom) params = params.set('dateFrom', filters.dateFrom);
+    if (filters?.dateTo) params = params.set('dateTo', filters.dateTo);
+    if (filters?.status?.length) {
+      filters.status.forEach((s) => {
+        params = params.append('status', s);
+      });
+    }
+    if (filters?.categories?.length) {
+      filters.categories.forEach((slug) => {
+        params = params.append('categories', slug);
+      });
     }
 
     return this.http.get<PaginatedEvents>(`${this.apiUrl}/projects`, { params });
   }
 
-  getAllEventsForMap(): Observable<NewEvent[]> {
-    const params = new HttpParams().set('limit', '50').set('skip', '0');
-    return this.http
-      .get<PaginatedEvents>(`${this.apiUrl}/projects`, { params })
-      .pipe(map((r) => r.data));
+  getAllEventsForMap(filters?: FilterState): Observable<NewEvent[]> {
+    return this.getEvents(100, 0, filters).pipe(map((r) => r.data));
   }
 
   getEventById(id: number): Observable<NewEvent> {

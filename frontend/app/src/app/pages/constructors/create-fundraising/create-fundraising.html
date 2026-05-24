@@ -24,13 +24,24 @@
 
       <div class="form-group">
         <label>Категорія</label>
-        <div class="input-wrapper select-wrapper">
-          <select formControlName="category">
-            <option value="" disabled selected>Оберіть напрямок допомоги</option>
-            <option value="military">Мілітарна допомога</option>
-            <option value="medical">Медицина та реабілітація</option>
-            <option value="rebuild">Відбудова</option>
-          </select>
+        <div class="input-wrapper">
+          @if (categories.length > 0) {
+            <div class="categories-list">
+              @for (cat of categories; track cat.id) {
+                <button
+                  type="button"
+                  class="category-tag"
+                  [class.active]="isCategorySelected(cat.slug)"
+                  (click)="toggleCategory(cat.slug)"
+                >
+                  {{ cat.name }}
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="field-hint">Завантаження категорій...</p>
+          }
+          <p class="field-hint">Необов'язково. Можна обрати кілька.</p>
         </div>
       </div>
 

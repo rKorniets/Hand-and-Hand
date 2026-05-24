@@ -60,33 +60,23 @@
         }
       </div>
 
-      <div
-        class="create-ticket__field"
-        [class.create-ticket__field--error]="isInvalid(category_id)"
-      >
-        <label class="create-ticket__label create-ticket__label--required" for="tc-category"
-          >Категорія</label
-        >
-        <div class="create-ticket__input-wrap create-ticket__input-wrap--select">
-          <select
-            id="tc-category"
-            class="create-ticket__input create-ticket__input--select"
-            formControlName="category_id"
-          >
-            <option [ngValue]="null">Оберіть категорію</option>
+      <div class="create-ticket__field">
+        <label class="create-ticket__label create-ticket__label--required">Категорія</label>
+        @if (categories().length > 0) {
+          <div class="create-ticket__categories">
             @for (cat of categories(); track cat.id) {
-              <option [ngValue]="cat.id">{{ cat.name }}</option>
+              <button
+                type="button"
+                class="create-ticket__category-tag"
+                [class.create-ticket__category-tag--active]="isCategorySelected(cat.id)"
+                (click)="toggleCategory(cat.id)"
+              >
+                {{ cat.name }}
+              </button>
             }
-          </select>
-          <span
-            class="material-symbols-outlined create-ticket__input-icon create-ticket__input-icon--arrow"
-            >expand_more</span
-          >
-        </div>
-        @if (isInvalid(category_id)) {
-          <div class="create-ticket__errors">
-            <span class="create-ticket__error">Категорія обов'язкова</span>
           </div>
+        } @else {
+          <p class="create-ticket__hint">Завантаження категорій...</p>
         }
       </div>
 

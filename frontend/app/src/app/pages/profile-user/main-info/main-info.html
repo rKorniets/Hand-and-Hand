@@ -1,35 +1,43 @@
 <div class="main-info">
   <div class="main-info__avatar-wrapper">
-    <div class="main-info__avatar" (click)="triggerFileInput(fileInput)">
+    <div
+      class="main-info__avatar"
+      (click)="triggerFileInput()"
+      [class.is-own-profile]="isOwnProfile"
+    >
       <img
         [src]="user?.avatar_url || 'images/default-avatar.png'"
         [alt]="user?.first_name"
         [class.main-info__avatar-img--loading]="uploading"
         (error)="onAvatarError($event)"
       />
-      <div class="main-info__avatar-overlay">
-        <span class="material-symbols-outlined">photo_camera</span>
-      </div>
+      @if (isOwnProfile) {
+        <div class="main-info__avatar-overlay">
+          <span class="material-symbols-outlined">photo_camera</span>
+        </div>
+      }
     </div>
 
-    <button class="main-info__avatar-menu-btn" (click)="$event.stopPropagation(); toggleMenu()">
-      <span class="material-symbols-outlined">more_horiz</span>
-    </button>
+    @if (isOwnProfile) {
+      <button class="main-info__avatar-menu-btn" (click)="$event.stopPropagation(); toggleMenu()">
+        <span class="material-symbols-outlined">more_horiz</span>
+      </button>
 
-    @if (menuOpen) {
-      <div class="main-info__avatar-menu">
-        <button (click)="triggerFileInput(fileInput); menuOpen = false">
-          <span class="material-symbols-outlined">photo_camera</span>
-          Змінити фото
-        </button>
-        <button class="danger" (click)="onAvatarDelete(); menuOpen = false">
-          <span class="material-symbols-outlined">delete</span>
-          Видалити фото
-        </button>
-      </div>
+      @if (menuOpen) {
+        <div class="main-info__avatar-menu">
+          <button (click)="triggerFileInput(); menuOpen = false">
+            <span class="material-symbols-outlined">photo_camera</span>
+            Змінити фото
+          </button>
+          <button class="danger" (click)="onAvatarDelete(); menuOpen = false">
+            <span class="material-symbols-outlined">delete</span>
+            Видалити фото
+          </button>
+        </div>
+      }
+
+      <input #fileInput type="file" accept="image/*" hidden (change)="onAvatarSelected($event)" />
     }
-
-    <input #fileInput type="file" accept="image/*" hidden (change)="onAvatarSelected($event)" />
   </div>
 
   <div class="main-info__details">

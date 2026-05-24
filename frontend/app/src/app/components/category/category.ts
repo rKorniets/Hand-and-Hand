@@ -1,4 +1,16 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,16 +23,21 @@ import { Category, FilterConfig, FilterState } from './category.model';
   imports: [CommonModule, FormsModule],
   templateUrl: './category.html',
   styleUrl: './category.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FiltersComponent implements OnInit {
+export class FiltersComponent implements OnInit, OnChanges {
   @Input() config!: FilterConfig;
   @Output() filtersChanged = new EventEmitter<FilterState>();
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   categories: Category[] = [];
   cities: string[] = [];
   isLoading = false;
+
+  readonly today: string = new Date().toISOString().split('T')[0];
+  minDateTo: string = this.today;
 
   filters: FilterState = {
     search: '',
@@ -43,8 +60,12 @@ export class FiltersComponent implements OnInit {
           next: (data) => {
             this.categories = data;
             this.isLoading = false;
+            this.cdr.markForCheck();
           },
-          error: () => (this.isLoading = false),
+          error: () => {
+            this.isLoading = false;
+            this.cdr.markForCheck();
+          },
         });
     }
 
@@ -54,7 +75,33 @@ export class FiltersComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((cities) => {
           this.cities = cities;
+          this.cdr.markForCheck();
         });
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['config'] && !changes['config'].firstChange) {
+      const prev = changes['config'].previousValue as FilterConfig;
+      const curr = changes['config'].currentValue as FilterConfig;
+
+      if (prev.categoryContext !== curr.categoryContext && curr.categoryContext) {
+        this.isLoading = true;
+        this.categoryService
+          .getByContext(curr.categoryContext)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (data) => {
+              this.categories = data;
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            },
+            error: () => {
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            },
+          });
+      }
     }
   }
 
@@ -64,14 +111,6 @@ export class FiltersComponent implements OnInit {
 
   toggleStatus(value: string): void {
     this.toggleArrayValue(this.filters.status, value);
-  }
-
-  get today(): string {
-    return new Date().toISOString().split('T')[0];
-  }
-
-  get minDateTo(): string {
-    return this.filters.dateFrom || this.today;
   }
 
   isChecked(arr: string[], value: string): boolean {
@@ -87,6 +126,7 @@ export class FiltersComponent implements OnInit {
   }
 
   onDateChange(): void {
+    this.minDateTo = this.filters.dateFrom || this.today;
     this.emit();
   }
 

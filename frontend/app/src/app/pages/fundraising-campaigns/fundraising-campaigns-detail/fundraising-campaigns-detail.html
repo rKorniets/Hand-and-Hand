@@ -25,9 +25,15 @@
             <div class="organizer-tag">
               <span class="label">Організатор:</span>
               <p class="name">
-                {{
-                  campaign?.organization_profile?.name || campaign?.volunteer_profile?.display_name
-                }}
+                @if (campaign?.organization_profile) {
+                  <a [routerLink]="['/organizations', campaign?.organization_profile?.id]">
+                    {{ campaign?.organization_profile?.name }}
+                  </a>
+                } @else if (campaign?.volunteer_profile) {
+                  <a [routerLink]="['/profile-user', campaign?.volunteer_profile?.id]">
+                    {{ campaign?.volunteer_profile?.display_name }}
+                  </a>
+                }
               </p>
             </div>
 

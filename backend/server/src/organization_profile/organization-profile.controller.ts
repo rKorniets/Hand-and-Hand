@@ -82,14 +82,20 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
       new ParseEnumPipe(verification_status_enum, { optional: true }),
     )
     status?: verification_status_enum,
-    @Query('categories') categories?: string[],
+    @Query('categories') categories?: string | string[],
   ) {
+    const categoriesArray = categories
+      ? Array.isArray(categories)
+        ? categories
+        : [categories]
+      : undefined;
+
     return this.organizationProfileService.getOrganizationProfiles(
       query.limit ?? 5,
       query.skip ?? 0,
       status,
       query.search,
-      categories,
+      categoriesArray,
     );
   }
 

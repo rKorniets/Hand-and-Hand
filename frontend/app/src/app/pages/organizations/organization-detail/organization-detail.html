@@ -39,7 +39,11 @@
               @for (item of visibleActivities; track item.id) {
                 <div class="activity__item-wrapper">
                   <a class="activity__item" [routerLink]="['/events', item.id]">
-                    <div class="activity__image"></div>
+                    <div class="activity__image">
+                      @if (item.image_url) {
+                        <img [src]="item.image_url" [alt]="item.title" />
+                      }
+                    </div>
                     <div class="activity__body">
                       <div class="activity__top">
                         <h3 class="activity__item-title">{{ item.title }}</h3>
@@ -66,6 +70,99 @@
                 }
               </button>
             }
+          </section>
+        } @else {
+          <section class="activity">
+            <h2 class="activity__title">Волонтерська діяльність</h2>
+            <div class="activity__list">
+              <p class="activity__empty-msg">
+                У цієї організації поки немає волонтерської діяльності.
+              </p>
+            </div>
+          </section>
+        }
+
+        @if (campaigns.length > 0) {
+          <section class="activity">
+            <h2 class="activity__title">Збори</h2>
+            <div class="activity__list">
+              @for (item of visibleCampaigns; track item.id) {
+                <div class="activity__item-wrapper">
+                  <a class="activity__item" [routerLink]="['/fundraising', item.id]">
+                    <div class="activity__image">
+                      @if (item.image_url) {
+                        <img [src]="item.image_url" [alt]="item.title" />
+                      }
+                    </div>
+                    <div class="activity__body">
+                      <div class="activity__top">
+                        <h3 class="activity__item-title">{{ item.title }}</h3>
+                      </div>
+                      @if (item.description) {
+                        <p class="activity__text">{{ item.description }}</p>
+                      }
+                    </div>
+                  </a>
+                </div>
+              }
+            </div>
+            @if (campaigns.length > 5) {
+              <button class="activity__more" (click)="toggleCampaigns()">
+                @if (campaignsExpanded) {
+                  Згорнути
+                } @else {
+                  Більше
+                }
+              </button>
+            }
+          </section>
+        } @else {
+          <section class="activity">
+            <h2 class="activity__title">Збори</h2>
+            <div class="activity__list">
+              <p class="activity__empty-msg">У цієї організації поки немає активних зборів.</p>
+            </div>
+          </section>
+        }
+
+        @if (reports.length > 0) {
+          <section class="activity">
+            <h2 class="activity__title">Звіти</h2>
+            <div class="activity__list">
+              @for (item of visibleReports; track item.id) {
+                <div class="activity__item-wrapper">
+                  <a class="activity__item" [href]="item.file_url" target="_blank">
+                    <div class="activity__body">
+                      <div class="activity__top">
+                        <h3 class="activity__item-title">{{ item.title }}</h3>
+                        @if (item.published_at) {
+                          <span class="activity__date">{{
+                            item.published_at | date: 'dd.MM.yyyy'
+                          }}</span>
+                        }
+                      </div>
+                      <p class="activity__text">Тип: {{ item.type }}</p>
+                    </div>
+                  </a>
+                </div>
+              }
+            </div>
+            @if (reports.length > 5) {
+              <button class="activity__more" (click)="toggleReports()">
+                @if (reportsExpanded) {
+                  Згорнути
+                } @else {
+                  Більше
+                }
+              </button>
+            }
+          </section>
+        } @else {
+          <section class="activity">
+            <h2 class="activity__title">Звіти</h2>
+            <div class="activity__list">
+              <p class="activity__empty-msg">У цієї організації поки немає звітів.</p>
+            </div>
           </section>
         }
       }
@@ -175,15 +272,17 @@
           <h2 class="members-card__title">Учасники ({{ members.length }})</h2>
           <ul class="members-list">
             @for (member of visibleMembers; track member.id) {
-              <li class="members-list__item">
-                <div class="members-list__avatar">
-                  @if (!member.avatar_url) {
-                    <span class="material-symbols-outlined">person</span>
-                  } @else {
-                    <img [src]="member.avatar_url" [alt]="getFullName(member)" />
-                  }
-                </div>
-                <span class="members-list__name">{{ getFullName(member) }}</span>
+              <li>
+                <a [routerLink]="['/profile-user', member.id]" class="members-list__item">
+                  <div class="members-list__avatar">
+                    @if (!member.avatar_url) {
+                      <span class="material-symbols-outlined">person</span>
+                    } @else {
+                      <img [src]="member.avatar_url" [alt]="getFullName(member)" />
+                    }
+                  </div>
+                  <span class="members-list__name">{{ getFullName(member) }}</span>
+                </a>
               </li>
             }
           </ul>

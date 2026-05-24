@@ -19,7 +19,8 @@ import {
 } from 'rxjs/operators';
 import { Subject, of } from 'rxjs';
 import { RequestConstructorService } from './request-constructor.service';
-import { Category } from './request-constructor.model';
+import { CategoryService } from '../../../components/category/category.service';
+import { Category } from '../../../components/category/category.model';
 
 function notBlank(control: AbstractControl): ValidationErrors | null {
   return control.value?.trim().length ? null : { blank: true };
@@ -44,6 +45,7 @@ function locationValidator(group: AbstractControl): ValidationErrors | null {
 export class RequestConstructor implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private ticketService = inject(RequestConstructorService);
+  private categoryService = inject(CategoryService);
   private router = inject(Router);
   private http = inject(HttpClient);
   private destroy$ = new Subject<void>();
@@ -51,11 +53,11 @@ export class RequestConstructor implements OnInit, OnDestroy {
   isLoading = signal(false);
   serverError = signal<string | null>(null);
   categories = signal<Category[]>([]);
+  selectedCategoryIds: number[] = [];
 
   form = this.fb.group({
     title: ['', [Validators.required, notBlank, Validators.maxLength(200)]],
     description: ['', [Validators.required, notBlank, Validators.maxLength(2000)]],
-    category_id: [null as number | null, [Validators.required]], // залишаємо для UI (один вибір)
     priority: [''],
     file_url: [''],
     file_name: [null as string | null],
@@ -77,9 +79,6 @@ export class RequestConstructor implements OnInit, OnDestroy {
   }
   get description() {
     return this.form.controls.description;
-  }
-  get category_id() {
-    return this.form.controls.category_id;
   }
   get priority() {
     return this.form.controls.priority;
@@ -116,9 +115,22 @@ export class RequestConstructor implements OnInit, OnDestroy {
     return ctrl.invalid && (ctrl.dirty || ctrl.touched);
   }
 
+  isCategorySelected(id: number): boolean {
+    return this.selectedCategoryIds.includes(id);
+  }
+
+  toggleCategory(id: number): void {
+    const idx = this.selectedCategoryIds.indexOf(id);
+    if (idx === -1) {
+      this.selectedCategoryIds.push(id);
+    } else {
+      this.selectedCategoryIds.splice(idx, 1);
+    }
+  }
+
   ngOnInit(): void {
-    this.ticketService
-      .getCategories()
+    this.categoryService
+      .getByContext('tickets')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (cats) => this.categories.set(cats),
@@ -147,7 +159,6 @@ export class RequestConstructor implements OnInit, OnDestroy {
         switchMap((loc) => {
           const query = [loc.address, loc.city, loc.region].filter(Boolean).join(', ');
           if (!query.trim()) return of(null);
-
           return this.http
             .get<
               { lat: string; lon: string }[]
@@ -211,7 +222,7 @@ export class RequestConstructor implements OnInit, OnDestroy {
     const payload = {
       title: v.title!,
       description: v.description!,
-      ...(v.category_id ? { category_ids: [Number(v.category_id)] } : {}),
+      ...(this.selectedCategoryIds.length && { category_ids: this.selectedCategoryIds }),
       ...(v.priority ? { priority: v.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' } : {}),
       ...(v.file_url ? { file_url: v.file_url } : {}),
       ...(hasLocation && {

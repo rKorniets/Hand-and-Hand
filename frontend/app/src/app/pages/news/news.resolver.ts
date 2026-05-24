@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Resolve } from '@angular/router';
 import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { NewsService } from './news.service';
 import { NewsItem } from './news.model';
 
@@ -11,7 +12,12 @@ export class NewsResolver implements Resolve<{ pinned: NewsItem[]; regular: News
   resolve(): Observable<{ pinned: NewsItem[]; regular: NewsItem[] }> {
     return forkJoin({
       pinned: this.newsService.getNews(10, 0, true),
-      regular: this.newsService.getNews(10, 0, false),
-    });
+      regular: this.newsService.getNews(50, 0, false),
+    }).pipe(
+      map((result) => ({
+        pinned: result.pinned.data,
+        regular: result.regular.data,
+      })),
+    );
   }
 }

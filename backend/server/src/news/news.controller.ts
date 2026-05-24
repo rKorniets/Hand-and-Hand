@@ -53,12 +53,13 @@ export class NewsController extends AbstractCrudController<unknown> {
   @CacheTTL(30000)
   @Throttle({ default: { limit: 200, ttl: 60000 } })
   @ApiOperation({ summary: 'Отримати список новин' })
-  async findAll(@Query() query: GetNewsDto) {
+  override async findAll(@Query() query: GetNewsDto) {
     return this.newsService.getNews(
       query.limit ?? 5,
       query.skip ?? 0,
       query.isPinned,
       query.search,
+      query.categories,
     );
   }
 
@@ -99,6 +100,7 @@ export class NewsController extends AbstractCrudController<unknown> {
   ) {
     return this.newsService.updateNewsFull(id, data, { id: user.id });
   }
+
   @Patch(':id')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()

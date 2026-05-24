@@ -1,4 +1,4 @@
-export type CategoryContext = 'news' | 'organizations' | 'fundraising' | 'projects';
+export type CategoryContext = 'news' | 'projects' | 'organizations' | 'fundraising' | 'tickets';
 
 export interface Category {
   id: number;
