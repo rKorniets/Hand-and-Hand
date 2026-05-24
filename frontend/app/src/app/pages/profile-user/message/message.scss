@@ -261,6 +261,17 @@
         background: #ffcdd2;
       }
     }
+
+    &--delete {
+      background: none;
+      color: #ccc;
+      padding: 3px 6px;
+
+      &:hover {
+        color: #e53935;
+        background: #ffeaea;
+      }
+    }
   }
 
   &__notification-invite-status {

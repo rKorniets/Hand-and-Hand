@@ -82,6 +82,10 @@ export class Message implements OnInit, OnDestroy {
     return Number.isFinite(id) ? id : null;
   }
 
+  hasValidInvitationId(n: UserNotification): boolean {
+    return this.getInvitationId(n) !== null;
+  }
+
   onNotificationClick(n: UserNotification) {
     if (!n.is_read) {
       this.notificationService

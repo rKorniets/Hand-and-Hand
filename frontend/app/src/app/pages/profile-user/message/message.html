@@ -54,7 +54,7 @@
           <span class="message__notification-date">
             {{ n.created_at | date: 'dd.MM.yyyy HH:mm' }}
           </span>
-          @if (n.is_read && (!isInvitation(n) || invitationStatus.has(n.id))) {
+          @if (n.is_read && !isInvitation(n)) {
             <button
               class="message__notification-delete"
               (click)="$event.stopPropagation(); deleteNotification(n.id)"
@@ -71,12 +71,34 @@
               >
                 Прийнято
               </span>
+              <button
+                class="message__notification-invite-btn message__notification-invite-btn--delete"
+                (click)="$event.stopPropagation(); deleteNotification(n.id)"
+              >
+                ✕
+              </button>
             } @else if (invitationStatus.get(n.id) === 'rejected') {
               <span
                 class="message__notification-invite-status message__notification-invite-status--rejected"
               >
                 Відхилено
               </span>
+              <button
+                class="message__notification-invite-btn message__notification-invite-btn--delete"
+                (click)="$event.stopPropagation(); deleteNotification(n.id)"
+              >
+                ✕
+              </button>
+            } @else if (n.is_read) {
+              <span class="message__notification-invite-status"> Вже відповіли </span>
+              <button
+                class="message__notification-invite-btn message__notification-invite-btn--delete"
+                (click)="$event.stopPropagation(); deleteNotification(n.id)"
+              >
+                ✕
+              </button>
+            } @else if (!hasValidInvitationId(n)) {
+              <span class="message__notification-invite-error">Недійсне запрошення</span>
             } @else {
               @if (invitationError.get(n.id)) {
                 <span class="message__notification-invite-error">
