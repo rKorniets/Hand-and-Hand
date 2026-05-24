@@ -24,4 +24,10 @@ export class CreateNotificationDto {
   @IsOptional()
   @IsEnum(notification_type_enum)
   type?: notification_type_enum;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  link?: string;
 }

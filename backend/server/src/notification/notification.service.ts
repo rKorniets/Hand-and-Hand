@@ -104,6 +104,7 @@ export class NotificationService {
         user_id: data.user_id,
         message: data.message,
         type: data.type ?? notification_type_enum.GENERAL,
+        ...(data.link !== undefined && { link: data.link }),
       },
     });
 
