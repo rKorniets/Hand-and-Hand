@@ -66,11 +66,15 @@
         @if (isInvitation(n)) {
           <div class="message__notification-invite-actions">
             @if (invitationStatus.get(n.id) === 'accepted') {
-              <span class="message__notification-invite-status message__notification-invite-status--accepted">
+              <span
+                class="message__notification-invite-status message__notification-invite-status--accepted"
+              >
                 Прийнято
               </span>
             } @else if (invitationStatus.get(n.id) === 'rejected') {
-              <span class="message__notification-invite-status message__notification-invite-status--rejected">
+              <span
+                class="message__notification-invite-status message__notification-invite-status--rejected"
+              >
                 Відхилено
               </span>
             } @else {

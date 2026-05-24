@@ -541,7 +541,10 @@ export class OrganizationProfileService {
     targetUserId: number,
     currentUser: RequestUser,
   ) {
-    const orgProfile = await this.validateOrganizationOwnership(orgId, currentUser);
+    const orgProfile = await this.validateOrganizationOwnership(
+      orgId,
+      currentUser,
+    );
 
     if (targetUserId === currentUser.id) {
       throw new BadRequestException('Cannot invite yourself');
@@ -602,9 +605,15 @@ export class OrganizationProfileService {
         },
       });
       try {
-        await this.sendInvitationNotification(orgProfile.name, targetUserId, record.id);
+        await this.sendInvitationNotification(
+          orgProfile.name,
+          targetUserId,
+          record.id,
+        );
       } catch (e) {
-        this.logger.warn(`Failed to send invitation notification: ${(e as Error).message}`);
+        this.logger.warn(
+          `Failed to send invitation notification: ${(e as Error).message}`,
+        );
       }
       return record;
     }
@@ -617,9 +626,15 @@ export class OrganizationProfileService {
       },
     });
     try {
-      await this.sendInvitationNotification(orgProfile.name, targetUserId, record.id);
+      await this.sendInvitationNotification(
+        orgProfile.name,
+        targetUserId,
+        record.id,
+      );
     } catch (e) {
-      this.logger.warn(`Failed to send invitation notification: ${(e as Error).message}`);
+      this.logger.warn(
+        `Failed to send invitation notification: ${(e as Error).message}`,
+      );
     }
     return record;
   }
