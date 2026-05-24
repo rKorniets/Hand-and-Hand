@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ListOrgComponent } from './list-org/list-org';
 import { FiltersComponent } from '../../components/category/category';
@@ -21,7 +21,7 @@ export class OrganizationsPage implements OnInit {
 
   readonly limit = 10;
   currentPage = 1;
-  hasNextPage = false;
+  totalPages = 1;
 
   readonly filterConfig: FilterConfig = {
     showSearch: true,
@@ -41,11 +41,20 @@ export class OrganizationsPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.route.data.subscribe((res) => {
-      this.organizations = res['data']?.data ?? res['data'] ?? [];
+      const response = res['data'];
+      if (response && response.data) {
+        this.organizations = response.data;
+        this.totalPages = Math.ceil(response.total / this.limit) || 1;
+      } else {
+        this.organizations = response ?? [];
+        this.totalPages = 1;
+      }
+      this.cdr.detectChanges();
     });
   }
 
@@ -68,14 +77,16 @@ export class OrganizationsPage implements OnInit {
     this.organizationService
       .getOrganizations(this.limit, skip, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
-        next: ({ data }) => {
+        next: ({ data, total }) => {
           this.organizations = data;
-          this.hasNextPage = data.length === this.limit;
+          this.totalPages = Math.ceil(total / this.limit) || 1;
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.error = true;
           this.loading = false;
+          this.cdr.detectChanges();
         },
       });
   }

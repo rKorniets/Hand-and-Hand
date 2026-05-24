@@ -34,7 +34,7 @@ export class NewsComponent implements OnInit, OnDestroy {
 
   currentPage = 1;
   readonly limit = 5;
-  hasNextPage = false;
+  totalPages = 1;
 
   filterConfig: FilterConfig = {
     showSearch: true,
@@ -64,7 +64,7 @@ export class NewsComponent implements OnInit, OnDestroy {
     const data = this.route.snapshot.data['data'];
     this.pinnedNews = data.pinned;
     this.regularNews = data.regular;
-    this.hasNextPage = data.regular.length === this.limit;
+    this.totalPages = Math.ceil(data.totalRegular / this.limit) || 1;
     const role = this.authService.getRole();
     this.canCreateNews = role === 'ORGANIZATION' || role === 'ADMIN';
     this.cdr.detectChanges();
@@ -82,7 +82,6 @@ export class NewsComponent implements OnInit, OnDestroy {
         this.regularNews = [newNews, ...this.regularNews];
         if (this.regularNews.length > this.limit) {
           this.regularNews.pop();
-          this.hasNextPage = true;
         }
         this.cdr.detectChanges();
       }
@@ -142,9 +141,9 @@ export class NewsComponent implements OnInit, OnDestroy {
     this.newsService
       .getNews(this.limit, skip, false, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
-        next: (data) => {
+        next: ({ data, total }) => {
           this.regularNews = data;
-          this.hasNextPage = data.length === this.limit;
+          this.totalPages = Math.ceil(total / this.limit) || 1;
           this.loading = false;
           this.cdr.detectChanges();
         },
