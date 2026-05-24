@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   ForbiddenException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -25,6 +26,8 @@ export interface RequestUser {
 
 @Injectable()
 export class OrganizationProfileService {
+  private readonly logger = new Logger(OrganizationProfileService.name);
+
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
@@ -347,6 +350,20 @@ export class OrganizationProfileService {
         throw new ConflictException('User already belongs to an organization');
       }
 
+      // Cancel all other pending invitations from other organizations
+      await tx.organization_membership_request.updateMany({
+        where: {
+          user_id: userId,
+          direction: organization_membership_request_direction_enum.INVITE,
+          status: organization_membership_request_status_enum.PENDING,
+          id: { not: recordId },
+        },
+        data: {
+          status: organization_membership_request_status_enum.REJECTED,
+          reviewed_at: new Date(),
+        },
+      });
+
       return tx.organization_membership_request.update({
         where: { id: recordId },
         data: {
@@ -506,17 +523,13 @@ export class OrganizationProfileService {
   }
 
   private async sendInvitationNotification(
-    orgId: number,
+    orgName: string,
     userId: number,
     invitationId: number,
   ): Promise<void> {
-    const org = await this.prisma.organization_profile.findUnique({
-      where: { id: orgId },
-      select: { name: true },
-    });
     await this.notificationService.create({
       user_id: userId,
-      message: `Організація "${org?.name ?? 'Організація'}" запрошує вас приєднатися`,
+      message: `Організація "${orgName}" запрошує вас приєднатися`,
       type: notification_type_enum.ORGANIZATION_INVITE,
       link: String(invitationId),
     });
@@ -527,7 +540,7 @@ export class OrganizationProfileService {
     targetUserId: number,
     currentUser: RequestUser,
   ) {
-    await this.validateOrganizationOwnership(orgId, currentUser);
+    const orgProfile = await this.validateOrganizationOwnership(orgId, currentUser);
 
     if (targetUserId === currentUser.id) {
       throw new BadRequestException('Cannot invite yourself');
@@ -587,7 +600,11 @@ export class OrganizationProfileService {
           created_at: new Date(),
         },
       });
-      await this.sendInvitationNotification(orgId, targetUserId, record.id);
+      try {
+        await this.sendInvitationNotification(orgProfile.name, targetUserId, record.id);
+      } catch (e) {
+        this.logger.warn(`Failed to send invitation notification: ${(e as Error).message}`);
+      }
       return record;
     }
 
@@ -598,7 +615,11 @@ export class OrganizationProfileService {
         direction: organization_membership_request_direction_enum.INVITE,
       },
     });
-    await this.sendInvitationNotification(orgId, targetUserId, record.id);
+    try {
+      await this.sendInvitationNotification(orgProfile.name, targetUserId, record.id);
+    } catch (e) {
+      this.logger.warn(`Failed to send invitation notification: ${(e as Error).message}`);
+    }
     return record;
   }
 
