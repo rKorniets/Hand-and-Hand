@@ -24,18 +24,20 @@
     flex-direction: row;
     gap: 30px;
     align-items: flex-start;
+    justify-content: center;
     width: 100%;
   }
 
   &__canvas {
     height: 450px;
-    width: 450px;
+    width: 100%;
+    max-width: 450px;
     background-color: $bg-color-block;
     border-radius: 40px;
     overflow: hidden;
     border: 1px solid $border-color;
     position: relative;
-    margin-left: 80px;
+    margin-left: 0;
     flex-shrink: 0;
 
     :global(.ol-viewport) {
@@ -49,7 +51,8 @@
   }
 
   &__info {
-    width: 550px;
+    width: 100%;
+    max-width: 550px;
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -236,6 +239,7 @@
   gap: 10px;
   max-height: 350px;
   overflow-y: auto;
+  overflow-x: hidden;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -264,7 +268,6 @@
 
   &:hover {
     border-color: #ff6b35;
-    transform: translateX(5px);
   }
 
   &__dot {

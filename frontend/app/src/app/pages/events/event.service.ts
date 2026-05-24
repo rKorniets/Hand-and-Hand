@@ -38,11 +38,8 @@ export class EventService {
     return this.http.get<PaginatedEvents>(`${this.apiUrl}/projects`, { params });
   }
 
-  getAllEventsForMap(): Observable<NewEvent[]> {
-    const params = new HttpParams().set('limit', '50').set('skip', '0');
-    return this.http
-      .get<PaginatedEvents>(`${this.apiUrl}/projects`, { params })
-      .pipe(map((r) => r.data));
+  getAllEventsForMap(filters?: FilterState): Observable<NewEvent[]> {
+    return this.getEvents(100, 0, filters).pipe(map((r) => r.data));
   }
 
   getEventById(id: number): Observable<NewEvent> {
