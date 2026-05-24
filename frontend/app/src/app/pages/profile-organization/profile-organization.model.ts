@@ -44,6 +44,7 @@ export interface ActivityItem {
   starts_at: string | Date | null;
   description: string;
   location: string;
+  image_url?: string | null;
 }
 
 export interface FundraisingCampaign {
@@ -91,6 +92,7 @@ export interface Organization {
   created_at: string | Date;
   mission: string;
   category?: string;
+  logo_url?: string | null;
   events?: ActivityItem[];
   fundraising_campaigns?: FundraisingCampaign[];
   members?: OrgMember[];
@@ -115,4 +117,28 @@ export interface MembershipRequest {
   status: MembershipStatus;
   direction: MembershipDirection;
   attempt_count: number;
+}
+
+export interface AvailableUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string | null;
+}
+
+export interface PendingMembershipRequest {
+  id: number;
+  user_id: number;
+  organization_id: number;
+  status: MembershipStatus;
+  direction: MembershipDirection;
+  attempt_count: number;
+  created_at: string;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    city: string;
+  } | null;
 }

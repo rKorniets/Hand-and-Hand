@@ -12,7 +12,6 @@ import {
   task_status_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { PointsService } from '../points/points.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
 import { AchievementService } from './achievement.service';
@@ -197,13 +196,20 @@ export class TaskAssignmentService {
         });
 
         if (fresh?.requester_confirmed && fresh.task.points_reward_base > 0) {
-          await this.pointsService.createTransaction(
-            currentUser.id,
-            points_transaction_type_enum.EARN,
-            fresh.task.points_reward_base,
-            `Task "${fresh.task.title}" completed`, //meow <3
-            id,
-          );
+          const amount = fresh.task.points_reward_base;
+          await tx.points_transaction.create({
+            data: {
+              user_id: currentUser.id,
+              type: points_transaction_type_enum.EARN,
+              amount,
+              reason: `Task "${fresh.task.title}" completed`,
+              task_assignment_id: id,
+            },
+          });
+          await tx.app_user.update({
+            where: { id: currentUser.id },
+            data: { points: { increment: amount } },
+          });
         }
       }
 
@@ -231,5 +237,125 @@ export class TaskAssignmentService {
     );
 
     return this.prisma.task_assignment.delete({ where: { id } });
+  }
+
+  async confirmByOrganization(
+    id: number,
+    confirmed: boolean,
+    currentUser: RequestUser,
+  ) {
+    const assignment = await this.prisma.task_assignment.findUnique({
+      where: { id },
+      include: {
+        task: {
+          select: {
+            points_reward_base: true,
+            title: true,
+            project: {
+              select: {
+                organization_profile: { select: { user_id: true } },
+              },
+            },
+          },
+        },
+        volunteer_profile: { select: { user_id: true } },
+      },
+    });
+
+    if (!assignment)
+      throw new NotFoundException(`Task assignment with ID ${id} not found`);
+
+    if (
+      assignment.task.project.organization_profile.user_id !== currentUser.id
+    ) {
+      throw new ForbiddenException(
+        'You do not own the project this task belongs to',
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.task_assignment.updateMany({
+        where: {
+          id,
+          status: task_assignment_status_enum.COMPLETED,
+          requester_confirmed: !confirmed,
+        },
+        data: { requester_confirmed: confirmed },
+      });
+
+      if (count === 0) {
+        throw new BadRequestException(
+          'Task assignment must be COMPLETED before confirming',
+        );
+      }
+
+      const shouldAward =
+        confirmed && count === 1 && assignment.task.points_reward_base > 0;
+
+      const shouldRevert =
+        !confirmed && count === 1 && assignment.task.points_reward_base > 0;
+
+      if (shouldRevert) {
+        const wasAwarded = await tx.points_transaction.findFirst({
+          where: {
+            task_assignment_id: id,
+            type: points_transaction_type_enum.EARN,
+          },
+          select: { id: true },
+        });
+
+        if (wasAwarded) {
+          const amount = assignment.task.points_reward_base;
+          const userId = assignment.volunteer_profile.user_id;
+
+          await tx.points_transaction.create({
+            data: {
+              user_id: userId,
+              type: points_transaction_type_enum.PENALTY,
+              amount,
+              reason: `Task "${assignment.task.title}" confirmation revoked`,
+              task_assignment_id: id,
+            },
+          });
+
+          await tx.app_user.update({
+            where: { id: userId },
+            data: { points: { decrement: amount } },
+          });
+        }
+      }
+
+      if (shouldAward) {
+        const alreadyAwarded = await tx.points_transaction.findFirst({
+          where: {
+            task_assignment_id: id,
+            type: points_transaction_type_enum.EARN,
+          },
+          select: { id: true },
+        });
+
+        if (!alreadyAwarded) {
+          const amount = assignment.task.points_reward_base;
+          const userId = assignment.volunteer_profile.user_id;
+
+          await tx.points_transaction.create({
+            data: {
+              user_id: userId,
+              type: points_transaction_type_enum.EARN,
+              amount,
+              reason: `Task "${assignment.task.title}" completed`,
+              task_assignment_id: id,
+            },
+          });
+
+          await tx.app_user.update({
+            where: { id: userId },
+            data: { points: { increment: amount } },
+          });
+        }
+      }
+
+      return tx.task_assignment.findUnique({ where: { id } });
+    });
   }
 }

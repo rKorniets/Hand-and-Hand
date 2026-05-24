@@ -34,4 +34,10 @@
 
     <button class="members-card__add" (click)="onAdd()">Додати учасників</button>
   </div>
+
+  <app-invite-panel
+    [organization]="organization"
+    [isPanelOpen]="showInvitePanel"
+    (panelClose)="showInvitePanel = false"
+  ></app-invite-panel>
 </div>

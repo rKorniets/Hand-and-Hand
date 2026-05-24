@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Put,
+  Patch,
   Param,
   Delete,
   Query,
@@ -19,6 +20,7 @@ import { TaskAssignmentService } from './task_assignment.service';
 import type { RequestUser } from './task_assignment.service';
 import { CreateTaskAssignmentDto } from './dto/create_task_assignment.dto';
 import { UpdateTaskAssignmentDto } from './dto/update_task_assignment.dto';
+import { ConfirmTaskAssignmentDto } from './dto/confirm_task_assignment.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { user_role_enum, task_assignment } from '@prisma/client';
@@ -127,5 +129,24 @@ export class TaskAssignmentController extends AbstractCrudController<
     @CurrentUser() currentUser: RequestUser,
   ) {
     return this.taskAssignmentService.remove(id, currentUser);
+  }
+
+  @Patch(':id/confirm')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({
+    summary:
+      'Підтвердити/скасувати виконання завдання волонтером (тільки для організації)',
+  })
+  confirm(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ConfirmTaskAssignmentDto,
+    @CurrentUser() currentUser: RequestUser,
+  ) {
+    return this.taskAssignmentService.confirmByOrganization(
+      id,
+      dto.confirmed,
+      currentUser,
+    );
   }
 }

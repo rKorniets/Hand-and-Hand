@@ -7,7 +7,15 @@
     @for (item of visibleActivities; track item.id) {
       <div class="activity__item-wrapper">
         <a class="activity__item" [routerLink]="['/events', item.id]">
-          <div class="activity__image"></div>
+          <div class="activity__image">
+            <img
+              [src]="
+                item.image_url ||
+                'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+              "
+              [alt]="item.title"
+            />
+          </div>
           <div class="activity__body">
             <div class="activity__top">
               <h3 class="activity__item-title">{{ item.title }}</h3>

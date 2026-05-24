@@ -67,6 +67,7 @@ export interface Organization {
   location?: OrgLocation;
   created_at: string | Date;
   events?: OrgEvent[];
+  logo_url?: string | null;
   fundraising_campaigns?: FundraisingCampaign[];
   members?: Member[];
   reports?: OrgReport[];
