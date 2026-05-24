@@ -104,7 +104,10 @@
           }
 
           @if (event.organization_profile) {
-            <div class="event-detail__org-card">
+            <a
+              [routerLink]="['/organizations', event.organization_profile.id]"
+              class="event-detail__org-card"
+            >
               @if (event.organization_profile.logo_url) {
                 <img
                   class="event-detail__org-logo"
@@ -130,7 +133,7 @@
                   <strong>Місія:</strong> {{ event.organization_profile.mission }}
                 </p>
               }
-            </div>
+            </a>
           }
 
           @if (event.participants) {
@@ -162,7 +165,7 @@
 
               <div class="event-detail__volunteers-list">
                 @for (v of event.volunteers.slice(0, 5); track v.id) {
-                  <div class="event-detail__volunteer">
+                  <a [routerLink]="['/profile-user', v.id]" class="event-detail__volunteer">
                     @if (v.avatar_url) {
                       <img
                         class="event-detail__volunteer-avatar"
@@ -177,7 +180,7 @@
                       </div>
                     }
                     <span class="event-detail__volunteer-name">{{ v.full_name }}</span>
-                  </div>
+                  </a>
                 }
               </div>
 
