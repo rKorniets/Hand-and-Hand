@@ -360,7 +360,7 @@ export class OrganizationProfileService {
           id: { not: recordId },
         },
         data: {
-          status: organization_membership_request_status_enum.REJECTED,
+          status: organization_membership_request_status_enum.CANCELLED,
           reviewed_at: new Date(),
         },
       });

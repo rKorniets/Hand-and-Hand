@@ -201,6 +201,7 @@ export class NotificationService {
         ...(data.user_id && { user_id: data.user_id }),
         ...(data.message && { message: data.message }),
         ...(data.type && { type: data.type }),
+        ...(data.link !== undefined && { link: data.link }),
       },
     });
   }
