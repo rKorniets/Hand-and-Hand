@@ -11,6 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { switchMap, of } from 'rxjs';
 import { EventsConstructorService } from './events-constructor.service';
+import { CategoryService } from '../../../components/category/category.service';
 import { project_status_enum } from './events-constructor.model';
 import { AuthService } from '../../auth/auth.service';
 import { NotificationService } from '../../profile-user/message/message.service';
@@ -67,6 +68,7 @@ function locationValidator(group: AbstractControl): ValidationErrors | null {
 export class EventsConstructorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private eventService = inject(EventsConstructorService);
+  private categoryService = inject(CategoryService);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
@@ -162,7 +164,7 @@ export class EventsConstructorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.eventService.getCategories().subscribe({
+    this.categoryService.getByContext('projects').subscribe({
       next: (data) => (this.categories = data),
       error: () => {},
     });

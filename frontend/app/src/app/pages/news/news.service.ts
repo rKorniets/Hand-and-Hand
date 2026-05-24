@@ -19,7 +19,7 @@ export class NewsService {
     isPinned?: boolean,
     search?: string,
     categories?: string[],
-  ): Observable<NewsItem[]> {
+  ): Observable<{ data: NewsItem[]; total: number }> {
     let params = new HttpParams().set('limit', limit).set('skip', skip);
 
     if (isPinned !== undefined) {
@@ -32,7 +32,7 @@ export class NewsService {
       params = params.set('categories', categories.join(','));
     }
 
-    return this.http.get<NewsItem[]>(`${this.apiUrl}/news`, { params });
+    return this.http.get<{ data: NewsItem[]; total: number }>(`${this.apiUrl}/news`, { params });
   }
 
   getNewsById(id: number): Observable<NewsItem> {
@@ -49,6 +49,7 @@ export class NewsService {
     title: string;
     description: string;
     main_content: string;
+    categories?: string[];
   }): Observable<NewsItem> {
     return this.http.post<NewsItem>(`${this.apiUrl}/news`, newsData);
   }

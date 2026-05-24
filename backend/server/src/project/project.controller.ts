@@ -60,30 +60,30 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @ApiOperation({ summary: 'Отримати список подій' })
   @ApiQuery({ name: 'status', required: false, enum: project_status_enum })
   @ApiQuery({ name: 'organization_profile_id', required: false, type: Number })
-  async getProjects(
-    @Query() query: PaginationDto,
-    @Query('status', new ParseEnumPipe(project_status_enum, { optional: true }))
-    status?: project_status_enum,
-  ) {
+  async getProjects(@Query() query: PaginationDto) {
     return await this.projectService.getProjects(
       query.limit ?? 5,
       query.skip ?? 0,
-      status,
+      query.status?.[0] as project_status_enum | undefined,
       query.search,
       query.organization_profile_id,
+      query.categories,
+      query.city,
+      query.dateFrom,
+      query.dateTo,
     );
   }
 
   @Get('my-upcoming')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Мої майбутні події (ще не почались)' })
+  @ApiOperation({ summary: 'Мої майбутні події' })
   async getMyUpcoming(@CurrentUser() user: { id: number }) {
     return this.projectService.getMyUpcomingRegistrations(user.id);
   }
 
   @Get('my-past')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Мої минулі події (вже закінчились)' })
+  @ApiOperation({ summary: 'Мої минулі події' })
   async getMyPast(@CurrentUser() user: { id: number }) {
     return this.projectService.getMyPastRegistrations(user.id);
   }
@@ -163,7 +163,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Delete(':id/register')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Скасувати реєстрацію на подію' })
+  @ApiOperation({ summary: 'Скасувати реєстрацію' })
   async unregister(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number },
@@ -176,14 +176,14 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30000)
   @Throttle({ default: { limit: 200, ttl: 60000 } })
-  @ApiOperation({ summary: 'Список зареєстрованих людей на подію' })
+  @ApiOperation({ summary: 'Список зареєстрованих' })
   async getRegistrations(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.getProjectRegistrations(id);
   }
 
   @Get(':id/my-registration')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Перевірити мою реєстрацію на подію' })
+  @ApiOperation({ summary: 'Моя реєстрація на подію' })
   async getMyRegistration(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number },
@@ -194,7 +194,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Get(':id/registrations/manage')
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
-  @ApiOperation({ summary: 'Список заявок на участь у проекті (для власника)' })
+  @ApiOperation({ summary: 'Список заявок для власника' })
   @ApiQuery({
     name: 'status',
     required: false,
@@ -220,7 +220,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
-  @ApiOperation({ summary: 'Прийняти заявку на участь у проекті' })
+  @ApiOperation({ summary: 'Прийняти заявку' })
   async acceptRegistration(
     @Param('id', ParseIntPipe) id: number,
     @Param('registrationId', ParseIntPipe) registrationId: number,
@@ -237,7 +237,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
-  @ApiOperation({ summary: 'Відхилити заявку на участь у проекті' })
+  @ApiOperation({ summary: 'Відхилити заявку' })
   async rejectRegistration(
     @Param('id', ParseIntPipe) id: number,
     @Param('registrationId', ParseIntPipe) registrationId: number,
@@ -254,7 +254,7 @@ export class ProjectController extends AbstractCrudController<project[]> {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
-  @ApiOperation({ summary: 'Завантажити/замінити зображення проєкту' })
+  @ApiOperation({ summary: 'Завантажити зображення' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

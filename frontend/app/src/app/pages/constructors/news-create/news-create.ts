@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { NewsService } from '../../news/news.service';
 import { AuthService } from '../../auth/auth.service';
+import { CategoryService } from '../../../components/category/category.service';
+import { Category } from '../../../components/category/category.model';
 
 @Component({
   selector: 'app-news-create',
@@ -17,12 +19,15 @@ export class NewsCreateComponent implements OnInit {
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
   isSubmitting = false;
+  categories: Category[] = [];
+  selectedCategories: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     private newsService: NewsService,
     private router: Router,
     private authService: AuthService,
+    private categoryService: CategoryService,
   ) {
     this.newsForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -38,6 +43,23 @@ export class NewsCreateComponent implements OnInit {
     if (!['ORGANIZATION', 'ADMIN'].includes(role)) {
       this.router.navigate(['/news']);
     }
+
+    this.categoryService.getByContext('news').subscribe({
+      next: (data) => (this.categories = data),
+    });
+  }
+
+  toggleCategory(slug: string): void {
+    const idx = this.selectedCategories.indexOf(slug);
+    if (idx === -1) {
+      this.selectedCategories.push(slug);
+    } else {
+      this.selectedCategories.splice(idx, 1);
+    }
+  }
+
+  isCategorySelected(slug: string): boolean {
+    return this.selectedCategories.includes(slug);
   }
 
   onFileSelected(event: Event): void {
@@ -72,12 +94,13 @@ export class NewsCreateComponent implements OnInit {
       title: this.newsForm.value.title,
       description: this.newsForm.value.description,
       main_content: this.newsForm.value.main_content,
+      categories: this.selectedCategories,
     };
 
     this.newsService.createNews(newsData).subscribe({
       next: (createdNews) => {
         this.newsService.uploadNewsImage(createdNews.id, this.selectedFile!).subscribe({
-          next: () => this.router.navigate(['/news', createdNews.id]),
+          next: () => this.router.navigate(['/profile', createdNews.id]),
           error: (err) => {
             console.error('Upload error:', err);
             this.isSubmitting = false;

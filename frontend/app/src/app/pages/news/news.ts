@@ -142,9 +142,9 @@ export class NewsComponent implements OnInit, OnDestroy {
     this.newsService
       .getNews(this.limit, skip, false, this.activeFilters.search, this.activeFilters.categories)
       .subscribe({
-        next: (data) => {
-          this.regularNews = data;
-          this.hasNextPage = data.length === this.limit;
+        next: (response) => {
+          this.regularNews = response.data;
+          this.hasNextPage = response.data.length === this.limit;
           this.loading = false;
           this.cdr.detectChanges();
         },

@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, from, switchMap } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
-import { Project, CreateProjectPayload, Category } from './events-constructor.model';
+import { Project, CreateProjectPayload } from './events-constructor.model';
 import { API_BASE_URL } from '../../../tokens';
 
 @Injectable({ providedIn: 'root' })
@@ -83,12 +83,6 @@ export class EventsConstructorService {
 
   getProjectById(id: number): Observable<Project> {
     return this.http.get<Project>(`${this.apiUrl}/projects/${id}`, {
-      headers: this.getHeaders(),
-    });
-  }
-
-  getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/categories`, {
       headers: this.getHeaders(),
     });
   }

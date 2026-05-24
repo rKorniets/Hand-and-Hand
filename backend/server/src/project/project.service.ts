@@ -58,6 +58,10 @@ export class ProjectService {
     status?: project_status_enum,
     search?: string,
     organization_profile_id?: number,
+    categories?: string[],
+    city?: string,
+    dateFrom?: string,
+    dateTo?: string,
   ) {
     const approvedRequests = await this.prisma.approval_request.findMany({
       where: {
@@ -74,6 +78,20 @@ export class ProjectService {
       ...(status && { status }),
       ...(search && { title: { contains: search, mode: 'insensitive' } }),
       ...(organization_profile_id && { organization_profile_id }),
+      ...(city && {
+        location: { city: { contains: city, mode: 'insensitive' } },
+      }),
+      ...(categories?.length && {
+        category: {
+          slug: { in: categories },
+        },
+      }),
+      ...((dateFrom || dateTo) && {
+        starts_at: {
+          ...(dateFrom && { gte: new Date(dateFrom) }),
+          ...(dateTo && { lte: new Date(dateTo) }),
+        },
+      }),
     };
 
     const [data, total] = await this.prisma.$transaction([

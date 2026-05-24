@@ -73,6 +73,13 @@ export class TicketService {
           app_user: { connect: { id: userId } },
           ...(locationId && { location: { connect: { id: locationId } } }),
           ...(data.file_url && { file_url: data.file_url }),
+          ...(data.category_ids?.length && {
+            ticket_category: {
+              create: data.category_ids.map((id) => ({
+                category: { connect: { id } },
+              })),
+            },
+          }),
         },
       });
     });
@@ -85,6 +92,7 @@ export class TicketService {
     userId?: number,
     userRole?: string,
     tab?: 'available' | 'my',
+    categories?: string[],
   ) {
     const searchFilter: Prisma.ticketWhereInput = search
       ? {
@@ -95,12 +103,23 @@ export class TicketService {
         }
       : {};
 
+    const categoryFilter: Prisma.ticketWhereInput = categories?.length
+      ? {
+          ticket_category: {
+            some: {
+              category: { slug: { in: categories } },
+            },
+          },
+        }
+      : {};
+
     let where: Prisma.ticketWhereInput;
 
     if (userRole === 'ORGANIZATION' && userId) {
       if (tab === 'my') {
         where = {
           ...searchFilter,
+          ...categoryFilter,
           task: {
             some: {
               project: {
@@ -112,6 +131,7 @@ export class TicketService {
       } else {
         where = {
           ...searchFilter,
+          ...categoryFilter,
           status: ticket_status_enum.OPEN,
           task: { none: {} },
         };
@@ -120,6 +140,7 @@ export class TicketService {
       where = {
         status: ticket_status_enum.OPEN,
         ...searchFilter,
+        ...categoryFilter,
       };
     }
 
@@ -188,6 +209,7 @@ export class TicketService {
       },
     });
   }
+
   async updateFull(id: number, data: CreateTicketDto, userId: number) {
     const ticket = await this.findOne(id);
     if (ticket.user_id !== userId) {
@@ -216,6 +238,7 @@ export class TicketService {
       });
     });
   }
+
   async remove(id: number, userId: number, userRole: user_role_enum) {
     const ticket = await this.findOne(id);
 

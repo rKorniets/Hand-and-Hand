@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PaginationDto {
@@ -54,4 +54,43 @@ export class PaginationDto {
   @IsString()
   @IsIn(['available', 'my'])
   tab?: 'available' | 'my';
+
+  @ApiPropertyOptional({ description: 'Фільтр по місту' })
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @ApiPropertyOptional({ description: 'Дата від (YYYY-MM-DD)' })
+  @IsOptional()
+  @IsString()
+  dateFrom?: string;
+
+  @ApiPropertyOptional({ description: 'Дата до (YYYY-MM-DD)' })
+  @IsOptional()
+  @IsString()
+  dateTo?: string;
+
+  @ApiPropertyOptional({ description: 'Масив slug категорій' })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    Array.isArray(value)
+      ? (value as string[])
+      : value
+        ? [value as string]
+        : undefined,
+  )
+  @IsString({ each: true })
+  categories?: string[];
+
+  @ApiPropertyOptional({ description: 'Масив статусів' })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    Array.isArray(value)
+      ? (value as string[])
+      : value
+        ? [value as string]
+        : undefined,
+  )
+  @IsString({ each: true })
+  status?: string[];
 }
