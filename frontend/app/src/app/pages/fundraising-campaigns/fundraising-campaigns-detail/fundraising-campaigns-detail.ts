@@ -6,10 +6,12 @@ import { FundraisingCampaignsService } from '../fundraising-campaigns.service';
 import { FundraisingCampaignItem } from '../fundraising-campaings.model';
 import { SocketService } from '../../../services/socket.service';
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-fundraising-campaigns-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './fundraising-campaigns-detail.html',
   styleUrl: './fundraising-campaigns-detail.scss',
 })

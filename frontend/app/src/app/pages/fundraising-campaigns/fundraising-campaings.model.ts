@@ -20,10 +20,12 @@ export interface FundraisingCampaignItem {
   volunteer_profile_id: number | null;
 
   organization_profile?: {
+    id: number;
     name: string;
   };
 
   volunteer_profile?: {
+    id: number;
     display_name: string;
   };
 }

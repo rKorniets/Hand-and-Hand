@@ -21,11 +21,17 @@
         <div class="campaign-card__content">
           <div class="campaign-card__organizer">
             <span class="icon">👤</span>
-            {{
-              campaign.organization_profile?.name ||
-                campaign.volunteer_profile?.display_name ||
-                'Адмін'
-            }}
+            @if (campaign.organization_profile) {
+              <a [routerLink]="['/organizations', campaign.organization_profile.id]">
+                {{ campaign.organization_profile.name }}
+              </a>
+            } @else if (campaign.volunteer_profile) {
+              <a [routerLink]="['/profile-user', campaign.volunteer_profile.id]">
+                {{ campaign.volunteer_profile.display_name }}
+              </a>
+            } @else {
+              Адмін
+            }
           </div>
           <h3 class="campaign-card__title">
             <a [routerLink]="['/fundraising', campaign.id]">{{ campaign.title }}</a>

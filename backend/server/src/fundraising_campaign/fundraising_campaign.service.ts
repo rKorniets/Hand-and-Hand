@@ -99,10 +99,10 @@ export class FundraisingCampaignService {
         orderBy: { created_at: 'desc' },
         include: {
           organization_profile: {
-            select: { name: true },
+            select: { id: true, name: true },
           },
           volunteer_profile: {
-            select: { display_name: true },
+            select: { id: true, display_name: true },
           },
         },
       }),
@@ -343,10 +343,10 @@ export class FundraisingCampaignService {
       where: { id },
       include: {
         organization_profile: {
-          select: { name: true },
+          select: { id: true, name: true },
         },
         volunteer_profile: {
-          select: { display_name: true },
+          select: { id: true, display_name: true },
         },
       },
     });
