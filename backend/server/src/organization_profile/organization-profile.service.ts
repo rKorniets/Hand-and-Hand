@@ -11,10 +11,12 @@ import {
   organization_membership_request_status_enum,
   user_role_enum,
   verification_status_enum,
+  notification_type_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
 import { CloudinaryService, ImageType } from '../cloudinary/cloudinary.service';
+import { NotificationService } from '../notification/notification.service';
 
 export interface RequestUser {
   id: number;
@@ -26,6 +28,7 @@ export class OrganizationProfileService {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   private async validateOrganizationOwnership(
@@ -502,6 +505,23 @@ export class OrganizationProfileService {
     });
   }
 
+  private async sendInvitationNotification(
+    orgId: number,
+    userId: number,
+    invitationId: number,
+  ): Promise<void> {
+    const org = await this.prisma.organization_profile.findUnique({
+      where: { id: orgId },
+      select: { name: true },
+    });
+    await this.notificationService.create({
+      user_id: userId,
+      message: `Організація "${org?.name ?? 'Організація'}" запрошує вас приєднатися`,
+      type: notification_type_enum.ORGANIZATION_INVITE,
+      link: String(invitationId),
+    });
+  }
+
   async inviteVolunteer(
     orgId: number,
     targetUserId: number,
@@ -548,6 +568,7 @@ export class OrganizationProfileService {
           existing.direction ===
           organization_membership_request_direction_enum.REQUEST
         ) {
+          // User already sent a join request — accept them directly, no invitation notification
           return this.acceptPendingRecordAsMember(
             existing.id,
             targetUserId,
@@ -557,7 +578,7 @@ export class OrganizationProfileService {
         throw new ConflictException('Invitation already sent to this user');
       }
 
-      return this.prisma.organization_membership_request.update({
+      const record = await this.prisma.organization_membership_request.update({
         where: { id: existing.id },
         data: {
           direction: organization_membership_request_direction_enum.INVITE,
@@ -566,15 +587,19 @@ export class OrganizationProfileService {
           created_at: new Date(),
         },
       });
+      await this.sendInvitationNotification(orgId, targetUserId, record.id);
+      return record;
     }
 
-    return this.prisma.organization_membership_request.create({
+    const record = await this.prisma.organization_membership_request.create({
       data: {
         organization_id: orgId,
         user_id: targetUserId,
         direction: organization_membership_request_direction_enum.INVITE,
       },
     });
+    await this.sendInvitationNotification(orgId, targetUserId, record.id);
+    return record;
   }
 
   async listOrganizationInvitations(
