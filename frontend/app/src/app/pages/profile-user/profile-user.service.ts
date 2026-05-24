@@ -32,10 +32,6 @@ export class UserProfileService {
     return this.http.get<AppUser>(`${this.apiUrl}/app-users/${id}`);
   }
 
-  updateAvatar(avatarUrl: string): Observable<AppUser> {
-    return this.http.patch<AppUser>(`${this.apiUrl}/app-users/me`, { avatar_url: avatarUrl });
-  }
-
   getRewards(): Observable<Reward[]> {
     return this.http.get<Reward[]>(`${this.apiUrl}/rewards`);
   }
@@ -58,5 +54,9 @@ export class UserProfileService {
 
   getMyPastEvents(): Observable<PastRegistration[]> {
     return this.http.get<PastRegistration[]>(`${this.apiUrl}/projects/my-past`);
+  }
+
+  getUserPastEvents(userId: number): Observable<PastRegistration[]> {
+    return this.http.get<PastRegistration[]>(`${this.apiUrl}/projects/user/${userId}/past`);
   }
 }

@@ -88,6 +88,20 @@ export class ProjectController extends AbstractCrudController<project[]> {
     return this.projectService.getMyPastRegistrations(user.id);
   }
 
+  @Get('user/:userId/upcoming')
+  @Public()
+  @ApiOperation({ summary: 'Майбутні події користувача' })
+  async getUserUpcoming(@Param('userId', ParseIntPipe) userId: number) {
+    return this.projectService.getMyUpcomingRegistrations(userId);
+  }
+
+  @Get('user/:userId/past')
+  @Public()
+  @ApiOperation({ summary: 'Минулі події користувача' })
+  async getUserPast(@Param('userId', ParseIntPipe) userId: number) {
+    return this.projectService.getMyPastRegistrations(userId);
+  }
+
   @Post()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiBearerAuth()

@@ -37,29 +37,41 @@ export class UpcomingEvents implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (!this.isOwnProfile) return;
+    if (this.isOwnProfile) {
+      this.profileService.getMyUpcomingEvents().subscribe({
+        next: (data) => {
+          this.upcomingEvents = data;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.upcomingEvents = [];
+          this.cdr.markForCheck();
+        },
+      });
 
-    this.profileService.getMyUpcomingEvents().subscribe({
-      next: (data) => {
-        this.upcomingEvents = data;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.upcomingEvents = [];
-        this.cdr.markForCheck();
-      },
-    });
-
-    this.profileService.getMyPastEvents().subscribe({
-      next: (data) => {
-        this.pastEvents = data;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.pastEvents = [];
-        this.cdr.markForCheck();
-      },
-    });
+      this.profileService.getMyPastEvents().subscribe({
+        next: (data) => {
+          this.pastEvents = data;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.pastEvents = [];
+          this.cdr.markForCheck();
+        },
+      });
+    } else if (this.user?.id) {
+      // Для інших користувачів завантажуємо тільки минулі події (конфіденційність)
+      this.profileService.getUserPastEvents(this.user.id).subscribe({
+        next: (data) => {
+          this.pastEvents = data;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.pastEvents = [];
+          this.cdr.markForCheck();
+        },
+      });
+    }
   }
 
   openModal(): void {

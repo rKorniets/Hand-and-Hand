@@ -1,7 +1,7 @@
-@if (pastEvents.length > 0 || isOwnProfile) {
-  <div class="requests-container" #listTop>
-    <div class="requests-header">
-      <h2 class="requests-title">Мої події</h2>
+<div class="requests-container" #listTop>
+  <div class="requests-header">
+    <h2 class="requests-title">{{ isOwnProfile ? 'Мої події' : 'Події' }}</h2>
+    @if (isOwnProfile) {
       <button
         class="upcoming-button"
         [class.upcoming-button--active]="upcomingEvents.length > 0"
@@ -12,12 +12,14 @@
           <span class="upcoming-button__badge">{{ upcomingEvents.length }}</span>
         }
       </button>
-    </div>
-
-    @if (pastEvents.length === 0) {
-      <button class="add-button" routerLink="/events">Знайти події +</button>
     }
+  </div>
 
+  @if (pastEvents.length === 0 && isOwnProfile) {
+    <button class="add-button" routerLink="/events">Знайти події +</button>
+  }
+
+  @if (pastEvents.length > 0) {
     <div class="tickets-list">
       @for (
         item of pastEvents | slice: 0 : (isPastExpanded ? pastEvents.length : 2);
@@ -53,16 +55,26 @@
         </div>
       }
     </div>
+  } @else {
+    <div class="tickets-list">
+      <p class="activity__empty-msg">
+        {{
+          isOwnProfile
+            ? 'У вас поки немає завершених подій.'
+            : 'У цього користувача поки немає завершених подій.'
+        }}
+      </p>
+    </div>
+  }
 
-    @if (pastEvents.length > 2) {
-      <div class="load-more__button">
-        <button class="requests__more" (click)="togglePast(listTop)">
-          {{ isPastExpanded ? 'Згорнути' : 'Переглянути всі' }}
-        </button>
-      </div>
-    }
-  </div>
-}
+  @if (pastEvents.length > 2) {
+    <div class="load-more__button">
+      <button class="requests__more" (click)="togglePast(listTop)">
+        {{ isPastExpanded ? 'Згорнути' : 'Переглянути всі' }}
+      </button>
+    </div>
+  }
+</div>
 
 @if (isModalOpen) {
   <div class="modal-overlay" (click)="onOverlayClick($event)">
