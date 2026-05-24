@@ -167,7 +167,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (13, 'org-food@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Архип', 'Недоля', 'Хмельницький',
-       'https://i.pravatar.cc/300?img=16', NULL),
+       'https://i.pravatar.cc/300?img=13', NULL),
   (14, 'org-rebuild@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Горпина', 'Крутько', 'Черкаси',
