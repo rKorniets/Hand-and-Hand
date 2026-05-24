@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { PointsService } from '../../points/points.service';
 import { CreateTaskAssignmentAdminDto } from './dto/create-task-assignment.admin.dto';
 import { UpdateTaskAssignmentAdminDto } from './dto/update-task-assignment.admin.dto';
 import {
@@ -11,10 +10,7 @@ import {
 
 @Injectable()
 export class TaskAssignmentAdminService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly pointsService: PointsService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll(
     limit?: number,
@@ -151,13 +147,19 @@ export class TaskAssignmentAdminService {
           const amount = assignment.task.points_reward_base;
           const userId = assignment.volunteer_profile.user_id;
           if (amount > 0) {
-            await this.pointsService.createTransaction(
-              userId,
-              points_transaction_type_enum.EARN,
-              amount,
-              `Task "${assignment.task.title}" completed`,
-              id,
-            );
+            await tx.points_transaction.create({
+              data: {
+                user_id: userId,
+                type: points_transaction_type_enum.EARN,
+                amount,
+                reason: `Task "${assignment.task.title}" completed`,
+                task_assignment_id: id,
+              },
+            });
+            await tx.app_user.update({
+              where: { id: userId },
+              data: { points: { increment: amount } },
+            });
           }
         }
       }

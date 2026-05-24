@@ -1,0 +1,134 @@
+<div class="invite-panel__panel" [class.invite-panel__panel--open]="isPanelOpen">
+  <div class="invite-panel__panel-header">
+    <span>Додати учасників</span>
+    <button
+      type="button"
+      class="invite-panel__panel-close"
+      aria-label="Закрити панель"
+      (click)="close()"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="invite-panel__section">
+    <div class="invite-panel__section-title">Запросити волонтерів</div>
+
+    <div class="invite-panel__search">
+      <input
+        type="text"
+        aria-label="Пошук волонтерів за ім'ям"
+        placeholder="Пошук за ім'ям..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange($event)"
+      />
+    </div>
+
+    <div class="invite-panel__list">
+      @if (!users.length) {
+        <p class="invite-panel__empty">Немає доступних волонтерів</p>
+      }
+
+      @for (user of users; track user.id) {
+        <div class="invite-panel__user">
+          <div class="invite-panel__user-avatar">
+            @if (!user.avatar_url) {
+              <span class="material-symbols-outlined">person</span>
+            } @else {
+              <img [src]="user.avatar_url" [alt]="getFullName(user)" />
+            }
+          </div>
+          <span class="invite-panel__user-name">{{ getFullName(user) }}</span>
+          <div class="invite-panel__user-actions">
+            <a
+              [routerLink]="['/profile-user', user.id]"
+              (click)="close()"
+              class="invite-panel__user-profile"
+              title="Переглянути профіль"
+            >
+              <span class="material-symbols-outlined">person_search</span>
+            </a>
+            <button
+              class="invite-panel__btn-invite"
+              [disabled]="invitedIds.has(user.id)"
+              (click)="invite(user)"
+            >
+              {{ invitedIds.has(user.id) ? 'Запрошено' : 'Запросити' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="invite-panel__divider"></div>
+
+  <div class="invite-panel__section">
+    <div class="invite-panel__section-title">Запити на приймання</div>
+
+    <div class="invite-panel__list">
+      @if (!pendingRequests.length) {
+        <p class="invite-panel__empty">Немає запитів</p>
+      }
+
+      @for (req of pendingRequests; track req.id) {
+        <div class="invite-panel__user">
+          <div class="invite-panel__user-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <span class="invite-panel__user-name">{{ getFullName(req.user) }}</span>
+          <div class="invite-panel__user-actions">
+            <a
+              [routerLink]="['/profile-user', getUserId(req)]"
+              (click)="close()"
+              class="invite-panel__user-profile"
+              title="Переглянути профіль"
+            >
+              <span class="material-symbols-outlined">person_search</span>
+            </a>
+            @if (resolvedRequestIds.has(req.id)) {
+              <div
+                class="invite-panel__status"
+                [class.invite-panel__status--accepted]="
+                  resolvedRequestIds.get(req.id) === 'accepted'
+                "
+                [class.invite-panel__status--rejected]="
+                  resolvedRequestIds.get(req.id) === 'rejected'
+                "
+              >
+                {{ resolvedRequestIds.get(req.id) === 'accepted' ? 'Прийнято' : 'Відхилено' }}
+              </div>
+            } @else {
+              <button
+                class="invite-panel__btn-accept"
+                (click)="acceptRequest(req)"
+                title="Прийняти"
+              >
+                <span class="material-symbols-outlined">check</span>
+              </button>
+              <button
+                class="invite-panel__btn-reject"
+                (click)="rejectRequest(req)"
+                title="Відхилити"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (isPanelOpen) {
+  <div
+    class="invite-panel__overlay"
+    role="button"
+    tabindex="0"
+    aria-label="Закрити панель"
+    (click)="close()"
+    (keydown.enter)="close()"
+    (keydown.space)="close()"
+  ></div>
+}

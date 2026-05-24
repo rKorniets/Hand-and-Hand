@@ -118,3 +118,27 @@ export interface MembershipRequest {
   direction: MembershipDirection;
   attempt_count: number;
 }
+
+export interface AvailableUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string | null;
+}
+
+export interface PendingMembershipRequest {
+  id: number;
+  user_id: number;
+  organization_id: number;
+  status: MembershipStatus;
+  direction: MembershipDirection;
+  attempt_count: number;
+  created_at: string;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    city: string;
+  } | null;
+}

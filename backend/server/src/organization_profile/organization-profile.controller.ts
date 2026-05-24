@@ -283,6 +283,27 @@ export class OrganizationProfileController extends AbstractCrudController<unknow
     );
   }
 
+  @Get(':id/available-users')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiBearerAuth()
+  @Roles(user_role_enum.ORGANIZATION)
+  @ApiOperation({ summary: 'Список доступних волонтерів для запрошення' })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  async listAvailableUsers(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: RequestUser,
+    @Query('search') search?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.organizationProfileService.listAvailableUsers(
+      id,
+      currentUser,
+      search,
+      limit ? parseInt(limit, 10) : 20,
+    );
+  }
+
   @Post(':id/invitations')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)

@@ -10,6 +10,9 @@ import {
   OrgMember,
   RegistrationData,
   MembershipRequest,
+  MembershipStatus,
+  AvailableUser,
+  PendingMembershipRequest,
 } from './profile-organization.model';
 import { ProjectRegistration, ProjectRegistrationStatus } from '../events/event.model';
 import { AuthService } from '../auth/auth.service';
@@ -60,6 +63,12 @@ export class OrganizationProfileService {
 
   getOrgMembers(orgId: number): Observable<OrgMember[]> {
     return this.http.get<OrgMember[]>(`${this.apiUrl}/organization-profiles/${orgId}/members`);
+  }
+
+  removeMember(orgId: number, userId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/organization-profiles/${orgId}/members/${userId}`,
+    );
   }
 
   getOrgReports(orgId: number): Observable<Report[]> {
@@ -138,6 +147,47 @@ export class OrganizationProfileService {
   rejectLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
     return this.http.patch<MembershipRequest>(
       `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/reject`,
+      {},
+    );
+  }
+
+  getAvailableUsers(orgId: number, search?: string, limit = 20): Observable<AvailableUser[]> {
+    let params = new HttpParams().set('limit', String(limit));
+    if (search) params = params.set('search', search);
+    return this.http.get<AvailableUser[]>(
+      `${this.apiUrl}/organization-profiles/${orgId}/available-users`,
+      { params },
+    );
+  }
+
+  inviteUser(orgId: number, userId: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/organization-profiles/${orgId}/invitations`, {
+      user_id: userId,
+    });
+  }
+
+  getMembershipRequests(
+    orgId: number,
+    status?: MembershipStatus,
+  ): Observable<PendingMembershipRequest[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    return this.http.get<PendingMembershipRequest[]>(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests`,
+      { params },
+    );
+  }
+
+  acceptMembershipRequest(orgId: number, requestId: number): Observable<unknown> {
+    return this.http.patch(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/accept`,
+      {},
+    );
+  }
+
+  rejectMembershipRequest(orgId: number, requestId: number): Observable<unknown> {
+    return this.http.patch(
+      `${this.apiUrl}/organization-profiles/${orgId}/membership-requests/${requestId}/reject`,
       {},
     );
   }
