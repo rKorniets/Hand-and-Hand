@@ -1,5 +1,7 @@
 import {
   Component,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   DestroyRef,
   EventEmitter,
   inject,
@@ -21,12 +23,14 @@ import { Category, FilterConfig, FilterState } from './category.model';
   imports: [CommonModule, FormsModule],
   templateUrl: './category.html',
   styleUrl: './category.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FiltersComponent implements OnInit, OnChanges {
   @Input() config!: FilterConfig;
   @Output() filtersChanged = new EventEmitter<FilterState>();
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   categories: Category[] = [];
   cities: string[] = [];
@@ -56,8 +60,12 @@ export class FiltersComponent implements OnInit, OnChanges {
           next: (data) => {
             this.categories = data;
             this.isLoading = false;
+            this.cdr.markForCheck();
           },
-          error: () => (this.isLoading = false),
+          error: () => {
+            this.isLoading = false;
+            this.cdr.markForCheck();
+          },
         });
     }
 
@@ -67,6 +75,7 @@ export class FiltersComponent implements OnInit, OnChanges {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((cities) => {
           this.cities = cities;
+          this.cdr.markForCheck();
         });
     }
   }
@@ -85,8 +94,12 @@ export class FiltersComponent implements OnInit, OnChanges {
             next: (data) => {
               this.categories = data;
               this.isLoading = false;
+              this.cdr.markForCheck();
             },
-            error: () => (this.isLoading = false),
+            error: () => {
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            },
           });
       }
     }
