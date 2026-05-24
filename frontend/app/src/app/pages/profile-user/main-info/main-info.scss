@@ -18,8 +18,15 @@
     border-radius: 50%;
     background-color: #e5e7eb;
     position: relative;
-    cursor: pointer;
     overflow: hidden;
+
+    &.is-own-profile {
+      cursor: pointer;
+
+      &:hover .main-info__avatar-overlay {
+        opacity: 1;
+      }
+    }
 
     img {
       width: 100%;
@@ -27,10 +34,6 @@
       object-fit: cover;
       border-radius: 50%;
       background-color: #e5e7eb;
-    }
-
-    &:hover .main-info__avatar-overlay {
-      opacity: 1;
     }
   }
 

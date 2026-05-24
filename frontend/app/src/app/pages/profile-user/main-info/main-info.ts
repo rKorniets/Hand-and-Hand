@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectorRef,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppUser } from '../profile-user.model';
 import { MainInfoService } from './main-info.service';
@@ -12,7 +20,9 @@ import { firstValueFrom } from 'rxjs';
   styleUrl: './main-info.scss',
 })
 export class MainInfo {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @Input() user: AppUser | undefined | null = null;
+  @Input() isOwnProfile: boolean = false;
   @Output() avatarUpdated = new EventEmitter<string>();
 
   uploading = false;
@@ -28,8 +38,10 @@ export class MainInfo {
     this.menuOpen = !this.menuOpen;
   }
 
-  triggerFileInput(fileInput: HTMLInputElement): void {
-    fileInput.click();
+  triggerFileInput(): void {
+    if (this.isOwnProfile && this.fileInput) {
+      this.fileInput.nativeElement.click();
+    }
   }
 
   onAvatarError(event: Event): void {
