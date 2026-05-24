@@ -40,6 +40,11 @@ export class NewsService {
     return this.http.get<NewsItem>(`${this.apiUrl}/news/${id}`, { params });
   }
 
+  getAdminNewsById(id: number): Observable<NewsItem> {
+    const params = new HttpParams().set('t', Date.now().toString());
+    return this.http.get<NewsItem>(`${this.apiUrl}/admin/news/${id}`, { params });
+  }
+
   createNews(newsData: {
     title: string;
     description: string;
