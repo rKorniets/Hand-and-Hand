@@ -11,7 +11,7 @@ export interface OrgEvent {
   starts_at: string | Date | null;
   description?: string;
   location?: string;
-  img?: string;
+  image_url?: string;
 }
 
 export interface FundraisingCampaign {
@@ -19,7 +19,7 @@ export interface FundraisingCampaign {
   title: string;
   description: string;
   organizer?: string;
-  img?: string;
+  image_url?: string;
   bank_link?: string;
   organization_profile?: {
     name: string;
