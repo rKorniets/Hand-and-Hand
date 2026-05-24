@@ -334,6 +334,7 @@ export class ProjectService {
                 id: true,
                 first_name: true,
                 last_name: true,
+                avatar_url: true,
                 volunteer_profile: { select: { avatar_url: true } },
               },
             },
@@ -359,7 +360,10 @@ export class ProjectService {
         id: r.app_user.id,
         full_name:
           `${r.app_user.first_name ?? ''} ${r.app_user.last_name ?? ''}`.trim(),
-        avatar_url: r.app_user.volunteer_profile?.avatar_url ?? null,
+        avatar_url:
+          r.app_user.avatar_url ||
+          r.app_user.volunteer_profile?.avatar_url ||
+          null,
       })),
     };
   }
@@ -411,6 +415,10 @@ export class ProjectService {
         where: { project_id: projectId, user_id: userId },
       });
 
+    if (existingRegistration && existingRegistration.attempt_count >= 3) {
+      throw new BadRequestException('Перевищено ліміт спроб');
+    }
+
     try {
       if (!existingRegistration) {
         return await this.prisma.$transaction(async (tx) => {
@@ -429,10 +437,6 @@ export class ProjectService {
           });
           return registration;
         });
-      }
-
-      if (existingRegistration.attempt_count >= 3) {
-        throw new BadRequestException('Перевищено ліміт спроб');
       }
 
       return await this.prisma.$transaction(async (tx) => {
