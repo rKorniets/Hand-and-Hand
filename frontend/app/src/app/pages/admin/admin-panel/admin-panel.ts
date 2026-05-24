@@ -186,7 +186,9 @@ export class AdminPanelComponent implements OnInit {
   }
 
   openNews(newsId: number) {
-    this.router.navigate(['/news', newsId]);
+    this.router.navigate(['/news', newsId], {
+      queryParams: { preview: 'admin' },
+    });
   }
 
   approveNewsAction(id: number) {

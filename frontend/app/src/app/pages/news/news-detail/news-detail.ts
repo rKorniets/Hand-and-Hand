@@ -24,7 +24,12 @@ export class NewsDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.newsService.getNewsById(id).subscribe({
+    const isAdminPreview = this.route.snapshot.queryParamMap.get('preview') === 'admin';
+    const request = isAdminPreview
+      ? this.newsService.getAdminNewsById(id)
+      : this.newsService.getNewsById(id);
+
+    request.subscribe({
       next: (data) => {
         this.news = data;
         this.loading = false;
