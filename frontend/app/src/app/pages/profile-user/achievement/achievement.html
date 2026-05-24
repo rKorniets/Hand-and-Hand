@@ -1,30 +1,35 @@
-<div class="achievement">
-  <h3 #achieveTop class="achievement__title">Досягнення</h3>
+<div class="achievements-wrapper">
+  <div class="header">
+    <h3>Досягнення</h3>
+    @if (rewards.length > 0) {
+      <span class="badge-count">{{ rewards.length }}</span>
+    }
+  </div>
 
-  <div class="achievement__list">
-    @for (
-      rewardItem of rewards | slice: 0 : (isExpanded ? rewards.length : 3);
-      track rewardItem.id
-    ) {
-      @if (user && user.points >= rewardItem.cost_points) {
-        <div class="achievement__item">
-          <div class="achievement__image-placeholder"></div>
+  <div class="trophies-grid" #trophiesGrid [class.expanded]="isExpanded">
+    @if (rewards.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🌱</div>
+        <p>Поки немає досягнень. Час долучатися до подій!</p>
+      </div>
+    }
 
-          <div class="achievement__info">
-            <p class="achievement__name">{{ rewardItem.title }}</p>
-            <p class="achievement__condition">Умова: {{ rewardItem.cost_points }} балів</p>
-            <p class="achievement__description">{{ rewardItem.description }}</p>
-          </div>
+    @for (reward of rewards; track reward.id) {
+      <div class="trophy-card">
+        <div class="trophy-icon">
+          <span>{{ getTrophyIcon(reward.condition_count) }}</span>
         </div>
-      }
+        <div class="trophy-info">
+          <h4 class="trophy-title">{{ reward.title }}</h4>
+          <p class="trophy-desc">{{ reward.description }}</p>
+        </div>
+      </div>
     }
   </div>
 
   @if (rewards.length > 3) {
-    <div class="achievement__button-container">
-      <button class="achievement__more" (click)="toggleAchievements(achieveTop)">
-        {{ isExpanded ? 'Згорнути' : 'Переглянути всі' }}
-      </button>
-    </div>
+    <button class="toggle-btn" (click)="toggleAchievements(trophiesGrid)">
+      {{ isExpanded ? 'Згорнути' : 'Показати всі' }}
+    </button>
   }
 </div>
