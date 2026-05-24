@@ -28,6 +28,7 @@ export class Message implements OnInit, OnDestroy {
   isHovered = false;
   notifications: UserNotification[] = [];
   total = 0;
+  invitationStatus = new Map<number, 'accepted' | 'rejected'>();
   private socketSub?: Subscription;
 
   constructor(
@@ -71,6 +72,15 @@ export class Message implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  isInvitation(n: UserNotification): boolean {
+    return n.type === 'ORGANIZATION_INVITE';
+  }
+
+  getInvitationId(n: UserNotification): number | null {
+    const id = parseInt(n.link ?? '', 10);
+    return Number.isFinite(id) ? id : null;
+  }
+
   onNotificationClick(n: UserNotification) {
     if (!n.is_read) {
       this.notificationService
@@ -84,7 +94,8 @@ export class Message implements OnInit, OnDestroy {
         });
     }
 
-    if (n.link) {
+    // Invitation notifications are handled by their own buttons — don't navigate
+    if (n.link && !this.isInvitation(n)) {
       this.isPanelOpen = false;
       void this.router.navigate([n.link]);
     }
@@ -123,6 +134,40 @@ export class Message implements OnInit, OnDestroy {
         this.notifications = this.notifications.filter((n: UserNotification) => n.id !== id);
         this.total--;
         this.cdr.markForCheck();
+      });
+  }
+
+  acceptInvitation(n: UserNotification, event: Event): void {
+    event.stopPropagation();
+    const invitationId = this.getInvitationId(n);
+    if (!invitationId) return;
+    this.notificationService
+      .acceptInvitation(invitationId)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.invitationStatus.set(n.id, 'accepted');
+          if (!n.is_read) this.markAsRead(n.id);
+          this.cdr.markForCheck();
+        },
+        error: () => this.cdr.markForCheck(),
+      });
+  }
+
+  rejectInvitation(n: UserNotification, event: Event): void {
+    event.stopPropagation();
+    const invitationId = this.getInvitationId(n);
+    if (!invitationId) return;
+    this.notificationService
+      .rejectInvitation(invitationId)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.invitationStatus.set(n.id, 'rejected');
+          if (!n.is_read) this.markAsRead(n.id);
+          this.cdr.markForCheck();
+        },
+        error: () => this.cdr.markForCheck(),
       });
   }
 

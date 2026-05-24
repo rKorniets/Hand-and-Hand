@@ -37,7 +37,7 @@
         class="message__notification"
         [class.message__notification--unread]="!n.is_read"
         [class.message__notification--read]="n.is_read"
-        [class.message__notification--clickable]="!!n.link"
+        [class.message__notification--clickable]="!!n.link && !isInvitation(n)"
         (click)="onNotificationClick(n)"
       >
         <div class="message__notification-body">
@@ -45,7 +45,7 @@
             <span class="message__notification-dot"></span>
           }
           <span class="message__notification-text">{{ n.message }}</span>
-          @if (n.link) {
+          @if (n.link && !isInvitation(n)) {
             <span class="message__notification-arrow">→</span>
           }
         </div>
@@ -54,7 +54,7 @@
           <span class="message__notification-date">
             {{ n.created_at | date: 'dd.MM.yyyy HH:mm' }}
           </span>
-          @if (n.is_read) {
+          @if (n.is_read && !isInvitation(n)) {
             <button
               class="message__notification-delete"
               (click)="$event.stopPropagation(); deleteNotification(n.id)"
@@ -63,6 +63,32 @@
             </button>
           }
         </div>
+        @if (isInvitation(n)) {
+          <div class="message__notification-invite-actions">
+            @if (invitationStatus.get(n.id) === 'accepted') {
+              <span class="message__notification-invite-status message__notification-invite-status--accepted">
+                Прийнято
+              </span>
+            } @else if (invitationStatus.get(n.id) === 'rejected') {
+              <span class="message__notification-invite-status message__notification-invite-status--rejected">
+                Відхилено
+              </span>
+            } @else {
+              <button
+                class="message__notification-invite-btn message__notification-invite-btn--accept"
+                (click)="acceptInvitation(n, $event)"
+              >
+                Прийняти
+              </button>
+              <button
+                class="message__notification-invite-btn message__notification-invite-btn--reject"
+                (click)="rejectInvitation(n, $event)"
+              >
+                Відхилити
+              </button>
+            }
+          </div>
+        }
       </div>
     }
   </div>

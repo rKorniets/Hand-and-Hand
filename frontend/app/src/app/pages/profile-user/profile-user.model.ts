@@ -14,7 +14,7 @@ export interface UserNotification {
   message: string;
   is_read: boolean;
   link?: string;
-  type: 'GENERAL' | 'PROJECT' | 'TASK' | 'TICKET' | 'REWARD' | 'WARNING';
+  type: 'GENERAL' | 'PROJECT' | 'TASK' | 'TICKET' | 'REWARD' | 'WARNING' | 'ORGANIZATION_INVITE';
   created_at: string;
 }
 
