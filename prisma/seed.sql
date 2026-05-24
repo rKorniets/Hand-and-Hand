@@ -236,7 +236,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (28, 'vol-olga@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 45, 'Надія', 'Чечіль', 'Одеса',
-       'https://i.pravatar.cc/300?img=70', NULL),
+       'https://i.pravatar.cc/300?img=61', NULL),
   -- REGULAR USERS
   (6,  'user@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
@@ -332,7 +332,7 @@ INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_tex
   (13, 28, 'OlgaTranslate', '+380661112233',
        'Перекладач (англ/нім/укр). Перекладаю документи для НГО та ВПО.',
        'Переклад, копірайтинг, редактура', 4.60, TRUE,
-       'https://i.pravatar.cc/300?img=70',
+       'https://i.pravatar.cc/300?img=61',
        'https://picsum.photos/seed/vol-doc-13/400/565');
 
 SELECT setval('volunteer_profile_id_seq', (SELECT MAX(id) FROM volunteer_profile));
@@ -1807,7 +1807,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (36, 'org-ecograd@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Тетяна', 'Гордієнко', 'Одеса',
-       'https://i.pravatar.cc/300?img=36', NULL),
+       'https://i.pravatar.cc/300?img=4', NULL),
   (37, 'org-babykids@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Вадим', 'Стецюк', 'Суми',
@@ -1816,7 +1816,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (38, 'vol-zoia@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 0, 'Зоя', 'Науменко', 'Харків',
-       'https://i.pravatar.cc/300?img=18', NULL),
+       'https://i.pravatar.cc/300?img=51', NULL),
   (39, 'vol-oleksiy@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 0, 'Олексій', 'Лещенко', 'Одеса',
@@ -1870,7 +1870,7 @@ INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_tex
   (14, 38, 'ZoiaRescuer',    '+380660001122',
        'Зооволонтер з 2023 року — рятую котів і собак з вулиці. Маю досвід перетримки до 10 тварин одночасно та базові навички надання допомоги пораненим тваринам.',
        'Порятунок тварин, перетримка, соціалізація', NULL, FALSE,
-       'https://i.pravatar.cc/300?img=18',
+       'https://i.pravatar.cc/300?img=51',
        'https://picsum.photos/seed/vol-doc-14/400/565'),
   (15, 39, 'OleksiyBuilder', '+380730004455',
        'Будівельник-волонтер. Беру участь у відбудові пошкоджених будівель і встановленні пандусів для людей з обмеженими можливостями.',
