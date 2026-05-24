@@ -75,19 +75,19 @@ export class Events implements OnInit {
       next: ({ data, total }) => {
         this.events = data;
         this.totalPages = Math.ceil(total / this.limit);
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
       error: (err) => console.error(err),
     });
   }
 
   loadMapEvents(): void {
-    this.eventService.getAllEventsForMap().subscribe({
+    this.eventService.getAllEventsForMap(this.activeFilters).subscribe({
       next: (data) => {
         this.mapEvents = data
           .filter((e) => e.location?.lat != null && e.location?.lng != null)
           .map((e) => this.toMapEvent(e));
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
       error: (err) => console.error(err),
     });
@@ -104,6 +104,7 @@ export class Events implements OnInit {
     this.activeFilters = filters;
     this.currentPage = 1;
     this.loadEvents();
+    this.loadMapEvents();
   }
 
   goToPage(page: number): void {

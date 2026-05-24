@@ -7,13 +7,13 @@ export class PaginationDto {
     description: 'Кількість записів',
     default: 5,
     minimum: 1,
-    maximum: 50,
+    maximum: 100,
   })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(50)
+  @Max(100)
   limit?: number = 5;
 
   @ApiPropertyOptional({
