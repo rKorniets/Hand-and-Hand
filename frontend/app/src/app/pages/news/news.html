@@ -5,17 +5,15 @@
     </aside>
 
     <section class="news-page__main">
-      @if (loading) {
-        <p>Завантаження новин...</p>
-      }
+      <app-news-pinned [items]="pinnedNews"></app-news-pinned>
 
       @if (error) {
         <p>Помилка завантаження. Спробуйте пізніше.</p>
       }
 
-      @if (!loading) {
-        <app-news-pinned [items]="pinnedNews"></app-news-pinned>
-
+      @if (loading) {
+        <p>Завантаження новин...</p>
+      } @else {
         <app-news-content
           [items]="regularNews"
           [showCreateButton]="canCreateNews"

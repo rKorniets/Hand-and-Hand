@@ -27,10 +27,12 @@ export class TicketsComponent implements OnInit, OnDestroy {
   hasNextPage = false;
 
   searchQuery = '';
+  activeCategories: string[] = [];
   activeTab: 'available' | 'my' = 'available';
 
   filterConfig: FilterConfig = {
     showSearch: true,
+    categoryContext: 'tickets',
     showDateRange: false,
     showCity: false,
   };
@@ -53,6 +55,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
 
   onFiltersChanged(state: FilterState): void {
     this.searchQuery = state.search || '';
+    this.activeCategories = state.categories;
     this.currentPage = 1;
     this.loadTickets();
   }
@@ -68,7 +71,13 @@ export class TicketsComponent implements OnInit, OnDestroy {
     this.error = false;
     const skip = (this.currentPage - 1) * this.limit;
     this.ticketService
-      .getTickets(this.limit, skip, this.searchQuery || undefined, this.activeTab)
+      .getTickets(
+        this.limit,
+        skip,
+        this.searchQuery || undefined,
+        this.activeTab,
+        this.activeCategories,
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {

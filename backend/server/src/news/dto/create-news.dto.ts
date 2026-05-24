@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -31,4 +32,10 @@ export class CreateNewsDto {
   @IsString()
   @IsUrl()
   image_url?: string;
+
+  @ApiPropertyOptional({ description: 'Категорії новини', type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  categories?: string[];
 }

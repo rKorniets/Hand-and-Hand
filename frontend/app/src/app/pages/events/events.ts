@@ -71,11 +71,11 @@ export class Events implements OnInit {
   loadEvents(): void {
     const skip = (this.currentPage - 1) * this.limit;
 
-    this.eventService.getEvents(this.limit, skip).subscribe({
+    this.eventService.getEvents(this.limit, skip, this.activeFilters).subscribe({
       next: ({ data, total }) => {
         this.events = data;
         this.totalPages = Math.ceil(total / this.limit);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => console.error(err),
     });
@@ -87,7 +87,7 @@ export class Events implements OnInit {
         this.mapEvents = data
           .filter((e) => e.location?.lat != null && e.location?.lng != null)
           .map((e) => this.toMapEvent(e));
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => console.error(err),
     });

@@ -23,18 +23,16 @@
         </button>
       </div>
 
+      @if (error) {
+        <p class="tickets-page__error">Помилка завантаження. Спробуйте пізніше.</p>
+      }
+
       @if (loading) {
         <div class="tickets-page__loading">
           <div class="tickets-page__spinner"></div>
           <span>Завантаження тікетів...</span>
         </div>
-      }
-
-      @if (error) {
-        <p class="tickets-page__error">Помилка завантаження. Спробуйте пізніше.</p>
-      }
-
-      @if (!loading) {
+      } @else {
         <app-tickets-list [tickets]="filteredTickets" />
 
         <app-pagination
