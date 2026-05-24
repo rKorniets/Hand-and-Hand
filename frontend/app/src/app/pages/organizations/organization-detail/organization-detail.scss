@@ -291,6 +291,16 @@
   }
 }
 
+.activity__empty-msg {
+  font-size: 20px;
+  color: #666;
+  text-align: center;
+  padding: 40px;
+  background-color: $bg-color-block;
+  border-radius: 30px;
+  margin: 0;
+}
+
 .reports__item {
   display: flex;
   flex-direction: row;
@@ -326,6 +336,8 @@
     gap: 15px;
     padding: 12px 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+    color: inherit;
 
     &:last-child {
       border-bottom: none;

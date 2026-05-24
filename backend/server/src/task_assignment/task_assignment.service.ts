@@ -24,7 +24,6 @@ export interface RequestUser {
 export class TaskAssignmentService {
   constructor(
     private prisma: PrismaService,
-    private pointsService: PointsService,
     private achievementService: AchievementService,
   ) {}
 

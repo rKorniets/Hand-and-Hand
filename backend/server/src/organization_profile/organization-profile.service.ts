@@ -231,6 +231,7 @@ export class OrganizationProfileService {
             last_name: true,
             email: true,
             city: true,
+            avatar_url: true,
           },
         },
       },

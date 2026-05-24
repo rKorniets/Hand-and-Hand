@@ -36,6 +36,8 @@ export class OrganizationDetailComponent implements OnInit {
   error = false;
 
   activitiesExpanded = false;
+  campaignsExpanded = false;
+  reportsExpanded = false;
   expanded = false;
   collapseCount = 3;
 
@@ -147,25 +149,6 @@ export class OrganizationDetailComponent implements OnInit {
       });
   }
 
-  get membershipStatusText(): string {
-    const status = this.myMembership?.status;
-
-    if (this.isMaxAttemptsReached) {
-      return 'Доступ обмежено (ліміт спроб)';
-    }
-
-    switch (status) {
-      case MembershipStatus.PENDING:
-        return 'Заявка на розгляді';
-      case MembershipStatus.ACCEPTED:
-        return 'Ви учасник';
-      case MembershipStatus.REJECTED:
-        return 'Заявку відхилено';
-      default:
-        return 'Приєднатися до організації';
-    }
-  }
-
   get attemptsLeft(): number {
     return 3 - (this.myMembership?.attempt_count || 0);
   }
@@ -223,6 +206,22 @@ export class OrganizationDetailComponent implements OnInit {
     return this.activitiesExpanded ? this.activities : this.activities.slice(0, 5);
   }
 
+  get campaigns(): import('../organizations.model').FundraisingCampaign[] {
+    return this.organization?.fundraising_campaigns || [];
+  }
+
+  get visibleCampaigns(): import('../organizations.model').FundraisingCampaign[] {
+    return this.campaignsExpanded ? this.campaigns : this.campaigns.slice(0, 5);
+  }
+
+  get reports(): import('../organizations.model').OrgReport[] {
+    return this.organization?.reports || [];
+  }
+
+  get visibleReports(): import('../organizations.model').OrgReport[] {
+    return this.reportsExpanded ? this.reports : this.reports.slice(0, 5);
+  }
+
   get members(): Member[] {
     return this.organization?.members || [];
   }
@@ -237,6 +236,16 @@ export class OrganizationDetailComponent implements OnInit {
 
   toggleActivities(): void {
     this.activitiesExpanded = !this.activitiesExpanded;
+    this.cdr.markForCheck();
+  }
+
+  toggleCampaigns(): void {
+    this.campaignsExpanded = !this.campaignsExpanded;
+    this.cdr.markForCheck();
+  }
+
+  toggleReports(): void {
+    this.reportsExpanded = !this.reportsExpanded;
     this.cdr.markForCheck();
   }
 
