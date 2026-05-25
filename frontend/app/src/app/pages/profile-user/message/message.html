@@ -20,7 +20,7 @@
   <div class="message__panel-header">
     <span>Сповіщення</span>
     <div class="message__panel-actions">
-      @if (hasNonInviteUnread()) {
+      @if (hasUnread()) {
         <button class="message__panel-read-all" (click)="markAllAsRead()">Прочитати всі</button>
       }
       <button class="message__panel-close" (click)="togglePanel()">✕</button>
