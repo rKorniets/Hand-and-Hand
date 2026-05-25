@@ -91,7 +91,7 @@ export class Message implements OnInit, OnDestroy {
   }
 
   onNotificationClick(n: UserNotification) {
-    if (!n.is_read) {
+    if (!n.is_read && !this.isInvitation(n)) {
       this.notificationService
         .markAsRead(n.id)
         .pipe(take(1))

@@ -97,6 +97,14 @@
               </button>
             } @else if (!hasValidInvitationId(n)) {
               <span class="message__notification-invite-error">Недійсне запрошення</span>
+              <button
+                type="button"
+                class="message__notification-invite-btn message__notification-invite-btn--delete"
+                aria-label="Видалити сповіщення"
+                (click)="$event.stopPropagation(); deleteNotification(n.id)"
+              >
+                ✕
+              </button>
             } @else if (n.is_read) {
               <span
                 class="message__notification-invite-status message__notification-invite-status--read"
