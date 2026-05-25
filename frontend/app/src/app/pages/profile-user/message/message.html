@@ -97,6 +97,20 @@
               </button>
             } @else if (!hasValidInvitationId(n)) {
               <span class="message__notification-invite-error">Недійсне запрошення</span>
+            } @else if (n.is_read) {
+              <span
+                class="message__notification-invite-status message__notification-invite-status--read"
+              >
+                Вже відповіли
+              </span>
+              <button
+                type="button"
+                class="message__notification-invite-btn message__notification-invite-btn--delete"
+                aria-label="Видалити сповіщення"
+                (click)="$event.stopPropagation(); deleteNotification(n.id)"
+              >
+                ✕
+              </button>
             } @else {
               @if (invitationError.get(n.id)) {
                 <span class="message__notification-invite-error">
@@ -106,6 +120,7 @@
               <button
                 type="button"
                 class="message__notification-invite-btn message__notification-invite-btn--accept"
+                [disabled]="invitingInProgress.has(n.id)"
                 (click)="acceptInvitation(n, $event)"
               >
                 Прийняти
@@ -113,6 +128,7 @@
               <button
                 type="button"
                 class="message__notification-invite-btn message__notification-invite-btn--reject"
+                [disabled]="invitingInProgress.has(n.id)"
                 (click)="rejectInvitation(n, $event)"
               >
                 Відхилити

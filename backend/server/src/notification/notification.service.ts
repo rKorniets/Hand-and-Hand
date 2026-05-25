@@ -93,7 +93,11 @@ export class NotificationService {
 
   async markAllAsRead(currentUser: RequestUser) {
     return this.prisma.notification.updateMany({
-      where: { user_id: currentUser.id, is_read: false },
+      where: {
+        user_id: currentUser.id,
+        is_read: false,
+        type: { not: notification_type_enum.ORGANIZATION_INVITE },
+      },
       data: { is_read: true },
     });
   }
