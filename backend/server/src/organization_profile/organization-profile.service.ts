@@ -612,7 +612,7 @@ export class OrganizationProfileService {
         );
       } catch (e) {
         this.logger.warn(
-          `Failed to send invitation notification: ${(e as Error).message}`,
+          `Failed to send invitation notification: ${e instanceof Error ? e.message : String(e)}`,
         );
       }
       return record;
@@ -633,7 +633,7 @@ export class OrganizationProfileService {
       );
     } catch (e) {
       this.logger.warn(
-        `Failed to send invitation notification: ${(e as Error).message}`,
+        `Failed to send invitation notification: ${e instanceof Error ? e.message : String(e)}`,
       );
     }
     return record;

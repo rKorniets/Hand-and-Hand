@@ -13,6 +13,8 @@ import { AppUser, UserNotification } from '../profile-user.model';
 import { NotificationService, NotificationResponse } from './message.service';
 import { SocketService } from '../../../services/socket.service';
 
+const INVITE_STATUS_KEY = 'org_invite_statuses';
+
 @Component({
   selector: 'app-message',
   standalone: true,
@@ -40,6 +42,7 @@ export class Message implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.loadInviteStatusFromStorage();
     this.loadNotifications();
 
     this.socketSub = this.socketService
@@ -54,6 +57,34 @@ export class Message implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.socketSub) {
       this.socketSub.unsubscribe();
+    }
+  }
+
+  private loadInviteStatusFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(INVITE_STATUS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, 'accepted' | 'rejected'>;
+      for (const [key, val] of Object.entries(parsed)) {
+        const id = Number(key);
+        if (Number.isSafeInteger(id) && (val === 'accepted' || val === 'rejected')) {
+          this.invitationStatus.set(id, val);
+        }
+      }
+    } catch {
+      // malformed storage — ignore
+    }
+  }
+
+  private persistInviteStatus(): void {
+    try {
+      const obj: Record<string, string> = {};
+      for (const [id, val] of this.invitationStatus) {
+        obj[String(id)] = val;
+      }
+      localStorage.setItem(INVITE_STATUS_KEY, JSON.stringify(obj));
+    } catch {
+      // storage quota exceeded or private browsing — ignore
     }
   }
 
@@ -78,8 +109,10 @@ export class Message implements OnInit, OnDestroy {
   }
 
   getInvitationId(n: UserNotification): number | null {
-    const id = parseInt(n.link ?? '', 10);
-    return Number.isFinite(id) ? id : null;
+    const link = n.link ?? '';
+    if (!/^\d+$/.test(link)) return null;
+    const id = Number(link);
+    return Number.isSafeInteger(id) ? id : null;
   }
 
   hasValidInvitationId(n: UserNotification): boolean {
@@ -87,6 +120,9 @@ export class Message implements OnInit, OnDestroy {
   }
 
   onNotificationClick(n: UserNotification) {
+    // Invitation notifications are handled by their own buttons — skip mark-as-read and navigation
+    if (this.isInvitation(n)) return;
+
     if (!n.is_read) {
       this.notificationService
         .markAsRead(n.id)
@@ -99,8 +135,7 @@ export class Message implements OnInit, OnDestroy {
         });
     }
 
-    // Invitation notifications are handled by their own buttons — don't navigate
-    if (n.link && !this.isInvitation(n)) {
+    if (n.link) {
       this.isPanelOpen = false;
       void this.router.navigate([n.link]);
     }
@@ -137,6 +172,9 @@ export class Message implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe(() => {
         this.notifications = this.notifications.filter((n: UserNotification) => n.id !== id);
+        this.invitationStatus.delete(id);
+        this.invitationError.delete(id);
+        this.persistInviteStatus();
         this.total--;
         this.cdr.markForCheck();
       });
@@ -153,6 +191,7 @@ export class Message implements OnInit, OnDestroy {
         next: () => {
           this.invitationStatus.set(n.id, 'accepted');
           this.invitationError.delete(n.id);
+          this.persistInviteStatus();
           if (!n.is_read) this.markAsRead(n.id);
           this.cdr.markForCheck();
         },
@@ -174,6 +213,7 @@ export class Message implements OnInit, OnDestroy {
         next: () => {
           this.invitationStatus.set(n.id, 'rejected');
           this.invitationError.delete(n.id);
+          this.persistInviteStatus();
           if (!n.is_read) this.markAsRead(n.id);
           this.cdr.markForCheck();
         },
