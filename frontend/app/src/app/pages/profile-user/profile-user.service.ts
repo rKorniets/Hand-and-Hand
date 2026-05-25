@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {
   ITicket,
-  ActivityItem,
   FundraisingCampaign,
   Reward,
   AppUser,
@@ -36,16 +35,20 @@ export class UserProfileService {
     return this.http.get<Reward[]>(`${this.apiUrl}/rewards`);
   }
 
-  getUserRequests(): Observable<ITicket[]> {
-    return this.http.get<ITicket[]>(`${this.apiUrl}/project-registration/my`);
+
+  getMyTickets(): Observable<ITicket[]> {
+    return this.http.get<ITicket[]>(`${this.apiUrl}/tickets/my`);
   }
 
-  getUserActivities(): Observable<ActivityItem[]> {
-    return this.http.get<ActivityItem[]>(`${this.apiUrl}/app-users/activities`);
-  }
 
   getFundraisingCampaigns(): Observable<FundraisingCampaignResponse> {
     return this.http.get<FundraisingCampaignResponse>(`${this.apiUrl}/fundraising_campaigns`);
+  }
+
+  getUserFundraisingCampaigns(userId: number): Observable<FundraisingCampaignResponse> {
+    return this.http.get<FundraisingCampaignResponse>(
+      `${this.apiUrl}/fundraising_campaigns?volunteer_user_id=${userId}`,
+    );
   }
 
   getMyUpcomingEvents(): Observable<UpcomingRegistration[]> {

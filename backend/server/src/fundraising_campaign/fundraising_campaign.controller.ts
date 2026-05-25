@@ -69,6 +69,12 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
     type: [String],
     description: 'Масив slugs категорій',
   })
+  @ApiQuery({
+    name: 'volunteer_user_id',
+    required: false,
+    type: Number,
+    description: 'ID користувача волонтера для фільтрації',
+  })
   async findAll(
     @Query() query: PaginationDto,
     @Query(
@@ -81,6 +87,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
     )
     categories?: string[],
+    @Query('volunteer_user_id') volunteerUserId?: string,
   ) {
     return this.service.findAll(
       query.limit ?? 8,
@@ -88,6 +95,7 @@ export class FundraisingCampaignController extends AbstractCrudController<unknow
       status,
       query.search,
       categories,
+      volunteerUserId ? parseInt(volunteerUserId, 10) : undefined,
     );
   }
 

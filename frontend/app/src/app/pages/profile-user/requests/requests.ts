@@ -25,7 +25,12 @@ export class Requests implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.profileService.getUserRequests().subscribe({
+    if (!this.isOwnProfile) {
+      this.requests = [];
+      return;
+    }
+
+    this.profileService.getMyTickets().subscribe({
       next: (data) => (this.requests = data),
       error: () => (this.requests = []),
     });

@@ -68,6 +68,7 @@ export class FundraisingCampaignService {
       | fundraising_campaign_status_enum[],
     search?: string,
     categories?: string[],
+    volunteerUserId?: number,
   ) {
     const whereClause: Prisma.fundraising_campaignWhereInput = {};
 
@@ -91,6 +92,12 @@ export class FundraisingCampaignService {
       };
     }
 
+    if (volunteerUserId) {
+      whereClause.volunteer_profile = {
+        user_id: volunteerUserId,
+      };
+    }
+
     const [data, total] = await this.prisma.$transaction([
       this.prisma.fundraising_campaign.findMany({
         where: whereClause,
@@ -102,7 +109,18 @@ export class FundraisingCampaignService {
             select: { id: true, name: true },
           },
           volunteer_profile: {
-            select: { id: true, display_name: true },
+            select: {
+              id: true,
+              user_id: true,
+              display_name: true,
+              app_user: {
+                select: {
+                  id: true,
+                  first_name: true,
+                  last_name: true,
+                },
+              },
+            },
           },
         },
       }),
@@ -351,7 +369,18 @@ export class FundraisingCampaignService {
           select: { id: true, name: true },
         },
         volunteer_profile: {
-          select: { id: true, display_name: true },
+          select: {
+            id: true,
+            user_id: true,
+            display_name: true,
+            app_user: {
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+              },
+            },
+          },
         },
       },
     });

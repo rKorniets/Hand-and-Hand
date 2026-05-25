@@ -94,6 +94,12 @@
     font-weight: 700;
     color: $text-color;
     display: block;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #0066cc;
+    }
   }
 }
 
@@ -135,3 +141,33 @@
     background-color: #dadada;
   }
 }
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 15px;
+}
+
+.empty-message {
+  font-size: 24px;
+  color: #666;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.empty-action {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0052a3;
+    text-decoration: underline;
+  }
+}
+

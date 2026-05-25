@@ -59,6 +59,14 @@ export class TicketController extends AbstractCrudController<ticket> {
     );
   }
 
+  @Get('my')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Отримати мої тікети' })
+  async getMyTickets(@Req() req: RequestWithUser) {
+    return this.service.findMyTickets(req.user!.id);
+  }
+
   @Get(':id')
   @Public()
   @ApiOperation({ summary: 'Отримати деталі тікету за ID' })

@@ -20,6 +20,22 @@ const USER_SELECT = {
   points: true,
   created_at: true,
   avatar_url: true,
+  organization: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  volunteer_profile: {
+    select: {
+      id: true,
+      display_name: true,
+      bio: true,
+      skills_text: true,
+      rating: true,
+      is_verified: true,
+    },
+  },
   admin_profile: {
     select: {
       id: true,
@@ -35,8 +51,25 @@ const PUBLIC_USER_SELECT = {
   first_name: true,
   last_name: true,
   city: true,
+  role: true,
   points: true,
   avatar_url: true,
+  organization: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  volunteer_profile: {
+    select: {
+      id: true,
+      display_name: true,
+      bio: true,
+      skills_text: true,
+      rating: true,
+      is_verified: true,
+    },
+  },
 } as const;
 
 @Injectable()
@@ -59,15 +92,16 @@ export class AppUserService {
   }
 
   async getUserById(id: number, currentUser: AuthUser) {
-    const user = await this.prisma.app_user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-
     const isOwner = currentUser && id === currentUser.id;
 
-    return this.prisma.app_user.findUnique({
+    const user = await this.prisma.app_user.findUnique({
       where: { id },
       select: isOwner ? USER_SELECT : PUBLIC_USER_SELECT,
     });
+
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+
+    return user;
   }
 
   async updateUserFull(

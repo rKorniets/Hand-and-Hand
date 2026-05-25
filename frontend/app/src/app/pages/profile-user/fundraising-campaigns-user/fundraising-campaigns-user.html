@@ -1,13 +1,23 @@
-@if (fundraisingCampaignItem.length > 0 || isOwnProfile) {
-  <section class="list__component" #listTop>
-    <div class="list__component__header">
-      <h2 class="list__component__title">Збори</h2>
+<section class="list__component" #listTop>
+  <div class="list__component__header">
+    <h2 class="list__component__title">Збори</h2>
+  </div>
+
+  @if (isOwnProfile) {
+    <button class="add-button" routerLink="/fundraisingCampaign/create">Створити збір +</button>
+  }
+
+  @if (fundraisingCampaignItem.length === 0) {
+    <div class="empty-state">
+      <p class="empty-message">
+        @if (isOwnProfile) {
+          У вас поки немає зборів
+        } @else {
+          У цього волонтера немає зборів
+        }
+      </p>
     </div>
-
-    @if (isOwnProfile && fundraisingCampaignItem.length === 0) {
-      <button class="add-button" routerLink="/fundraisingCampaign/create">+</button>
-    }
-
+  } @else {
     <div class="list__component__grid">
       @for (
         campaign of fundraisingCampaignItem
@@ -16,18 +26,18 @@
       ) {
         <article class="fundraising__card">
           <a class="activity__item" [routerLink]="['/fundraising', campaign.id]">
-            <div class="fundraising__card__image"></div>
+            @if (campaign.image_url) {
+              <img
+                [src]="campaign.image_url"
+                alt="Campaign image"
+                class="fundraising__card__image"
+              />
+            } @else {
+              <div class="fundraising__card__image"></div>
+            }
             <div class="fundraising__card__body">
               <h3 class="fundraising__card__title">{{ campaign.title }}</h3>
               <p class="fundraising__card__description">{{ campaign.description }}</p>
-              <div class="fundraising__card__footer">
-                <div class="fundraising__card__organizer">
-                  <span class="fundraising__card__org-name">
-                    Організатор: {{ campaign.volunteer_profile.first_name }}
-                    {{ campaign.volunteer_profile.last_name }}
-                  </span>
-                </div>
-              </div>
             </div>
           </a>
         </article>
@@ -41,5 +51,5 @@
         </button>
       </div>
     }
-  </section>
-}
+  }
+</section>

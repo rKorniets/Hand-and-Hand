@@ -85,6 +85,30 @@ export class TicketService {
     });
   }
 
+  async findMyTickets(userId: number) {
+    const tickets = await this.prisma.ticket.findMany({
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+        created_at: true,
+        location: { select: { city: true } },
+      },
+    });
+
+    return tickets.map((ticket) => ({
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      status: ticket.status,
+      created_at: ticket.created_at,
+      city: ticket.location?.city ?? undefined,
+    }));
+  }
+
   async findAll(
     limit?: number,
     skip?: number,

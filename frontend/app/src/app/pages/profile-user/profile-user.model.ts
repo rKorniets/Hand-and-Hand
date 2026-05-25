@@ -29,9 +29,17 @@ export interface AppUser {
   last_name: string;
   city?: string;
   avatar_url?: string | null;
-  joined_organization?: {
+  organization?: {
     id: number;
     name: string;
+  };
+  volunteer_profile?: {
+    id: number;
+    display_name: string;
+    bio: string;
+    skills_text: string | null;
+    rating: number | null;
+    is_verified: boolean;
   };
   notifications?: UserNotification[];
 }
@@ -48,21 +56,28 @@ export interface Reward {
   condition_count?: number;
 }
 
-export interface ActivityItem {
-  id: number;
-  title: string;
-  starts_at: string;
-  description: string;
-}
 
 export interface FundraisingCampaign {
   id: number;
   title: string;
   description: string;
-  volunteer_profile: {
-    first_name: string;
-    last_name: string;
-  };
+  image_url?: string | null;
+  volunteer_profile?: {
+    id: number;
+    user_id: number;
+    display_name: string;
+    first_name?: string;
+    last_name?: string;
+    app_user?: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+  } | null;
+  organization_profile?: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 export interface ITicket {

@@ -30,10 +30,14 @@ export class Achievement implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.profileService.getRewards().subscribe({
       next: (data) => {
-        this.rewards = data;
+        this.rewards = Array.isArray(data) ? data : [];
         this.cdr.detectChanges();
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error(err);
+        this.rewards = [];
+        this.cdr.detectChanges();
+      },
     });
 
     this.initSocketListener();

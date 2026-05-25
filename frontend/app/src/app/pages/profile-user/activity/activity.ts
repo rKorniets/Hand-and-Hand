@@ -1,9 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { DatePipe, CommonModule } from '@angular/common';
-import { AppUser, ActivityItem } from '../profile-user.model';
+import { AppUser } from '../profile-user.model';
 import { UiHelperService } from '../toggleExpansion.service';
-import { UserProfileService } from '../profile-user.service';
+
+interface ActivityItem {
+  id: number;
+  title: string;
+  description?: string | null;
+  starts_at?: string | null;
+}
 
 @Component({
   selector: 'app-activity',
@@ -18,17 +24,9 @@ export class Activity implements OnInit {
   activities: ActivityItem[] = [];
   isExpanded: boolean = false;
 
-  constructor(
-    private uiHelper: UiHelperService,
-    private profileService: UserProfileService,
-  ) {}
+  constructor(private uiHelper: UiHelperService) {}
 
-  ngOnInit(): void {
-    this.profileService.getUserActivities().subscribe({
-      next: (data) => (this.activities = data),
-      error: () => (this.activities = []),
-    });
-  }
+  ngOnInit(): void {}
 
   toggleActivities(target: HTMLElement): void {
     this.isExpanded = this.uiHelper.toggleExpansion(this.isExpanded, target);

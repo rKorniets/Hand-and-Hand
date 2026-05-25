@@ -15,57 +15,57 @@
     }
   </div>
 
-  @if (pastEvents.length === 0 && isOwnProfile) {
+  @if (isOwnProfile) {
     <button class="add-button" routerLink="/events">Знайти події +</button>
   }
 
-  @if (pastEvents.length > 0) {
-    <div class="tickets-list">
-      @for (
-        item of pastEvents | slice: 0 : (isPastExpanded ? pastEvents.length : 2);
-        track item.id
-      ) {
-        <div class="ticket-card">
-          <h2 class="ticket-title">{{ item.project.title }}</h2>
-          <span class="ticket-status is-accepted">Завершено</span>
+   @if (pastEvents.length > 0) {
+     <div class="tickets-list">
+       @for (
+         item of pastEvents | slice: 0 : (isPastExpanded ? pastEvents.length : 2);
+         track item.id
+       ) {
+         <div class="ticket-card">
+           <h2 class="ticket-title">{{ item.project.title }}</h2>
+           <span class="ticket-status is-accepted">Завершено</span>
 
-          @if (item.project.location) {
-            <p class="ticket-description">
-              {{ item.project.location.city }}, {{ item.project.location.address }}
-            </p>
-          }
+           @if (item.project.location) {
+             <p class="ticket-description">
+               {{ item.project.location.city }}, {{ item.project.location.address }}
+             </p>
+           }
 
-          <div class="ticket-footer">
-            <div class="ticket-info">
-              @if (item.project.starts_at) {
-                {{ item.project.starts_at | date: 'dd.MM.yyyy' }}
-                @if (item.project.ends_at) {
-                  &nbsp;— {{ item.project.ends_at | date: 'dd.MM.yyyy' }}
+            <div class="ticket-footer">
+              <div class="ticket-info">
+                @if (item.project.starts_at) {
+                  {{ item.project.starts_at | date: 'dd.MM.yyyy' }}
+                  @if (item.project.ends_at) {
+                    &nbsp;— {{ item.project.ends_at | date: 'dd.MM.yyyy' }}
+                  }
+                } @else {
+                  Дата уточнюється
                 }
-              } @else {
-                Дата уточнюється
-              }
+              </div>
+              <div class="ticket-meta">
+                {{ item.project.organization_profile.name || 'Організація' }}
+              </div>
             </div>
-            <div class="ticket-meta">
-              {{ item.project.organization_profile.name }}
-            </div>
-          </div>
 
-          <a class="ticket-link" [routerLink]="['/events', item.project.id]"> Детальніше </a>
-        </div>
-      }
-    </div>
-  } @else {
-    <div class="tickets-list">
-      <p class="activity__empty-msg">
-        {{
-          isOwnProfile
-            ? 'У вас поки немає завершених подій.'
-            : 'У цього користувача поки немає завершених подій.'
-        }}
-      </p>
-    </div>
-  }
+           <a class="ticket-link" [routerLink]="['/events', item.project.id]"> Детальніше </a>
+         </div>
+       }
+     </div>
+   } @else {
+     <div class="empty-state">
+       <p class="empty-message">
+         @if (isOwnProfile) {
+           У вас поки немає завершених подій
+         } @else {
+           У цього користувача немає завершених подій
+         }
+       </p>
+     </div>
+   }
 
   @if (pastEvents.length > 2) {
     <div class="load-more__button">
@@ -106,21 +106,21 @@
               </p>
             }
 
-            <div class="modal-card__footer">
-              <div class="modal-card__dates">
-                @if (item.project.starts_at) {
-                  {{ item.project.starts_at | date: 'dd.MM.yyyy' }}
-                  @if (item.project.ends_at) {
-                    &nbsp;— {{ item.project.ends_at | date: 'dd.MM.yyyy' }}
-                  }
-                } @else {
-                  Дата уточнюється
-                }
-              </div>
-              <div class="modal-card__org">
-                {{ item.project.organization_profile.name }}
-              </div>
-            </div>
+             <div class="modal-card__footer">
+               <div class="modal-card__dates">
+                 @if (item.project.starts_at) {
+                   {{ item.project.starts_at | date: 'dd.MM.yyyy' }}
+                   @if (item.project.ends_at) {
+                     &nbsp;— {{ item.project.ends_at | date: 'dd.MM.yyyy' }}
+                   }
+                 } @else {
+                   Дата уточнюється
+                 }
+               </div>
+               <div class="modal-card__org">
+                 {{ item.project.organization_profile.name || 'Організація' }}
+               </div>
+             </div>
 
             <span class="modal-card__link">Детальніше</span>
           </div>
