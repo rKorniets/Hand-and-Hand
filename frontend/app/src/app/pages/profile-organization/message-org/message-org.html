@@ -17,7 +17,7 @@
   <div class="message-org__panel-header">
     <span>Сповіщення</span>
     <div class="message-org__panel-actions">
-      @if (hasUnread()) {
+      @if (hasNonActionableUnread()) {
         <button class="message-org__panel-read-all" (click)="markAllAsRead()">Прочитати всі</button>
       }
       <button class="message-org__panel-close" (click)="togglePanel()">✕</button>

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrgNotificationDto } from './dto/create-notification-organization.dto';
+import { notification_organization_type_enum } from '@prisma/client';
 
 @Injectable()
 export class NotificationOrganizationService {
@@ -60,7 +61,17 @@ export class NotificationOrganizationService {
 
   async markAllAsRead(orgId: number) {
     return this.prisma.notification_organization.updateMany({
-      where: { organization_id: orgId, is_read: false },
+      where: {
+        organization_id: orgId,
+        is_read: false,
+        type: {
+          notIn: [
+            notification_organization_type_enum.REGISTRATION,
+            notification_organization_type_enum.JOININGORG,
+            notification_organization_type_enum.LEAVE_REQUEST,
+          ],
+        },
+      },
       data: { is_read: true },
     });
   }
