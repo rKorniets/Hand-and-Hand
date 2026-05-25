@@ -76,8 +76,8 @@ export class MessageOrg implements OnInit, OnDestroy {
       .getMyNotifications()
       .pipe(take(1))
       .subscribe((res: NotificationResponse) => {
-        this.notifications = res.data.filter((n) => !n.is_read);
-        this.total = this.notifications.length;
+        this.notifications = res.data;
+        this.total = res.total;
         this.cdr.markForCheck();
       });
   }
