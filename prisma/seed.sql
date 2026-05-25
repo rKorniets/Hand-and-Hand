@@ -96,24 +96,28 @@ INSERT INTO location (id, lat, lng, address, region, city) VALUES
 SELECT setval('location_id_seq', (SELECT MAX(id) FROM location));
 
 -- ============================================================================
--- 2. CATEGORIES (15 тегів)
+-- 2. CATEGORIES (19 тегів)
 -- ============================================================================
 INSERT INTO category (id, name, slug) VALUES
-  (1,  'Екологія',               'ecology'),
-  (2,  'Тварини',                'animals'),
-  (3,  'Освіта',                 'education'),
-  (4,  'Медицина',               'medicine'),
-  (5,  'Армія',                  'military'),
-  (6,  'Соціальна допомога',     'social-aid'),
-  (7,  'Культура',               'culture'),
-  (8,  'Діти',                   'kids'),
-  (9,  'Літні люди',             'elderly'),
-  (10, 'Переселенці',            'idp'),
-  (11, 'Ветерани',               'veterans'),
-  (12, 'Люди з інвалідністю',    'disability'),
-  (13, 'Спорт',                  'sport'),
-  (14, 'Психологічна підтримка', 'mental-health'),
-  (15, 'Безхатьки',              'homeless');
+  (1,  'Освіта',                 'education'),
+  (2,  'Медицина',               'medicine'),
+  (3,  'Екологія',               'ecology'),
+  (4,  'Соціальна допомога',     'social'),
+  (5,  'Культура',               'culture'),
+  (6,  'Спорт',                  'sport'),
+  (7,  'Відбудова',              'reconstruction'),
+  (8,  'Волонтерство',           'volunteering'),
+  (9,  'Армія та оборона',       'military'),
+  (10, 'Гуманітарна допомога',   'humanitarian'),
+  (11, 'Діти',                   'children'),
+  (12, 'Тварини',                'animals'),
+  (13, 'Інфраструктура',         'infrastructure'),
+  (14, 'Громадські організації', 'ngo'),
+  (15, 'Благодійні фонди',       'charity'),
+  (16, 'Міжнародні організації', 'international'),
+  (17, 'Оголошення',             'announcements'),
+  (18, 'Звіти',                  'reports'),
+  (19, 'Оновлення',              'updates');
 
 SELECT setval('category_id_seq', (SELECT MAX(id) FROM category));
 
@@ -131,7 +135,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (2,  'org-rescue@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Олена', 'Кравчук', 'Львів',
-       'https://i.pravatar.cc/300?img=11', NULL),
+       'https://i.pravatar.cc/300?img=31', NULL),
   (3,  'org-eco@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Ігор', 'Шевченко', 'Київ',
@@ -139,7 +143,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (7,  'org-veterans@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Трохим', 'Загуменний', 'Харків',
-       'https://i.pravatar.cc/300?img=31', NULL),
+       'https://i.pravatar.cc/300?img=11', NULL),
   (8,  'org-med@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Параска', 'Вернидуб', 'Дніпро',
@@ -151,19 +155,19 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (10, 'org-sport@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Калина', 'Синиця', 'Запоріжжя',
-       'https://i.pravatar.cc/300?img=55', NULL),
+       'https://i.pravatar.cc/300?img=24', NULL),
   (11, 'org-social@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Фотій', 'Поривай', 'Вінниця',
-       'https://i.pravatar.cc/300?img=24', NULL),
+       'https://i.pravatar.cc/300?img=55', NULL),
   (12, 'org-kids@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Марфа', 'Лугова', 'Полтава',
-       'https://i.pravatar.cc/300?img=67', NULL),
+       'https://i.pravatar.cc/300?img=43', NULL),
   (13, 'org-food@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Архип', 'Недоля', 'Хмельницький',
-       'https://i.pravatar.cc/300?img=16', NULL),
+       'https://i.pravatar.cc/300?img=13', NULL),
   (14, 'org-rebuild@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Горпина', 'Крутько', 'Черкаси',
@@ -171,11 +175,11 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (15, 'org-culture@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Сильвестр', 'Гримайло', 'Житомир',
-       'https://i.pravatar.cc/300?img=43', NULL),
+       'https://i.pravatar.cc/300?img=67', NULL),
   (16, 'org-homeless@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Явдоха', 'Криволап', 'Харків',
-       'https://i.pravatar.cc/300?img=53', NULL),
+       'https://i.pravatar.cc/300?img=19', NULL),
   (17, 'org-idp@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Митрофан', 'Зіньківський', 'Одеса',
@@ -216,7 +220,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (24, 'vol-yulia@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 220, 'Улита', 'Дрофань', 'Хмельницький',
-       'https://i.pravatar.cc/300?img=57', NULL),
+       'https://i.pravatar.cc/300?img=49', NULL),
   (25, 'vol-bohdan@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 160, 'Тимур', 'Ластовецький', 'Черкаси',
@@ -224,7 +228,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (26, 'vol-nastya@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 40, 'Христина', 'Буряк', 'Житомир',
-       'https://i.pravatar.cc/300?img=65', NULL),
+       'https://i.pravatar.cc/300?img=26', NULL),
   (27, 'vol-andriy@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 110, 'Кирило', 'Недоступ', 'Харків',
@@ -232,7 +236,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (28, 'vol-olga@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 45, 'Надія', 'Чечіль', 'Одеса',
-       'https://i.pravatar.cc/300?img=70', NULL),
+       'https://i.pravatar.cc/300?img=28', NULL),
   -- REGULAR USERS
   (6,  'user@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
@@ -241,7 +245,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (29, 'user2@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'APP_USER', 'ACTIVE', 0, 'Феодосій', 'Полтавець', 'Харків',
-       'https://i.pravatar.cc/300?img=19', NULL),
+       'https://i.pravatar.cc/300?img=53', NULL),
   (30, 'user3@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'APP_USER', 'ACTIVE', 0, 'Ганна', 'Жайворон', 'Дніпро',
@@ -249,7 +253,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (31, 'user4@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'APP_USER', 'ACTIVE', 0, 'Гліб', 'Оберемок', 'Одеса',
-       'https://i.pravatar.cc/300?img=37', NULL);
+       'https://i.pravatar.cc/300?img=57', NULL);
 
 SELECT setval('app_user_id_seq', (SELECT MAX(id) FROM app_user));
 
@@ -308,7 +312,7 @@ INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_tex
   (9,  24, 'YuliaPhoto',    '+380507778899',
        'Фотограф і дизайнер. Документую волонтерські акції, роблю сайти НГО.',
        'Фотографія, графічний дизайн, SMM', 4.65, TRUE,
-       'https://i.pravatar.cc/300?img=57',
+       'https://i.pravatar.cc/300?img=49',
        'https://picsum.photos/seed/vol-doc-9/400/565'),
   (10, 25, 'BohdanIT',      '+380668889900',
        'Full-stack розробник. Роблю сайти та ботів для благодійних організацій.',
@@ -318,7 +322,7 @@ INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_tex
   (11, 26, 'NastyaCoach',   '+380959990011',
        'Коуч і мотиваційний спікер. Проводжу тренінги для волонтерів.',
        'Коучинг, мотивація, командна робота', 4.55, TRUE,
-       'https://i.pravatar.cc/300?img=65',
+       'https://i.pravatar.cc/300?img=26',
        'https://picsum.photos/seed/vol-doc-11/400/565'),
   (12, 27, 'AndriyDriver',  '+380730001122',
        'Водій-волонтер. Евакуація людей, перевезення гумдопомоги.',
@@ -328,7 +332,7 @@ INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_tex
   (13, 28, 'OlgaTranslate', '+380661112233',
        'Перекладач (англ/нім/укр). Перекладаю документи для НГО та ВПО.',
        'Переклад, копірайтинг, редактура', 4.60, TRUE,
-       'https://i.pravatar.cc/300?img=70',
+       'https://i.pravatar.cc/300?img=28',
        'https://picsum.photos/seed/vol-doc-13/400/565');
 
 SELECT setval('volunteer_profile_id_seq', (SELECT MAX(id) FROM volunteer_profile));
@@ -426,19 +430,19 @@ UPDATE app_user SET organization_id = 10 WHERE id = 21;  -- Іван → Від�
 -- 7. ORGANIZATION_CATEGORY (теги для організацій)
 -- ============================================================================
 INSERT INTO organization_category (organization_id, category_id) VALUES
-  (1,  2),  (1,  6),   -- Rescue → Тварини, Соціальна допомога
-  (2,  1),  (2,  3),   -- EcoKyiv → Екологія, Освіта
-  (3,  11), (3,  6),   -- ВетеранUA → Ветерани, Соціальна допомога
-  (4,  4),  (4,  10),  -- МедДопомога → Медицина, Переселенці
-  (5,  3),  (5,  8),   -- ОсвітаПлюс → Освіта, Діти
-  (6,  13), (6,  8),   -- СпортДух → Спорт, Діти
-  (7,  6),  (7,  10),  -- Рука Допомоги → Соціальна допомога, Переселенці
-  (8,  8),  (8,  10),  -- Дитяча Радість → Діти, Переселенці
-  (9,  6),  (9,  9),   -- Їжа та Турбота → Соціальна допомога, Літні люди
-  (10, 10), (10, 6),   -- Відбудова Разом → Переселенці, Соціальна допомога
-  (11, 7),  (11, 3),   -- Культурна ДНК → Культура, Освіта
-  (12, 15), (12, 6),   -- Дах і Тепло → Бездомні, Соціальна допомога
-  (13, 10), (13, 6);   -- Переселенці Разом → Переселенці, Соціальна допомога
+  (1,  12), (1,   4),  -- Rescue Львів → Тварини, Соціальна допомога
+  (2,   3), (2,   1),  -- EcoKyiv → Екологія, Освіта
+  (3,   9), (3,   4),  -- ВетеранUA → Армія та оборона, Соціальна допомога
+  (4,   2), (4,  10),  -- МедДопомога → Медицина, Гуманітарна допомога
+  (5,   1), (5,  11),  -- ОсвітаПлюс → Освіта, Діти
+  (6,   6), (6,  11),  -- СпортДух → Спорт, Діти
+  (7,   4), (7,  10),  -- Рука Допомоги → Соціальна допомога, Гуманітарна допомога
+  (8,  11), (8,  10),  -- Дитяча Радість → Діти, Гуманітарна допомога
+  (9,   4), (9,  10),  -- Їжа та Турбота → Соціальна допомога, Гуманітарна допомога
+  (10,  7), (10,  4),  -- Відбудова Разом → Відбудова, Соціальна допомога
+  (11,  5), (11,  1),  -- Культурна ДНК → Культура, Освіта
+  (12,  4),            -- Дах і Тепло → Соціальна допомога
+  (13, 10), (13,  4);  -- Переселенці Разом → Гуманітарна допомога, Соціальна допомога
 
 -- ============================================================================
 -- 8. PROJECT (15 подій)
@@ -607,21 +611,21 @@ INSERT INTO project (id, organization_profile_id, title, description, status, st
 SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
 
 INSERT INTO project_category (project_id, category_id) VALUES
-  (1,  2),
-  (2,  2),
-  (3,  1),
-  (4,  3),
-  (5,  4),
-  (6,  10),
-  (7,  9),
-  (8,  1),
-  (9,  2),
-  (10, 8),
-  (11, 7),
-  (12, 15), (12, 6),
-  (13, 10),
-  (14, 1),  (14, 6),
-  (15, 2);
+  (1,  12),            -- Прогулка з хвостиками → Тварини
+  (2,  12),            -- Евакуаційний рейс зоотовари → Тварини
+  (3,   3),            -- Прибирання берега Либідь → Екологія
+  (4,   3), (4,  1),  -- Висадка алеї кленів → Екологія, Освіта
+  (5,   2), (5,  9),  -- Курс тактичної медицини → Медицина, Армія та оборона
+  (6,  10),            -- Сортування одягу для переселенців → Гуманітарна допомога
+  (7,   2), (7,  4),  -- День здоров'я для літніх → Медицина, Соціальна допомога
+  (8,   3),            -- Еко-пікнік сортування сміття → Екологія
+  (9,  12),            -- Будівельна толока вольєри притулку → Тварини
+  (10, 11),            -- Арт-терапія для дітей → Діти
+  (11,  5),            -- Фестиваль традиційної музики → Культура
+  (12,  4),            -- Підготовка нічліжки → Соціальна допомога
+  (13, 10), (13, 4),  -- Юридичні консультації ВПО → Гуманітарна, Соціальна
+  (14,  3), (14, 8),  -- Прибирання берегів Дніпра → Екологія, Волонтерство
+  (15, 12);            -- Мобільна виставка-притулок → Тварини
 
 -- ============================================================================
 -- 9. PROJECT_REGISTRATION (15 записів на події)
@@ -690,19 +694,19 @@ INSERT INTO task (id, project_id, title, description, status, difficulty, points
 SELECT setval('task_id_seq', (SELECT MAX(id) FROM task));
 
 INSERT INTO task_category (task_id, category_id) VALUES
-  (1,  2),  (1,  6),
-  (2,  1),
-  (3,  11), (3,  3),
-  (4,  4),  (4,  10),
-  (5,  3),
-  (6,  6),  (6,  10),
-  (7,  8),  (7,  10),
-  (8,  10), (8,  6),
-  (9,  7),
-  (10, 15), (10, 6),
-  (11, 10),
-  (12, 1),
-  (13, 2);
+  (1,  12), (1,   4),  -- Привезти корм у притулок → Тварини, Соціальна допомога
+  (2,   3),            -- Координація групи на прибиранні → Екологія
+  (3,   2), (3,   1),  -- Реєстрація учасників тренінгу (тактмед) → Медицина, Освіта
+  (4,   2), (4,  10),  -- Координація черг медогляду → Медицина, Гуманітарна допомога
+  (5,   2),            -- Підготовка матеріалів медичного курсу → Медицина
+  (6,   4), (6,  10),  -- Сортування гуманітарних наборів → Соціальна, Гуманітарна
+  (7,  12), (7,   7),  -- Підготовка матеріалів (майстер-клас притулок) → Тварини, Відбудова
+  (8,  11), (8,   2),  -- Допомога в ремонтних роботах (арт-терапія дітей) → Діти, Медицина
+  (9,   5),            -- Волонтер сцени на фестивалі → Культура
+  (10,  4),            -- Розстановка ліжок (нічліжка) → Соціальна допомога
+  (11, 10),            -- Переклад юридичних документів (ВПО) → Гуманітарна допомога
+  (12,  3),            -- Встановлення інформаційних стендів (прибирання Дніпра) → Екологія
+  (13, 12);            -- Підготовка тварин до виставки → Тварини
 
 -- ============================================================================
 -- 11. TASK_ASSIGNMENT (13 призначень)
@@ -797,19 +801,19 @@ INSERT INTO news (id, title, image_url, is_pinned, description, main_content, or
 SELECT setval('news_id_seq', (SELECT MAX(id) FROM news));
 
 INSERT INTO news_category (news_id, category_id) VALUES
-  (1,  2),
-  (2,  1),
-  (3,  2),
-  (4,  4),
-  (5,  3),
-  (6,  6),
-  (7,  2),
-  (8,  1),
-  (9,  10),
-  (10, 2),
-  (11, 15),
-  (12, 10),
-  (13, 1);
+  (1,  12),            -- Річний звіт Rescue → Тварини
+  (2,   3),            -- 200 нових дерев → Екологія
+  (3,   8), (3,  1),  -- IT-волонтерство фронтендери → Волонтерство, Освіта
+  (4,   2),            -- Грант на хірургічний блок → Медицина
+  (5,   3), (5,  1),  -- Еко-бокси у ліцеях → Екологія, Освіта
+  (6,   2), (6,  4),  -- Гаряча лінія психологічної підтримки → Медицина, Соціальна допомога
+  (7,   2),            -- Мобільна амбулаторія → Медицина
+  (8,   3),            -- Очищення озера на Оболоні → Екологія
+  (9,  10), (9,  2),  -- Гуманітарний конвой з медикаментами → Гуманітарна, Медицина
+  (10, 12),            -- День відкритих дверей у притулку → Тварини
+  (11,  4),            -- Нічліжка «Дах і Тепло» готова → Соціальна допомога
+  (12, 10), (12,  4), -- Правова допомога ВПО → Гуманітарна, Соціальна допомога
+  (13,  3);            -- Прибирання парку 500 кг → Екологія
 
 -- ============================================================================
 -- 13. FUNDRAISING_CAMPAIGN (13 зборів)
@@ -909,19 +913,19 @@ INSERT INTO fundraising_campaign (id, organization_profile_id, volunteer_profile
 SELECT setval('fundraising_campaign_id_seq', (SELECT MAX(id) FROM fundraising_campaign));
 
 INSERT INTO fundraising_category (campaign_id, category_id) VALUES
-  (1,  2),
-  (2,  1),
-  (3,  8),
-  (4,  2),
-  (5,  1),
-  (6,  10),
-  (7,  2),
-  (8,  3),
-  (9,  5),
-  (10, 4),
-  (11, 4),  (11, 10),
-  (12, 15), (12, 6),
-  (13, 6),  (13, 10);
+  (1,  12),            -- Ліки та корм для притулку → Тварини
+  (2,   3),            -- Інвентар для еко-толок → Екологія
+  (3,  11), (3,  1),  -- Ноутбуки для дітей-переселенців → Діти, Освіта
+  (4,  12),            -- Порятунок тварин з прифронту → Тварини
+  (5,   3),            -- Очищення річки Либідь → Екологія
+  (6,  11), (6, 10),  -- Дитяче харчування для немовлят ВПО → Діти, Гуманітарна
+  (7,  12),            -- Утеплення притулку «Друг» → Тварини
+  (8,   1), (8,  3),  -- Шкільний еко-гурток → Освіта, Екологія
+  (9,   9), (9,  4),  -- Смартфони для ветеранів → Армія, Соціальна допомога
+  (10,  2), (10,  9), -- Тактична медицина → Медицина, Армія та оборона
+  (11,  2), (11, 10), -- Мобільна медкімната → Медицина, Гуманітарна допомога
+  (12,  4),            -- Ліжка для нічліжки → Соціальна допомога
+  (13,  4), (13, 10); -- Продуктові набори → Соціальна допомога, Гуманітарна допомога
 
 -- ============================================================================
 -- 14. DONATION (15 донатів)
@@ -1144,19 +1148,19 @@ INSERT INTO ticket (id, user_id, title, description, status, priority, location_
 SELECT setval('ticket_id_seq', (SELECT MAX(id) FROM ticket));
 
 INSERT INTO ticket_category (ticket_id, category_id) VALUES
-  (1,  2),  (1,  6),
-  (2,  1),
-  (3,  9),  (3,  6),
-  (4,  2),
-  (5,  1),
-  (6,  10),
-  (7,  1),
-  (8,  6),
-  (9,  2),
-  (10, 1),
-  (11, 2),
-  (12, 1),  (12, 6),
-  (13, 10), (13, 6);
+  (1,  12), (1,   4),  -- Кішка у підвалі → Тварини, Соціальна допомога
+  (2,   3),            -- Шини на березі → Екологія
+  (3,   4), (3,  10),  -- Ліки для бабусі → Соціальна допомога, Гуманітарна
+  (4,  12),            -- Цуценята → Тварини
+  (5,   3),            -- Суха гілка → Екологія
+  (6,  10),            -- Куртка для ВПО-дитини → Гуманітарна допомога
+  (7,   3),            -- Злив відходів → Екологія
+  (8,   9),            -- Транспорт для ветерана → Армія та оборона
+  (9,  12),            -- Корми для притулку → Тварини
+  (10,  3),            -- Суботник-клумба → Екологія
+  (11, 12),            -- Поранена собака → Тварини
+  (12,  3), (12, 13),  -- Пошкоджене дерево → Екологія, Інфраструктура
+  (13, 10), (13,  4);  -- Документи ВПО → Гуманітарна, Соціальна допомога
 
 -- ============================================================================
 -- 21. NOTIFICATION (15 повідомлень)
@@ -1191,11 +1195,11 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (33, 'org-disabled@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Юхим', 'Клименко', 'Львів',
-       'https://i.pravatar.cc/300?img=42', NULL),
+       'https://i.pravatar.cc/300?img=65', NULL),
   (34, 'org-mental@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Євдокія', 'Яремченко', 'Харків',
-       'https://i.pravatar.cc/300?img=58', NULL);
+       'https://i.pravatar.cc/300?img=48', NULL);
 
 SELECT setval('app_user_id_seq', (SELECT MAX(id) FROM app_user));
 
@@ -1222,18 +1226,11 @@ INSERT INTO organization_profile (id, user_id, name, edrpou, description, verifi
 
 SELECT setval('organization_profile_id_seq', (SELECT MAX(id) FROM organization_profile));
 
--- organization_category для нових організацій + розширення існуючих
+-- organization_category для нових організацій
 INSERT INTO organization_category (organization_id, category_id) VALUES
-  (3,  5),    -- ВетеранUA → Армія
-  (14, 5),    -- Армія Змін → Армія
-  (14, 6),    -- Армія Змін → Соціальна допомога
-  (14, 11),   -- Армія Змін → Ветерани
-  (15, 12),   -- Без Бар''єрів → Люди з інвалідністю
-  (15, 6),    -- Без Бар''єрів → Соціальна допомога
-  (15, 3),    -- Без Бар''єрів → Освіта
-  (16, 14),   -- Простір Підтримки → Психологічна підтримка
-  (16, 11),   -- Простір Підтримки → Ветерани
-  (16, 10);   -- Простір Підтримки → Переселенці
+  (14,  9), (14,  8),  -- Армія Змін → Армія та оборона, Волонтерство
+  (15, 13), (15,  4),  -- Без Бар'єрів → Інфраструктура, Соціальна допомога
+  (16,  2), (16,  4);  -- Простір Підтримки → Медицина, Соціальна допомога
 
 -- 14 нових проектів (IDs 16–29) — по 2 на кожну категорію без покриття
 INSERT INTO project (id, organization_profile_id, title, description, status, starts_at, ends_at, main_content, what_volunteers_will_do, why_its_important, time, application_deadline, location_id, category_id, partners, image_url, participants) VALUES
@@ -1390,20 +1387,20 @@ INSERT INTO project (id, organization_profile_id, title, description, status, st
 SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
 
 INSERT INTO project_category (project_id, category_id) VALUES
-  (16, 5),  (16, 6),
-  (17, 5),  (17, 6),
-  (18, 12), (18, 6),
-  (19, 12), (19, 3),
-  (20, 14), (20, 11),
-  (21, 14), (21, 10),
-  (22, 13), (22, 8),  (22, 10),
-  (23, 13), (23, 12),
-  (24, 9),  (24, 6),
-  (25, 9),  (25, 3),
-  (26, 7),  (26, 8),
-  (27, 11), (27, 14),
-  (28, 15), (28, 6),
-  (29, 4),  (29, 6);
+  (16,  9), (16,  8),          -- Маскувальні сітки ЗСУ → Армія, Волонтерство
+  (17,  9), (17,  8),          -- Листи та посилки захисникам → Армія, Волонтерство
+  (18, 13), (18,  4),          -- Встановлення пандусів → Інфраструктура, Соціальна допомога
+  (19,  4), (19,  1),          -- Курс жестової мови → Соціальна допомога, Освіта
+  (20,  2), (20,  9),          -- Психологічні консультації ветеранів → Медицина, Армія
+  (21,  2), (21, 10),          -- Групова арт-терапія → Медицина, Гуманітарна допомога
+  (22,  6), (22, 11), (22, 10), -- Футбол для дітей ВПО → Спорт, Діти, Гуманітарна
+  (23,  6), (23,  4),          -- Адаптивний спорт → Спорт, Соціальна допомога
+  (24,  4), (24, 10),          -- Доставка продуктів пенсіонерам → Соціальна, Гуманітарна
+  (25,  4), (25,  1),          -- Цифрова грамотність пенсіонерів → Соціальна, Освіта
+  (26,  5),                    -- Майстер-клас писанкарство → Культура
+  (27,  9), (27,  2),          -- Група підтримки ветеранів → Армія, Медицина
+  (28,  4), (28, 10),          -- Мобільний пункт для безхатніх → Соціальна, Гуманітарна
+  (29,  2), (29, 10);          -- Виїзна вакцинація → Медицина, Гуманітарна допомога
 
 -- 14 нових новин (IDs 14–27) — по 2 на кожну неохоплену категорію
 INSERT INTO news (id, title, image_url, is_pinned, description, main_content, organization_id, status) VALUES
@@ -1504,20 +1501,20 @@ INSERT INTO news (id, title, image_url, is_pinned, description, main_content, or
 SELECT setval('news_id_seq', (SELECT MAX(id) FROM news));
 
 INSERT INTO news_category (news_id, category_id) VALUES
-  (14, 5),  (14, 6),
-  (15, 5),  (15, 11),
-  (16, 12), (16, 6),
-  (17, 12), (17, 3),
-  (18, 14), (18, 11),
-  (19, 14), (19, 10),
-  (20, 13), (20, 8),
-  (21, 13), (21, 12),
-  (22, 9),  (22, 6),
-  (23, 9),  (23, 3),
-  (24, 7),
-  (25, 11), (25, 14),
-  (26, 15), (26, 6),
-  (27, 4),  (27, 6);
+  (14,  9), (14,  8),  -- 200 маскувальних сіток ЗСУ → Армія, Волонтерство
+  (15,  9), (15,  8),  -- День подяки захисникам у шпиталі → Армія, Волонтерство
+  (16, 13), (16,  4),  -- 25 пандусів у Львові → Інфраструктура, Соціальна допомога
+  (17,  4), (17,  1),  -- Курс жестової мови 120 чуючих → Соціальна допомога, Освіта
+  (18,  2), (18,  4),  -- 500 сесій психолога Простір Підтримки → Медицина, Соціальна допомога
+  (19,  2), (19, 10),  -- Арт-терапія в Харкові → Медицина, Гуманітарна допомога
+  (20,  6), (20, 11),  -- Футбол для дітей ВПО 90 заявок → Спорт, Діти
+  (21,  6), (21,  4),  -- Адаптивний турнір → Спорт, Соціальна допомога
+  (22,  4), (22, 10),  -- Продукти 150 пенсіонерам → Соціальна допомога, Гуманітарна
+  (23,  4), (23,  1),  -- Пенсіонери опанували Дію → Соціальна допомога, Освіта
+  (24,  5),            -- Майстер-клас з писанкарства → Культура
+  (25,  9), (25,  2),  -- Перший місяць груп підтримки ветеранів → Армія, Медицина
+  (26,  4), (26, 10),  -- 400 порцій супу для безхатніх → Соціальна допомога, Гуманітарна
+  (27,  2), (27, 10);  -- Вакцинація 600 мешканців сіл → Медицина, Гуманітарна допомога
 
 -- approval_request для нових entities
 INSERT INTO approval_request (type, status, entity_id, submitted_by, reviewed_by, reviewed_at) VALUES
@@ -1806,24 +1803,24 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (35, 'org-molhub@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Ростислав', 'Приймак', 'Харків',
-       'https://i.pravatar.cc/300?img=26', NULL),
+       'https://i.pravatar.cc/300?img=58', NULL),
   (36, 'org-ecograd@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Тетяна', 'Гордієнко', 'Одеса',
-       'https://i.pravatar.cc/300?img=36', NULL),
+       'https://i.pravatar.cc/300?img=21', NULL),
   (37, 'org-babykids@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'ORGANIZATION', 'ACTIVE', 0, 'Вадим', 'Стецюк', 'Суми',
-       'https://i.pravatar.cc/300?img=46', NULL),
+       'https://i.pravatar.cc/300?img=61', NULL),
   -- Нові волонтери (профіль на верифікацію або відхилений)
   (38, 'vol-zoia@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 0, 'Зоя', 'Науменко', 'Харків',
-       'https://i.pravatar.cc/300?img=18', NULL),
+       'https://i.pravatar.cc/300?img=9', NULL),
   (39, 'vol-oleksiy@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 0, 'Олексій', 'Лещенко', 'Одеса',
-       'https://i.pravatar.cc/300?img=28', NULL),
+       'https://i.pravatar.cc/300?img=51', NULL),
   (40, 'vol-katya@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'VOLUNTEER', 'ACTIVE', 0, 'Катерина', 'Сало', 'Дніпро',
@@ -1832,7 +1829,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (41, 'user-blocked@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'APP_USER', 'BLOCKED', 0, 'Роман', 'Кривоніс', 'Запоріжжя',
-       'https://i.pravatar.cc/300?img=37', NULL),
+       'https://i.pravatar.cc/300?img=63', NULL),
   -- PENDING — нові реєстрації без підтвердження пошти
   (42, 'user-pending@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
@@ -1841,7 +1838,7 @@ INSERT INTO app_user (id, email, password_hash, role, status, points, first_name
   (43, 'user-pending2@demo.local',
        '$argon2id$v=19$m=65536,t=3,p=4$HypMD5dd8o1YWetiTRI6UQ$iyJvFPkscNI6X6As6Bl5cbbauvMDh3SM4VAOXO9Xczg',
        'APP_USER', 'PENDING', 0, 'Станіслав', 'Моргун', 'Суми',
-       'https://i.pravatar.cc/300?img=49', NULL);
+       'https://i.pravatar.cc/300?img=68', NULL);
 
 SELECT setval('app_user_id_seq', (SELECT MAX(id) FROM app_user));
 
@@ -1873,12 +1870,12 @@ INSERT INTO volunteer_profile (id, user_id, display_name, phone, bio, skills_tex
   (14, 38, 'ZoiaRescuer',    '+380660001122',
        'Зооволонтер з 2023 року — рятую котів і собак з вулиці. Маю досвід перетримки до 10 тварин одночасно та базові навички надання допомоги пораненим тваринам.',
        'Порятунок тварин, перетримка, соціалізація', NULL, FALSE,
-       'https://i.pravatar.cc/300?img=18',
+       'https://i.pravatar.cc/300?img=9',
        'https://picsum.photos/seed/vol-doc-14/400/565'),
   (15, 39, 'OleksiyBuilder', '+380730004455',
        'Будівельник-волонтер. Беру участь у відбудові пошкоджених будівель і встановленні пандусів для людей з обмеженими можливостями.',
        'Будівництво, зварювання, монтаж, ремонт', NULL, FALSE,
-       'https://i.pravatar.cc/300?img=28',
+       'https://i.pravatar.cc/300?img=51',
        'https://picsum.photos/seed/vol-doc-15/400/565'),
   (16, 40, 'KatyaTeacher',   '+380507006677',
        'Вчителька початкових класів. Хочу організовувати заняття для дітей-переселенців та арт-терапевтичні сесії.',
@@ -1924,12 +1921,25 @@ VALUES
       'https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80&w=600',
       25);
 
+-- PROJECT.category_id CORRECTIONS (old category IDs → new)
+UPDATE project SET category_id =  12 WHERE id IN (1, 2, 9, 15, 30);
+UPDATE project SET category_id =   3 WHERE id IN (3, 4, 8, 14);
+UPDATE project SET category_id =   2 WHERE id IN (5, 7, 20, 21, 27, 29);
+UPDATE project SET category_id =  10 WHERE id IN (6, 13);
+UPDATE project SET category_id =  11 WHERE id = 10;
+UPDATE project SET category_id =   5 WHERE id IN (11, 26);
+UPDATE project SET category_id =   4 WHERE id IN (12, 24, 25, 28);
+UPDATE project SET category_id =   9 WHERE id IN (16, 17, 31, 32);
+UPDATE project SET category_id =  13 WHERE id = 18;
+UPDATE project SET category_id =   1 WHERE id = 19;
+UPDATE project SET category_id =   6 WHERE id IN (22, 23);
+
 SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
 
 INSERT INTO project_category (project_id, category_id) VALUES
-  (30, 2),
-  (31, 1), (31, 11),
-  (32, 11), (32, 3);
+  (30, 12),            -- Нічний патруль безпритульних тварин → Тварини
+  (31,  3), (31,  9), -- Посадка клумб у дворах ветеранів → Екологія, Армія
+  (32,  9), (32,  1); -- Школа підприємництва для ветеранів → Армія, Освіта
 
 -- 3 нові новини (IDs 28–30): status=PENDING — 2 очікують модерації, 1 відхилена
 INSERT INTO news (id, title, image_url, is_pinned, description, main_content, organization_id, status) VALUES
@@ -1955,9 +1965,9 @@ INSERT INTO news (id, title, image_url, is_pinned, description, main_content, or
 SELECT setval('news_id_seq', (SELECT MAX(id) FROM news));
 
 INSERT INTO news_category (news_id, category_id) VALUES
-  (28, 2),
-  (29, 4), (29, 6),
-  (30, 11), (30, 14);
+  (28, 12),            -- Rescue оновлення правил перетримки → Тварини
+  (29,  2), (29, 10), -- МедДопомога звіт амбулаторії квітень → Медицина, Гуманітарна
+  (30,  9), (30,  2); -- ВетеранUA набір на психологічні групи → Армія, Медицина
 
 -- 3 нові збори (IDs 14–16): DRAFT — 2 очікують підтвердження, 1 відхилений
 INSERT INTO fundraising_campaign (id, organization_profile_id, volunteer_profile_id, title, description,
@@ -1991,9 +2001,9 @@ VALUES
 SELECT setval('fundraising_campaign_id_seq', (SELECT MAX(id) FROM fundraising_campaign));
 
 INSERT INTO fundraising_category (campaign_id, category_id) VALUES
-  (14, 2),
-  (15, 4), (15, 6),
-  (16, 3), (16, 8);
+  (14, 12),            -- Рефрижератор для Rescue (тварини) → Тварини
+  (15,  2), (15, 10), -- Портативні кардіографи МедДопомоги → Медицина, Гуманітарна
+  (16,  1), (16, 11); -- Обладнання молодіжного хабу → Освіта, Діти
 
 -- APPROVAL_REQUEST: PENDING (10 записів) + REJECTED (5 записів із причиною)
 INSERT INTO approval_request (type, status, entity_id, submitted_by, reviewed_by, rejection_reason, reviewed_at) VALUES
@@ -2097,9 +2107,9 @@ UPDATE news SET status = 'REJECTED' WHERE id = 30;
 
 -- organization_category для нових org 17–19
 INSERT INTO organization_category (organization_id, category_id) VALUES
-  (17, 3),  (17, 8),   -- Молодіжний Хаб → Освіта, Діти
-  (18, 1),             -- ЕкоГрад Одеса → Екологія
-  (19, 8),  (19, 6);   -- Малюки у Безпеці → Діти, Соціальна допомога
+  (17,  1), (17, 11),  -- Молодіжний Хаб → Освіта, Діти
+  (18,  3),            -- ЕкоГрад Одеса → Екологія
+  (19, 11), (19,  4);  -- Малюки у Безпеці → Діти, Соціальна допомога
 
 -- ============================================================================
 -- ДОПОВНЕННЯ: organization_membership_request (повне покриття статусів)
@@ -2286,20 +2296,20 @@ INSERT INTO task (id, project_id, title, description, status, difficulty, points
 SELECT setval('task_id_seq', (SELECT MAX(id) FROM task));
 
 INSERT INTO task_category (task_id, category_id) VALUES
-  (14, 5),  (14, 6),
-  (15, 5),  (15, 11),
-  (16, 12), (16, 6),
-  (17, 12), (17, 3),
-  (18, 14), (18, 11),
-  (19, 14), (19, 10),
-  (20, 13), (20, 8),
-  (21, 12), (21, 13),
-  (22, 9),  (22, 6),
-  (23, 3),  (23, 9),
-  (24, 7),
-  (25, 14), (25, 11),
-  (26, 15), (26, 6),
-  (27, 4),  (27, 6);
+  (14,  9), (14,  8),  -- Підготовка матеріалів для плетіння сіток → Армія, Волонтерство
+  (15,  9), (15,  8),  -- Написання листів захисникам → Армія, Волонтерство
+  (16, 13), (16,  4),  -- Підготовка будівельного інструменту (пандуси) → Інфраструктура, Соціальна
+  (17,  4), (17,  1),  -- Розробка матеріалів курс жестової мови → Соціальна допомога, Освіта
+  (18,  2), (18,  4),  -- Координація черги на психологічну консультацію → Медицина, Соціальна
+  (19,  2), (19, 10),  -- Підготовка арт-матеріалів для груп переселенців → Медицина, Гуманітарна
+  (20,  6), (20, 11),  -- Реєстрація дітей на футбольну секцію → Спорт, Діти
+  (21,  6), (21,  4),  -- Допомога тренеру адаптивного спорту → Спорт, Соціальна допомога
+  (22,  4), (22, 10),  -- Формування та доставка продуктових наборів → Соціальна, Гуманітарна
+  (23,  4), (23,  1),  -- Технічна підтримка учасників курсу Дія → Соціальна допомога, Освіта
+  (24,  5),            -- Підготовка воску та писанкового реманенту → Культура
+  (25,  9), (25,  2),  -- Ведення журналу груп підтримки ветеранів → Армія, Медицина
+  (26,  4), (26, 10),  -- Розвантаження гуманітарних наборів безхатнім → Соціальна, Гуманітарна
+  (27,  2), (27, 10);  -- Реєстрація пацієнтів виїзної вакцинації → Медицина, Гуманітарна
 
 -- ============================================================================
 -- TASK_ASSIGNMENT: нові призначення для tasks 14–27

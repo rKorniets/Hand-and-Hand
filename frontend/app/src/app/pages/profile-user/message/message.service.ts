@@ -46,4 +46,18 @@ export class NotificationService {
   notifyFromTask(dto: NotifyFromTaskDto): Observable<UserNotification> {
     return this.http.post<UserNotification>(`${this.apiUrl}/notifications/from-task`, dto);
   }
+
+  acceptInvitation(invitationId: number): Observable<unknown> {
+    return this.http.patch(
+      `${this.apiUrl}/organization-profiles/me/invitations/${invitationId}/accept`,
+      {},
+    );
+  }
+
+  rejectInvitation(invitationId: number): Observable<unknown> {
+    return this.http.patch(
+      `${this.apiUrl}/organization-profiles/me/invitations/${invitationId}/reject`,
+      {},
+    );
+  }
 }

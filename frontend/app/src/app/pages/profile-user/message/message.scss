@@ -221,6 +221,81 @@
     }
   }
 
+  &__notification-invite-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-left: 20px;
+  }
+
+  &__notification-invite-error {
+    width: 100%;
+    font-size: 12px;
+    color: #c62828;
+  }
+
+  &__notification-invite-btn {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s ease;
+
+    &--accept {
+      background: #e6f4ea;
+      color: #2e7d32;
+
+      &:hover {
+        background: #c8e6c9;
+      }
+    }
+
+    &--reject {
+      background: #fce8e6;
+      color: #c62828;
+
+      &:hover {
+        background: #ffcdd2;
+      }
+    }
+
+    &--delete {
+      background: none;
+      color: #ccc;
+      padding: 3px 6px;
+
+      &:hover {
+        color: #e53935;
+        background: #ffeaea;
+      }
+    }
+  }
+
+  &__notification-invite-status {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 6px;
+
+    &--accepted {
+      background: #e6f4ea;
+      color: #2e7d32;
+    }
+
+    &--rejected {
+      background: #fce8e6;
+      color: #c62828;
+    }
+
+    &--read {
+      background: #f0f0f0;
+      color: #888;
+    }
+  }
+
   &__overlay {
     position: fixed;
     inset: 0;

@@ -76,34 +76,36 @@ export class MessageOrg implements OnInit, OnDestroy {
       .getMyNotifications()
       .pipe(take(1))
       .subscribe((res: NotificationResponse) => {
-        this.notifications = res.data.filter((n) => !n.is_read);
-        this.total = this.notifications.length;
+        this.notifications = res.data;
+        this.total = res.total;
         this.cdr.markForCheck();
       });
   }
 
+  isActionable(n: OrgNotification): boolean {
+    return (
+      n.type === this.NotificationType.REGISTRATION ||
+      n.type === this.NotificationType.JOININGORG ||
+      n.type === this.NotificationType.LEAVE_REQUEST
+    );
+  }
+
+  hasNonActionableUnread(): boolean {
+    return this.notifications.some((n) => !n.is_read && !this.isActionable(n));
+  }
+
   markAllAsRead() {
-    const toMark = this.notifications
-      .filter((n) => {
-        const isPendingReg =
-          n.type === this.NotificationType.REGISTRATION &&
-          n.registration_data?.status === this.RegistrationStatus.PENDING;
-        const isPendingJoin =
-          n.type === this.NotificationType.JOININGORG &&
-          n.registration_data?.status === this.RegistrationStatus.PENDING;
-        const isPendingLeave =
-          n.type === this.NotificationType.LEAVE_REQUEST &&
-          n.registration_data?.status === this.RegistrationStatus.PENDING;
+    if (!this.hasNonActionableUnread()) return;
 
-        return !isPendingReg && !isPendingJoin && !isPendingLeave;
-      })
-      .map((n) => n.id);
-
-    if (toMark.length === 0) return;
-
-    this.notificationService.markAllAsRead().subscribe(() => {
-      this.loadNotifications();
-    });
+    this.notificationService
+      .markAllAsRead()
+      .pipe(take(1))
+      .subscribe(() => {
+        this.notifications = this.notifications.map((n) =>
+          this.isActionable(n) ? n : { ...n, is_read: true },
+        );
+        this.cdr.markForCheck();
+      });
   }
 
   togglePanel() {

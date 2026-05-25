@@ -28,6 +28,9 @@ export class Message implements OnInit, OnDestroy {
   isHovered = false;
   notifications: UserNotification[] = [];
   total = 0;
+  invitationStatus = new Map<number, 'accepted' | 'rejected'>();
+  invitationError = new Map<number, string>();
+  invitingInProgress = new Set<number>();
   private socketSub?: Subscription;
 
   constructor(
@@ -43,6 +46,7 @@ export class Message implements OnInit, OnDestroy {
     this.socketSub = this.socketService
       .listen<UserNotification>('newNotification')
       .subscribe((newNotif: UserNotification) => {
+        if (this.notifications.some((n) => n.id === newNotif.id)) return;
         this.notifications = [newNotif, ...this.notifications];
         this.total++;
         this.cdr.markForCheck();
@@ -71,8 +75,23 @@ export class Message implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  isInvitation(n: UserNotification): boolean {
+    return n.type === 'ORGANIZATION_INVITE';
+  }
+
+  getInvitationId(n: UserNotification): number | null {
+    const link = n.link ?? '';
+    if (!/^\d+$/.test(link)) return null;
+    const id = Number(link);
+    return Number.isSafeInteger(id) ? id : null;
+  }
+
+  hasValidInvitationId(n: UserNotification): boolean {
+    return this.getInvitationId(n) !== null;
+  }
+
   onNotificationClick(n: UserNotification) {
-    if (!n.is_read) {
+    if (!n.is_read && !this.isInvitation(n)) {
       this.notificationService
         .markAsRead(n.id)
         .pipe(take(1))
@@ -84,7 +103,7 @@ export class Message implements OnInit, OnDestroy {
         });
     }
 
-    if (n.link) {
+    if (n.link && !this.isInvitation(n)) {
       this.isPanelOpen = false;
       void this.router.navigate([n.link]);
     }
@@ -107,10 +126,9 @@ export class Message implements OnInit, OnDestroy {
       .markAllAsRead()
       .pipe(take(1))
       .subscribe(() => {
-        this.notifications = this.notifications.map((n: UserNotification) => ({
-          ...n,
-          is_read: true,
-        }));
+        this.notifications = this.notifications.map((n: UserNotification) =>
+          this.isInvitation(n) ? n : { ...n, is_read: true },
+        );
         this.cdr.markForCheck();
       });
   }
@@ -121,8 +139,67 @@ export class Message implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe(() => {
         this.notifications = this.notifications.filter((n: UserNotification) => n.id !== id);
+        this.invitationStatus.delete(id);
+        this.invitationError.delete(id);
+        this.invitingInProgress.delete(id);
         this.total--;
         this.cdr.markForCheck();
+      });
+  }
+
+  acceptInvitation(n: UserNotification, event: Event): void {
+    event.stopPropagation();
+    if (this.invitingInProgress.has(n.id)) return;
+    const invitationId = this.getInvitationId(n);
+    if (invitationId === null) return;
+    this.invitingInProgress.add(n.id);
+    this.notificationService
+      .acceptInvitation(invitationId)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.invitingInProgress.delete(n.id);
+          this.invitationStatus.set(n.id, 'accepted');
+          this.invitationError.delete(n.id);
+          if (!n.is_read) this.markAsRead(n.id);
+          this.cdr.markForCheck();
+        },
+        error: (e: unknown) => {
+          this.invitingInProgress.delete(n.id);
+          this.invitationError.set(
+            n.id,
+            e instanceof Error ? e.message : 'Помилка. Спробуйте ще раз.',
+          );
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  rejectInvitation(n: UserNotification, event: Event): void {
+    event.stopPropagation();
+    if (this.invitingInProgress.has(n.id)) return;
+    const invitationId = this.getInvitationId(n);
+    if (invitationId === null) return;
+    this.invitingInProgress.add(n.id);
+    this.notificationService
+      .rejectInvitation(invitationId)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.invitingInProgress.delete(n.id);
+          this.invitationStatus.set(n.id, 'rejected');
+          this.invitationError.delete(n.id);
+          if (!n.is_read) this.markAsRead(n.id);
+          this.cdr.markForCheck();
+        },
+        error: (e: unknown) => {
+          this.invitingInProgress.delete(n.id);
+          this.invitationError.set(
+            n.id,
+            e instanceof Error ? e.message : 'Помилка. Спробуйте ще раз.',
+          );
+          this.cdr.markForCheck();
+        },
       });
   }
 
@@ -133,5 +210,9 @@ export class Message implements OnInit, OnDestroy {
 
   hasUnread(): boolean {
     return this.notifications.some((n: UserNotification) => !n.is_read);
+  }
+
+  hasNonInviteUnread(): boolean {
+    return this.notifications.some((n: UserNotification) => !n.is_read && !this.isInvitation(n));
   }
 }

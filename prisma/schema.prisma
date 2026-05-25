@@ -692,6 +692,7 @@ enum notification_type_enum {
   TICKET
   REWARD
   WARNING
+  ORGANIZATION_INVITE
 }
 
 enum notification_organization_type_enum {

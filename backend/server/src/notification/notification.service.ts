@@ -93,7 +93,11 @@ export class NotificationService {
 
   async markAllAsRead(currentUser: RequestUser) {
     return this.prisma.notification.updateMany({
-      where: { user_id: currentUser.id, is_read: false },
+      where: {
+        user_id: currentUser.id,
+        is_read: false,
+        type: { not: notification_type_enum.ORGANIZATION_INVITE },
+      },
       data: { is_read: true },
     });
   }
@@ -104,6 +108,7 @@ export class NotificationService {
         user_id: data.user_id,
         message: data.message,
         type: data.type ?? notification_type_enum.GENERAL,
+        ...(data.link !== undefined && { link: data.link }),
       },
     });
 
@@ -200,6 +205,7 @@ export class NotificationService {
         ...(data.user_id && { user_id: data.user_id }),
         ...(data.message && { message: data.message }),
         ...(data.type && { type: data.type }),
+        ...(data.link !== undefined && { link: data.link }),
       },
     });
   }
