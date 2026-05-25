@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ChangeDetectorRef,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppUser, FundraisingCampaign } from '../profile-user.model';
@@ -55,4 +62,3 @@ export class FundraisingCampaignsUser implements OnInit, OnChanges {
     this.isExpanded = this.uiHelper.toggleExpansion(this.isExpanded, target);
   }
 }
-

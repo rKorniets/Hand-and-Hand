@@ -56,7 +56,6 @@ export interface Reward {
   condition_count?: number;
 }
 
-
 export interface FundraisingCampaign {
   id: number;
   title: string;

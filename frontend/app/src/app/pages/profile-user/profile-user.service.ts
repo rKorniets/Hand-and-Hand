@@ -35,11 +35,9 @@ export class UserProfileService {
     return this.http.get<Reward[]>(`${this.apiUrl}/rewards`);
   }
 
-
   getMyTickets(): Observable<ITicket[]> {
     return this.http.get<ITicket[]>(`${this.apiUrl}/tickets/my`);
   }
-
 
   getFundraisingCampaigns(): Observable<FundraisingCampaignResponse> {
     return this.http.get<FundraisingCampaignResponse>(`${this.apiUrl}/fundraising_campaigns`);
