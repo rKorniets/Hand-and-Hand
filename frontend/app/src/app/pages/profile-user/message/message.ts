@@ -211,4 +211,8 @@ export class Message implements OnInit, OnDestroy {
   hasUnread(): boolean {
     return this.notifications.some((n: UserNotification) => !n.is_read);
   }
+
+  hasNonInviteUnread(): boolean {
+    return this.notifications.some((n: UserNotification) => !n.is_read && !this.isInvitation(n));
+  }
 }
