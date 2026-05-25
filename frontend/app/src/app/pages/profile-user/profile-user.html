@@ -17,7 +17,7 @@
           </section>
         }
 
-        @if (isVolunteer && isOwnProfile) {
+        @if (isOwnProfile && user?.role !== 'ORGANIZATION') {
           <section>
             <app-requests [user]="user" [isOwnProfile]="isOwnProfile"></app-requests>
           </section>

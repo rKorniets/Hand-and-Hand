@@ -1,4 +1,4 @@
-export type UserRole = 'VOLUNTEER' | 'APP_USER';
+export type UserRole = 'VOLUNTEER' | 'APP_USER' | 'ORGANIZATION';
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'PENDING';
 
 export enum TicketStatus {
