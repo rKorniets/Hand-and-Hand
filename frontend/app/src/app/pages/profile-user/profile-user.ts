@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription, switchMap } from 'rxjs';
 import { user_role_enum } from '@prisma/client';
 import { MainInfo } from './main-info/main-info';
-import { Activity } from './activity/activity';
 import { Requests } from './requests/requests';
 import { UserData } from './user-data/user-data';
 import { Achievement } from './achievement/achievement';
@@ -23,7 +22,6 @@ import { UpcomingEvents } from './upcoming-events/upcoming-events';
     CommonModule,
     RouterLink,
     MainInfo,
-    Activity,
     Requests,
     UserData,
     Achievement,
@@ -50,7 +48,7 @@ export class ProfileUserComponent implements OnInit, OnDestroy {
   ) {}
 
   get isVolunteer(): boolean {
-    return this.user?.role === 'VOLUNTEER';
+    return this.user?.role === 'VOLUNTEER' || !!this.user?.volunteer_profile;
   }
 
   ngOnInit(): void {

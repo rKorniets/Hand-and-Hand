@@ -18,10 +18,6 @@ import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { user_role_enum, ticket } from '@prisma/client';
-import {
-  AbstractCrudController,
-  IBaseCrudService,
-} from '../common/controllers/abstract-crud.controller';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
@@ -35,16 +31,14 @@ type RequestWithUser = {
 @ApiTags('Tickets')
 @Controller('tickets')
 @SkipThrottle()
-export class TicketController extends AbstractCrudController<ticket> {
-  constructor(private readonly service: TicketService) {
-    super(service as unknown as IBaseCrudService<ticket>);
-  }
+export class TicketController {
+  constructor(private readonly service: TicketService) {}
 
   @Get()
   @ApiBearerAuth()
   @Roles(user_role_enum.ORGANIZATION)
   @ApiOperation({ summary: 'Отримати список тікетів' })
-  async getAll(
+  async findAll(
     @Query() query: PaginationDto,
     @Req() req: RequestWithUser,
   ): Promise<ticket[]> {
@@ -57,6 +51,14 @@ export class TicketController extends AbstractCrudController<ticket> {
       query.tab,
       query.categories,
     );
+  }
+
+  @Get('my')
+  @ApiBearerAuth()
+  @Roles(user_role_enum.APP_USER, user_role_enum.VOLUNTEER)
+  @ApiOperation({ summary: 'Отримати мої тікети' })
+  async getMyTickets(@Req() req: RequestWithUser) {
+    return this.service.findMyTickets(req.user!.id);
   }
 
   @Get(':id')

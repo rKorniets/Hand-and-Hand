@@ -7,10 +7,6 @@
         </section>
 
         <section>
-          <app-activity [user]="user"></app-activity>
-        </section>
-
-        <section>
           <app-upcoming-events [user]="user" [isOwnProfile]="isOwnProfile"></app-upcoming-events>
         </section>
 
@@ -21,9 +17,11 @@
           </section>
         }
 
-        <section>
-          <app-requests [user]="user" [isOwnProfile]="isOwnProfile"></app-requests>
-        </section>
+        @if (isOwnProfile && user.role !== 'ORGANIZATION') {
+          <section>
+            <app-requests [user]="user" [isOwnProfile]="isOwnProfile"></app-requests>
+          </section>
+        }
       </div>
 
       <aside class="user__profile__page__sidebar">

@@ -15,7 +15,7 @@
     }
   </div>
 
-  @if (pastEvents.length === 0 && isOwnProfile) {
+  @if (isOwnProfile) {
     <button class="add-button" routerLink="/events">Знайти події +</button>
   }
 
@@ -47,7 +47,7 @@
               }
             </div>
             <div class="ticket-meta">
-              {{ item.project.organization_profile.name }}
+              {{ item.project.organization_profile.name || 'Організація' }}
             </div>
           </div>
 
@@ -56,13 +56,13 @@
       }
     </div>
   } @else {
-    <div class="tickets-list">
-      <p class="activity__empty-msg">
-        {{
-          isOwnProfile
-            ? 'У вас поки немає завершених подій.'
-            : 'У цього користувача поки немає завершених подій.'
-        }}
+    <div class="empty-state">
+      <p class="empty-message">
+        @if (isOwnProfile) {
+          У вас поки немає завершених подій
+        } @else {
+          У цього користувача немає завершених подій
+        }
       </p>
     </div>
   }
@@ -118,7 +118,7 @@
                 }
               </div>
               <div class="modal-card__org">
-                {{ item.project.organization_profile.name }}
+                {{ item.project.organization_profile.name || 'Організація' }}
               </div>
             </div>
 
