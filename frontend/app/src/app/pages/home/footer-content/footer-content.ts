@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { EventService } from '../../events/event.service';
 import { NewEvent } from '../../events/event.model';
 
@@ -16,6 +16,7 @@ export class FooterContent implements OnInit {
   constructor(
     private eventService: EventService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +33,13 @@ export class FooterContent implements OnInit {
       error: (err: unknown) => {
         console.error('Помилка запиту подій:', err);
       },
+    });
+  }
+
+  viewAllEvents(event: MouseEvent): void {
+    event.preventDefault();
+    this.router.navigate(['/events']).then(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 }

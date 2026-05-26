@@ -47,6 +47,22 @@ export interface PendingTicket {
   };
 }
 
+export interface PendingCampaign {
+  id: number;
+  title: string;
+  description: string;
+  created_at: string;
+  status: string;
+  organization_profile?: {
+    id: number;
+    name: string;
+  } | null;
+  volunteer_profile?: {
+    id: number;
+    display_name: string;
+  } | null;
+}
+
 export interface PendingNews {
   id: number;
   title: string;

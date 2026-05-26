@@ -19,20 +19,18 @@
       <div class="ap-section__empty">Немає організацій що очікують підтвердження</div>
     }
     @if (!loading && items.length > 0) {
-      <div class="ap-col-labels">
+      <div class="ap-col-labels" style="grid-template-columns: 2.5fr 1.8fr 2fr auto">
         <span>Назва</span>
         <span>ЄДРПОУ</span>
         <span>Email</span>
-        <span>Дата подачі</span>
         <span>Дії</span>
       </div>
       <div class="ap-card-list">
         @for (item of items; track item.id) {
-          <div class="ap-card">
+          <div class="ap-card" style="grid-template-columns: 2.5fr 1.8fr 2fr auto">
             <div class="ap-card__name">{{ item.submitter.organization_profile.name }}</div>
             <div class="ap-card__secondary">{{ item.submitter.organization_profile.edrpou }}</div>
             <div class="ap-card__email">{{ item.submitter.email }}</div>
-            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
             <div class="ap-card__actions">
               <button
                 class="ap-btn ap-btn--approve"
@@ -75,17 +73,17 @@
       <div class="ap-section__empty">Немає проєктів що очікують підтвердження</div>
     }
     @if (!projectsLoading && projects.length > 0) {
-      <div class="ap-col-labels">
+      <div class="ap-col-labels" style="grid-template-columns: 2.5fr 2fr 2fr auto">
         <span>Назва проєкту</span>
         <span>Організація</span>
         <span>Email</span>
-        <span>Дата подачі</span>
         <span>Дії</span>
       </div>
       <div class="ap-card-list">
         @for (item of projects; track item.id) {
           <div
             class="ap-card ap-card--clickable"
+            style="grid-template-columns: 2.5fr 2fr 2fr auto"
             role="button"
             tabindex="0"
             (click)="openProject(item.project.id)"
@@ -98,7 +96,6 @@
             </div>
             <div class="ap-card__secondary">{{ item.submitter.organization_profile.name }}</div>
             <div class="ap-card__email">{{ item.submitter.email }}</div>
-            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
             <div class="ap-card__actions" (click)="$event.stopPropagation()">
               <button
                 class="ap-btn ap-btn--approve"
@@ -141,7 +138,7 @@
       <div class="ap-section__empty">Немає запитів що очікують підтвердження</div>
     }
     @if (!ticketsLoading && tickets.length > 0) {
-      <div class="ap-col-labels">
+      <div class="ap-col-labels" style="grid-template-columns: 3fr 2fr 1.5fr auto">
         <span>Назва запиту</span>
         <span>Автор</span>
         <span>Дата подачі</span>
@@ -149,7 +146,15 @@
       </div>
       <div class="ap-card-list">
         @for (item of tickets; track item.id) {
-          <div class="ap-card">
+          <div
+            class="ap-card ap-card--clickable"
+            style="grid-template-columns: 3fr 2fr 1.5fr auto"
+            role="button"
+            tabindex="0"
+            (click)="openTicket(item.id)"
+            (keydown.enter)="openTicket(item.id)"
+            (keydown.space)="$event.preventDefault(); openTicket(item.id)"
+          >
             <div class="ap-card__name">{{ item.title }}</div>
             <div class="ap-card__secondary">
               @if (item.app_user.first_name || item.app_user.last_name) {
@@ -159,7 +164,8 @@
               }
             </div>
             <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
-            <div class="ap-card__actions">
+
+            <div class="ap-card__actions" (click)="$event.stopPropagation()">
               <button
                 class="ap-btn ap-btn--approve"
                 (click)="approveTicketAction(item.id)"
@@ -200,17 +206,17 @@
       <div class="ap-section__empty">Немає новин що очікують підтвердження</div>
     }
     @if (!newsLoading && pendingNews.length > 0) {
-      <div class="ap-col-labels">
+      <div class="ap-col-labels" style="grid-template-columns: 2.5fr 2fr 2fr auto">
         <span>Заголовок новини</span>
         <span>Організація</span>
         <span>Email</span>
-        <span>Дата подачі</span>
         <span>Дії</span>
       </div>
       <div class="ap-card-list">
         @for (item of pendingNews; track item.id) {
           <div
             class="ap-card ap-card--clickable"
+            style="grid-template-columns: 2.5fr 2fr 2fr auto"
             role="button"
             tabindex="0"
             (click)="openNews(item.id)"
@@ -226,7 +232,6 @@
               }
             </div>
             <div class="ap-card__email">{{ item.organization?.contact_email }}</div>
-            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
             <div class="ap-card__actions" (click)="$event.stopPropagation()">
               <button
                 class="ap-btn ap-btn--approve"
@@ -241,6 +246,67 @@
                 [disabled]="newsActionLoading === item.id"
               >
                 {{ newsActionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Збори на розгляді</h2>
+      @if (!campaignsLoading && campaigns.length > 0) {
+        <span class="ap-section__pill">{{ campaigns.length }} очікують</span>
+      } @else if (!campaignsLoading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (campaignsLoading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (campaignsError) {
+      <p class="ap-section__error">{{ campaignsError }}</p>
+    }
+    @if (!campaignsLoading && campaigns.length === 0) {
+      <div class="ap-section__empty">Немає зборів що очікують підтвердження</div>
+    }
+    @if (!campaignsLoading && campaigns.length > 0) {
+      <div class="ap-col-labels" style="grid-template-columns: 2.5fr 2fr 1.5fr auto">
+        <span>Назва</span>
+        <span>Організатор</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of campaigns; track item.id) {
+          <div class="ap-card" style="grid-template-columns: 2.5fr 2fr 1.5fr auto">
+            <div class="ap-card__name">{{ item.title }}</div>
+            <div class="ap-card__secondary">
+              @if (item.organization_profile?.name) {
+                {{ item.organization_profile?.name }}
+              } @else if (item.volunteer_profile?.display_name) {
+                {{ item.volunteer_profile?.display_name }}
+              } @else {
+                Організатор
+              }
+            </div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveCampaign(item.id)"
+                [disabled]="campaignActionLoading === item.id"
+              >
+                {{ campaignActionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectCampaign(item.id)"
+                [disabled]="campaignActionLoading === item.id"
+              >
+                {{ campaignActionLoading === item.id ? '...' : 'Відхилити' }}
               </button>
             </div>
           </div>

@@ -51,6 +51,7 @@ export interface FundraisingCampaign {
   id: number;
   title: string;
   description: string;
+  image_url?: string | null;
   organization_profile: {
     name: string;
   };
