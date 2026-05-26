@@ -24,7 +24,7 @@
   &__item {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
     padding: 20px 24px;
     background-color: $bg-color-block;
@@ -36,8 +36,6 @@
     transition:
       background-color 0.2s ease,
       transform 0.2s ease;
-    height: 100%;
-
     &:hover {
       background-color: color.adjust(#f3f3f3, $lightness: -5%);
       transform: translateY(-2px);

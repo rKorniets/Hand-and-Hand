@@ -80,6 +80,7 @@
                 <button routerLink="/login" class="event-detail__apply-btn">
                   Увійдіть щоб подати заявку
                 </button>
+              } @else if (!isEventApproved) {
               } @else {
                 @if (myRegistration?.status === Status.PENDING) {
                   <p class="event-detail__status-pending">Заявку подано — очікуйте розгляду</p>

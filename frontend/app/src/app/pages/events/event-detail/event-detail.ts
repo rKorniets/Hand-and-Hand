@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EventService } from '../event.service';
 import { AuthService } from '../../auth/auth.service';
 import { NewEvent, ProjectRegistration, ProjectRegistrationStatus } from '../event.model';
-import { user_role_enum } from '@prisma/client';
+import { user_role_enum, project_status_enum } from '@prisma/client';
 
 @Component({
   selector: 'app-event-detail',
@@ -137,5 +137,8 @@ export class EventDetailComponent implements OnInit {
 
   get isOrganization(): boolean {
     return this.authService.getRole() === user_role_enum.ORGANIZATION;
+  }
+  get isEventApproved(): boolean {
+    return this.event?.status === project_status_enum.ACTIVE;
   }
 }

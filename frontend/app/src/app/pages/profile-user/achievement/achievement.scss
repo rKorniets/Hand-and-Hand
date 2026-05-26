@@ -1,20 +1,21 @@
 .achievements-wrapper {
-  background: var(--bg-secondary, #ffffff);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+  background: #f3f3f3;
+  border-radius: 16px;
+  padding: 5px 20px 20px;
+  margin-bottom: 0;
 
   .header {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 16px;
+    margin-bottom: 5px;
+    padding: 5px 0 16px;
 
     h3 {
       margin: 0;
-      font-size: 1.2rem;
-      color: var(--text-primary, #333);
+      font-size: 36px;
+      font-weight: 700;
+      color: #444;
     }
 
     .badge-count {
