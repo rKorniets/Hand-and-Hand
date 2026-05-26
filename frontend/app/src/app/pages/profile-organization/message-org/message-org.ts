@@ -84,8 +84,7 @@ export class MessageOrg implements OnInit, OnDestroy {
 
   isActionable(n: OrgNotification): boolean {
     return (
-      n.type === this.NotificationType.REGISTRATION ||
-      n.type === this.NotificationType.JOININGORG
+      n.type === this.NotificationType.REGISTRATION || n.type === this.NotificationType.JOININGORG
     );
   }
 
