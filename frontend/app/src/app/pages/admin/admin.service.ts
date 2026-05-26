@@ -1,7 +1,13 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../../tokens';
-import { PendingNews, PendingOrganization, PendingProject, PendingTicket } from './admin.model';
+import {
+  PendingNews,
+  PendingOrganization,
+  PendingProject,
+  PendingTicket,
+  PendingCampaign,
+} from './admin.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -52,6 +58,24 @@ export class AdminService {
     return this.http.get<PendingTicket[]>(
       `${this.apiUrl}/admin/tickets/pending${this.getNoCacheParam()}`,
     );
+  }
+
+  getPendingCampaigns() {
+    return this.http.get<{ data: PendingCampaign[]; total: number }>(
+      `${this.apiUrl}/admin/campaigns?status=DRAFT`,
+    );
+  }
+
+  approveCampaign(campaignId: number) {
+    return this.http.patch(`${this.apiUrl}/admin/campaigns/${campaignId}/status`, {
+      status: 'ACTIVE',
+    });
+  }
+
+  rejectCampaign(campaignId: number) {
+    return this.http.patch(`${this.apiUrl}/admin/campaigns/${campaignId}/status`, {
+      status: 'CANCELLED',
+    });
   }
 
   getOpenTickets() {

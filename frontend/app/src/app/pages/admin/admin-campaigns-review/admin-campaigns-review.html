@@ -1,0 +1,63 @@
+<div class="admin-panel">
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Збори на розгляді</h2>
+      @if (!loading && campaigns.length > 0) {
+        <span class="ap-section__pill">{{ campaigns.length }} очікують</span>
+      } @else if (!loading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (loading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (error) {
+      <p class="ap-section__error">{{ error }}</p>
+    }
+    @if (!loading && campaigns.length === 0) {
+      <div class="ap-section__empty">Немає зборів що очікують підтвердження</div>
+    }
+    @if (!loading && campaigns.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва</span>
+        <span>Організатор</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of campaigns; track item.id) {
+          <div class="ap-card">
+            <div class="ap-card__name">{{ item.title }}</div>
+            <div class="ap-card__secondary">
+              @if (item.organization_profile?.name) {
+                {{ item.organization_profile?.name }}
+              } @else if (item.volunteer_profile?.display_name) {
+                {{ item.volunteer_profile?.display_name }}
+              } @else {
+                Організатор
+              }
+            </div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveCampaign(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectCampaign(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

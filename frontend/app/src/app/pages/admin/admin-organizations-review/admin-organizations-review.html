@@ -1,0 +1,57 @@
+<div class="admin-panel">
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Організації на розгляді</h2>
+      @if (!loading && items.length > 0) {
+        <span class="ap-section__pill">{{ items.length }} очікують</span>
+      } @else if (!loading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (loading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (error) {
+      <p class="ap-section__error">{{ error }}</p>
+    }
+    @if (!loading && items.length === 0) {
+      <div class="ap-section__empty">Немає організацій що очікують підтвердження</div>
+    }
+    @if (!loading && items.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва</span>
+        <span>ЄДРПОУ</span>
+        <span>Email</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of items; track item.id) {
+          <div class="ap-card">
+            <div class="ap-card__name">{{ item.submitter.organization_profile.name }}</div>
+            <div class="ap-card__secondary">{{ item.submitter.organization_profile.edrpou }}</div>
+            <div class="ap-card__email">{{ item.submitter.email }}</div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approve(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="reject(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

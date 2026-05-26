@@ -1,0 +1,67 @@
+<div class="admin-panel">
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Проєкти на розгляді</h2>
+      @if (!loading && projects.length > 0) {
+        <span class="ap-section__pill">{{ projects.length }} очікують</span>
+      } @else if (!loading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (loading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (error) {
+      <p class="ap-section__error">{{ error }}</p>
+    }
+    @if (!loading && projects.length === 0) {
+      <div class="ap-section__empty">Немає проєктів що очікують підтвердження</div>
+    }
+    @if (!loading && projects.length > 0) {
+      <div class="ap-col-labels">
+        <span>Назва проєкту</span>
+        <span>Організація</span>
+        <span>Email</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of projects; track item.id) {
+          <div
+            class="ap-card ap-card--clickable"
+            role="button"
+            tabindex="0"
+            (click)="openProject(item.project.id)"
+            (keydown.enter)="openProject(item.project.id)"
+            (keydown.space)="$event.preventDefault(); openProject(item.project.id)"
+          >
+            <div>
+              <div class="ap-card__name">{{ item.project.title }}</div>
+              <div class="ap-card__hint">Проєкт на розгляді</div>
+            </div>
+            <div class="ap-card__secondary">{{ item.submitter.organization_profile.name }}</div>
+            <div class="ap-card__email">{{ item.submitter.email }}</div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+            <div class="ap-card__actions" (click)="$event.stopPropagation()">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveProject(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectProject(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

@@ -1,0 +1,70 @@
+<div class="admin-panel">
+  <section class="ap-section">
+    <div class="ap-section__top">
+      <h2 class="ap-section__title">Запити на розгляді</h2>
+      @if (!loading && tickets.length > 0) {
+        <span class="ap-section__pill">{{ tickets.length }} очікують</span>
+      } @else if (!loading) {
+        <span class="ap-section__pill ap-section__pill--empty">0 очікують</span>
+      }
+    </div>
+
+    @if (loading) {
+      <p class="ap-section__status">Завантаження...</p>
+    }
+    @if (error) {
+      <p class="ap-section__error">{{ error }}</p>
+    }
+    @if (!loading && tickets.length === 0) {
+      <div class="ap-section__empty">Немає запитів що очікують підтвердження</div>
+    }
+    @if (!loading && tickets.length > 0) {
+      <div class="ap-col-labels" style="grid-template-columns: 3fr 2fr 1.5fr auto">
+        <span>Назва запиту</span>
+        <span>Автор</span>
+        <span>Дата подачі</span>
+        <span>Дії</span>
+      </div>
+      <div class="ap-card-list">
+        @for (item of tickets; track item.id) {
+          <div
+            class="ap-card ap-card--clickable"
+            style="grid-template-columns: 3fr 2fr 1.5fr auto"
+            role="button"
+            tabindex="0"
+            (click)="openTicket(item.id)"
+            (keydown.enter)="openTicket(item.id)"
+            (keydown.space)="$event.preventDefault(); openTicket(item.id)"
+          >
+            <div class="ap-card__name">{{ item.title }}</div>
+            <div class="ap-card__secondary">
+              @if (item.app_user.first_name || item.app_user.last_name) {
+                {{ item.app_user.first_name }} {{ item.app_user.last_name }}
+              } @else {
+                {{ item.app_user.email }}
+              }
+            </div>
+            <div class="ap-card__date">{{ item.created_at | date: 'dd.MM.yyyy' }}</div>
+
+            <div class="ap-card__actions" (click)="$event.stopPropagation()">
+              <button
+                class="ap-btn ap-btn--approve"
+                (click)="approveTicket(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Прийняти' }}
+              </button>
+              <button
+                class="ap-btn ap-btn--reject"
+                (click)="rejectTicket(item.id)"
+                [disabled]="actionLoading === item.id"
+              >
+                {{ actionLoading === item.id ? '...' : 'Відхилити' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

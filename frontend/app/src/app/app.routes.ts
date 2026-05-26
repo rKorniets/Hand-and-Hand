@@ -17,6 +17,11 @@ import { LoginComponent } from './pages/auth/login/login';
 import { RegisterComponent } from './pages/auth/register/register';
 import { AdminProfileComponent } from './pages/admin/admin-profile/admin-profile';
 import { AdminPanelComponent } from './pages/admin/admin-panel/admin-panel';
+import { AdminOrganizationsReviewComponent } from './pages/admin/admin-organizations-review/admin-organizations-review';
+import { AdminProjectsReviewComponent } from './pages/admin/admin-projects-review/admin-projects-review';
+import { AdminTicketsReviewComponent } from './pages/admin/admin-tickets-review/admin-tickets-review';
+import { AdminNewsReviewComponent } from './pages/admin/admin-news-review/admin-news-review';
+import { AdminCampaignsReviewComponent } from './pages/admin/admin-campaigns-review/admin-campaigns-review';
 import { ProfileOrganization } from './pages/profile-organization/profile-organization';
 import { ProfileUserComponent } from './pages/profile-user/profile-user';
 import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
@@ -54,6 +59,31 @@ export const routes: Routes = [
   {
     path: 'admin/panel',
     component: AdminPanelComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/organizations-review',
+    component: AdminOrganizationsReviewComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/projects-review',
+    component: AdminProjectsReviewComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/tickets-review',
+    component: AdminTicketsReviewComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/news-review',
+    component: AdminNewsReviewComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/campaigns-review',
+    component: AdminCampaignsReviewComponent,
     canActivate: [authGuard],
   },
   { path: 'profile-organization', component: ProfileOrganization, canActivate: [authGuard] },

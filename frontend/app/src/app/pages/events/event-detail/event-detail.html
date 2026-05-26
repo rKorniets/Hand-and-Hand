@@ -35,7 +35,6 @@
                 @if (event.category) {
                   <p><strong>Категорія:</strong> {{ event.category.name }}</p>
                 }
-                <p><strong>Статус:</strong> {{ event.status }}</p>
               </div>
             </div>
 
@@ -78,7 +77,7 @@
             <div class="event-detail__apply">
               @if (!isLoggedIn) {
                 <button routerLink="/login" class="event-detail__apply-btn">
-                  Увійдіть щоб подати заявку
+                  Увійдіть, щоб подати заявку
                 </button>
               } @else if (!isEventApproved) {
               } @else {

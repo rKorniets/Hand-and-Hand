@@ -2,7 +2,13 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
-import { PendingNews, PendingOrganization, PendingProject, PendingTicket } from '../admin.model';
+import {
+  PendingNews,
+  PendingOrganization,
+  PendingProject,
+  PendingTicket,
+  PendingCampaign,
+} from '../admin.model';
 
 @Component({
   selector: 'app-admin-panel',
@@ -21,6 +27,11 @@ export class AdminPanelComponent implements OnInit {
   projectsLoading = true;
   projectsError = '';
   projectActionLoading: number | null = null;
+
+  campaigns: PendingCampaign[] = [];
+  campaignsLoading = true;
+  campaignsError = '';
+  campaignActionLoading: number | null = null;
 
   tickets: PendingTicket[] = [];
   ticketsLoading = true;
@@ -41,6 +52,7 @@ export class AdminPanelComponent implements OnInit {
   ngOnInit() {
     this.loadOrganizations();
     this.loadProjects();
+    this.loadCampaigns();
     this.loadTickets();
     this.loadPendingNews();
   }
@@ -72,6 +84,22 @@ export class AdminPanelComponent implements OnInit {
       error: () => {
         this.projectsError = 'Помилка завантаження';
         this.projectsLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadCampaigns() {
+    this.campaignsLoading = true;
+    this.adminService.getPendingCampaigns().subscribe({
+      next: (res) => {
+        this.campaigns = Array.isArray(res.data) ? res.data : [];
+        this.campaignsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.campaignsError = 'Помилка завантаження';
+        this.campaignsLoading = false;
         this.cdr.detectChanges();
       },
     });
@@ -111,6 +139,10 @@ export class AdminPanelComponent implements OnInit {
 
   openProject(projectId: number) {
     this.router.navigate(['/events', projectId]);
+  }
+
+  openTicket(ticketId: number) {
+    this.router.navigate(['/tickets', ticketId]);
   }
 
   approve(id: number) {
@@ -156,6 +188,30 @@ export class AdminPanelComponent implements OnInit {
       error: () => {
         this.projectsError = 'Помилка відхилення';
         this.projectActionLoading = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  approveCampaign(id: number) {
+    this.campaignActionLoading = id;
+    this.adminService.approveCampaign(id).subscribe({
+      next: () => this.removeCampaignFromList(id),
+      error: () => {
+        this.campaignsError = 'Помилка підтвердження';
+        this.campaignActionLoading = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  rejectCampaign(id: number) {
+    this.campaignActionLoading = id;
+    this.adminService.rejectCampaign(id).subscribe({
+      next: () => this.removeCampaignFromList(id),
+      error: () => {
+        this.campaignsError = 'Помилка відхилення';
+        this.campaignActionLoading = null;
         this.cdr.detectChanges();
       },
     });
@@ -236,6 +292,12 @@ export class AdminPanelComponent implements OnInit {
   private removeNewsFromList(id: number) {
     this.pendingNews = this.pendingNews.filter((n) => n.id !== id);
     this.newsActionLoading = null;
+    this.cdr.detectChanges();
+  }
+
+  private removeCampaignFromList(id: number) {
+    this.campaigns = this.campaigns.filter((c) => c.id !== id);
+    this.campaignActionLoading = null;
     this.cdr.detectChanges();
   }
 }
