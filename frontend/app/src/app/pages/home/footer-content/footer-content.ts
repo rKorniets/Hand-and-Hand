@@ -23,7 +23,7 @@ export class FooterContent implements OnInit {
       next: (response) => {
         if (response && response.data) {
           setTimeout(() => {
-            this.events = response.data.slice(0, 5);
+            this.events = response.data.slice(0, 6);
 
             this.cdr.detectChanges();
           }, 0);

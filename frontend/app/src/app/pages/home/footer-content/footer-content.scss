@@ -2,7 +2,7 @@
 
 .home__footer {
   padding: 40px 250px;
-  max-width: 1400px;
+  max-width: 1500px;
   margin: 0 auto;
   width: 100%;
 
@@ -16,7 +16,7 @@
   }
 
   &__title {
-    font-size: 50px;
+    font-size: 60px;
     font-weight: 700;
     color: #000000;
     margin: 0;
@@ -35,7 +35,8 @@
     text-decoration: none;
     border-radius: 14px;
     transition: opacity 0.2s ease-in-out;
-    margin: -100px;
+    margin-left: -5px;
+    margin-bottom: -20px;
 
     &:hover {
       opacity: 0.9;
