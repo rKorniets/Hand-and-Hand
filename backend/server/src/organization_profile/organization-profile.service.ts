@@ -13,6 +13,7 @@ import {
   user_role_enum,
   verification_status_enum,
   notification_type_enum,
+  notification_organization_type_enum,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationProfileDto } from './dto/create-organization-profile.dto';
@@ -781,7 +782,7 @@ export class OrganizationProfileService {
   async leaveOrganization(orgId: number, currentUser: RequestUser) {
     const user = await this.prisma.app_user.findUnique({
       where: { id: currentUser.id },
-      select: { organization_id: true },
+      select: { organization_id: true, first_name: true, last_name: true },
     });
 
     if (!user?.organization_id || user.organization_id !== orgId) {
@@ -790,9 +791,26 @@ export class OrganizationProfileService {
       );
     }
 
-    return this.prisma.app_user.update({
-      where: { id: currentUser.id },
-      data: { organization_id: null },
+    const fullName =
+      [user.first_name, user.last_name].filter(Boolean).join(' ').trim() ||
+      'Користувач';
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.app_user.update({
+        where: { id: currentUser.id },
+        data: { organization_id: null },
+      });
+
+      await tx.notification_organization.create({
+        data: {
+          organization_id: orgId,
+          message: `${fullName} покинув(ла) вашу організацію`,
+          type: notification_organization_type_enum.GENERAL,
+          actor_id: currentUser.id,
+        },
+      });
+
+      return updated;
     });
   }
 

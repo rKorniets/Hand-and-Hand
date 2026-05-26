@@ -9,7 +9,6 @@ import {
   Report,
   OrgMember,
   RegistrationData,
-  MembershipRequest,
   MembershipStatus,
   AvailableUser,
   PendingMembershipRequest,
@@ -137,20 +136,6 @@ export class OrganizationProfileService {
       {},
     );
   }
-  acceptLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
-    return this.http.patch<MembershipRequest>(
-      `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/accept`,
-      {},
-    );
-  }
-
-  rejectLeaveRequest(orgId: number, requestId: number): Observable<MembershipRequest> {
-    return this.http.patch<MembershipRequest>(
-      `${this.apiUrl}/organization-profiles/${orgId}/leave-requests/${requestId}/reject`,
-      {},
-    );
-  }
-
   getAvailableUsers(orgId: number, search?: string, limit = 20): Observable<AvailableUser[]> {
     let params = new HttpParams().set('limit', String(limit));
     if (search) params = params.set('search', search);

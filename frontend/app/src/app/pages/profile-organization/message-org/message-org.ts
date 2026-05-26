@@ -84,9 +84,7 @@ export class MessageOrg implements OnInit, OnDestroy {
 
   isActionable(n: OrgNotification): boolean {
     return (
-      n.type === this.NotificationType.REGISTRATION ||
-      n.type === this.NotificationType.JOININGORG ||
-      n.type === this.NotificationType.LEAVE_REQUEST
+      n.type === this.NotificationType.REGISTRATION || n.type === this.NotificationType.JOININGORG
     );
   }
 
@@ -147,7 +145,6 @@ export class MessageOrg implements OnInit, OnDestroy {
 
   onAccept(n: OrgNotification) {
     const regId = n.registration_data?.id;
-    const orgId = this.organization?.id;
     if (!regId) return;
 
     if (n.type === this.NotificationType.REGISTRATION && n.project_id) {
@@ -166,20 +163,11 @@ export class MessageOrg implements OnInit, OnDestroy {
           next: () => this.updateUIAfterAction(n, this.RegistrationStatus.ACCEPTED),
           error: (err) => console.error(err),
         });
-    } else if (n.type === this.NotificationType.LEAVE_REQUEST && orgId) {
-      this.orgProfileService
-        .acceptLeaveRequest(orgId, regId)
-        .pipe(take(1))
-        .subscribe({
-          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.ACCEPTED),
-          error: (err) => console.error(err),
-        });
     }
   }
 
   onReject(n: OrgNotification) {
     const regId = n.registration_data?.id;
-    const orgId = this.organization?.id;
     if (!regId) return;
 
     if (n.type === this.NotificationType.REGISTRATION && n.project_id) {
@@ -193,14 +181,6 @@ export class MessageOrg implements OnInit, OnDestroy {
     } else if (n.type === this.NotificationType.JOININGORG) {
       this.orgProfileService
         .rejectOrganizationMember(regId)
-        .pipe(take(1))
-        .subscribe({
-          next: () => this.updateUIAfterAction(n, this.RegistrationStatus.REJECTED),
-          error: (err) => console.error(err),
-        });
-    } else if (n.type === this.NotificationType.LEAVE_REQUEST && orgId) {
-      this.orgProfileService
-        .rejectLeaveRequest(orgId, regId)
         .pipe(take(1))
         .subscribe({
           next: () => this.updateUIAfterAction(n, this.RegistrationStatus.REJECTED),

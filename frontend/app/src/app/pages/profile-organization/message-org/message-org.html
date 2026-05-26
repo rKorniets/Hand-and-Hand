@@ -44,9 +44,7 @@
         </div>
 
         @if (
-          (n.type === NotificationType.REGISTRATION ||
-            n.type === NotificationType.JOININGORG ||
-            n.type === NotificationType.LEAVE_REQUEST) &&
+          (n.type === NotificationType.REGISTRATION || n.type === NotificationType.JOININGORG) &&
           n.registration_data
         ) {
           <div class="message-org__notification-logic" (click)="$event.stopPropagation()">
