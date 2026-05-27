@@ -2402,7 +2402,17 @@ INSERT INTO project_registration (project_id, user_id, status, reviewed_at, revi
   -- Project 29
   (29, 18, 'ACCEPTED', NOW() - INTERVAL '1 day',  8),
   (29, 20, 'ACCEPTED', NOW() - INTERVAL '1 day',  8),
-  (29, 29, 'PENDING',  NULL, NULL);
+  (29, 29, 'PENDING',  NULL, NULL),
+  -- Марія (user@demo.local, id=6) — 9 завершених подій (разом з project 26 = 10)
+  (2,  6,  'ACCEPTED', NOW() - INTERVAL '10 days', 2),
+  (3,  6,  'ACCEPTED', NOW() - INTERVAL '9 days',  3),
+  (4,  6,  'ACCEPTED', NOW() - INTERVAL '8 days',  3),
+  (5,  6,  'ACCEPTED', NOW() - INTERVAL '7 days',  7),
+  (7,  6,  'ACCEPTED', NOW() - INTERVAL '6 days',  9),
+  (8,  6,  'ACCEPTED', NOW() - INTERVAL '5 days',  11),
+  (9,  6,  'ACCEPTED', NOW() - INTERVAL '4 days',  14),
+  (10, 6,  'ACCEPTED', NOW() - INTERVAL '3 days',  15),
+  (11, 6,  'ACCEPTED', NOW() - INTERVAL '2 days',  16);
 
 SELECT setval('project_registration_id_seq', (SELECT MAX(id) FROM project_registration));
 
