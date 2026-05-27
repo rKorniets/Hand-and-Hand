@@ -965,10 +965,15 @@ INSERT INTO reward (id, title, description, cost_points, stock, is_active) VALUE
   (12, 'Участь у тренінгу координаторів', 'Місце на практичному тренінгу з організації волонтерських подій', 250,  25,  TRUE),
   (13, 'Фірмова кепка Hand&Hand',  'Вишита кепка з логотипом',                        120,  80,  TRUE);
 
+INSERT INTO reward (id, title, description, cost_points, stock, is_active, type, condition_count) VALUES
+  (14, 'Перший крок',        'Виконано першу волонтерську задачу',               0, 9999, TRUE, 'ACHIEVEMENT', 1),
+  (15, 'Активний учасник',   'Взяв участь у 5 заходах',                          0, 9999, TRUE, 'ACHIEVEMENT', 5),
+  (16, 'Серце організації',  'Член організації понад 30 днів',                   0, 9999, TRUE, 'ACHIEVEMENT', 30);
+
 SELECT setval('reward_id_seq', (SELECT MAX(id) FROM reward));
 
 -- ============================================================================
--- 16. REWARD_REDEMPTION (13 викупів нагород)
+-- 16. REWARD_REDEMPTION (14 викупів нагород)
 -- ============================================================================
 INSERT INTO reward_redemption (reward_id, user_id) VALUES
   (4,  4),   -- Анна → Сертифікат
@@ -983,7 +988,8 @@ INSERT INTO reward_redemption (reward_id, user_id) VALUES
   (6,  25),  -- Богдан → Квиток
   (4,  26),  -- Анастасія → Сертифікат
   (3,  27),  -- Андрій → Кружка
-  (9,  28);  -- Ольга → Значок
+  (9,  28),  -- Ольга → Значок
+  (14, 6);   -- Марія (user@demo.local) → Досягнення «Перший крок»
 
 -- ============================================================================
 -- 17. POINTS_TRANSACTION (15 операцій)
